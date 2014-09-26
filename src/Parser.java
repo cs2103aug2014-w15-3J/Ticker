@@ -33,6 +33,11 @@ public class Parser {
 		if (words[0].equals("edit")){
 			callEdit(words);
 		}
+		
+		if (words[0].equals("list")){
+			callList(words);
+		}
+		
 	}
 	
 	private void callAdd(String[] words){
@@ -59,7 +64,24 @@ public class Parser {
 	
 	}
 	
+	private void callList (String[] words){
+		
+		
+		
+	}
+	
+	private static String removeBlank(String str){
+		str=str.trim();
+		for (int i=0;i<str.length();i++){
+			while (str.charAt(i)==' ')
+				str = str.substring(0,i)+str.substring(i+1);
+			if (i==str.length()) return str;
+		}
+		return str;
+	}
+	
 	private Time constructTime(String str){
+		str=removeBlank(str);
 		int firstIndex = str.indexOf(':');
 		int lastIndex = str.lastIndexOf(':');
 		
@@ -81,7 +103,20 @@ public class Parser {
 	}
 	
 	
-	private Date constructDate(String str){
+	private Date constructDate(int date,String month){
+		final int[] numOfDays = {0,31,28,31,30,31,30,31,31,30,31,30,31};
+		final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+		int monthNum = 0;
+		for (int i=0;i<months.length;i++){
+			if (months[i].equals(month)){
+				monthNum = i;
+				break;
+			}
+		
+		if (monthNum!=0&&date<=numOfDays[monthNum])
+			return new Date(2014,monthNum,date);
+		}  // hard coded to 2014, will solve this issue later
+		
 		return null;
 	}
 

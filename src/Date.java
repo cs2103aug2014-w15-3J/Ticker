@@ -9,7 +9,7 @@ public class Date {
 	private int year;
 	private int month;
 	private int date;
-	private static final String[] months = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+	private static final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 	
 	/*
 	public static void main(String[] args){
