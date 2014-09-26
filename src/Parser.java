@@ -1,6 +1,5 @@
 import java.util.Scanner;
 
-
 public class Parser {
 
 	Scanner sc;
@@ -19,7 +18,15 @@ public class Parser {
 		}
 	
 		if (words[0].equals("add")){
-			callAdd(words);
+			String description = null;
+			int firstIndex = command.indexOf('"');
+			if (firstIndex == -1) return;
+			int secondIndex = command.indexOf('"',firstIndex+1);
+			if (secondIndex != command.lastIndexOf('"')) return;
+			
+			description = command.substring(firstIndex+1,secondIndex);
+			callAdd(words,description);
+		
 		}
 		
 		if (words[0].equals("delete")){
@@ -40,7 +47,7 @@ public class Parser {
 		
 	}
 	
-	private void callAdd(String[] words){
+	private void callAdd(String[] words,String description){
 		
 		
 		
@@ -119,5 +126,4 @@ public class Parser {
 		
 		return null;
 	}
-
 }
