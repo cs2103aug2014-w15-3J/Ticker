@@ -1,14 +1,11 @@
 import java.util.Scanner;
-import java.util.Vector;
 
 public class Parser {
 
 	Scanner sc;
-	Vector<Task> tasks;
 	
 	public Parser(){
 		sc = new Scanner(System.in);
-		tasks = new Vector<Task>();
 	}
 
 	public void getCommand(){
@@ -33,7 +30,7 @@ public class Parser {
 		}
 		
 		if (words[0].equals("delete")){
-			tasks = callDelete(words);
+			callDelete(words);
 		}
 		
 		if (words[0].equals("search")){
@@ -41,42 +38,102 @@ public class Parser {
 		}
 		
 		if (words[0].equals("edit")){
-			callEdit(words);
+			callEdit(words,command);
 		}
 		
 		if (words[0].equals("list")){
-			tasks = callList(words);
+			callList(words);
 		}
 		
 	}
 	
 	private void callAdd(String[] words,String description){
+		Time st = null;
+		Time et = null;
+		Date sd = null;
+		Date ed = null;
+		Boolean isRepeating = false;
 		
+		for (int i=0;i<words.length;i++){
+			
+			if (words[i].equals("-st")){
+				st = constructTime(words[i+1]);
+			
+				if (st==null){
+					System.out.println("Error");
+					return;
+				}
+			}
+			
+			if (words[i].equals("-et")){
+				et = constructTime(words[i+1]);
+			
+				if (et==null){
+					System.out.println("Error");
+					return;
+				}
+			}
+			
+			if (words[i].equals("-sd")){
+				sd = constructDate(words[i+1]);
+			
+				if (sd==null){
+					System.out.println("Error");
+					return;
+				}
+			}
+			
+			if (words[i].equals("-ed")){
+				ed = constructDate(words[i+1]);
+			
+				if (ed==null){
+					System.out.println("Error");
+					return;
+				}
+			}
+			
+			if (words[i].equals("-r")){
+				isRepeating = true;
+			}
+		}
 		
+		Ticker.getTicker().getLogic().add(description,isRepeating,sd,ed,st,et);
+	}
+	
+	private void callDelete(String[] words){
+		
+		Ticker.getTicker().getLogic().delete(Integer.parseInt(words[1]));
 		
 	}
 	
-	private Vector<Task> callDelete(String[] words){
+	private void callEdit(String[] words,String command){
+		String description = "";
 		
-		return Ticker.getTicker().delete(tasks.remove(Integer.parseInt(words[1])));
+		if (command.indexOf('"')!=-1&&command.lastIndexOf('"')>command.indexOf('"'))
+			description = command.substring(command.indexOf('"')+1,command.lastIndexOf('"'));
+			
+		int index = Integer.parseInt(words[1]); 
+		boolean isAppending = false;
 		
+		for (int i=0;i<words.length;i++){
+			if (words[i].equals("-a")){
+				isAppending = true;
+				break;
+			}
+		}
+			
+		Ticker.getTicker().getLogic().edit(index,isAppending,description);
 	}
 	
-	private void callEdit(String[] words){
+	private void callSearch(String str){
 		
-		
-		
-	}
-	
-	private Vector<Task> callSearch(String str){
-		
-		return Ticker.getTicker().search(str);
+		Ticker.getTicker().getLogic().search(str);
 	
 	}
 	
-	private Vector<Task> callList (String[] words){
+	private void callList (String[] words){
 		
-		return Ticker.getTicker().list();
+		Ticker.getTicker().getLogic().list();
 		
 	}
 	
@@ -115,7 +172,13 @@ public class Parser {
 	}
 	
 	
-	private Date constructDate(int date,String month){
+	private Date constructDate(String str){
+		
+		int index = str.indexOf(",");
+		
+		String month = str.substring(index+1);
+		int date = Integer.parseInt(str.substring(0,index));
+		
 		final int[] numOfDays = {0,31,28,31,30,31,30,31,31,30,31,30,31};
 		final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 		int monthNum = 0;
