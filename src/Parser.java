@@ -1,11 +1,14 @@
 import java.util.Scanner;
+import java.util.Vector;
 
 public class Parser {
 
 	Scanner sc;
+	Vector<Task> tasks;
 	
 	public Parser(){
 		sc = new Scanner(System.in);
+		tasks = new Vector<Task>();
 	}
 
 	public void getCommand(){
@@ -30,11 +33,11 @@ public class Parser {
 		}
 		
 		if (words[0].equals("delete")){
-			callDelete(words);
+			tasks = callDelete(words);
 		}
 		
 		if (words[0].equals("search")){
-			callSearch(words);
+			callSearch(command.substring(command.lastIndexOf("\"")).trim());
 		}
 		
 		if (words[0].equals("edit")){
@@ -42,7 +45,7 @@ public class Parser {
 		}
 		
 		if (words[0].equals("list")){
-			callList(words);
+			tasks = callList(words);
 		}
 		
 	}
@@ -53,9 +56,9 @@ public class Parser {
 		
 	}
 	
-	private void callDelete(String[] words){
+	private Vector<Task> callDelete(String[] words){
 		
-		
+		return Ticker.getTicker().delete(tasks.remove(Integer.parseInt(words[1])));
 		
 	}
 	
@@ -65,17 +68,18 @@ public class Parser {
 		
 	}
 	
-	private void callSearch(String[] words){
+	private Vector<Task> callSearch(String str){
 		
-		
+		return Ticker.getTicker().search(str);
 	
 	}
 	
-	private void callList (String[] words){
+	private Vector<Task> callList (String[] words){
 		
-		
+		return Ticker.getTicker().list();
 		
 	}
+	
 	
 	private static String removeBlank(String str){
 		str=str.trim();
@@ -86,6 +90,7 @@ public class Parser {
 		}
 		return str;
 	}
+	
 	
 	private Time constructTime(String str){
 		str=removeBlank(str);
