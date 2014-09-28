@@ -45,6 +45,7 @@ class Logic{
 
 	public boolean list() {
 		if (current == null) {
+			System.out.printf("Nothing to display.\n");
 			return false;
 		}
 		int i = 1;
