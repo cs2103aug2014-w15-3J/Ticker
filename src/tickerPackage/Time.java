@@ -1,3 +1,5 @@
+package tickerPackage;
+
 /*
  * 
  *  This class represents a time

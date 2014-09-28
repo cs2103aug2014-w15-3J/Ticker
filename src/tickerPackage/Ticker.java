@@ -1,3 +1,5 @@
+package tickerPackage;
+
 /* Team ID: W15-3J
  * Project name: Ticker
  * Group Members: 

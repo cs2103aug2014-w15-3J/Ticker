@@ -1,3 +1,5 @@
+package tickerPackage;
+
 /*
  *  
  *  this class represents a Date
