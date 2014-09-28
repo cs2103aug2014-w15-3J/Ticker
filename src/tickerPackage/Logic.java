@@ -64,34 +64,56 @@ class Logic{
 				String taskName = editTask.getDescription();
 				taskName += " " + description;
 				editTask.setDescription(taskName);
-				
+
 				current.add(index, editTask);
-				
+
 				System.out.printf("Index %d has been updated to %s.\n", index, current.get(index));
 				return;
 			}
-			
+
 			editTask.setDescription(description);
 			current.add(index, editTask);
-			
+
 			System.out.printf("Index %d has been updated to %s.\n", index, current.get(index));
 			return;
 		}
-		
+
 		System.out.println("Index out of bounds. Nothing has been edited.\n");
-		
+
 	}
 
 
+	public void add(String description, Boolean isRepeating, Date startDate, Date endDate,
+			Time startTime, Time endTime) {
+		// TODO priority is missing
+		// TODO check with kexin whether tasks are correctly allocated
+		// TODO how to implement repeating tasks
+		
+		Task newTask;
 
-	public void add(String description, Boolean isRepeating, Date sd, Date ed,
-			Time st, Time et) {
-		// TODO Auto-generated method stub
-		System.out.println("add");
+		if (startDate == null && startTime == null) {
+			// Creation of floating tasks
+			if (endDate == null && endTime == null) {
+				newTask = new FloatingTask(description);
+			}
+			// Creation of deadline tasks
+			else {
+				newTask = new DeadlineTask(description, endDate, endTime);
+			}
+
+		}
+		// Creation of timed tasks
+		else {
+			newTask = new TimedTask(description, startDate, startTime, endDate, endTime);
+		}
+		
+		// TODO: implementation of search
+		sortedTime.add(newTask);
+		sortedPriority.add(newTask);
 	}
 }
+
 
 // TODO: 
 // -sort the different vectors
 // -how to implement repeating tasks
-// -implement tasks classes
