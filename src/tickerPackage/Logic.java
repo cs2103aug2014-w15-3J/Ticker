@@ -68,3 +68,8 @@ class Logic{
 		System.out.println("add");
 	}
 }
+
+// TODO: 
+// -sort the different vectors
+// -how to implement repeating tasks
+// -implement tasks classes
