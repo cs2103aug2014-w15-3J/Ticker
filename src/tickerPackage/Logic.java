@@ -33,7 +33,7 @@ class Logic{
 			return true;
 		}
 
-		System.out.println("Nothing has been deleted.");
+		System.out.println("Index out of bounds. Nothing has been deleted.");
 		return false;
 	}
 
@@ -56,8 +56,30 @@ class Logic{
 	}
 
 	public void edit(int index, boolean isAppending, String description) {
-		// TODO Auto-generated method stub
-		System.out.println("edit");
+		// Exception catching
+		if (index >= 0 && index < current.size()) {
+			Task editTask = current.remove(index);
+
+			if (isAppending) {
+				String taskName = editTask.getDescription();
+				taskName += " " + description;
+				editTask.setDescription(taskName);
+				
+				current.add(index, editTask);
+				
+				System.out.printf("Index %d has been updated to %s.\n", index, current.get(index));
+				return;
+			}
+			
+			editTask.setDescription(description);
+			current.add(index, editTask);
+			
+			System.out.printf("Index %d has been updated to %s.\n", index, current.get(index));
+			return;
+		}
+		
+		System.out.println("Index out of bounds. Nothing has been edited.\n");
+		
 	}
 
 
