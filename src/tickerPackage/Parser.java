@@ -1,3 +1,5 @@
+// TODO: add priority to task
+
 package tickerPackage;
 
 import java.util.Scanner;
