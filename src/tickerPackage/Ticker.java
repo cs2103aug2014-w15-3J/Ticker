@@ -16,31 +16,31 @@ package tickerPackage;
 public class Ticker {
 	// Attributes
 	private static Ticker ticker;
-	private static Parser parser;
-	private static Logic logic;
+	private Parser parser;
+	private Logic logic;
 	//private static UI ui;
 	//private static Storage storage;
-	
+
 	public Ticker() {
-	}
-	
-	public Ticker getTicker() {
-		return ticker;
-	}
-	
-	public Logic getLogic() {
-		return logic;
-	}
-	
-	public static void main(String[] args) {
 		// Initialisation
-		ticker = new Ticker();
+		ticker = this;
 		parser = new Parser();
 		logic = new Logic();
 		//ui = new UI();
 		//storage = new Storage();
-		
-		parser.getCommand();
 	}
-	
+
+	public Ticker getTicker() {
+		return ticker;
+	}
+
+	public Logic getLogic() {
+		return logic;
+	}
+
+	public static void main(String[] args) {
+		ticker = new Ticker();
+		while (true)
+			ticker.parser.getCommand();
+	}
 }
