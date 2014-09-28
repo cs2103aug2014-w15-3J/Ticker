@@ -1,5 +1,3 @@
-package tickerPackage;
-
 /* Team ID: W15-3J
  * Project name: Ticker
  * Group Members: 
@@ -12,6 +10,8 @@ package tickerPackage;
  */
 
 /* This code is last edited by Nicholette 28/9/2014 */
+
+package tickerPackage;
 
 public class Ticker {
 	// Attributes
