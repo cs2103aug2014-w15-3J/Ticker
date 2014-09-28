@@ -11,6 +11,8 @@ class Logic{
 	Vector<Task> sortedPriority;
 	Vector<Task> searchResults;
 
+	// HashMaps to be added in later
+
 	public Logic(){
 		// TODO Transfer data from storage
 
@@ -27,10 +29,10 @@ class Logic{
 		// Exception catching
 		if (index >= 0 && index < current.size()) {
 			Task deleted = current.remove(index);
-			System.out.println(deleted + " has been removed.");
+			System.out.printf("%s has been removed.\n", deleted);
 			return true;
 		}
-		
+
 		System.out.println("Nothing has been deleted.");
 		return false;
 	}
@@ -42,9 +44,14 @@ class Logic{
 	}
 
 	public boolean list() {
-		// TODO Auto-generated method stub
-		System.out.println("list");
-		return false;
+		if (current == null) {
+			return false;
+		}
+		int i = 1;
+		for (Task task: current) {
+			System.out.printf("%d. %s\n", i, task.toString());
+		}
+		return true;
 	}
 
 	public void edit(int index, boolean isAppending, String description) {
