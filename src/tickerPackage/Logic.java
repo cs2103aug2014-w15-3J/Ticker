@@ -29,6 +29,8 @@ class Logic{
 		// Exception catching
 		if (index >= 0 && index < current.size()) {
 			Task deleted = current.remove(index);
+			sortedTime.remove(deleted);
+			sortedPriority.remove(deleted);
 			System.out.printf("%s has been removed.\n", deleted);
 			return true;
 		}
@@ -119,3 +121,4 @@ class Logic{
 // TODO: 
 // -sort the different vectors
 // -how to implement repeating tasks
+// -implement switch current
