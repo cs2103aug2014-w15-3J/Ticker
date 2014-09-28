@@ -1,0 +1,8 @@
+/**
+ * 
+ */
+/**
+ * @author nicholette
+ *
+ */
+package tickerPackage;
