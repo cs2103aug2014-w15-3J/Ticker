@@ -2,9 +2,9 @@ package tickerPackage;
 
 public class Task {
 	String description;
-	int priority;
 	
-	public Task(){
+	public Task(String description){
+		description = this.description;
 	}
 	
 	public String toString() {
