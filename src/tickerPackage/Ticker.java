@@ -30,7 +30,7 @@ public class Ticker {
 		//storage = new Storage();
 	}
 
-	public Ticker getTicker() {
+	public static Ticker getTicker() {
 		return ticker;
 	}
 
