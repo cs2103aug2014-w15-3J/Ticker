@@ -110,6 +110,8 @@ class Logic{
 		// TODO: implementation of search
 		sortedTime.add(newTask);
 		sortedPriority.add(newTask);
+		
+		System.out.printf("%s has been added.\n", description);
 	}
 }
 
