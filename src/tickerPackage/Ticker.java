@@ -28,6 +28,10 @@ public class Ticker {
 		return ticker;
 	}
 	
+	public Logic getLogic() {
+		return logic;
+	}
+	
 	public static void main(String[] args) {
 		// Initialisation
 		ticker = new Ticker();
@@ -36,6 +40,7 @@ public class Ticker {
 		//ui = new UI();
 		//storage = new Storage();
 		
+		parser.getCommand();
 	}
 	
 }
