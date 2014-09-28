@@ -1,4 +1,4 @@
-package tickerPackage;
+package tickerPackage.TaskTypes;
 
 public class Task {
 	String description;
