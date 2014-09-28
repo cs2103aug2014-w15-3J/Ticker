@@ -24,10 +24,14 @@ class Logic{
 	}	
 
 	public boolean delete(int index) {
+		// Exception catching
 		if (index >= 0 && index < current.size()) {
-			current.remove(index);
+			Task deleted = current.remove(index);
+			System.out.println(deleted + " has been removed.");
 			return true;
 		}
+		
+		System.out.println("Nothing has been deleted.");
 		return false;
 	}
 
