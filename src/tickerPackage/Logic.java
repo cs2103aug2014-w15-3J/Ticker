@@ -60,14 +60,14 @@ class Logic{
 	public void edit(int index, boolean isAppending, String description) {
 		// Exception catching
 		if (index >= 0 && index < current.size()) {
-			Task editTask = current.remove(index);
+			Task editTask = current.remove(index - 1);
 
 			if (isAppending) {
 				String taskName = editTask.getDescription();
 				taskName += " " + description;
 				editTask.setDescription(taskName);
 
-				current.add(index, editTask);
+				current.add(index - 1, editTask);
 
 				System.out.printf("Index %d has been updated to %s.\n", index, current.get(index));
 				return;
