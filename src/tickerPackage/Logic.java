@@ -27,8 +27,8 @@ class Logic{
 
 	public boolean delete(int index) {
 		// Exception catching
-		if (index >= 0 && index < current.size()) {
-			Task deleted = current.remove(index);
+		if (index > 0 && index <= current.size()) {
+			Task deleted = current.remove(index-1);
 			sortedTime.remove(deleted);
 			sortedPriority.remove(deleted);
 			System.out.printf("%s has been removed.\n", deleted);
