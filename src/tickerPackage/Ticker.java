@@ -39,6 +39,7 @@ public class Ticker {
 	}
 
 	public static void main(String[] args) {
+		System.out.println("Welcome to ticker");
 		ticker = new Ticker();
 		while (true)
 			ticker.parser.getCommand();
