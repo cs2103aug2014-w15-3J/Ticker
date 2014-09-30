@@ -52,7 +52,7 @@ class Logic{
 		}
 		int i = 1;
 		for (Task task: current) {
-			System.out.printf("%d. %s\n", i, task.toString());
+			System.out.printf("%d. %s\n", i++, task.toString());
 		}
 		return true;
 	}
