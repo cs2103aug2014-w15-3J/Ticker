@@ -4,7 +4,7 @@ public class Task {
 	String description;
 	
 	public Task(String description){
-		description = this.description;
+		this.description = description;
 	}
 	
 	public String toString() {
