@@ -12,4 +12,16 @@ public class RepeatingTask extends Task {
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
+	
+	public Date getDate() {
+		return day;
+	}
+	
+	public Time getStartTime() {
+		return startTime;
+	}
+	
+	public Time getEndTime() {
+		return endTime;
+	}
 }
