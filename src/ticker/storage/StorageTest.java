@@ -6,6 +6,7 @@ import Storage;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import tickerPackage.Date;
 import tickerPackage.FloatingTask;
 import tickerPackage.Time;
 
@@ -27,6 +28,14 @@ public class StorageTest {
 		Time sample  = new Time(11, 59);
 		JSONObject result = test.parseTimeIntoJSON(sample);
 		assertEquals(result.toString(), "{\"min\":59,\"hour\":11}");
+	}
+	
+	@Test
+	public void testParseDateIntoJSON() {
+		Storage test = new Storage();
+		Date sample  = new Date(2014, 12, 12);
+		JSONObject result = test.parseDateIntoJSON(sample);
+		assertEquals(result.toString(), "{\"month\":12,\"year\":2014,\"date\":12}");
 	}
 
 }
