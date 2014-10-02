@@ -11,6 +11,7 @@ import java.util.Scanner;
 import org.json.*;
 
 import tickerPackage.Task;
+import tickerPackage.Time;
 
 class Storage {
 	private final ArrayList<String> storedTexts = new ArrayList<String>(); // to be changed to Task
@@ -99,6 +100,20 @@ class Storage {
 			jsonObj.put("description", data.getDescription());
 			return jsonObj.toString();
 		
+		} catch(JSONException ex) {
+			ex.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	protected JSONObject parseTimeIntoJSON(Time data) {
+		try{
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.put("hour", data.getHour());
+			jsonObj.put("min", data.getMinute());
+			return jsonObj;
+			
 		} catch(JSONException ex) {
 			ex.printStackTrace();
 		}
