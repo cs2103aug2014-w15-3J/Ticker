@@ -10,6 +10,7 @@ import java.util.Scanner;
 
 import org.json.*;
 
+import tickerPackage.Date;
 import tickerPackage.Task;
 import tickerPackage.Time;
 
@@ -112,6 +113,21 @@ class Storage {
 			JSONObject jsonObj = new JSONObject();
 			jsonObj.put("hour", data.getHour());
 			jsonObj.put("min", data.getMinute());
+			return jsonObj;
+			
+		} catch(JSONException ex) {
+			ex.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	protected JSONObject parseDateIntoJSON(Date data) {
+		try{
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.put("year", data.getYear());
+			jsonObj.put("month", data.getMonth());
+			jsonObj.put("date", data.getDate());
 			return jsonObj;
 			
 		} catch(JSONException ex) {
