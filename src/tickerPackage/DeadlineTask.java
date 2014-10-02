@@ -9,4 +9,12 @@ public class DeadlineTask extends Task {
 		this.endDate = endDate;
 		this.endTime = endTime;
 	}
+	
+	public Time getEndTime() {
+		return endTime;
+	}
+	
+	public Date getEndDate() {
+		return endDate;
+	}
 }

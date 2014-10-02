@@ -14,7 +14,7 @@ public class TimedTask extends Task {
 		this.endTime = endTime;
 	}
 	
-	public Date getstartDate() {
+	public Date getStartDate() {
 		return startDate;
 	}
 	
