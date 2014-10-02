@@ -1,7 +1,7 @@
 package tickerPackage;
 
 public class FloatingTask extends Task {
-	FloatingTask(String description) {
+	public FloatingTask(String description) {
 		super(description);
 	}
 }
