@@ -13,6 +13,7 @@ import junit.extensions.RepeatedTest;
 import org.json.*;
 
 import tickerPackage.Date;
+import tickerPackage.DeadlineTask;
 import tickerPackage.FloatingTask;
 import tickerPackage.RepeatingTask;
 import tickerPackage.Task;
@@ -136,6 +137,27 @@ class Storage {
 			//put the attributes object into main TimedTask object
 			jsonObj.put("Date", jsonDate);
 			jsonObj.put("startTime", jsonStartTime);
+			jsonObj.put("endTime", jsonEndTime);
+			
+			return jsonObj;
+		
+		} catch(JSONException ex) {
+			ex.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	protected JSONObject parseDeadlineTaskIntoJSON(DeadlineTask data) {
+		try{
+			//convert Java Object into JSON
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.put("description", data.getDescription());
+			JSONObject jsonDate = parseDateIntoJSON(data.getEndDate());
+			JSONObject jsonEndTime = parseTimeIntoJSON(data.getEndTime());
+			
+			//put the attributes object into main TimedTask object
+			jsonObj.put("Date", jsonDate);
 			jsonObj.put("endTime", jsonEndTime);
 			
 			return jsonObj;
