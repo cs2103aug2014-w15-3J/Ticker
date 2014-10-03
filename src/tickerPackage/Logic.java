@@ -1,8 +1,13 @@
 package tickerPackage;
 
 import java.util.Vector;
+import ticker.storage.*;
 
 class Logic{
+	// Instances of other components
+	Parser parser;
+	Storage storage;
+	
 	// Pointer to the Vector currently in display
 	Vector<Task> current;
 
@@ -15,6 +20,9 @@ class Logic{
 
 	public Logic(){
 		// TODO Transfer data from storage
+		
+		parser = new Parser();
+		storage = new Storage();
 
 		// STUB:
 		sortedTime = new Vector<Task>();
