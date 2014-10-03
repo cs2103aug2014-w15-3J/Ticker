@@ -6,6 +6,7 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import tickerPackage.Date;
+import tickerPackage.DeadlineTask;
 import tickerPackage.FloatingTask;
 import tickerPackage.RepeatingTask;
 import tickerPackage.Time;
@@ -32,6 +33,16 @@ public class StorageTest {
 		JSONObject result = test.parseRepeatingTaskIntoJSON(sample);
 		assertEquals("{\"startTime\":{\"min\":35,\"hour\":5},\"Date\":{\"month\":12,\"year\":2014,\"date\":29},"
 				+ "\"description\":\"DO HOMEWORK!!!\",\"endTime\":{\"min\":45,\"hour\":13}}", result.toString());
+	}
+	
+	@Test
+	public void testParseDeadlineTaskIntoJSON() {
+		Storage test = new Storage();
+		String description = "DO HOMEWORK!!!";
+		DeadlineTask sample  = new DeadlineTask(description, new Date(2014,12,29), new Time(5,35));
+		JSONObject result = test.parseDeadlineTaskIntoJSON(sample);
+		assertEquals("{\"Date\":{\"month\":12,\"year\":2014,\"date\":29},\"description\":\"DO HOMEWORK!!!\","
+				+ "\"endTime\":{\"min\":35,\"hour\":5}}", result.toString());
 	}
 	
 	@Test
