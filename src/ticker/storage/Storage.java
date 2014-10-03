@@ -11,8 +11,10 @@ import java.util.Scanner;
 import org.json.*;
 
 import tickerPackage.Date;
+import tickerPackage.FloatingTask;
 import tickerPackage.Task;
 import tickerPackage.Time;
+import tickerPackage.TimedTask;
 
 class Storage {
 	private final ArrayList<String> storedTexts = new ArrayList<String>(); // to be changed to Task
@@ -94,12 +96,37 @@ class Storage {
 		return storedTexts;
 	}
 	
-	protected String parseFloatingTaskIntoJSON(Task data) {
+	protected JSONObject parseTimedTaskIntoJSON(TimedTask data) {
 		try{
 			//convert Java Object into JSON
 			JSONObject jsonObj = new JSONObject();
 			jsonObj.put("description", data.getDescription());
-			return jsonObj.toString();
+			JSONObject jsonStartDate = parseDateIntoJSON(data.getStartDate());
+			JSONObject jsonStartTime = parseTimeIntoJSON(data.getStartTime());
+			JSONObject jsonEndDate = parseDateIntoJSON(data.getEndDate());
+			JSONObject jsonEndTime = parseTimeIntoJSON(data.getEndTime());
+			
+			//put the attributes object into main TimedTask object
+			jsonObj.put("startDate", jsonStartDate);
+			jsonObj.put("startTime", jsonStartTime);
+			jsonObj.put("endDate", jsonEndDate);
+			jsonObj.put("endTime", jsonEndTime);
+			
+			return jsonObj;
+		
+		} catch(JSONException ex) {
+			ex.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	protected JSONObject parseFloatingTaskIntoJSON(FloatingTask data) {
+		try{
+			//convert Java Object into JSON
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.put("description", data.getDescription());
+			return jsonObj;
 		
 		} catch(JSONException ex) {
 			ex.printStackTrace();
