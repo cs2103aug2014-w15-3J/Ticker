@@ -168,3 +168,4 @@ class Logic{
 // -sort the different vectors
 // -how to implement repeating tasks
 // -implement switch current
+// -modify storage after every action
