@@ -39,8 +39,36 @@ class Logic{
 
 	}
 	
+	// TODO: need UI API to call UI for command input
 	private void run() {
-		
+		/*
+		String input = UI.getInput();
+		while(input != ...........) { what will UI return logic when there is no input
+			UserInput processed = parser.processInput(input);  // double check parser method
+			
+			switch (processed.getCommand()) {
+				case "delete": 
+					this.delete(processed.getIndex()); break;
+				// case "search":
+				case "list":
+					this.list(); break;
+				case "edit":
+					this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription()); break;
+				case "add":
+					this.delete(processed.getDescription(), processed.getRepeating(), processed,getStartDate(), 
+									processed.getEndDate(), processed.getStartTime(), processed.getEndTime()); break;
+				// case "undo":
+				default:
+					System.out.println("invalid command");
+					break;
+			}
+			
+			if (UI.hasNext()) {
+				input = UI.getInput();
+			}
+		}
+		*/
+	
 	}
 
 	public boolean delete(int index) {
