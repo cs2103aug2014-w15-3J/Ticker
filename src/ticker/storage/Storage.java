@@ -8,10 +8,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import junit.extensions.RepeatedTest;
+
 import org.json.*;
 
 import tickerPackage.Date;
 import tickerPackage.FloatingTask;
+import tickerPackage.RepeatingTask;
 import tickerPackage.Task;
 import tickerPackage.Time;
 import tickerPackage.TimedTask;
@@ -110,6 +113,29 @@ class Storage {
 			jsonObj.put("startDate", jsonStartDate);
 			jsonObj.put("startTime", jsonStartTime);
 			jsonObj.put("endDate", jsonEndDate);
+			jsonObj.put("endTime", jsonEndTime);
+			
+			return jsonObj;
+		
+		} catch(JSONException ex) {
+			ex.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	protected JSONObject parseRepeatingTaskIntoJSON(RepeatingTask data) {
+		try{
+			//convert Java Object into JSON
+			JSONObject jsonObj = new JSONObject();
+			jsonObj.put("description", data.getDescription());
+			JSONObject jsonDate = parseDateIntoJSON(data.getDate());
+			JSONObject jsonStartTime = parseTimeIntoJSON(data.getStartTime());
+			JSONObject jsonEndTime = parseTimeIntoJSON(data.getEndTime());
+			
+			//put the attributes object into main TimedTask object
+			jsonObj.put("Date", jsonDate);
+			jsonObj.put("startTime", jsonStartTime);
 			jsonObj.put("endTime", jsonEndTime);
 			
 			return jsonObj;
