@@ -7,6 +7,7 @@ class Logic{
 	// Instances of other components
 	Parser parser;
 	Storage storage;
+	TickerUI UI;
 	
 	// Pointer to the Vector currently in display
 	Vector<Task> current;
@@ -18,9 +19,13 @@ class Logic{
 
 	// HashMaps to be added in later
 
-	public Logic(){
+	public Logic(TickerUI UI){
 		// TODO Transfer data from storage
 		
+		// Creating 1-1 dependency with UI
+		this.UI = UI;
+		
+		// Instantiating sub-components
 		parser = new Parser();
 		storage = new Storage();
 
@@ -30,8 +35,13 @@ class Logic{
 		searchResults = new Vector<Task>();
 
 		current = sortedTime;
+		this.run();
 
-	}	
+	}
+	
+	private void run() {
+		
+	}
 
 	public boolean delete(int index) {
 		// Exception catching
