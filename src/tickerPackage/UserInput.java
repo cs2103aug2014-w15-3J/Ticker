@@ -10,10 +10,47 @@ public class UserInput {
 	public Date startDate;
 	public boolean isRepeatingAppending;
 	public int index;
-	public int Priority;
+	public int priority;
 	
+	// TODO: instantiate UserInput()
 	public UserInput(){
 		
+	}
+	
+	public String getCommand() {
+		return command;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public Time getStartTime() {
+		return startTime;
+	}
+	
+	public Time getEndTime() {
+		return endTime;
+	}
+	
+	public Date getStartDate() {
+		return startDate;
+	}
+	
+	public Date getEndDate() {
+		return endDate;
+	}
+	
+	public boolean getRepeating() {
+		return isRepeatingAppending;
+	}
+	
+	public int getIndex() {
+		return index;
+	}
+	
+	public int getPriority() {
+		return priority;
 	}
 
 }
