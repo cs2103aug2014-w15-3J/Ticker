@@ -8,7 +8,8 @@ public class UserInput {
 	public Time endTime;
 	public Date endDate;
 	public Date startDate;
-	public boolean isRepeatingAppending;
+	public boolean isRepeating;
+	public boolean isAppending;
 	public int index;
 	public int priority;
 	
@@ -42,7 +43,11 @@ public class UserInput {
 	}
 	
 	public boolean getRepeating() {
-		return isRepeatingAppending;
+		return isRepeating;
+	}
+	
+	public boolean getAppending() {
+		return isAppending;
 	}
 	
 	public int getIndex() {
