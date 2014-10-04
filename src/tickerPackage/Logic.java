@@ -6,7 +6,7 @@ import ticker.storage.*;
 class Logic{
 	// Instances of other components
 	Parser parser;
-	Storage storage;
+	//Storage storage;
 	TickerUI UI;
 	
 	// Pointer to the Vector currently in display
@@ -23,11 +23,11 @@ class Logic{
 		// TODO Transfer data from storage
 		
 		// Creating 1-1 dependency with UI
-		this.UI = UI;
+		//this.UI = UI;
 		
 		// Instantiating sub-components
 		parser = new Parser();
-		storage = new Storage();
+		//storage = new Storage();
 
 		// STUB:
 		sortedTime = new Vector<Task>();

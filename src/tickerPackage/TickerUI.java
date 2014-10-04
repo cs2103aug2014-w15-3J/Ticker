@@ -16,12 +16,6 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class TickerUI extends Application {
-	
-	private Logic logic;
-	class TickerUI() {
-		ticker = this;
-		logic = new Logic(this);
-	}
 
 
 	public void start(Stage primaryStage) {
@@ -72,8 +66,5 @@ public class TickerUI extends Application {
 
     public static void main(String[] args) {
     	launch(args);
-		ticker = new TickerUI();
-		while (true)
-			ticker.parser.getCommand();
 	}
 }

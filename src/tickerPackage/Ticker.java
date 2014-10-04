@@ -26,7 +26,7 @@ public class Ticker {
 		ticker = this;
 		parser = new Parser();
 		logic = new Logic();
-		ui = new TickerUI();
+		//ui = new TickerUI();
 		//storage = new Storage();
 	}
 
