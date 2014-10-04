@@ -13,4 +13,20 @@ public class TimedTask extends Task {
 		this.endDate = endDate;
 		this.endTime = endTime;
 	}
+	
+	public Date getStartDate() {
+		return startDate;
+	}
+	
+	public Date getEndDate() {
+		return endDate;
+	}
+	
+	public Time getStartTime() {
+		return startTime;
+	}
+	
+	public Time getEndTime() {
+		return endTime;
+	}
 }

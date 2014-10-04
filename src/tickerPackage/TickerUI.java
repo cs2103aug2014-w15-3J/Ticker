@@ -20,7 +20,7 @@ public class TickerUI extends Application {
 	private Logic logic;
 	class TickerUI() {
 		ticker = this;
-		logic = new Logic();
+		logic = new Logic(this);
 	}
 
 

@@ -2,14 +2,26 @@ package tickerPackage;
 
 public class RepeatingTask extends Task {
 	// TODO: how is date implemented in Task
-	Date day;
+	Date date;
 	Time startTime;
 	Time endTime;
 	
-	RepeatingTask(String description, Date day, Time startTime, Time endTime) {
+	public RepeatingTask(String description, Date date, Time startTime, Time endTime) {
 		super(description);
-		this.day = day;
+		this.date = date;
 		this.startTime = startTime;
 		this.endTime = endTime;
+	}
+	
+	public Date getDate() {
+		return date;
+	}
+	
+	public Time getStartTime() {
+		return startTime;
+	}
+	
+	public Time getEndTime() {
+		return endTime;
 	}
 }
