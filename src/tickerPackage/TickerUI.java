@@ -28,7 +28,7 @@ public class TickerUI extends Application {
 	public TickerUI() {
 		// Initialisation
 		ticker = this;
-		logic = new Logic();
+		logic = new Logic(this);
 	}
 
 
