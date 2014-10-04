@@ -3,7 +3,7 @@ package tickerPackage;
 import java.util.Vector;
 import ticker.storage.*;
 
-class Logic{
+public class Logic{
 	// Instances of other components
 	Parser parser;
 	//Storage storage;
@@ -19,7 +19,7 @@ class Logic{
 
 	// HashMaps to be added in later
 
-	public Logic(TickerUI UI){
+	public Logic(){
 		// TODO Transfer data from storage
 		
 		// Creating 1-1 dependency with UI

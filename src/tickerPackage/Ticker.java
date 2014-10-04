@@ -1,3 +1,7 @@
+package tickerPackage;
+
+//import tickerPackage.Parser;
+//import tickerPackage.Logic;
 /* Team ID: W15-3J
  * Project name: Ticker
  * Group Members: 
@@ -11,7 +15,6 @@
 
 /* This code is last edited by Nicholette 28/9/2014 */
 
-package tickerPackage;
 
 public class Ticker {
 	// Attributes
