@@ -18,7 +18,7 @@ public class Ticker {
 	private static Ticker ticker;
 	private Parser parser;
 	private Logic logic;
-	//private static UI ui;
+	//private static TickerUI ui;
 	//private static Storage storage;
 
 	public Ticker() {
@@ -26,7 +26,7 @@ public class Ticker {
 		ticker = this;
 		parser = new Parser();
 		logic = new Logic();
-		//ui = new UI();
+		ui = new TickerUI();
 		//storage = new Storage();
 	}
 
