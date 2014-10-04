@@ -68,7 +68,7 @@ public class TickerUI extends Application {
                 //System.out.println(cmd);
                 command.clear();
                // result.setText(cmd);
-                result.setText(logic.???);
+                result.setText(logic.getLogic(cmd));
         	}
         		});
         
