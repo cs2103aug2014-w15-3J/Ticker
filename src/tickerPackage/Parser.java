@@ -8,7 +8,7 @@ public class Parser {
 
 	}
 
-	public void processInput(String command){
+	public UserInput processInput(String command){
 		String[] words = command.split(" ");
 		for (int i=0;i<words.length;i++){
 			words[i] = words[i].trim();
@@ -17,31 +17,32 @@ public class Parser {
 		if (words[0].equals("add")){
 			String description = null;
 			int firstIndex = command.indexOf('"');
-			if (firstIndex == -1) return;
+			if (firstIndex == -1) return null;
 			int secondIndex = command.indexOf('"',firstIndex+1);
-			if (secondIndex != command.lastIndexOf('"')) return;
+			if (secondIndex != command.lastIndexOf('"')) return null;
 			
 			description = command.substring(firstIndex+1,secondIndex);
-			callAdd(words,description);
+			return callAdd(words,description);
 		
 		}
 		
 		if (words[0].equals("delete")){
-			callDelete(words);
+			return callDelete(words);
 		}
 		
 		if (words[0].equals("search")){
-			callSearch(command.substring(command.lastIndexOf("\"")).trim());
+			return callSearch(command.substring(command.lastIndexOf("\"")).trim());
 		//mistake in the line above
 		}
 		
 		if (words[0].equals("edit")){
-			callEdit(words,command);
+			return callEdit(words,command);
 		}
 		
 		if (words[0].equals("list")){
-			callList(words);
+			return callList(words);
 		}
+		return null;
 		
 	}
 	
@@ -90,7 +91,7 @@ public class Parser {
 			}
 			
 			if (words[i].equals("-r")){
-				input.isRepeatingAppending = true;
+				input.isAppendingRepeating = true;
 			}
 		}
 		
@@ -125,7 +126,7 @@ public class Parser {
 		input.command = "edit";
 		input.index=index;
 		input.description = description;
-		input.isRepeatingAppending = isAppending;
+		input.isAppendingRepeating = isAppending;
 		
 		return input;
 	}
@@ -140,7 +141,7 @@ public class Parser {
 		return input;
 	}
 	
-	private void callList (String[] words){
+	private UserInput callList (String[] words){
 		
 		UserInput input = new UserInput();
 		input.command = "list";
