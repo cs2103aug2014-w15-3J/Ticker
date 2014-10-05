@@ -22,12 +22,12 @@ public class StorageTest {
 		Vector<Task> testing = new Vector<Task>();
 		testing.add(new FloatingTask("FUCK"));
 		testing.add(new DeadlineTask("FUCKER", new Date(2014,22,23), new Time(41, 12)));
-		String result = test.converToJSON(testing);
+		String result = test.convertToJSON(testing);
 		assertEquals("", result);
 	}
 	
 	@Test
-	public void testParseTimedTaskIntoJSON() {
+	public void testParseJSONIntoStorageArray() {
 		Storage test = new Storage();
 		String testing = "[{\"id\": 1,\"description\": \"FUCK\"},  	  {"
 		                	   + "\"id\": 4,"
