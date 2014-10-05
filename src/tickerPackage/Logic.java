@@ -18,6 +18,9 @@ public class Logic{
 	Vector<Task> searchResults;
 
 	// HashMaps to be added in later
+	public Logic() {
+		
+	}
 
 	public Logic(TickerUI UI){
 		// TODO Transfer data from storage
@@ -84,7 +87,7 @@ public class Logic{
 		if (current == null) {
 			return "Nothing to display.\n";
 		}
-		int i = 1;
+		int i = 0;
 		String list = "";
 		for (Task task: current) {
 			list += ++i + ". " + task.toString();
