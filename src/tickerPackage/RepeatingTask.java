@@ -2,6 +2,7 @@ package tickerPackage;
 
 public class RepeatingTask extends Task {
 	// TODO: how is date implemented in Task
+	final int id = 3; //used in storage
 	Date date;
 	Time startTime;
 	Time endTime;
