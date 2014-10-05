@@ -51,6 +51,8 @@ public class Parser {
 		UserInput input = new UserInput();
 		
 		input.command="add";
+		input.description = description;
+		
 		
 		for (int i=0;i<words.length;i++){
 			
