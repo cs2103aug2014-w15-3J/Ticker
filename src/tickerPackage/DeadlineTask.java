@@ -1,6 +1,7 @@
 package tickerPackage;
 
 public class DeadlineTask extends Task {
+	final int id = 4; //used in storage
 	Date endDate;
 	Time endTime;
 	

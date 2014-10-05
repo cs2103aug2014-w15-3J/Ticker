@@ -18,6 +18,9 @@ public class Logic{
 	Vector<Task> searchResults;
 
 	// HashMaps to be added in later
+	public Logic() {
+		
+	}
 
 	public Logic(TickerUI UI){
 		// TODO Transfer data from storage
@@ -39,7 +42,7 @@ public class Logic{
 	}
 
 	// TODO: need UI API to call UI for command input
-	private String getLogic(String input) {
+	public String getLogic(String input) {
 		String feedback;
 		UserInput processed = parser.processInput(input);  // double check parser method
 
@@ -52,8 +55,7 @@ public class Logic{
 		case "edit":
 			feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription()); break;
 		case "add":
-			feedback = this.delete(processed.getDescription(), processed.getRepeating(), processed,getStartDate(), 
-					processed.getEndDate(), processed.getStartTime(), processed.getEndTime()); break;
+			feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), processed.getEndDate(), processed.getStartTime(), processed.getEndTime()); break;
 					// case "undo":
 		default:
 			feedback = "invalid command";
@@ -85,7 +87,7 @@ public class Logic{
 		if (current == null) {
 			return "Nothing to display.\n";
 		}
-		int i = 1;
+		int i = 0;
 		String list = "";
 		for (Task task: current) {
 			list += ++i + ". " + task.toString();
@@ -119,7 +121,7 @@ public class Logic{
 	}
 
 
-	public void add(String description, Boolean isRepeating, Date startDate, Date endDate,
+	public String add(String description, Boolean isRepeating, Date startDate, Date endDate,
 			Time startTime, Time endTime) {
 		// TODO priority is missing
 		// TODO check with kexin whether tasks are correctly allocated
@@ -147,7 +149,7 @@ public class Logic{
 		sortedTime.add(newTask);
 		sortedPriority.add(newTask);
 
-		System.out.printf("%s has been added.\n", description);
+		return description + " has been added.\n";
 	}
 }
 
