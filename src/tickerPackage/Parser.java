@@ -2,20 +2,13 @@
 
 package tickerPackage;
 
-import java.util.Scanner;
-
 public class Parser {
-
-	Scanner sc;
 	
 	public Parser(){
-		sc = new Scanner(System.in);
+
 	}
 
-	public void getCommand(){
-		String command = sc.nextLine();
-		while (command.isEmpty())
-			command = sc.nextLine();
+	public UserInput processInput(String command){
 		String[] words = command.split(" ");
 		for (int i=0;i<words.length;i++){
 			words[i] = words[i].trim();
@@ -24,93 +17,96 @@ public class Parser {
 		if (words[0].equals("add")){
 			String description = null;
 			int firstIndex = command.indexOf('"');
-			if (firstIndex == -1) return;
+			if (firstIndex == -1) return null;
 			int secondIndex = command.indexOf('"',firstIndex+1);
-			if (secondIndex != command.lastIndexOf('"')) return;
+			if (secondIndex != command.lastIndexOf('"')) return null;
 			
 			description = command.substring(firstIndex+1,secondIndex);
-			callAdd(words,description);
+			return callAdd(words,description);
 		
 		}
 		
 		if (words[0].equals("delete")){
-			callDelete(words);
+			return callDelete(words);
 		}
 		
 		if (words[0].equals("search")){
-			callSearch(command.substring(command.lastIndexOf("\"")).trim());
+			return callSearch(command.substring(command.lastIndexOf("\"")).trim());
+		//mistake in the line above
 		}
 		
 		if (words[0].equals("edit")){
-			callEdit(words,command);
+			return callEdit(words,command);
 		}
 		
 		if (words[0].equals("list")){
-			callList(words);
+			return callList(words);
 		}
+		return null;
 		
 	}
 	
-	private void callAdd(String[] words,String description){
-		Time st = null;
-		Time et = null;
-		Date sd = null;
-		Date ed = null;
-		Boolean isRepeating = false;
+	private UserInput callAdd(String[] words,String description){
+		
+		UserInput input = new UserInput();
+		
+		input.command="add";
 		
 		for (int i=0;i<words.length;i++){
 			
 			if (words[i].equals("-st")){
-				st = constructTime(words[i+1]);
+				input.startTime = constructTime(words[i+1]);
 			
-				if (st==null){
+				if (input.startTime==null){
 					System.out.println("Error");
-					return;
+					return null;
 				}
 			}
 			
 			if (words[i].equals("-et")){
-				et = constructTime(words[i+1]);
+				input.endTime = constructTime(words[i+1]);
 			
-				if (et==null){
+				if (input.endTime==null){
 					System.out.println("Error");
-					return;
+					return null;
 				}
 			}
 			
 			if (words[i].equals("-sd")){
-				sd = constructDate(words[i+1]);
+				input.startDate = constructDate(words[i+1]);
 			
-				if (sd==null){
+				if (input.startDate==null){
 					System.out.println("Error");
-					return;
+					return null;
 				}
 			}
 			
 			if (words[i].equals("-ed")){
-				ed = constructDate(words[i+1]);
+				input.endDate = constructDate(words[i+1]);
 			
-				if (ed==null){
+				if (input.endDate==null){
 					System.out.println("Error");
-					return;
+					return null;
 				}
 			}
 			
 			if (words[i].equals("-r")){
-				isRepeating = true;
+				input.isAppendingRepeating = true;
 			}
 		}
 		
-		Ticker.getTicker().getLogic().add(description,isRepeating,sd,ed,st,et);
+		return input;
 	}
 	
-	private void callDelete(String[] words){
+	private UserInput callDelete(String[] words){
 		
-		Ticker.getTicker().getLogic().delete(Integer.parseInt(words[1]));
-		
+		UserInput input = new UserInput();
+		input.command="delete";
+		input.index=Integer.parseInt(words[1]);
+		return input;
 	}
 	
-	private void callEdit(String[] words,String command){
+	private UserInput callEdit(String[] words,String command){
 		String description = "";
 		
 		if (command.indexOf('"')!=-1&&command.lastIndexOf('"')>command.indexOf('"'))
@@ -126,18 +122,30 @@ public class Parser {
 			}
 		}
 			
-		Ticker.getTicker().getLogic().edit(index,isAppending,description);
+		UserInput input = new UserInput();
+		input.command = "edit";
+		input.index=index;
+		input.description = description;
+		input.isAppendingRepeating = isAppending;
+		
+		return input;
 	}
 	
-	private void callSearch(String str){
+	private UserInput callSearch(String str){
 		
-		Ticker.getTicker().getLogic().search(str);
-	
+		UserInput input = new UserInput();
+		
+		input.command = "search";
+		input.description = "str";
+		
+		return input;
 	}
 	
-	private void callList (String[] words){
+	private UserInput callList (String[] words){
 		
-		Ticker.getTicker().getLogic().list();
+		UserInput input = new UserInput();
+		input.command = "list";
+		return input;
 		
 	}
 	

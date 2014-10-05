@@ -1,3 +1,7 @@
+package tickerPackage;
+
+//import tickerPackage.Parser;
+//import tickerPackage.Logic;
 /* Team ID: W15-3J
  * Project name: Ticker
  * Group Members: 
@@ -11,14 +15,13 @@
 
 /* This code is last edited by Nicholette 28/9/2014 */
 
-package tickerPackage;
 
 public class Ticker {
 	// Attributes
 	private static Ticker ticker;
 	private Parser parser;
 	private Logic logic;
-	//private static UI ui;
+	//private static TickerUI ui;
 	//private static Storage storage;
 
 	public Ticker() {
@@ -26,7 +29,7 @@ public class Ticker {
 		ticker = this;
 		parser = new Parser();
 		logic = new Logic();
-		//ui = new UI();
+		//ui = new TickerUI();
 		//storage = new Storage();
 	}
 
