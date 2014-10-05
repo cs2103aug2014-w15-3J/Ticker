@@ -1,5 +1,7 @@
 package tickerPackage;
 
+import java.util.Scanner;
+
 //import tickerPackage.Parser;
 //import tickerPackage.Logic;
 /* Team ID: W15-3J
@@ -18,33 +20,24 @@ package tickerPackage;
 
 public class Ticker {
 	// Attributes
-	private static Ticker ticker;
-	private Parser parser;
-	private Logic logic;
+	private static Logic logic;
 	//private static TickerUI ui;
 	//private static Storage storage;
 
 	public Ticker() {
-		// Initialisation
-		ticker = this;
-		parser = new Parser();
-		logic = new Logic();
-		//ui = new TickerUI();
-		//storage = new Storage();
-	}
-
-	public static Ticker getTicker() {
-		return ticker;
-	}
-
-	public Logic getLogic() {
-		return logic;
+		logic = new Logic(this);
 	}
 
 	public static void main(String[] args) {
 		System.out.println("Welcome to ticker");
-		ticker = new Ticker();
-		while (true)
-			ticker.parser.getCommand();
+		Ticker ticker = new Ticker();
+		Scanner sc = new Scanner(System.in);
+
+		while (sc.hasNext()) {
+			String feedback = logic.getLogic(sc.nextLine());
+			System.out.printf(feedback);
+		}
+		
+		sc.close();
 	}
 }
