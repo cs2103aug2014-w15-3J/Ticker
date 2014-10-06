@@ -101,6 +101,7 @@ public class Logic{
 		return false;
 	}
 
+	// TODO: Add identifying method to Parser so that user can list in either Time or Array
 	public String list() {
 		if (current == null) {
 			return "Nothing to display.\n";
