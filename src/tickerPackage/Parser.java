@@ -201,10 +201,12 @@ public class Parser {
 				monthNum = i;
 				break;
 			}
-		
+		}
+		//System.out.println(monthNum + "   " + date);	
+			
 		if (monthNum!=0&&date<=numOfDays[monthNum])
 			return new Date(2014,monthNum,date);
-		}  // hard coded to 2014, will solve this issue later
+	    // hard coded to 2014, will solve this issue later
 		
 		return null;
 	}
