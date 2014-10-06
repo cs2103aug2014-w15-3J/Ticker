@@ -1,18 +1,22 @@
 package tickerPackage;
 
 import java.util.Vector;
-import ticker.storage.*;
 
+import ticker.storage.*;
 
 
 public class Logic{
 	// Instances of other components
 	Parser parser;
-	// Storage storage;
+	Storage storage;
 	TickerUI UI;
 
 	// Pointer to the Vector currently in display
 	Vector<Task> current;
+	
+	private static final int SORTED_PRIORITY = 1;
+	private static final int SORTED_TIME = 2;
+	
 
 	// Temporary sorted storages
 	Vector<Task> sortedTime;
@@ -32,7 +36,10 @@ public class Logic{
 
 		// Instantiating sub-components
 		parser = new Parser();
-		//storage = new Storage();
+		storage = new Storage();
+		
+		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
+		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
 
 		// STUB:
 		sortedTime = new Vector<Task>();
@@ -73,7 +80,7 @@ public class Logic{
 			Task deleted = current.remove(index-1);
 			sortedTime.remove(deleted);
 			sortedPriority.remove(deleted);
-			//UI.setList(list());
+			UI.setList(list());
 			return deleted.toString() + " has been removed.\n";
 		}
 
@@ -131,14 +138,14 @@ public class Logic{
 
 				current.add(index - 1, editTask);
 				
-				//UI.setList(list());
+				UI.setList(list());
 				return "Index " + index + " has been updated to " + current.get(index) + ".\n";
 			}
 
 			editTask.setDescription(description);
 			current.add(index - 1, editTask);
 			
-			//UI.setList(list());
+			UI.setList(list());
 			return "Index " + index + " has been updated to " + current.get(index - 1) + ".\n";
 		}
 
@@ -175,7 +182,7 @@ public class Logic{
 		sortedTime.add(newTask);
 		sortedPriority.add(newTask);
 		
-		//UI.setList(list());
+		UI.setList(list());
 		return description + " has been added.\n";
 	}
 }
