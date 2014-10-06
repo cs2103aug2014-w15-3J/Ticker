@@ -82,7 +82,12 @@ public class TickerUI extends Application {
     }
 	
 	String printOut(Vector<Task> list) {
-		return "dunmmy result";
+		String output = null;
+		for(int i = 0; i <list.size(); i++) {
+			output.concat((i+1) + ". " + list.get(i).getDescription()+"\n");
+		}
+		
+		return output;
 	}
 	
 	String manipulateString(String str) {
