@@ -1,6 +1,4 @@
-package tickerPackage;
-
-import java.util.Calendar;
+package ticker.main;
 
 /*
  *  
@@ -91,13 +89,4 @@ public class Date {
 		}
 	}
 
-	public static Date getCurrentDate(){
-		Calendar cal = Calendar.getInstance();
-		return new Date(cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DATE));
-	}
-	
-	public static int getCurrentYear(){
-		Calendar cal = Calendar.getInstance();
-		return cal.get(Calendar.YEAR);
-	}
 }

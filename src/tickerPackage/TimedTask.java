@@ -1,6 +1,7 @@
 package tickerPackage;
 
 public class TimedTask extends Task {
+	final int id = 2; //used in storage
 	Date startDate;
 	Time startTime;
 	Date endDate;

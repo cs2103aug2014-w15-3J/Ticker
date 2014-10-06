@@ -3,12 +3,14 @@ package tickerPackage;
 import java.util.Vector;
 import ticker.storage.*;
 
-class Logic{
+
+
+public class Logic{
 	// Instances of other components
 	Parser parser;
-	Storage storage;
+	// Storage storage;
 	TickerUI UI;
-	
+
 	// Pointer to the Vector currently in display
 	Vector<Task> current;
 
@@ -18,16 +20,19 @@ class Logic{
 	Vector<Task> searchResults;
 
 	// HashMaps to be added in later
+	public Logic() {
+		
+	}
 
 	public Logic(TickerUI UI){
 		// TODO Transfer data from storage
-		
+
 		// Creating 1-1 dependency with UI
 		this.UI = UI;
-		
+
 		// Instantiating sub-components
 		parser = new Parser();
-		storage = new Storage();
+		//storage = new Storage();
 
 		// STUB:
 		sortedTime = new Vector<Task>();
@@ -35,54 +40,44 @@ class Logic{
 		searchResults = new Vector<Task>();
 
 		current = sortedTime;
-		this.run();
 
 	}
-	
+
 	// TODO: need UI API to call UI for command input
-	private void run() {
-		/*
-		String input = UI.getInput();
-		while(input != ...........) { what will UI return logic when there is no input
-			UserInput processed = parser.processInput(input);  // double check parser method
-			
-			switch (processed.getCommand()) {
-				case "delete": 
-					this.delete(processed.getIndex()); break;
-				// case "search":
-				case "list":
-					this.list(); break;
-				case "edit":
-					this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription()); break;
-				case "add":
-					this.delete(processed.getDescription(), processed.getRepeating(), processed,getStartDate(), 
-									processed.getEndDate(), processed.getStartTime(), processed.getEndTime()); break;
-				// case "undo":
-				default:
-					System.out.println("invalid command");
-					break;
-			}
-			
-			if (UI.hasNext()) {
-				input = UI.getInput();
-			}
+	public String getLogic(String input) {
+		String feedback;
+		UserInput processed = parser.processInput(input);  // double check parser method
+
+		switch (processed.getCommand()) {
+		case "delete": 
+			feedback = this.delete(processed.getIndex()); break;
+			// case "search":
+		case "list":
+			feedback = this.list(); break;
+		case "edit":
+			feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription()); break;
+		case "add":
+			feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), processed.getEndDate(), processed.getStartTime(), processed.getEndTime()); break;
+					// case "undo":
+		default:
+			feedback = "invalid command";
+			break;
 		}
-		*/
-	
+		return feedback;
 	}
 
-	public boolean delete(int index) {
+
+	public String delete(int index) {
 		// Exception catching
 		if (index > 0 && index <= current.size()) {
 			Task deleted = current.remove(index-1);
 			sortedTime.remove(deleted);
 			sortedPriority.remove(deleted);
-			System.out.printf("%s has been removed.\n", deleted);
-			return true;
+			//UI.setList(list());
+			return deleted.toString() + " has been removed.\n";
 		}
 
-		System.out.println("Index out of bounds. Nothing has been deleted.");
-		return false;
+		return "Index out of bounds. Nothing has been deleted.";
 	}
 
 	public boolean search(String str) {
@@ -91,21 +86,22 @@ class Logic{
 		return false;
 	}
 
-	public boolean list() {
+	public String list() {
 		if (current == null) {
-			System.out.printf("Nothing to display.\n");
-			return false;
+			return "Nothing to display.\n";
 		}
-		int i = 1;
+		int i = 0;
+		String list = "";
 		for (Task task: current) {
-			System.out.printf("%d. %s\n", i++, task.toString());
+			list += ++i + ". " + task.toString() + "\n";
 		}
-		return true;
+		return list;
 	}
 
-	public void edit(int index, boolean isAppending, String description) {
+	public String edit(int index, boolean isAppending, String description) {
 		// Exception catching
-		if (index >= 0 && index < current.size()) {
+		
+		if (index > 0 && index <= current.size()) {
 			Task editTask = current.remove(index - 1);
 
 			if (isAppending) {
@@ -114,29 +110,29 @@ class Logic{
 				editTask.setDescription(taskName);
 
 				current.add(index - 1, editTask);
-
-				System.out.printf("Index %d has been updated to %s.\n", index, current.get(index));
-				return;
+				
+				//UI.setList(list());
+				return "Index " + index + " has been updated to " + current.get(index) + ".\n";
 			}
 
 			editTask.setDescription(description);
-			current.add(index, editTask);
-
-			System.out.printf("Index %d has been updated to %s.\n", index, current.get(index));
-			return;
+			current.add(index - 1, editTask);
+			
+			//UI.setList(list());
+			return "Index " + index + " has been updated to " + current.get(index - 1) + ".\n";
 		}
 
-		System.out.println("Index out of bounds. Nothing has been edited.\n");
+		return"Index out of bounds. Nothing has been edited.\n";
 
 	}
 
 
-	public void add(String description, Boolean isRepeating, Date startDate, Date endDate,
+	public String add(String description, Boolean isRepeating, Date startDate, Date endDate,
 			Time startTime, Time endTime) {
 		// TODO priority is missing
 		// TODO check with kexin whether tasks are correctly allocated
 		// TODO how to implement repeating tasks
-		
+
 		Task newTask;
 
 		if (startDate == null && startTime == null) {
@@ -154,12 +150,13 @@ class Logic{
 		else {
 			newTask = new TimedTask(description, startDate, startTime, endDate, endTime);
 		}
-		
+
 		// TODO: implementation of search
 		sortedTime.add(newTask);
 		sortedPriority.add(newTask);
 		
-		System.out.printf("%s has been added.\n", description);
+		//UI.setList(list());
+		return description + " has been added.\n";
 	}
 }
 

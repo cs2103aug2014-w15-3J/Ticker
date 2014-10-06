@@ -1,6 +1,6 @@
 // TODO: add priority to task
 
-package tickerPackage;
+package ticker.main;
 
 public class Parser {
 	
@@ -8,7 +8,7 @@ public class Parser {
 
 	}
 
-	public UserInput processInput(String command){
+	public void processInput(String command){
 		String[] words = command.split(" ");
 		for (int i=0;i<words.length;i++){
 			words[i] = words[i].trim();
@@ -17,32 +17,31 @@ public class Parser {
 		if (words[0].equals("add")){
 			String description = null;
 			int firstIndex = command.indexOf('"');
-			if (firstIndex == -1) return null;
+			if (firstIndex == -1) return;
 			int secondIndex = command.indexOf('"',firstIndex+1);
-			if (secondIndex != command.lastIndexOf('"')) return null;
+			if (secondIndex != command.lastIndexOf('"')) return;
 			
 			description = command.substring(firstIndex+1,secondIndex);
-			return callAdd(words,description);
+			callAdd(words,description);
 		
 		}
 		
 		if (words[0].equals("delete")){
-			return callDelete(words);
+			callDelete(words);
 		}
 		
 		if (words[0].equals("search")){
-			return callSearch(command.substring(command.lastIndexOf("\"")).trim());
+			callSearch(command.substring(command.lastIndexOf("\"")).trim());
 		//mistake in the line above
 		}
 		
 		if (words[0].equals("edit")){
-			return callEdit(words,command);
+			callEdit(words,command);
 		}
 		
 		if (words[0].equals("list")){
-			return callList(words);
+			callList(words);
 		}
-		return null;
 		
 	}
 	
@@ -51,8 +50,6 @@ public class Parser {
 		UserInput input = new UserInput();
 		
 		input.command="add";
-		input.description = description;
-		
 		
 		for (int i=0;i<words.length;i++){
 			
@@ -93,7 +90,7 @@ public class Parser {
 			}
 			
 			if (words[i].equals("-r")){
-				input.isAppendingRepeating = true;
+				input.isRepeatingAppending = true;
 			}
 		}
 		
@@ -128,7 +125,7 @@ public class Parser {
 		input.command = "edit";
 		input.index=index;
 		input.description = description;
-		input.isAppendingRepeating = isAppending;
+		input.isRepeatingAppending = isAppending;
 		
 		return input;
 	}
@@ -143,7 +140,7 @@ public class Parser {
 		return input;
 	}
 	
-	private UserInput callList (String[] words){
+	private void callList (String[] words){
 		
 		UserInput input = new UserInput();
 		input.command = "list";
@@ -201,12 +198,10 @@ public class Parser {
 				monthNum = i;
 				break;
 			}
-		}
-		//System.out.println(monthNum + "   " + date);	
-			
+		
 		if (monthNum!=0&&date<=numOfDays[monthNum])
 			return new Date(2014,monthNum,date);
-	    // hard coded to 2014, will solve this issue later
+		}  // hard coded to 2014, will solve this issue later
 		
 		return null;
 	}

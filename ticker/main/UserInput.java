@@ -1,4 +1,4 @@
-package tickerPackage;
+package ticker.main;
 
 public class UserInput {
 	
@@ -8,7 +8,7 @@ public class UserInput {
 	public Time endTime;
 	public Date endDate;
 	public Date startDate;
-	public boolean isAppendingRepeating;
+	public boolean isRepeatingAppending;
 	public int index;
 	public int priority;
 	
@@ -42,11 +42,11 @@ public class UserInput {
 	}
 	
 	public boolean getRepeating() {
-		return isAppendingRepeating;
+		return isRepeating;
 	}
 	
 	public boolean getAppending() {
-		return isAppendingRepeating;
+		return isAppending;
 	}
 	
 	public int getIndex() {

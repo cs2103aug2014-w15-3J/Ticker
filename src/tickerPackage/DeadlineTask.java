@@ -1,6 +1,7 @@
 package tickerPackage;
 
 public class DeadlineTask extends Task {
+	final int id = 4; //used in storage
 	Date endDate;
 	Time endTime;
 	
@@ -16,5 +17,12 @@ public class DeadlineTask extends Task {
 	
 	public Date getEndDate() {
 		return endDate;
+	}
+
+	public String toString(){
+		
+		String timing = " deadline: " + getEndTime() + " " + getEndDate();
+		
+		return description + timing;
 	}
 }

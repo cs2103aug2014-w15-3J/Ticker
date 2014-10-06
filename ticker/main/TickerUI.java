@@ -1,8 +1,8 @@
-package tickerPackage;
-
-import java.util.Vector;
+package ticker.main;
 
 import tickerPackage.Logic;
+import tickerPackage.Parser;
+import tickerPackage.Ticker;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -16,22 +16,11 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class TickerUI extends Application {
-	private static TickerUI ticker;
-	private Logic logic;
-	private static String list;
 	
-	public Logic getLogic() {
-		return logic;
-	}
-	public static TickerUI getTickerUI() {
-		return ticker;
-	}
-	public TickerUI() {
-		// Initialisation
+	private Logic logic;
+	class TickerUI() {
 		ticker = this;
 		logic = new Logic(this);
-		list = null;
-		
 	}
 
 
@@ -39,25 +28,22 @@ public class TickerUI extends Application {
         primaryStage.setTitle("Ticker");
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.TOP_LEFT);
-        grid.setHgap(0);
+        grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(10,10,10,10));
 
         Text enterCommand = new Text("Enter your command: ");
-        grid.add(enterCommand, 0, 2);
+        grid.add(enterCommand, 0, 1);
 
         TextField command = new TextField();
-        grid.add(command, 1, 2);
+        grid.add(command, 1, 1);
         
         Text showResult = new Text("Your To-dos: ");
-        grid.add(showResult, 0, 1);
+        grid.add(showResult, 0, 2);
 
         TextArea result = new TextArea();
         result.setWrapText(true);
-        grid.add(result, 1, 1);
-        
-        Text feedback = new Text();
-        grid.add(feedback, 1, 3);
+        grid.add(result, 1, 2);
 
         primaryStage.show();
 
@@ -74,33 +60,20 @@ public class TickerUI extends Application {
                 //System.out.println(cmd);
                 command.clear();
                // result.setText(cmd);
-                feedback.setText(logic.getLogic(cmd));
-                result.setText(list);
+                result.setText(manipulateString(cmd));
         	}
         		});
         
     }
 	
-	/*String printOut(Vector<Task> list) {
-		String output = null;
-		for(int i = 0; i <list.size(); i++) {
-			output.concat((i+1) + ". " + list.get(i).getDescription()+"\n");
-		}
-		
-		return output;
-	}*/
-	
 	String manipulateString(String str) {
 		return str.substring(1, 5) + "\n" + str.substring(6, 8) + "\n" + "\n" + "\n" + str.substring(6, 8)+ "\n" + "\n" + "\n" + str.substring(6, 8)+"\n" + "\n" + "\n" + str.substring(6, 8)+"\n" + "\n" + "\n" + str.substring(6, 8) + "\n" + str.substring(6, 8) + "\n" + str.substring(6, 8)+ "\n" + str.substring(6, 8)+ "\n" + str.substring(6, 8);
-	}
-	
-	public void setList(String list) {
-		this.list = list;
 	}
 
     public static void main(String[] args) {
     	launch(args);
-    	ticker = new TickerUI();
-    	
+		ticker = new TickerUI();
+		while (true)
+			ticker.parser.getCommand();
 	}
 }
