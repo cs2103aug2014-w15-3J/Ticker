@@ -25,4 +25,27 @@ public class RepeatingTask extends Task {
 	public Time getEndTime() {
 		return endTime;
 	}
+	
+	public String toString(){
+		String timing = "";
+		String temp = "";
+		
+		if(getStartTime()!=null&&getEndTime()!=null){
+			temp = " from " + getStartTime() + " to " + getEndTime();
+		}
+		
+		else if (getStartTime()!=null){
+			temp = " start at " + getStartTime();
+		}
+		
+		else if (getEndTime()!=null){
+			temp = " end at " + getEndTime();
+		}
+		
+		timing += temp;
+		
+		timing += getDate();		
+				
+		return "<repeating> " + description + timing; 
+	}
 }
