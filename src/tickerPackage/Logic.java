@@ -71,6 +71,7 @@ public class Logic{
 			Task deleted = current.remove(index-1);
 			sortedTime.remove(deleted);
 			sortedPriority.remove(deleted);
+			UI.setList(list());
 			return deleted.toString() + " has been removed.\n";
 		}
 
@@ -106,13 +107,15 @@ public class Logic{
 				editTask.setDescription(taskName);
 
 				current.add(index - 1, editTask);
-
+				
+				UI.setList(list());
 				return "Index " + index + " has been updated to " + current.get(index) + ".\n";
 			}
 
 			editTask.setDescription(description);
 			current.add(index, editTask);
-
+			
+			UI.setList(list());
 			return "Index " + index + " has been updated to " + current.get(index) + ".\n";
 		}
 
@@ -148,7 +151,8 @@ public class Logic{
 		// TODO: implementation of search
 		sortedTime.add(newTask);
 		sortedPriority.add(newTask);
-
+		
+		UI.setList(list());
 		return description + " has been added.\n";
 	}
 }
