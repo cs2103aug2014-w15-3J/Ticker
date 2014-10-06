@@ -90,7 +90,7 @@ public class Logic{
 		int i = 0;
 		String list = "";
 		for (Task task: current) {
-			list += ++i + ". " + task.toString();
+			list += ++i + ". " + task.toString() + "\n";
 		}
 		return list;
 	}
