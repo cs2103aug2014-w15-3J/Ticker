@@ -1,5 +1,7 @@
 package tickerPackage;
 
+import java.util.Calendar;
+
 /*
  * 
  *  This class represents a time
@@ -54,5 +56,10 @@ public class Time {
 		if (this.getHour()==other.getHour()&&this.getMinute()==other.getMinute())
 			return 0;
 		return 1;
+	}
+
+	public static Time getCurrentTime(){
+		Calendar cal = Calendar.getInstance();
+		return new Time(cal.get(Calendar.HOUR_OF_DAY),cal.get(Calendar.MINUTE));
 	}
 }
