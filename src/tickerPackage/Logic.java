@@ -93,7 +93,27 @@ public class Logic{
 		int i = 0;
 		String list = "";
 		for (Task task: current) {
-			list += ++i + ". " + task.toString() + "\n";
+			if (task instanceof FloatingTask) {
+				FloatingTask ft = (FloatingTask) task;
+				list += ++i + ". " + ft.toString() + "\n";
+			}
+			else if (task instanceof DeadlineTask) {
+				DeadlineTask dt = (DeadlineTask) task;
+				list += ++i + ". " + task.toString() + " " + dt.getEndDate() + " " + dt.getEndTime() + "\n";
+			}
+			
+			else if (task instanceof TimedTask) {
+				TimedTask tt = (TimedTask) task;
+				list += ++i + ". " + task.toString() + " " + tt.getStartDate() + " " + tt.getStartTime() 
+										+ " " + tt.getEndDate() + " " + tt.getEndTime() + "\n";
+			}
+			else if (task instanceof RepeatingTask) {
+				RepeatingTask rt = (RepeatingTask) task;
+				// TODO: implement repeatingtask
+			}
+			else {
+				list = ++i + ". error in typecasting task\n";
+			}
 		}
 		return list;
 	}
