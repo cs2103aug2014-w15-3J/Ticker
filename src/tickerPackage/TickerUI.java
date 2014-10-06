@@ -1,8 +1,8 @@
 package tickerPackage;
 
+import java.util.Vector;
+
 import tickerPackage.Logic;
-import tickerPackage.Parser;
-import tickerPackage.Ticker;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -18,6 +18,7 @@ import javafx.stage.Stage;
 public class TickerUI extends Application {
 	private static TickerUI ticker;
 	private Logic logic;
+	private static Vector<Task> list;
 	
 	public Logic getLogic() {
 		return logic;
@@ -29,6 +30,8 @@ public class TickerUI extends Application {
 		// Initialisation
 		ticker = this;
 		logic = new Logic(this);
+		list = null;
+		
 	}
 
 
@@ -36,22 +39,25 @@ public class TickerUI extends Application {
         primaryStage.setTitle("Ticker");
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.TOP_LEFT);
-        grid.setHgap(10);
+        grid.setHgap(0);
         grid.setVgap(10);
         grid.setPadding(new Insets(10,10,10,10));
 
         Text enterCommand = new Text("Enter your command: ");
-        grid.add(enterCommand, 0, 1);
+        grid.add(enterCommand, 0, 2);
 
         TextField command = new TextField();
-        grid.add(command, 1, 1);
+        grid.add(command, 1, 2);
         
         Text showResult = new Text("Your To-dos: ");
-        grid.add(showResult, 0, 2);
+        grid.add(showResult, 0, 1);
 
         TextArea result = new TextArea();
         result.setWrapText(true);
-        grid.add(result, 1, 2);
+        grid.add(result, 1, 1);
+        
+        Text feedback = new Text();
+        grid.add(feedback, 1, 3);
 
         primaryStage.show();
 
@@ -68,14 +74,23 @@ public class TickerUI extends Application {
                 //System.out.println(cmd);
                 command.clear();
                // result.setText(cmd);
-                result.setText(logic.getLogic(cmd));
+                feedback.setText(logic.getLogic(cmd));
+                result.setText(printOut(list));
         	}
         		});
         
     }
 	
+	String printOut(Vector<Task> list) {
+		return "dunmmy result";
+	}
+	
 	String manipulateString(String str) {
 		return str.substring(1, 5) + "\n" + str.substring(6, 8) + "\n" + "\n" + "\n" + str.substring(6, 8)+ "\n" + "\n" + "\n" + str.substring(6, 8)+"\n" + "\n" + "\n" + str.substring(6, 8)+"\n" + "\n" + "\n" + str.substring(6, 8) + "\n" + str.substring(6, 8) + "\n" + str.substring(6, 8)+ "\n" + str.substring(6, 8)+ "\n" + str.substring(6, 8);
+	}
+	
+	public void setList(Vector<Task> list) {
+		this.list = list;
 	}
 
     public static void main(String[] args) {
