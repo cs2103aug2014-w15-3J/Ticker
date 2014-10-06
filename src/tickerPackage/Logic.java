@@ -3,10 +3,12 @@ package tickerPackage;
 import java.util.Vector;
 import ticker.storage.*;
 
+
+
 public class Logic{
 	// Instances of other components
 	Parser parser;
-	//Storage storage;
+	// Storage storage;
 	TickerUI UI;
 
 	// Pointer to the Vector currently in display
@@ -71,7 +73,7 @@ public class Logic{
 			Task deleted = current.remove(index-1);
 			sortedTime.remove(deleted);
 			sortedPriority.remove(deleted);
-			UI.setList(list());
+			//UI.setList(list());
 			return deleted.toString() + " has been removed.\n";
 		}
 
@@ -98,7 +100,8 @@ public class Logic{
 
 	public String edit(int index, boolean isAppending, String description) {
 		// Exception catching
-		if (index >= 0 && index < current.size()) {
+		
+		if (index > 0 && index <= current.size()) {
 			Task editTask = current.remove(index - 1);
 
 			if (isAppending) {
@@ -108,15 +111,15 @@ public class Logic{
 
 				current.add(index - 1, editTask);
 				
-				UI.setList(list());
+				//UI.setList(list());
 				return "Index " + index + " has been updated to " + current.get(index) + ".\n";
 			}
 
 			editTask.setDescription(description);
-			current.add(index, editTask);
+			current.add(index - 1, editTask);
 			
-			UI.setList(list());
-			return "Index " + index + " has been updated to " + current.get(index) + ".\n";
+			//UI.setList(list());
+			return "Index " + index + " has been updated to " + current.get(index - 1) + ".\n";
 		}
 
 		return"Index out of bounds. Nothing has been edited.\n";
@@ -152,7 +155,7 @@ public class Logic{
 		sortedTime.add(newTask);
 		sortedPriority.add(newTask);
 		
-		UI.setList(list());
+		//UI.setList(list());
 		return description + " has been added.\n";
 	}
 }
