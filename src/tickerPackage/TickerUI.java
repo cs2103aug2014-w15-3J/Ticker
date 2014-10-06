@@ -18,7 +18,7 @@ import javafx.stage.Stage;
 public class TickerUI extends Application {
 	private static TickerUI ticker;
 	private Logic logic;
-	private static Vector<Task> list;
+	private static String list;
 	
 	public Logic getLogic() {
 		return logic;
@@ -75,26 +75,26 @@ public class TickerUI extends Application {
                 command.clear();
                // result.setText(cmd);
                 feedback.setText(logic.getLogic(cmd));
-                result.setText(printOut(list));
+                result.setText(list);
         	}
         		});
         
     }
 	
-	String printOut(Vector<Task> list) {
+	/*String printOut(Vector<Task> list) {
 		String output = null;
 		for(int i = 0; i <list.size(); i++) {
 			output.concat((i+1) + ". " + list.get(i).getDescription()+"\n");
 		}
 		
 		return output;
-	}
+	}*/
 	
 	String manipulateString(String str) {
 		return str.substring(1, 5) + "\n" + str.substring(6, 8) + "\n" + "\n" + "\n" + str.substring(6, 8)+ "\n" + "\n" + "\n" + str.substring(6, 8)+"\n" + "\n" + "\n" + str.substring(6, 8)+"\n" + "\n" + "\n" + str.substring(6, 8) + "\n" + str.substring(6, 8) + "\n" + str.substring(6, 8)+ "\n" + str.substring(6, 8)+ "\n" + str.substring(6, 8);
 	}
 	
-	public void setList(Vector<Task> list) {
+	public void setList(String list) {
 		this.list = list;
 	}
 
