@@ -85,6 +85,9 @@ public class Logic{
 			Task deleted = current.remove(index-1);
 			sortedTime.remove(deleted);
 			sortedPriority.remove(deleted);
+			
+			storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
+			storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
 			UI.setList(list());
 			return deleted.toString() + " has been removed.\n";
 		}
@@ -158,7 +161,8 @@ public class Logic{
 					sortedTime.add(editTask);
 				}
 
-				
+				storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
+				storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
 				UI.setList(list());
 				return "Index " + index + " has been updated to " + current.get(index) + ".\n";
 			}
@@ -172,7 +176,8 @@ public class Logic{
 				sortedTime.add(editTask);
 			}
 
-			
+			storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
+			storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
 			UI.setList(list());
 			return "Index " + index + " has been updated to " + current.get(index - 1) + ".\n";
 		}
