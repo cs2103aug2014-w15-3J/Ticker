@@ -25,7 +25,7 @@ public class Ticker {
 	//private static Storage storage;
 
 	public Ticker() {
-		logic = new Logic(this);
+		logic = new Logic();
 	}
 
 	public static void main(String[] args) {
@@ -33,6 +33,9 @@ public class Ticker {
 		Ticker ticker = new Ticker();
 		Scanner sc = new Scanner(System.in);
 
+		System.out.println("current time: " + Time.getCurrentTime());
+		System.out.println("current date: " + Date.getCurrentDate());
+		
 		while (sc.hasNext()) {
 			String feedback = logic.getLogic(sc.nextLine());
 			System.out.printf(feedback);
