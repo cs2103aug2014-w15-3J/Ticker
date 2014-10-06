@@ -43,6 +43,11 @@ public class Parser {
 		if (words[0].equals("list")){
 			return callList(words);
 		}
+		
+		if (words[0].equals("tick")){
+			return callTick(words);
+		}
+		
 		return null;
 		
 	}
@@ -105,6 +110,14 @@ public class Parser {
 		
 		UserInput input = new UserInput();
 		input.command="delete";
+		input.index=Integer.parseInt(words[1]);
+		return input;
+	}
+	
+	private UserInput callTick(String[] words){
+		
+		UserInput input = new UserInput();
+		input.command="tick";
 		input.index=Integer.parseInt(words[1]);
 		return input;
 	}
@@ -223,7 +236,7 @@ public class Parser {
 		final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 		if (month == 0){
 			for (int i=0;i<months.length;i++){
-				if (months[i].equals(monthStr)){
+				if (months[i].toLowerCase().equals(monthStr.toLowerCase())){
 					month = i;
 					break;
 				}
@@ -234,7 +247,6 @@ public class Parser {
 			
 		if (month!=0&&date<=numOfDays[month])
 			return new Date(year,month,date);
-	    // hard coded to 2014, will solve this issue later
 		
 		return null;
 	}
