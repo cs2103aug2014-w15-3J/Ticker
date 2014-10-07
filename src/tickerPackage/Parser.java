@@ -215,22 +215,26 @@ public class Parser {
 		
 		if (str.lastIndexOf("/")==index){
 			monthStr = str.substring(index+1);
+			try {  
+				month = Integer.parseInt(monthStr);  
+			}  
+				catch(NumberFormatException nfe) {    
+			}  
 		}
 		
 		else {
 			monthStr = str.substring(index+1,str.lastIndexOf("/"));
-			try {  
+			try {
 				year = Integer.parseInt(str.substring(str.lastIndexOf("/")+1));  
-			}  
-			catch(NumberFormatException nfe) {    
+			}	catch(NumberFormatException nfe) {    
 			}  
 		}
 
 		try {  
 			month = Integer.parseInt(str.substring(index+1,str.lastIndexOf("/")));  
-		}  
-		catch(NumberFormatException nfe) {    
-		}
+		}	catch(NumberFormatException nfe) {    
+		}	catch(IndexOutOfBoundsException ioobe){
+		} 
 		
 		final int[] numOfDays = {0,31,28,31,30,31,30,31,31,30,31,30,31};
 		final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};

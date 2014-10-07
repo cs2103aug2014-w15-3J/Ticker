@@ -21,7 +21,12 @@ public class DeadlineTask extends Task {
 
 	public String toString(){
 		
-		String timing = " deadline: " + getEndTime() + " " + getEndDate();
+		String timing = " deadline ";
+		
+		if (getEndTime()!=null)
+			timing += getEndTime();
+		
+		timing += getEndDate();
 		
 		return description + timing;
 	}
