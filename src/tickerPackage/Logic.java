@@ -162,7 +162,7 @@ public class Logic{
 				storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
 				storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
 				UI.setList(list());
-				return "Index " + index + " has been updated to " + current.get(index) + ".\n";
+				return "Index " + index + " has been updated to " + current.get(index - 1) + ".\n";
 			}
 
 			editTask.setDescription(description);
