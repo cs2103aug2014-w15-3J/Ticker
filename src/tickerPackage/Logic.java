@@ -113,17 +113,16 @@ public class Logic{
 			}
 			else if (task instanceof DeadlineTask) {
 				DeadlineTask dt = (DeadlineTask) task;
-				list += ++i + ". " + task.toString() + " " + dt.getEndDate() + " " + dt.getEndTime() + "\n";
+				list += ++i + ". " + dt.toString() + "\n";
 			}
 			
 			else if (task instanceof TimedTask) {
 				TimedTask tt = (TimedTask) task;
-				list += ++i + ". " + task.toString() + " " + tt.getStartDate() + " " + tt.getStartTime() 
-										+ " " + tt.getEndDate() + " " + tt.getEndTime() + "\n";
+				list += ++i + ". " + tt.toString() + "\n";
 			}
 			else if (task instanceof RepeatingTask) {
 				RepeatingTask rt = (RepeatingTask) task;
-				// TODO: implement repeatingtask
+				list += ++i + ". " + rt.toString() + "\n";// TODO: implement repeatingtask
 			}
 			else {
 				list = ++i + ". error in typecasting task\n";
