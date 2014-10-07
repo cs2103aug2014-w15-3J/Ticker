@@ -30,7 +30,6 @@ public class TickerUI extends Application {
 		// Initialisation
 		ticker = this;
 		logic = new Logic(this);
-		list = null;
 		
 	}
 
@@ -55,6 +54,7 @@ public class TickerUI extends Application {
         TextArea result = new TextArea();
         result.setWrapText(true);
         grid.add(result, 1, 1);
+        result.setText(list);
         
         Text feedback = new Text();
         grid.add(feedback, 1, 3);

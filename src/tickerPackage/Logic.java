@@ -44,14 +44,12 @@ public class Logic{
 		
 		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
 		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
-
-		// STUB:
-		sortedTime = new Vector<Task>();
-		sortedPriority = new Vector<Task>();
 		searchResults = new Vector<Task>();
 
 		current = sortedTime;
 		listTracker = SORTED_TIME;
+		
+		UI.setList(list());
 
 	}
 
