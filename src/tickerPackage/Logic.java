@@ -79,7 +79,7 @@ public class Logic{
 	}
 
 
-	public String delete(int index) {
+	private String delete(int index) {
 		// Exception catching
 		if (index > 0 && index <= current.size()) {
 			Task deleted = current.remove(index-1);
@@ -95,14 +95,14 @@ public class Logic{
 		return "Index out of bounds. Nothing has been deleted.";
 	}
 
-	public boolean search(String str) {
+	private boolean search(String str) {
 		// TODO Auto-generated method stub
 		System.out.println("search");
 		return false;
 	}
 
 	// TODO: Add identifying method to Parser so that user can list in either Time or Array
-	public String list() {
+	private String list() {
 		if (current == null) {
 			return "Nothing to display.\n";
 		}
@@ -134,7 +134,7 @@ public class Logic{
 		return list;
 	}
 
-	public String edit(int index, boolean isAppending, String description) {
+	private String edit(int index, boolean isAppending, String description) {
 		// Exception catching
 		
 		if (index > 0 && index <= current.size()) {
@@ -188,7 +188,7 @@ public class Logic{
 	}
 
 
-	public String add(String description, Boolean isRepeating, Date startDate, Date endDate,
+	private String add(String description, boolean isRepeating, Date startDate, Date endDate,
 			Time startTime, Time endTime) {
 		// TODO priority is missing
 		// TODO check with kexin whether tasks are correctly allocated
