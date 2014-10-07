@@ -30,7 +30,6 @@ public class TickerUI extends Application {
 		// Initialisation
 		ticker = this;
 		logic = new Logic(this);
-		list = null;
 		
 	}
 
@@ -46,17 +45,18 @@ public class TickerUI extends Application {
         Text enterCommand = new Text("Enter your command: ");
         grid.add(enterCommand, 0, 2);
 
-        TextField command = new TextField();
+        final TextField command = new TextField();
         grid.add(command, 1, 2);
         
         Text showResult = new Text("Your To-dos: ");
         grid.add(showResult, 0, 1);
 
-        TextArea result = new TextArea();
+        final TextArea result = new TextArea();
         result.setWrapText(true);
         grid.add(result, 1, 1);
+        result.setText(list);
         
-        Text feedback = new Text();
+        final Text feedback = new Text();
         grid.add(feedback, 1, 3);
 
         primaryStage.show();

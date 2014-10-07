@@ -44,14 +44,12 @@ public class Logic{
 		
 		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
 		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
-
-		// STUB:
-		sortedTime = new Vector<Task>();
-		sortedPriority = new Vector<Task>();
 		searchResults = new Vector<Task>();
 
 		current = sortedTime;
 		listTracker = SORTED_TIME;
+		
+		UI.setList(list());
 
 	}
 
@@ -115,17 +113,16 @@ public class Logic{
 			}
 			else if (task instanceof DeadlineTask) {
 				DeadlineTask dt = (DeadlineTask) task;
-				list += ++i + ". " + task.toString() + " " + dt.getEndDate() + " " + dt.getEndTime() + "\n";
+				list += ++i + ". " + dt.toString() + "\n";
 			}
 			
 			else if (task instanceof TimedTask) {
 				TimedTask tt = (TimedTask) task;
-				list += ++i + ". " + task.toString() + " " + tt.getStartDate() + " " + tt.getStartTime() 
-										+ " " + tt.getEndDate() + " " + tt.getEndTime() + "\n";
+				list += ++i + ". " + tt.toString() + "\n";
 			}
 			else if (task instanceof RepeatingTask) {
 				RepeatingTask rt = (RepeatingTask) task;
-				// TODO: implement repeatingtask
+				list += ++i + ". " + rt.toString() + "\n";// TODO: implement repeatingtask
 			}
 			else {
 				list = ++i + ". error in typecasting task\n";
@@ -165,7 +162,7 @@ public class Logic{
 				storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
 				storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
 				UI.setList(list());
-				return "Index " + index + " has been updated to " + current.get(index) + ".\n";
+				return "Index " + index + " has been updated to " + current.get(index - 1) + ".\n";
 			}
 
 			editTask.setDescription(description);
