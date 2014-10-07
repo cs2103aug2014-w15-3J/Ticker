@@ -5,25 +5,24 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
+
 import java.util.Scanner;
 import java.util.Vector;
 
-import tickerPackage.DeadlineTask;
-import tickerPackage.FloatingTask;
-import tickerPackage.RepeatingTask;
 import tickerPackage.Task;
-import tickerPackage.TimedTask;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
-class Storage {
+
+/**
+*  Storage is the storage component for Ticker. 
+* 
+*  @author Choo Jia Le
+*  @version 0.1
+*/
+public class Storage {
 	private Vector<Task> storedTasksByPriority = new Vector<Task>();
 	private Vector<Task> storedTasksByDeadline = new Vector<Task>();
 	private File fileSortedByPriority, fileSortedByDeadline;
@@ -36,16 +35,23 @@ class Storage {
 	private static final String MESSAGE_FILE_WRITE_ERROR = "Could not write to %1$s: \"%2$s\"";
 	private static final String MESSAGE_FILE_READ_ERROR = "Could not read from %1$s: \"%2$s\"";
 
+	private static final int TASKS_DEADLINE_INDEX = 1;
+	private static final int TASKS_PRIORITY_INDEX = 2;
+	private static final String TASKS_PRIORITY_FILENAME = "priority.json";
+	private static final String TASKS_DEADLINE_FILENAME = "deadline.json"; 
+
+	public Storage() {
+		 initFile();
+	}
 	
 	/**
 	 * Initialize the file that will be edited.
 	 * If the file exists, read the content into the program.
 	 * If the file doesn't exist, create the file.
-	 * 
 	 */
 	private void initFile() {
-		fileSortedByDeadline = new File("deadline.json");
-		fileSortedByPriority = new File("priority.json");
+		fileSortedByDeadline = new File(TASKS_DEADLINE_FILENAME);
+		fileSortedByPriority = new File(TASKS_PRIORITY_FILENAME);
 		if (fileSortedByDeadline.exists()) {
 			readFileContentIntoStorageArray(fileSortedByDeadline);
 		} else {
@@ -74,18 +80,31 @@ class Storage {
 		}
 	}
 	
-	protected boolean writeStorageArrayIntoFile(String keyword){
+	/**
+	*  Writes the specific <code>Vector<Task></code> into JSON file as specified by the key 
+	*	
+	*  @param key 						the key to specify which file to write into. 
+	*  @param tasks 					the list of tasks to be converted into JSON and written into the file
+	*  @return 							<code>true</code> if the specific vector is added to the file successfully.
+	*									<code>false</code> otherwise.
+	*  @throws IllegalArgumentException If the input is not 1 or 2
+	*/
+	public boolean writeStorageArrayIntoFile(int key, Vector<Task> tasks) throws IllegalArgumentException {
 		try {
-			if(keyword.equals("deadline")) {
+			if(key == TASKS_PRIORITY_INDEX) {
 				fileWriter = new BufferedWriter(new FileWriter(fileSortedByPriority));
+				setStoredTaskByPriority(tasks);
 				String result = convertToJSON(storedTasksByPriority);
 				fileWriter.write(result);
-			} else {
+			} else if (key == TASKS_DEADLINE_INDEX) {
 				fileWriter = new BufferedWriter(new FileWriter(fileSortedByDeadline));
+				setStoredTaskByDeadline(tasks);
 				String result = convertToJSON(storedTasksByDeadline);
 				fileWriter.write(result);
+			} else {
+				throw new IllegalArgumentException("illegal key " + key);
 			}
-			
+
 			fileWriter.flush();
 			fileWriter.close();
 			return true;
@@ -97,14 +116,45 @@ class Storage {
 		}
 	}
 	
-	protected void readFileContentIntoStorageArray(File jsonFile){
+	private void readFileContentIntoStorageArray(File jsonFile){
 		createNewFileReader(jsonFile);
-		String json = fileReader.next();
-		Vector<Task> tasks = JSONToTasksVector(json);
-		setStoredTaskByDeadline(tasks);
+		String json = "";
+		while(fileReader.hasNextLine()) {
+			json += fileReader.nextLine();
+
+		}
+		try {
+			Vector<Task> tasks = JSONToTasksVector(json);
+			if(jsonFile.getName().equals(TASKS_DEADLINE_FILENAME)) {
+				setStoredTaskByDeadline(tasks);			
+			} else {
+				setStoredTaskByPriority(tasks);
+			}
+		} catch (IllegalStateException ise) {
+			System.out.println(); //TODO: decision to be made. if system is being tampered with, delete the whole database? To be completed
+		}
 		fileReader.close();
 	}
-	 
+	
+	/**
+	*  Restore the data from the file that stores the data in JSON format
+	*	
+	*  @param key 						the key to specify which file to retrieve from. 
+	*  @return 							a list of tasks in <code>Vector<Task></code> form								
+	*  @throws IllegalArgumentException If the input is not 1 or 2
+	*/
+	public Vector<Task> restoreDataFromFile(int key){
+		if(key == TASKS_PRIORITY_INDEX) {
+			readFileContentIntoStorageArray(fileSortedByPriority);
+			return storedTasksByPriority;
+		} else if (key == TASKS_DEADLINE_INDEX) {
+			readFileContentIntoStorageArray(fileSortedByDeadline);
+			return storedTasksByDeadline;
+		} else {
+			throw new IllegalArgumentException("illegal key " + key);
+		}
+	}
+
 	/**
 	 * Creates a new reader for the current text file.
 	 * Program will exit if there is a file read error.
@@ -118,7 +168,7 @@ class Storage {
 			}
 		} catch (FileNotFoundException fnfe) {
 			String fileReadError = null;
-			if(jsonFile.getName() == "deadline.json") {
+			if(jsonFile.getName().equals(TASKS_DEADLINE_FILENAME)) {
 				fileReadError = String.format(MESSAGE_FILE_READ_ERROR, fileSortedByDeadline.getName(), fnfe.getMessage());
 			} else {
 				fileReadError = String.format(MESSAGE_FILE_READ_ERROR, fileSortedByPriority.getName(), fnfe.getMessage());
@@ -137,9 +187,11 @@ class Storage {
 			fileWriter = new BufferedWriter(new FileWriter(fileSortedByDeadline));
 			fileWriter.write(new String());
 			fileWriter.flush();
+
 			fileWriter = new BufferedWriter(new FileWriter(fileSortedByPriority));
 			fileWriter.write(new String());
 			fileWriter.flush();
+
 			fileWriter.close();
 		} catch (IOException ioe) {
 			String fileWriteError = String.format(MESSAGE_FILE_WRITE_ERROR, fileSortedByDeadline.getName(), ioe.getMessage()); //TODO: to be modified
@@ -151,13 +203,18 @@ class Storage {
 	/**
 	 * Prints the text to console and terminates the line.
 	 * 
-	 * @param text
-	 * 			The text to be printed.
+	 * @param text	The text to be printed.
 	 */
-	public void showToUser(String text) {
+	private void showToUser(String text) {
 		System.out.println(text);
 	}
 	
+	/**
+	*  Convert the <code>Vector<Task></code> input into JSON string
+	*
+	*  @param tasks  the list of tasks to be converted into JSON string
+	*  @return JSON string
+	*/
 	public String convertToJSON(Vector<Task> tasks){
 		GsonBuilder gson = new GsonBuilder().setPrettyPrinting();
 		gson.registerTypeAdapter(Task.class, new CustomDeserializer());
@@ -166,13 +223,19 @@ class Storage {
 		return json;
 	}
 	
-	public Vector<Task> JSONToTasksVector(String json) {
+	/**
+	*  Convert the JSON string input into <code>Vector<Task></code>
+	*
+	*  @param json  					the JSON string to be converted into <code>Vector<Task></code>
+	*  @return							a list of tasks in <code>Vector<Task></code>
+	*  @throws IllegalStateException	if the file is not in JSON format	
+	*/
+	public Vector<Task> JSONToTasksVector(String json) throws IllegalStateException{
 		Vector<Task> tasks = new Vector<Task>();
 		GsonBuilder gson = new GsonBuilder();
 		JsonParser parse = new JsonParser();
 		JsonArray jsonArray = parse.parse(json).getAsJsonArray();
 		gson.registerTypeAdapter(Task.class, new CustomDeserializer());
-		
 		for(int i = 0; i < jsonArray.size(); i++){
 			Task output = gson.create().fromJson(jsonArray.get(i), Task.class);
 			tasks.add(output);
@@ -187,31 +250,8 @@ class Storage {
 	public void setStoredTaskByDeadline(Vector<Task> tasks) {
 		storedTasksByDeadline = tasks;
 	}
-	
-	class CustomDeserializer implements JsonDeserializer<Task>{
-		
-		public Task deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-			
-			if (json == null) {
-				return null;
-			} else {
-				// null management can be improved
-				int id = json.getAsJsonObject().get("id").getAsInt();
-				switch(id){
-				case 1:
-					return context.deserialize(json, FloatingTask.class);
-				case 2:
-					return context.deserialize(json, TimedTask.class);
-				case 3:
-					return context.deserialize(json, RepeatingTask.class);
-				case 4:
-					return context.deserialize(json, DeadlineTask.class);
-				default:
-					return null;
-				}
-			}
-		}
-	}
+}
+
 //	public Vector<Task> readJsonStream(InputStream in) throws IOException {
 //	     JsonReader reader = new JsonReader(new InputStreamReader(in, "UTF-8"));
 //	     try {
@@ -305,4 +345,3 @@ class Storage {
 //		   return new Date(year, month, date);
 //	}
 //
-}

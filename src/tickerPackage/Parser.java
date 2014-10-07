@@ -9,6 +9,7 @@ public class Parser {
 	}
 
 	public UserInput processInput(String command){
+		System.out.println("processInput");
 		String[] words = command.split(" ");
 		for (int i=0;i<words.length;i++){
 			words[i] = words[i].trim();
@@ -42,12 +43,17 @@ public class Parser {
 		if (words[0].equals("list")){
 			return callList(words);
 		}
+		
+		if (words[0].equals("tick")){
+			return callTick(words);
+		}
+		
 		return null;
 		
 	}
 	
 	private UserInput callAdd(String[] words,String description){
-		
+		System.out.println("callAdd");
 		UserInput input = new UserInput();
 		
 		input.command="add";
@@ -104,6 +110,14 @@ public class Parser {
 		
 		UserInput input = new UserInput();
 		input.command="delete";
+		input.index=Integer.parseInt(words[1]);
+		return input;
+	}
+	
+	private UserInput callTick(String[] words){
+		
+		UserInput input = new UserInput();
+		input.command="tick";
 		input.index=Integer.parseInt(words[1]);
 		return input;
 	}
@@ -187,26 +201,56 @@ public class Parser {
 	
 	
 	private Date constructDate(String str){
+		System.out.println("ConstructDate");
 		
-		int index = str.indexOf(",");
+		int index = str.indexOf("/");
+		System.out.println("index = " + index);
+		if (index==-1) return null;
 		
-		String month = str.substring(index+1);
 		int date = Integer.parseInt(str.substring(0,index));
+		int month=0;
+		int year = Date.getCurrentYear();
+		
+		String monthStr;
+		
+		if (str.lastIndexOf("/")==index){
+			monthStr = str.substring(index+1);
+			try {  
+				month = Integer.parseInt(monthStr);  
+			}  
+				catch(NumberFormatException nfe) {    
+			}  
+		}
+		
+		else {
+			monthStr = str.substring(index+1,str.lastIndexOf("/"));
+			try {
+				year = Integer.parseInt(str.substring(str.lastIndexOf("/")+1));  
+			}	catch(NumberFormatException nfe) {    
+			}  
+		}
+
+		try {  
+			month = Integer.parseInt(str.substring(index+1,str.lastIndexOf("/")));  
+		}	catch(NumberFormatException nfe) {    
+		}	catch(IndexOutOfBoundsException ioobe){
+		} 
 		
 		final int[] numOfDays = {0,31,28,31,30,31,30,31,31,30,31,30,31};
 		final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
-		int monthNum = 0;
-		for (int i=0;i<months.length;i++){
-			if (months[i].equals(month)){
-				monthNum = i;
-				break;
+		if (month == 0){
+			for (int i=0;i<months.length;i++){
+				if (months[i].toLowerCase().equals(monthStr.toLowerCase())){
+					month = i;
+					break;
+				}
 			}
 		}
-		//System.out.println(monthNum + "   " + date);	
+		
+		System.out.println(year + "   " + month + "   "+ date);
 			
-		if (monthNum!=0&&date<=numOfDays[monthNum])
-			return new Date(2014,monthNum,date);
-	    // hard coded to 2014, will solve this issue later
+		if (month!=0&&date<=numOfDays[month])
+			return new Date(year,month,date);
 		
 		return null;
 	}
