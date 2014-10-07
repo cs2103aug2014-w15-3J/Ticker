@@ -1,5 +1,6 @@
 package tickerPackage;
 
+import java.util.Collections;
 import java.util.Vector;
 
 import ticker.storage.*;
@@ -83,6 +84,9 @@ public class Logic{
 			Task deleted = current.remove(index-1);
 			sortedTime.remove(deleted);
 			sortedPriority.remove(deleted);
+			
+			Collections.sort(sortedTime, new sortByTime());
+			Collections.sort(sortedPriority, new sortByPriority());
 			
 			storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
 			storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
@@ -173,9 +177,13 @@ public class Logic{
 			else if (listTracker == SORTED_PRIORITY) {
 				sortedTime.add(editTask);
 			}
+			
+			Collections.sort(sortedTime, new sortByTime());
+			Collections.sort(sortedPriority, new sortByPriority());
 
 			storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
 			storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+			
 			UI.setList(list());
 			return "Index " + index + " has been updated to " + current.get(index - 1) + ".\n";
 		}
@@ -211,8 +219,12 @@ public class Logic{
 
 		// TODO: implementation of search
 		sortedTime.add(newTask);
-		storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
 		sortedPriority.add(newTask);
+		
+		Collections.sort(sortedTime, new sortByTime());
+		Collections.sort(sortedPriority, new sortByPriority());
+		
+		storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
 		storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
 		
 		UI.setList(list());
