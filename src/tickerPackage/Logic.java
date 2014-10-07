@@ -1,23 +1,31 @@
 package tickerPackage;
 
 import java.util.Vector;
-import ticker.storage.*;
 
+import ticker.storage.*;
 
 
 public class Logic{
 	// Instances of other components
 	Parser parser;
-	// Storage storage;
+	Storage storage;
 	TickerUI UI;
 
 	// Pointer to the Vector currently in display
 	Vector<Task> current;
+	
+	private static final int SORTED_TIME = 1;
+	private static final int SORTED_PRIORITY = 2;
+	
 
 	// Temporary sorted storages
 	Vector<Task> sortedTime;
 	Vector<Task> sortedPriority;
 	Vector<Task> searchResults;
+	
+	// Tracker to track what Vector is being used
+	
+	static int listTracker;
 
 	// HashMaps to be added in later
 	public Logic() {
@@ -32,7 +40,10 @@ public class Logic{
 
 		// Instantiating sub-components
 		parser = new Parser();
-		//storage = new Storage();
+		storage = new Storage();
+		
+		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
+		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
 
 		// STUB:
 		sortedTime = new Vector<Task>();
@@ -40,6 +51,7 @@ public class Logic{
 		searchResults = new Vector<Task>();
 
 		current = sortedTime;
+		listTracker = SORTED_TIME;
 
 	}
 
@@ -67,26 +79,30 @@ public class Logic{
 	}
 
 
-	public String delete(int index) {
+	private String delete(int index) {
 		// Exception catching
 		if (index > 0 && index <= current.size()) {
 			Task deleted = current.remove(index-1);
 			sortedTime.remove(deleted);
 			sortedPriority.remove(deleted);
-			//UI.setList(list());
+			
+			storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
+			storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+			UI.setList(list());
 			return deleted.toString() + " has been removed.\n";
 		}
 
 		return "Index out of bounds. Nothing has been deleted.";
 	}
 
-	public boolean search(String str) {
+	private boolean search(String str) {
 		// TODO Auto-generated method stub
 		System.out.println("search");
 		return false;
 	}
 
-	public String list() {
+	// TODO: Add identifying method to Parser so that user can list in either Time or Array
+	private String list() {
 		if (current == null) {
 			return "Nothing to display.\n";
 		}
@@ -118,27 +134,52 @@ public class Logic{
 		return list;
 	}
 
-	public String edit(int index, boolean isAppending, String description) {
+	private String edit(int index, boolean isAppending, String description) {
 		// Exception catching
 		
 		if (index > 0 && index <= current.size()) {
 			Task editTask = current.remove(index - 1);
+			
+			// Edit the other Vector<Task>
+			if (listTracker == SORTED_TIME ) {
+				sortedPriority.remove(editTask);
+			}
+			else if (listTracker == SORTED_PRIORITY) {
+				sortedTime.remove(editTask);
+			}
 
 			if (isAppending) {
 				String taskName = editTask.getDescription();
 				taskName += " " + description;
 				editTask.setDescription(taskName);
-
-				current.add(index - 1, editTask);
 				
-				//UI.setList(list());
+				// TODO: to implement sort function so there will not be need to keep index at the same place
+				current.add(index - 1, editTask);
+				if (listTracker == SORTED_TIME ) {
+					sortedPriority.add(editTask);
+				}
+				else if (listTracker == SORTED_PRIORITY) {
+					sortedTime.add(editTask);
+				}
+
+				storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
+				storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+				UI.setList(list());
 				return "Index " + index + " has been updated to " + current.get(index) + ".\n";
 			}
 
 			editTask.setDescription(description);
 			current.add(index - 1, editTask);
-			
-			//UI.setList(list());
+			if (listTracker == SORTED_TIME ) {
+				sortedPriority.add(editTask);
+			}
+			else if (listTracker == SORTED_PRIORITY) {
+				sortedTime.add(editTask);
+			}
+
+			storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
+			storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+			UI.setList(list());
 			return "Index " + index + " has been updated to " + current.get(index - 1) + ".\n";
 		}
 
@@ -147,7 +188,7 @@ public class Logic{
 	}
 
 
-	public String add(String description, Boolean isRepeating, Date startDate, Date endDate,
+	private String add(String description, boolean isRepeating, Date startDate, Date endDate,
 			Time startTime, Time endTime) {
 		// TODO priority is missing
 		// TODO check with kexin whether tasks are correctly allocated
@@ -173,9 +214,11 @@ public class Logic{
 
 		// TODO: implementation of search
 		sortedTime.add(newTask);
+		storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
 		sortedPriority.add(newTask);
+		storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
 		
-		//UI.setList(list());
+		UI.setList(list());
 		return description + " has been added.\n";
 	}
 }
