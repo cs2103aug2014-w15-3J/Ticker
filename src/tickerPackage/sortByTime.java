@@ -30,8 +30,9 @@ public class sortByTime implements Comparator<Task> {
 			if (task1.startTime == null && task2.startTime != null) {
 				return 1;
 			}
-
-			return 0;
+			
+			// Tertiary comparison between TimedTasks using description
+			return task1.description.compareTo(task2.description);
 
 		}
 
@@ -60,7 +61,8 @@ public class sortByTime implements Comparator<Task> {
 				return 1;
 			}
 
-			return 0;					
+			// Tertiary comparison using description
+			return task1.description.compareTo(task2.description);				
 
 		}
 		
@@ -88,7 +90,8 @@ public class sortByTime implements Comparator<Task> {
 				return 1;
 			}
 
-			return 0;					
+			// Tertiary comparison using description
+			return task1.description.compareTo(task2.description);				
 
 		}
 		
@@ -125,7 +128,8 @@ public class sortByTime implements Comparator<Task> {
 				return 1;
 			}
 
-			return 0;	
+			// Tertiary comparison between DeadlineTasks using description
+			return task1.description.compareTo(task2.description);	
 		}
 
 		// Comparing DeadlineTasks with FloatingTasks
