@@ -101,7 +101,7 @@ public class sortByTime implements Comparator<Task> {
 			return -1;
 		}
 		if ((task1.startDate == null && task1.endDate == null) && task2.startDate != null) {
-			return -1;
+			return 1;
 		}
 
 		// Comparing between DeadlineTasks
