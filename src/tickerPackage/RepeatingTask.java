@@ -5,8 +5,8 @@ public class RepeatingTask extends Task {
 	final int id = 3; //used in storage
 	Date date;
 
-	public RepeatingTask(String description, Date date, Time startTime, Time endTime) {
-		super(description, null, startTime, null, startTime);
+	public RepeatingTask(String description, Date date, Time startTime, Time endTime, int priority) {
+		super(description, null, startTime, null, startTime, priority);
 		this.date = date;
 	}
 	
