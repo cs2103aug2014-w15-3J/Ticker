@@ -3,8 +3,8 @@ package tickerPackage;
 public class DeadlineTask extends Task {
 	final int id = 4; //used in storage
 	
-	public DeadlineTask(String description, Date endDate, Time endTime) {
-		super(description, null, null, endDate, endTime);
+	public DeadlineTask(String description, Date endDate, Time endTime, int priority) {
+		super(description, null, null, endDate, endTime, priority);
 	}
 	
 	public String toString(){

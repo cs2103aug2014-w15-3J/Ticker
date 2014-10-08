@@ -6,19 +6,22 @@ public class Task {
 	protected Time startTime;
 	protected Date endDate;
 	protected Time endTime;
+	protected int priority;
 
-	public Task(String description, Date startDate, Time startTime, Date endDate, Time endTime) {
+	public Task(String description, Date startDate, Time startTime, Date endDate, Time endTime, int priority) {
 		this.description = description;
 		this.startDate = startDate;
 		this.startTime = startTime;
 		this.endDate = endDate;
 		this.endTime = endTime;
+		this.priority = priority;
 	}
 
 	public String toString() {
 		return description;
 	}
 
+	// Getters
 	public String getDescription() {
 		return description;
 	}
@@ -38,11 +41,15 @@ public class Task {
 	public Time getEndTime() {
 		return endTime;
 	}
+	
+	public int getPriority() {
+		return priority;
+	}
 
+	// Setters
 	public void setDescription(String input) {
 		description = input;
 	}
-
 
 	public void setStartDate(Date input) {
 		startDate = input;
@@ -58,6 +65,10 @@ public class Task {
 
 	public void setEndTime(Time input) {
 		endTime = input;
+	}
+	
+	public void setPriority(int input) {
+		priority = input;
 	}
 
 }

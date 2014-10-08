@@ -62,9 +62,9 @@ public class Logic{
 		switch (processed.getCommand()) {
 		case "delete": 
 			feedback = this.delete(processed.getIndex()); break;
-			// case "search":
-		case "list":
-			feedback = this.list(); break;
+		// case "search":
+		// case "list":
+			// feedback = this.list(); break;
 		case "edit":
 			feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription()); break;
 		case "add":
@@ -195,7 +195,6 @@ public class Logic{
 
 	private String add(String description, boolean isRepeating, Date startDate, Date endDate,
 			Time startTime, Time endTime) {
-		// TODO priority is missing
 		// TODO check with kexin whether tasks are correctly allocated
 		// TODO how to implement repeating tasks
 
@@ -204,17 +203,20 @@ public class Logic{
 		if (startDate == null && startTime == null) {
 			// Creation of floating tasks
 			if (endDate == null && endTime == null) {
-				newTask = new FloatingTask(description);
+				// TODO: set priority
+				newTask = new FloatingTask(description, 0);
 			}
 			// Creation of deadline tasks
 			else {
-				newTask = new DeadlineTask(description, endDate, endTime);
+				// TODO: set priority
+				newTask = new DeadlineTask(description, endDate, endTime, 0);
 			}
 
 		}
 		// Creation of timed tasks
 		else {
-			newTask = new TimedTask(description, startDate, startTime, endDate, endTime);
+			// TODO: set priority
+			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, 0);
 		}
 
 		// TODO: implementation of search
