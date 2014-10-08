@@ -62,9 +62,9 @@ public class Logic{
 		switch (processed.getCommand()) {
 		case "delete": 
 			feedback = this.delete(processed.getIndex()); break;
-			// case "search":
-		case "list":
-			feedback = this.list(); break;
+		// case "search":
+		// case "list":
+			// feedback = this.list(); break;
 		case "edit":
 			feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription()); break;
 		case "add":
