@@ -3,13 +3,26 @@ package tickerPackage;
 import java.util.Comparator;
 
 public class sortByPriority implements Comparator <Task> {
-	
+
 	public int compare(Task task1, Task task2) {
 		// Comparing between TimedTasks
 		if (task1.priority != task2.priority) {
 			return task2.priority - task1.priority;
 		}
-		
+
+		// Comparing between non-repeating tasks and RepeatingTasks
+		if (task1.isRepeating == false && task2.isRepeating == true) {
+			return -1;
+		}
+		if (task1.isRepeating == true && task2.isRepeating == false) {
+			return 1;
+		}
+
+		// Comparing between RepeatingTasks
+		if (task1.isRepeating == true && task2.isRepeating == true) {
+			return task1.startDate.compareTo(task2.startDate);
+		}
+
 		if (task1.startDate != null && task2.startDate != null) {
 
 			// Primary comparison between TimedTasks using startDate
@@ -33,7 +46,7 @@ public class sortByPriority implements Comparator <Task> {
 			if (task1.startTime == null && task2.startTime != null) {
 				return 1;
 			}
-			
+
 			// Tertiary comparison between TimedTasks using description
 			return task1.description.compareTo(task2.description);
 
@@ -68,7 +81,7 @@ public class sortByPriority implements Comparator <Task> {
 			return task1.description.compareTo(task2.description);				
 
 		}
-		
+
 		if ((task1.startDate == null && task1.endDate != null) && task2.startDate != null) {
 
 			// Primary comparison between TimedTasks and DeadlineTasks using startDate and endDate respectively
@@ -97,7 +110,7 @@ public class sortByPriority implements Comparator <Task> {
 			return task1.description.compareTo(task2.description);				
 
 		}
-		
+
 		// Comparing TimedTasks with FloatingTasks
 		// TimedTasks placed before FloatingTasks
 		if (task1.startDate != null && (task2.startDate == null && task2.endDate == null)) {
@@ -143,7 +156,7 @@ public class sortByPriority implements Comparator <Task> {
 		if ((task1.startDate == null && task1.endDate == null) && (task2.startDate != null && task2.endDate == null)) {
 			return 1;
 		}
-		
+
 		// Comparing between FloatingTasks
 		return task1.description.compareTo(task2.description);
 	}

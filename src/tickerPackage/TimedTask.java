@@ -3,13 +3,16 @@ package tickerPackage;
 public class TimedTask extends Task {
 	final int id = 2; //used in storage
 	
-	public TimedTask(String description, Date startDate, Time startTime, Date endDate, Time endTime, int priority) {
-		super(description, startDate, startTime, endDate, endTime, priority);
+	public TimedTask(String description, Date startDate, Time startTime, Date endDate, Time endTime, int priority, boolean isRepeating) {
+		super(description, startDate, startTime, endDate, endTime, priority, isRepeating);
 	}
 	
+	@Override 
 	public String toString(){
 		String timing = "";
 		String temp = "";
+		
+		System.out.println("got into floating");
 		
 		if(getStartTime()!=null&&getEndTime()!=null&&getStartDate()!=null&&getEndTime()!=null){
 			temp = " from " + getStartDate() + ", " + getStartTime() + " to " + getEndDate() + ", " + getEndTime();

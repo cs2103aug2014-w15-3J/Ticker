@@ -5,6 +5,19 @@ import java.util.Comparator;
 public class sortByTime implements Comparator<Task> {
 	
 	public int compare(Task task1, Task task2) {
+		
+		// Comparing between non-repeating tasks and RepeatingTasks
+		if (task1.isRepeating == false && task2.isRepeating == true) {
+			return -1;
+		}
+		if (task1.isRepeating == true && task2.isRepeating == false) {
+			return 1;
+		}
+		
+		// Comparing between RepeatingTasks
+		if (task1.isRepeating == true && task2.isRepeating == true) {
+			return task1.startDate.compareTo(task2.startDate);
+		}
 
 		// Comparing between TimedTasks
 		if (task1.startDate != null && task2.startDate != null) {
