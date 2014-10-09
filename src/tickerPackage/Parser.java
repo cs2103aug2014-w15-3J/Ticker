@@ -4,12 +4,15 @@ package tickerPackage;
 
 public class Parser {
 	
+	public static final String INVALID_ST_AND_ED = "Cannot add a task with only start time and end date";
+	public static final String INVALID_ET_AND_SD = "Cannot add a task with only end time and start date";
+	
 	public Parser(){
 
 	}
 
 	public UserInput processInput(String command){
-		System.out.println("processInput");
+		//System.out.println("processInput");
 		String[] words = command.split(" ");
 		for (int i=0;i<words.length;i++){
 			words[i] = words[i].trim();
@@ -27,24 +30,24 @@ public class Parser {
 		
 		}
 		
-		if (words[0].equals("delete")){
+		if (words[0].toLowerCase().equals("delete")){
 			return callDelete(words);
 		}
 		
-		if (words[0].equals("search")){
+		if (words[0].toLowerCase().equals("search")){
 			return callSearch(command.substring(command.lastIndexOf("\"")).trim());
 		//mistake in the line above
 		}
 		
-		if (words[0].equals("edit")){
+		if (words[0].toLowerCase().equals("edit")){
 			return callEdit(words,command);
 		}
 		
-		if (words[0].equals("list")){
+		if (words[0].toLowerCase().equals("list")){
 			return callList(words);
 		}
 		
-		if (words[0].equals("tick")){
+		if (words[0].toLowerCase().equals("tick")){
 			return callTick(words);
 		}
 		
@@ -102,6 +105,8 @@ public class Parser {
 				input.isAppendingRepeating = true;
 			}
 		}
+		
+		input.validifyTime();
 		
 		return input;
 	}
@@ -161,6 +166,14 @@ public class Parser {
 		
 		UserInput input = new UserInput();
 		input.command = "list";
+		if (words.length==2){
+			if (words[1].equals("p"))
+				input.description="priority";	
+			if (words[1].equals("t"))
+				input.description="time";
+		}
+		if (input.description==null)
+			return new UserInput("error","invalid input");
 		return input;
 		
 	}
@@ -236,7 +249,10 @@ public class Parser {
 		}	catch(IndexOutOfBoundsException ioobe){
 		} 
 		
-		final int[] numOfDays = {0,31,28,31,30,31,30,31,31,30,31,30,31};
+		int[] numOfDays = {0,31,28,31,30,31,30,31,31,30,31,30,31};
+		if (Date.isLeapYear(year)){
+			numOfDays[2]=29;
+		}
 		final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 		if (month == 0){
 			for (int i=0;i<months.length;i++){
@@ -247,7 +263,7 @@ public class Parser {
 			}
 		}
 		
-		System.out.println(year + "   " + month + "   "+ date);
+		//System.out.println(year + "   " + month + "   "+ date);
 			
 		if (month!=0&&date<=numOfDays[month])
 			return new Date(year,month,date);
