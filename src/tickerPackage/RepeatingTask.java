@@ -32,7 +32,7 @@ public class RepeatingTask extends Task {
 			temp = " end at " + getEndTime();
 		}
 		
-		timing += temp;
+		timing += temp + " ";
 		
 		timing += getDate();		
 		
