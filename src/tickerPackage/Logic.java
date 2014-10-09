@@ -232,10 +232,12 @@ public class Logic{
 		// Creation of RepeatingTask
 		if (isRepeating) {
 			// TODO: set priority
+			System.out.println(startDate);
+			System.out.println(endDate);
 			if (startDate != null) {
 				newTask = new RepeatingTask(description, startDate, startTime, endTime, 0, isRepeating);
 			}
-			if (endDate != null) {
+			else if (endDate != null) {
 				newTask = new RepeatingTask(description, endDate, startTime, endTime, 0, isRepeating);
 			}
 			else {
