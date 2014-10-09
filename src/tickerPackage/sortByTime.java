@@ -120,7 +120,7 @@ public class sortByTime implements Comparator<Task> {
 		// Comparing between DeadlineTasks
 		if ((task1.startDate == null && task1.endDate != null) && (task2.startDate == null && task2.endDate != null)) {
 			// Primary comparison between TimedTasks and DeadlineTasks using startDate and endDate respectively
-			int endDateComparator = task1.endDate.compareTo(task2.startDate);
+			int endDateComparator = task1.endDate.compareTo(task2.endDate);
 
 			if (endDateComparator != 0) {
 				return endDateComparator;
