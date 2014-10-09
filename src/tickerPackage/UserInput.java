@@ -17,6 +17,11 @@ public class UserInput {
 		
 	}
 	
+	public UserInput(String command,String description){
+		this.command=command;
+		this.description=description;
+	}
+	
 	public String getCommand() {
 		return command;
 	}
@@ -55,6 +60,39 @@ public class UserInput {
 	
 	public int getPriority() {
 		return priority;
+	}
+
+	void validifyTime(){
+		if (endTime!=null&&endDate==null){
+			if (startTime==null&&startDate==null){
+				endDate = Date.getCurrentDate();
+			}
+			else if (startTime!=null&&startDate==null){
+				startDate = endDate = Date.getCurrentDate();
+			}
+			else if (startTime!=null&&startDate!=null){
+				endDate = startDate;
+			}
+		}
+		
+		else if (endTime!=null){
+			if (startTime!=null&&startDate==null){
+				startDate = endDate;
+			}
+			else if (startTime==null&&startDate!=null){
+				startTime = new Time(0,0);
+			}
+		}
+		
+		else {
+			if (endDate == null&&startTime!=null&&startDate==null){
+				startDate=Date.getCurrentDate();
+			}
+			else if (endDate != null&&startTime!=null&&startDate!=null){
+				endTime = new Time(23,59);
+			}
+		}
+		
 	}
 
 }
