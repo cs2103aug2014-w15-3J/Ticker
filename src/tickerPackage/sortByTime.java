@@ -82,7 +82,7 @@ public class sortByTime implements Comparator<Task> {
 		if ((task1.startDate == null && task1.endDate != null) && task2.startDate != null) {
 
 			// Primary comparison between TimedTasks and DeadlineTasks using startDate and endDate respectively
-			int mixedDateComparator = task1.startDate.compareTo(task2.endDate);
+			int mixedDateComparator = task1.endDate.compareTo(task2.startDate);
 
 			if (mixedDateComparator != 0) {
 				return mixedDateComparator;
@@ -120,7 +120,7 @@ public class sortByTime implements Comparator<Task> {
 		// Comparing between DeadlineTasks
 		if ((task1.startDate == null && task1.endDate != null) && (task2.startDate == null && task2.endDate != null)) {
 			// Primary comparison between TimedTasks and DeadlineTasks using startDate and endDate respectively
-			int endDateComparator = task1.endDate.compareTo(task2.endDate);
+			int endDateComparator = task1.endDate.compareTo(task2.startDate);
 
 			if (endDateComparator != 0) {
 				return endDateComparator;
