@@ -8,12 +8,14 @@ public class RepeatingTask extends Task {
 	public RepeatingTask(String description, Date date, Time startTime, Time endTime, int priority, boolean isRepeating) {
 		super(description, date, startTime, null, startTime, priority, isRepeating);
 		this.date = date;
+		System.out.println("created repeating task");
 	}
 	
 	public Date getDate() {
 		return date;
 	}
 	
+	@Override
 	public String toString(){
 		String timing = "";
 		String temp = "";
@@ -33,7 +35,8 @@ public class RepeatingTask extends Task {
 		timing += temp;
 		
 		timing += getDate();		
-				
-		return "<repeating> (" + date + ") " + getDescription() + timing; 
+		
+		System.out.println("print repeating");
+		return "<repeating> (" + timing + ") " + getDescription(); 
 	}
 }

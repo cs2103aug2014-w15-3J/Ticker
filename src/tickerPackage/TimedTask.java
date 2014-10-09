@@ -7,9 +7,12 @@ public class TimedTask extends Task {
 		super(description, startDate, startTime, endDate, endTime, priority, isRepeating);
 	}
 	
+	@Override 
 	public String toString(){
 		String timing = "";
 		String temp = "";
+		
+		System.out.println("got into floating");
 		
 		if(getStartTime()!=null&&getEndTime()!=null&&getStartDate()!=null&&getEndTime()!=null){
 			temp = " from " + getStartDate() + ", " + getStartTime() + " to " + getEndDate() + ", " + getEndTime();

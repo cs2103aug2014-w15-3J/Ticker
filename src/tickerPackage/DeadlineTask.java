@@ -7,6 +7,7 @@ public class DeadlineTask extends Task {
 		super(description, null, null, endDate, endTime, priority, isRepeating);
 	}
 	
+	@Override
 	public String toString(){
 		
 		String timing = " deadline ";

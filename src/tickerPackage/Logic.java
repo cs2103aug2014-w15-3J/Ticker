@@ -121,7 +121,11 @@ public class Logic{
 		int i = 0;
 		String list = "";
 		for (Task task: current) {
-			if (task instanceof FloatingTask) {
+			if (task instanceof RepeatingTask) {
+				RepeatingTask rt = (RepeatingTask) task;
+				list += ++i + ". " + rt.toString() + "\n";// TODO: implement repeatingtask
+			}
+			else if (task instanceof FloatingTask) {
 				FloatingTask ft = (FloatingTask) task;
 				list += ++i + ". " + ft.toString() + "\n";
 			}
@@ -134,10 +138,7 @@ public class Logic{
 				TimedTask tt = (TimedTask) task;
 				list += ++i + ". " + tt.toString() + "\n";
 			}
-			else if (task instanceof RepeatingTask) {
-				RepeatingTask rt = (RepeatingTask) task;
-				list += ++i + ". " + rt.toString() + "\n";// TODO: implement repeatingtask
-			}
+
 			else {
 				list = ++i + ". error in typecasting task\n";
 			}
@@ -232,8 +233,6 @@ public class Logic{
 		// Creation of RepeatingTask
 		if (isRepeating) {
 			// TODO: set priority
-			System.out.println(startDate);
-			System.out.println(endDate);
 			if (startDate != null) {
 				newTask = new RepeatingTask(description, startDate, startTime, endTime, 0, isRepeating);
 			}
@@ -246,7 +245,7 @@ public class Logic{
 
 		}
 
-		if (startDate == null && startTime == null) {
+		else if (startDate == null && startTime == null) {
 			// Creation of floating tasks
 			if (endDate == null && endTime == null) {
 				// TODO: set priority
