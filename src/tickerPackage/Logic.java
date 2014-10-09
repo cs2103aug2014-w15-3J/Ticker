@@ -17,13 +17,11 @@ public class Logic{
 	
 	private static final int SORTED_TIME = 1;
 	private static final int SORTED_PRIORITY = 2;
-	private static final int HELP = 3;
 	
 
 	// Temporary sorted storages
 	Vector<Task> sortedTime;
 	Vector<Task> sortedPriority;
-	Vector<Task> helpList;
 	Vector<Task> searchResults;
 	
 	// Tracker to track what Vector is being used
@@ -46,8 +44,6 @@ public class Logic{
 		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
 		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
 		
-		// TODO: implement help
-		// helpList = storage.restoreDataFromFile(HELP);
 		searchResults = new Vector<Task>();
 
 		current = sortedTime;
@@ -77,7 +73,7 @@ public class Logic{
 			feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), processed.getEndDate(), processed.getStartTime(), processed.getEndTime()); break;
 					// case "undo":
 		case "help":
-			feedback = this.list(HELP); break;
+			feedback = this.help(); break;
 			
 		// case "cmi":
 		// case "undo":
@@ -162,13 +158,7 @@ public class Logic{
 			listTracker = SORTED_PRIORITY;
 			return this.list();
 		}
-		// TODO: implement help 
-		/* if (listNo == HELP) {
-			current = helpList;
-			listTracker = HELP;
-			return this.list();
-		}*/
-		
+
 		else {
 			return "Non-existent list.\n";
 		}
@@ -271,6 +261,25 @@ public class Logic{
 		
 		UI.setList(list());
 		return description + " has been added.\n";
+	}
+	
+	private String help() {
+		// TODO: check through helpList again!
+		String helpList = "";
+		helpList += "HELP FOR USING TICKER\n";
+		helpList += "-to add a task: add \"<task name>\" -st <start time> -sd <start date in dd/mm/yy format> "
+														+ "-et <end time> -ed <end date in dd/mm/yy format.\n";
+		helpList += "-to set a task to repeat, add the flag: -r\n";
+		helpList += "-to set a priority for a task, add the flag: to be continued\n";
+		helpList += "-to delete a task: delete <index of task>\n";
+		helpList += "-to edit a task: to be continued\n";
+		helpList += "-to sort the tasks according to time and date: list to be continued\n";
+		helpList += "-to sort the tasks according to priority: list to be continued\n";
+		helpList += "-to undo the last command: undo\n";
+		helpList += "-to redo the last undo: redo\n";
+		
+		return helpList;
+		
 	}
 	
 	private String tick(int index) {
