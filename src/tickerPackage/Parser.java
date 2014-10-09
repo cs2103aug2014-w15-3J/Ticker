@@ -134,7 +134,33 @@ public class Parser {
 			return new UserInput("error",INVALID_ET_AND_SD);
 		}
 		
+		Date tempStartDate=null, tempEndDate=null;
+		Time tempStartTime=null, tempEndTime=null;
+		
+		checkDashTimeDate(tempStartDate,tempStartTime,tempEndDate,tempEndTime,description.substring(description.lastIndexOf("\"")+1));
+		
 		return input;
+	}
+	
+	private static void checkDashTimeDate(Date sd,Time st,Date ed,Time et, String description){
+		String[] strings = description.split(" +"); 
+		for (String s:strings){
+			if (s.indexOf("-")!=-1&&s.indexOf("-")==s.lastIndexOf("-")){
+				int index = s.indexOf("-");
+				if (constructTime(s.substring(index)+1)!=null){
+					st=constructTime(s.substring(index+1));
+				}
+				if (constructTime(s.substring(index+1))!=null){
+					et=constructTime(s.substring(index+1));
+				}
+				if (constructDate(s.substring(index)+1)!=null){
+					sd=constructDate(s.substring(index+1));
+				}
+				if (constructDate(s.substring(index+1))!=null){
+					ed=constructDate(s.substring(index+1));
+				}
+			}
+		}
 	}
 	
 	private UserInput callDelete(String[] words){
@@ -219,30 +245,54 @@ public class Parser {
 	}
 	
 	
-	private Time constructTime(String str){
+	private static Time constructTime(String str){
 		str=removeBlank(str);
 		int firstIndex = str.indexOf(':');
 		int lastIndex = str.lastIndexOf(':');
 		
-		if (firstIndex == lastIndex){
+		int hour = -1; 
+		int minute = -1;
+		
+		if (firstIndex==-1){
+			for (int i=0;i<str.length();i++){
+				if (str.charAt(i)<'0'||str.charAt(i)>'9')
+					return null;
+			}
+		
+			int time = Integer.parseInt(str);
+			
+			if (time < 100) {
+				hour = time;
+				minute = 0;
+			}
+			
+			else if (time < 10000){
+				hour = time/100;
+				minute = time%100;
+			}
+		}
+		
+		else if (firstIndex == lastIndex){
+			
 			for (int i=0;i<str.length();i++){
 				if (i!=firstIndex&&(str.charAt(i)<'0'||str.charAt(i)>'9'))
 					return null;
 			}
 			
 			if (firstIndex!=0&&firstIndex!=str.length()-1){
-				int hour = Integer.parseInt(str.substring(0,firstIndex));
-				int minute = Integer.parseInt(str.substring(firstIndex+1));
-				if (hour<24&&minute<60)
-					return new Time(hour,minute); 
+				hour = Integer.parseInt(str.substring(0,firstIndex));
+				minute = Integer.parseInt(str.substring(firstIndex+1)); 
 			}
+			
+			if (hour>=0&&hour<24&&minute<60&&minute>=0)
+				return new Time(hour,minute);
 		}
 		
 		return null;
 	}
 	
 	
-	private Date constructDate(String str){
+	private static Date constructDate(String str){
 		//System.out.println("ConstructDate");
 		
 		int index = str.indexOf("/");
@@ -293,7 +343,7 @@ public class Parser {
 		}
 		
 		//System.out.println(year + "   " + month + "   "+ date);
-			
+		
 		if (month!=0&&date<=numOfDays[month])
 			return new Date(year,month,date);
 		
