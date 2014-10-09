@@ -70,6 +70,12 @@ public class Logic{
 		case "add":
 			feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), processed.getEndDate(), processed.getStartTime(), processed.getEndTime()); break;
 					// case "undo":
+		// case "help":
+		// case "cmi":
+		// case "undo":
+		// case "redo":
+		case "tick":
+			feedback = this.tick(processed.getIndex()); break;
 		default:
 			feedback = "invalid command";
 			break;
@@ -232,11 +238,28 @@ public class Logic{
 		UI.setList(list());
 		return description + " has been added.\n";
 	}
+	
+	private String tick(int index) {
+		// Exception catching
+		if (index > 0 && index <= current.size()) {
+			Task ticked = current.remove(index-1);
+			sortedTime.remove(ticked);
+			sortedPriority.remove(ticked);
+			
+			Collections.sort(sortedTime, new sortByTime());
+			Collections.sort(sortedPriority, new sortByPriority());
+			
+			storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
+			storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+			UI.setList(list());
+			return ticked.toString() + " is done!\n";
+		}
+
+		return "Index out of bounds. Nothing has been ticked.";
+	}
 }
 
 
 // TODO: 
-// -sort the different vectors
 // -how to implement repeating tasks
 // -implement switch current
-// -modify storage after every action
