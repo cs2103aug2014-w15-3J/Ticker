@@ -17,11 +17,13 @@ public class Logic{
 	
 	private static final int SORTED_TIME = 1;
 	private static final int SORTED_PRIORITY = 2;
+	private static final int HELP = 3;
 	
 
 	// Temporary sorted storages
 	Vector<Task> sortedTime;
 	Vector<Task> sortedPriority;
+	Vector<Task> helpList;
 	Vector<Task> searchResults;
 	
 	// Tracker to track what Vector is being used
@@ -34,8 +36,6 @@ public class Logic{
 	}
 
 	public Logic(TickerUI UI){
-		// TODO Transfer data from storage
-
 		// Creating 1-1 dependency with UI
 		this.UI = UI;
 
@@ -45,6 +45,9 @@ public class Logic{
 		
 		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
 		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
+		
+		// TODO: implement help
+		// helpList = storage.restoreDataFromFile(HELP);
 		searchResults = new Vector<Task>();
 
 		current = sortedTime;
@@ -63,14 +66,19 @@ public class Logic{
 		case "delete": 
 			feedback = this.delete(processed.getIndex()); break;
 		// case "search":
-		// case "list":
-			// feedback = this.list(); break;
+			
+		//TODO: getWHAT?? get index or get number
+		case "list":
+			feedback = this.list(processed.getIndex()); break;
+			
 		case "edit":
 			feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription()); break;
 		case "add":
 			feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), processed.getEndDate(), processed.getStartTime(), processed.getEndTime()); break;
 					// case "undo":
-		// case "help":
+		case "help":
+			feedback = this.list(HELP); break;
+			
 		// case "cmi":
 		// case "undo":
 		// case "redo":
@@ -141,6 +149,32 @@ public class Logic{
 		return list;
 	}
 
+	private String list(int listNo) {
+		
+		if (listNo == SORTED_TIME) {
+			current = sortedTime;
+			listTracker = SORTED_TIME;
+			return this.list();
+		}
+		
+		if (listNo == SORTED_PRIORITY) {
+			current = sortedPriority;
+			listTracker = SORTED_PRIORITY;
+			return this.list();
+		}
+		// TODO: implement help 
+		/* if (listNo == HELP) {
+			current = helpList;
+			listTracker = HELP;
+			return this.list();
+		}*/
+		
+		else {
+			return "Non-existent list.\n";
+		}
+
+	}
+	
 	private String edit(int index, boolean isAppending, String description) {
 		// Exception catching
 		
