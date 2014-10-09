@@ -7,14 +7,16 @@ public class Task {
 	protected Date endDate;
 	protected Time endTime;
 	protected int priority;
+	protected boolean isRepeating;
 
-	public Task(String description, Date startDate, Time startTime, Date endDate, Time endTime, int priority) {
+	public Task(String description, Date startDate, Time startTime, Date endDate, Time endTime, int priority, boolean isRepeating) {
 		this.description = description;
 		this.startDate = startDate;
 		this.startTime = startTime;
 		this.endDate = endDate;
 		this.endTime = endTime;
 		this.priority = priority;
+		this.isRepeating = isRepeating;
 	}
 
 	public String toString() {
@@ -45,6 +47,10 @@ public class Task {
 	public int getPriority() {
 		return priority;
 	}
+	
+	public boolean getRepeat() {
+		return isRepeating;
+	}
 
 	// Setters
 	public void setDescription(String input) {
@@ -69,6 +75,10 @@ public class Task {
 	
 	public void setPriority(int input) {
 		priority = input;
+	}
+	
+	public void setRepeat(boolean input) {
+		isRepeating = input;
 	}
 
 }
