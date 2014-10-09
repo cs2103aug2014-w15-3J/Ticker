@@ -56,6 +56,10 @@ public class Parser {
 			return callTick(words);
 		}
 		
+		if (words[0].toLowerCase().equals("help")){
+			return callHelp(words);
+		}
+		
 		return null;
 		
 	}
@@ -191,6 +195,12 @@ public class Parser {
 		return input;
 	}
 	
+	private UserInput callHelp(String[] words){
+		UserInput input = new UserInput();
+		input.command="help";
+		return input;
+	}
+
 	private UserInput callTick(String[] words){
 		UserInput input = new UserInput();
 		input.command="tick";
