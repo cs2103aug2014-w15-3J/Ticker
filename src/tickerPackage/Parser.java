@@ -26,7 +26,7 @@ public class Parser {
 			if (secondIndex != command.lastIndexOf('"')) return null;
 			
 			description = command.substring(firstIndex+1,secondIndex);
-			return callAdd(words,description);
+			return callAdd(words,description,command);
 		
 		}
 		
@@ -60,8 +60,8 @@ public class Parser {
 		
 	}
 	
-	private UserInput callAdd(String[] words,String description){
-		//System.out.println("callAdd");
+	private UserInput callAdd(String[] words,String description,String command){
+		System.out.println("callAdd");
 		UserInput input = new UserInput();
 		
 		input.command="add";
@@ -125,7 +125,27 @@ public class Parser {
 			}
 		}
 		
+		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1)); System.out.println("checkdash");
+		
+		if (result.getStartDate()!=null){
+			input.startDate=result.getStartDate();
+		}
+		
+		if (result.getEndDate()!=null){
+			input.endDate=result.getEndDate();
+		}
+		
+		if (result.getStartTime()!=null){
+			input.startTime=result.getStartTime();
+		}
+		
+		if (result.getEndTime()!=null){
+			input.endTime=result.getEndTime();
+		}
+		
 		input.validifyTime();
+		System.out.println(input.startDate +""+ input.startTime + input.endDate+input.endTime);
+		System.out.println("Current Date " + Date.getCurrentDate());
 		
 		if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
 			return new UserInput("error",INVALID_ST_AND_ED);
@@ -134,33 +154,31 @@ public class Parser {
 			return new UserInput("error",INVALID_ET_AND_SD);
 		}
 		
-		Date tempStartDate=null, tempEndDate=null;
-		Time tempStartTime=null, tempEndTime=null;
-		
-		checkDashTimeDate(tempStartDate,tempStartTime,tempEndDate,tempEndTime,description.substring(description.lastIndexOf("\"")+1));
-		
 		return input;
 	}
 	
-	private static void checkDashTimeDate(Date sd,Time st,Date ed,Time et, String description){
-		String[] strings = description.split(" +"); 
+	private static StartEndTimeDate checkDashTimeDate(String description){
+		String[] strings = description.split(" +");  System.out.println("description = " + description);
+		StartEndTimeDate result = new StartEndTimeDate();
 		for (String s:strings){
+			System.out.println(s);
 			if (s.indexOf("-")!=-1&&s.indexOf("-")==s.lastIndexOf("-")){
-				int index = s.indexOf("-");
-				if (constructTime(s.substring(index)+1)!=null){
-					st=constructTime(s.substring(index+1));
+				int index = s.indexOf("-");System.out.println("index = "+index);
+				if (constructTime(s.substring(0,index))!=null){
+					result.setStartTime(constructTime(s.substring(0,index)));
 				}
 				if (constructTime(s.substring(index+1))!=null){
-					et=constructTime(s.substring(index+1));
+					result.setEndTime(constructTime(s.substring(index+1)));
 				}
-				if (constructDate(s.substring(index)+1)!=null){
-					sd=constructDate(s.substring(index+1));
+				if (constructDate(s.substring(0,index))!=null){
+					result.setStartDate(constructDate(s.substring(0,index)));
 				}
 				if (constructDate(s.substring(index+1))!=null){
-					ed=constructDate(s.substring(index+1));
+					result.setEndDate(constructDate(s.substring(index+1)));
 				}
 			}
 		}
+		return result;
 	}
 	
 	private UserInput callDelete(String[] words){
@@ -246,6 +264,7 @@ public class Parser {
 	
 	
 	private static Time constructTime(String str){
+		if (str.equals("")) return null;
 		str=removeBlank(str);
 		int firstIndex = str.indexOf(':');
 		int lastIndex = str.lastIndexOf(':');
@@ -259,7 +278,7 @@ public class Parser {
 					return null;
 			}
 		
-			int time = Integer.parseInt(str);
+			int time = Integer.parseInt(str); System.out.println("time = " + time);
 			
 			if (time < 100) {
 				hour = time;
@@ -283,10 +302,11 @@ public class Parser {
 				hour = Integer.parseInt(str.substring(0,firstIndex));
 				minute = Integer.parseInt(str.substring(firstIndex+1)); 
 			}
-			
-			if (hour>=0&&hour<24&&minute<60&&minute>=0)
-				return new Time(hour,minute);
 		}
+		
+		
+		if (hour>=0&&hour<24&&minute<60&&minute>=0)
+			return new Time(hour,minute);
 		
 		return null;
 	}
@@ -294,7 +314,7 @@ public class Parser {
 	
 	private static Date constructDate(String str){
 		//System.out.println("ConstructDate");
-		
+		if (str.equals("")) return null;
 		int index = str.indexOf("/");
 		//System.out.println("index = " + index);
 		if (index==-1) return null;
@@ -349,4 +369,23 @@ public class Parser {
 		
 		return null;
 	}
+}
+
+class StartEndTimeDate{
+	private Date sd;
+	private Date ed;
+	private Time st;
+	private Time et;
+	
+	public StartEndTimeDate(){
+		
+	}
+	public Date getStartDate(){return sd;}
+	public Time getStartTime(){return st;}
+	public Date getEndDate(){return ed;}
+	public Time getEndTime(){return et;}
+	public void setStartDate(Date d){this.sd=d;}
+	public void setStartTime(Time t){this.st=t;}
+	public void setEndDate(Date d){this.ed=d;}
+	public void setEndTime(Time t){this.et=t;}
 }
