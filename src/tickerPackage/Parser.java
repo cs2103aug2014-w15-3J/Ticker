@@ -64,6 +64,14 @@ public class Parser {
 			return callHelp(words);
 		}
 		
+		if (words[0].toLowerCase().equals("clear")){
+			return callClear(words);
+		}
+		
+		if (words[0].toLowerCase().equals("exit")){
+			System.exit(9);
+		}
+		
 		return null;
 		
 	}
@@ -202,6 +210,12 @@ public class Parser {
 	private UserInput callHelp(String[] words){
 		UserInput input = new UserInput();
 		input.command="help";
+		return input;
+	}
+	
+	private UserInput callClear(String[] words){
+		UserInput input = new UserInput();
+		input.command="clear";
 		return input;
 	}
 
