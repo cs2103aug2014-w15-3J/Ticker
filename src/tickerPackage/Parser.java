@@ -56,6 +56,10 @@ public class Parser {
 			return callTick(words);
 		}
 		
+		if (words[0].toLowerCase().equals("cmi")){
+			return callCMI(words);
+		}
+		
 		if (words[0].toLowerCase().equals("help")){
 			return callHelp(words);
 		}
@@ -204,6 +208,16 @@ public class Parser {
 	private UserInput callTick(String[] words){
 		UserInput input = new UserInput();
 		input.command="tick";
+		if (words.length==1){
+			return new UserInput("error",INVALID_ARGUMENT);
+		}
+		input.index=Integer.parseInt(words[1]);
+		return input;
+	}
+
+	private UserInput callCMI(String[] words){
+		UserInput input = new UserInput();
+		input.command="cmi";
 		if (words.length==1){
 			return new UserInput("error",INVALID_ARGUMENT);
 		}
