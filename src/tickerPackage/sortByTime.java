@@ -5,6 +5,19 @@ import java.util.Comparator;
 public class sortByTime implements Comparator<Task> {
 	
 	public int compare(Task task1, Task task2) {
+		
+		// Comparing between non-repeating tasks and RepeatingTasks
+		if (task1.isRepeating == false && task2.isRepeating == true) {
+			return -1;
+		}
+		if (task1.isRepeating == true && task2.isRepeating == false) {
+			return 1;
+		}
+		
+		// Comparing between RepeatingTasks
+		if (task1.isRepeating == true && task2.isRepeating == true) {
+			return task1.startDate.compareTo(task2.startDate);
+		}
 
 		// Comparing between TimedTasks
 		if (task1.startDate != null && task2.startDate != null) {
@@ -69,7 +82,7 @@ public class sortByTime implements Comparator<Task> {
 		if ((task1.startDate == null && task1.endDate != null) && task2.startDate != null) {
 
 			// Primary comparison between TimedTasks and DeadlineTasks using startDate and endDate respectively
-			int mixedDateComparator = task1.startDate.compareTo(task2.endDate);
+			int mixedDateComparator = task1.endDate.compareTo(task2.startDate);
 
 			if (mixedDateComparator != 0) {
 				return mixedDateComparator;
