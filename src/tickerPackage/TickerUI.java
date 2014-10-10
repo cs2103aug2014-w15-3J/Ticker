@@ -19,6 +19,7 @@ public class TickerUI extends Application {
 	private static TickerUI ticker;
 	private Logic logic;
 	private static String list;
+	private Vector<Task> tasksToBeShown;
 	
 	public Logic getLogic() {
 		return logic;
@@ -31,6 +32,7 @@ public class TickerUI extends Application {
 		ticker = this;
 		logic = new Logic(this);
 		
+		
 	}
 
 
@@ -38,7 +40,7 @@ public class TickerUI extends Application {
         primaryStage.setTitle("Ticker");
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.TOP_LEFT);
-        grid.setHgap(0);
+        grid.setHgap(10);
         grid.setVgap(10);
         grid.setPadding(new Insets(10,10,10,10));
 
@@ -90,12 +92,12 @@ public class TickerUI extends Application {
 		return output;
 	}*/
 	
-	String manipulateString(String str) {
-		return str.substring(1, 5) + "\n" + str.substring(6, 8) + "\n" + "\n" + "\n" + str.substring(6, 8)+ "\n" + "\n" + "\n" + str.substring(6, 8)+"\n" + "\n" + "\n" + str.substring(6, 8)+"\n" + "\n" + "\n" + str.substring(6, 8) + "\n" + str.substring(6, 8) + "\n" + str.substring(6, 8)+ "\n" + str.substring(6, 8)+ "\n" + str.substring(6, 8);
-	}
-	
 	public void setList(String list) {
 		this.list = list;
+	}
+	
+	public void setTask(Vector<Task> tasks) {
+		this.tasksToBeShown = tasks;
 	}
 
     public static void main(String[] args) {
