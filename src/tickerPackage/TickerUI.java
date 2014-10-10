@@ -20,6 +20,8 @@ public class TickerUI extends Application {
 	private Logic logic;
 	private static String list;
 	private Vector<Task> tasksToBeShown;
+	private boolean askedForHelp;
+	private static final String help = "help to be added";
 	
 	public Logic getLogic() {
 		return logic;
@@ -77,7 +79,12 @@ public class TickerUI extends Application {
                 command.clear();
                // result.setText(cmd);
                 feedback.setText(logic.getLogic(cmd));
-                result.setText(list);
+                if(askedForHelp) {
+                	result.setText(help);
+                } else {
+                	result.setText(list);  // to be changed into Vector of Task
+                }
+                
         	}
         		});
         
@@ -92,11 +99,11 @@ public class TickerUI extends Application {
 		return output;
 	}*/
 	
-	public void setList(String list) {
-		this.list = list;
+	public void showHelp(boolean askedForHelp) {
+		this.askedForHelp = askedForHelp;
 	}
 	
-	public void setTask(Vector<Task> tasks) {
+	public void setTaskList(Vector<Task> tasks) {
 		this.tasksToBeShown = tasks;
 	}
 
