@@ -102,10 +102,13 @@ public class TickerUI extends Application {
 	public void setList(String list) {
 		this.list = list;
 	}
-
-	public void setTask(Vector<Task> tasks) {
+	public void setList(Vector<Task> tasks) {
 		this.tasksToBeShown = tasks;
 	}
+
+	//public void setTask(Vector<Task> tasks) {
+	//	this.tasksToBeShown = tasks;
+	//}
 
 	public static void main(String[] args) {
 		launch(args);
