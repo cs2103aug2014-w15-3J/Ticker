@@ -26,7 +26,7 @@ public class Parser {
 			if (secondIndex != command.lastIndexOf('"')) return null;
 			
 			description = command.substring(firstIndex+1,secondIndex);
-			return callAdd(words,description);
+			return callAdd(words,description,command);
 		
 		}
 		
@@ -56,12 +56,28 @@ public class Parser {
 			return callTick(words);
 		}
 		
+		if (words[0].toLowerCase().equals("cmi")){
+			return callCMI(words);
+		}
+		
+		if (words[0].toLowerCase().equals("help")){
+			return callHelp(words);
+		}
+		
+		if (words[0].toLowerCase().equals("clear")){
+			return callClear(words);
+		}
+		
+		if (words[0].toLowerCase().equals("exit")){
+			System.exit(9);
+		}
+		
 		return null;
 		
 	}
 	
-	private UserInput callAdd(String[] words,String description){
-		//System.out.println("callAdd");
+	private UserInput callAdd(String[] words,String description,String command){
+		System.out.println("callAdd");
 		UserInput input = new UserInput();
 		
 		input.command="add";
@@ -125,7 +141,27 @@ public class Parser {
 			}
 		}
 		
+		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1)); System.out.println("checkdash");
+		
+		if (result.getStartDate()!=null){
+			input.startDate=result.getStartDate();
+		}
+		
+		if (result.getEndDate()!=null){
+			input.endDate=result.getEndDate();
+		}
+		
+		if (result.getStartTime()!=null){
+			input.startTime=result.getStartTime();
+		}
+		
+		if (result.getEndTime()!=null){
+			input.endTime=result.getEndTime();
+		}
+		
 		input.validifyTime();
+		System.out.println(input.startDate +""+ input.startTime + input.endDate+input.endTime);
+		System.out.println("Current Date " + Date.getCurrentDate());
 		
 		if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
 			return new UserInput("error",INVALID_ST_AND_ED);
@@ -135,6 +171,30 @@ public class Parser {
 		}
 		
 		return input;
+	}
+	
+	private static StartEndTimeDate checkDashTimeDate(String description){
+		String[] strings = description.split(" +");  System.out.println("description = " + description);
+		StartEndTimeDate result = new StartEndTimeDate();
+		for (String s:strings){
+			System.out.println(s);
+			if (s.indexOf("-")!=-1&&s.indexOf("-")==s.lastIndexOf("-")){
+				int index = s.indexOf("-");System.out.println("index = "+index);
+				if (constructTime(s.substring(0,index))!=null){
+					result.setStartTime(constructTime(s.substring(0,index)));
+				}
+				if (constructTime(s.substring(index+1))!=null){
+					result.setEndTime(constructTime(s.substring(index+1)));
+				}
+				if (constructDate(s.substring(0,index))!=null){
+					result.setStartDate(constructDate(s.substring(0,index)));
+				}
+				if (constructDate(s.substring(index+1))!=null){
+					result.setEndDate(constructDate(s.substring(index+1)));
+				}
+			}
+		}
+		return result;
 	}
 	
 	private UserInput callDelete(String[] words){
@@ -147,9 +207,31 @@ public class Parser {
 		return input;
 	}
 	
+	private UserInput callHelp(String[] words){
+		UserInput input = new UserInput();
+		input.command="help";
+		return input;
+	}
+	
+	private UserInput callClear(String[] words){
+		UserInput input = new UserInput();
+		input.command="clear";
+		return input;
+	}
+
 	private UserInput callTick(String[] words){
 		UserInput input = new UserInput();
 		input.command="tick";
+		if (words.length==1){
+			return new UserInput("error",INVALID_ARGUMENT);
+		}
+		input.index=Integer.parseInt(words[1]);
+		return input;
+	}
+
+	private UserInput callCMI(String[] words){
+		UserInput input = new UserInput();
+		input.command="cmi";
 		if (words.length==1){
 			return new UserInput("error",INVALID_ARGUMENT);
 		}
@@ -219,32 +301,58 @@ public class Parser {
 	}
 	
 	
-	private Time constructTime(String str){
+	private static Time constructTime(String str){
+		if (str.equals("")) return null;
 		str=removeBlank(str);
 		int firstIndex = str.indexOf(':');
 		int lastIndex = str.lastIndexOf(':');
 		
-		if (firstIndex == lastIndex){
+		int hour = -1; 
+		int minute = -1;
+		
+		if (firstIndex==-1){
+			for (int i=0;i<str.length();i++){
+				if (str.charAt(i)<'0'||str.charAt(i)>'9')
+					return null;
+			}
+		
+			int time = Integer.parseInt(str); System.out.println("time = " + time);
+			
+			if (time < 100) {
+				hour = time;
+				minute = 0;
+			}
+			
+			else if (time < 10000){
+				hour = time/100;
+				minute = time%100;
+			}
+		}
+		
+		else if (firstIndex == lastIndex){
+			
 			for (int i=0;i<str.length();i++){
 				if (i!=firstIndex&&(str.charAt(i)<'0'||str.charAt(i)>'9'))
 					return null;
 			}
 			
 			if (firstIndex!=0&&firstIndex!=str.length()-1){
-				int hour = Integer.parseInt(str.substring(0,firstIndex));
-				int minute = Integer.parseInt(str.substring(firstIndex+1));
-				if (hour<24&&minute<60)
-					return new Time(hour,minute); 
+				hour = Integer.parseInt(str.substring(0,firstIndex));
+				minute = Integer.parseInt(str.substring(firstIndex+1)); 
 			}
 		}
+		
+		
+		if (hour>=0&&hour<24&&minute<60&&minute>=0)
+			return new Time(hour,minute);
 		
 		return null;
 	}
 	
 	
-	private Date constructDate(String str){
+	private static Date constructDate(String str){
 		//System.out.println("ConstructDate");
-		
+		if (str.equals("")) return null;
 		int index = str.indexOf("/");
 		//System.out.println("index = " + index);
 		if (index==-1) return null;
@@ -293,10 +401,29 @@ public class Parser {
 		}
 		
 		//System.out.println(year + "   " + month + "   "+ date);
-			
+		
 		if (month!=0&&date<=numOfDays[month])
 			return new Date(year,month,date);
 		
 		return null;
 	}
+}
+
+class StartEndTimeDate{
+	private Date sd;
+	private Date ed;
+	private Time st;
+	private Time et;
+	
+	public StartEndTimeDate(){
+		
+	}
+	public Date getStartDate(){return sd;}
+	public Time getStartTime(){return st;}
+	public Date getEndDate(){return ed;}
+	public Time getEndTime(){return et;}
+	public void setStartDate(Date d){this.sd=d;}
+	public void setStartTime(Time t){this.st=t;}
+	public void setEndDate(Date d){this.ed=d;}
+	public void setEndTime(Time t){this.et=t;}
 }
