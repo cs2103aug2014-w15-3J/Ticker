@@ -316,7 +316,8 @@ public class Logic{
 		// Exception catching
 		if (index > 0 && index <= current.size()) {
 			Task cmi = current.remove(index-1);
-			listCMI.add(cmi);
+			// Add to the front so the latest additions are on top
+			listCMI.add(0, cmi);
 			sortedTime.remove(cmi);
 			sortedPriority.remove(cmi);
 
@@ -354,7 +355,7 @@ public class Logic{
 			Task ticked = current.remove(index-1);
 			sortedTime.remove(ticked);
 			sortedPriority.remove(ticked);
-			listTicked.add(ticked);
+			listTicked.add(0, ticked);
 
 			sortLists();
 			storeLists();
