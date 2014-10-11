@@ -17,11 +17,15 @@ public class Logic{
 
 	private static final int SORTED_TIME = 1;
 	private static final int SORTED_PRIORITY = 2;
+	private static final int TICKED = 3;
+	private static final int CMI = 4;
 
 
 	// Temporary sorted storages
 	Vector<Task> sortedTime;
 	Vector<Task> sortedPriority;
+	Vector<Task> listTicked; // not sorted
+	Vector<Task> listCMI; // not sorted
 	Vector<Task> searchResults;
 
 	// Tracker to track what Vector is being used
@@ -43,6 +47,8 @@ public class Logic{
 
 		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
 		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
+		//listTicked = storage.restoreDataFromFile(TICKED);
+		//listCMI = storage.restoreDataFromFile(CMI);
 
 		searchResults = new Vector<Task>();
 
@@ -61,25 +67,23 @@ public class Logic{
 		switch (processed.getCommand()) {
 		case "delete": 
 			feedback = this.delete(processed.getIndex()); break;
-			// case "search":
-
-			//TODO: getWHAT?? get index or get number
+		case "clear":
+			feedback = this.clear(); break;
+		// case "search":
 		case "list":
-			feedback = this.list(processed.getIndex()); break;
-
+			feedback = this.list(processed.getDescription()); break;
 		case "edit":
 			feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription()); break;
 		case "add":
 			feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), processed.getEndDate(), processed.getStartTime(), processed.getEndTime()); break;
-			// case "undo":
-		case "help":
-			feedback = this.help(); break;
-
-			// case "cmi":
+		case "cmi":
+			feedback = this.cmi(processed.getIndex()); break;
 			// case "undo":
 			// case "redo":
 		case "tick":
 			feedback = this.tick(processed.getIndex()); break;
+		case "help":
+			feedback = this.help(); break;
 		default:
 			feedback = "invalid command";
 			break;
@@ -106,6 +110,25 @@ public class Logic{
 
 		return "Index out of bounds. Nothing has been deleted.";
 	}
+	
+	private String clear() {
+		sortedTime = new Vector<Task>();
+		sortedPriority = new Vector<Task>();
+		
+		switch (listTracker) {
+		case SORTED_TIME:
+			current = sortedTime; break;
+		case SORTED_PRIORITY:
+			current = sortedPriority; break;
+		}
+		
+		UI.setList(list());
+		
+		storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
+		storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+		
+		return "Spick and span!";
+	}
 
 	private boolean search(String str) {
 		// TODO Auto-generated method stub
@@ -128,22 +151,24 @@ public class Logic{
 		return list;
 	}
 
-	private String list(int listNo) {
-
-		if (listNo == SORTED_TIME) {
+	private String list(String listType) {
+		
+		if (listType.equals("time")) {
 			current = sortedTime;
 			listTracker = SORTED_TIME;
-			return this.list();
+			UI.setList(list());
+			return "Listing by time..";
 		}
 
-		if (listNo == SORTED_PRIORITY) {
+		if (listType.equals("priority")) {
 			current = sortedPriority;
 			listTracker = SORTED_PRIORITY;
-			return this.list();
+			UI.setList(list());
+			return "Listing by priority..";
 		}
 
 		else {
-			return "Non-existent list.\n";
+			return "Non-existent list.";
 		}
 
 	}
@@ -258,6 +283,27 @@ public class Logic{
 
 		UI.setList(list());
 		return description + " has been added.\n";
+	}
+	
+	private String cmi(int index) {
+		// Exception catching
+		if (index > 0 && index <= current.size()) {
+			Task cmi = current.remove(index-1);
+			listCMI.add(cmi);
+			sortedTime.remove(cmi);
+			sortedPriority.remove(cmi);
+
+			Collections.sort(sortedTime, new sortByTime());
+			Collections.sort(sortedPriority, new sortByPriority());
+
+			storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
+			storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+			storage.writeStorageArrayIntoFile(CMI, listCMI);
+			UI.setList(list());
+			return cmi.toString() + " cannot be done!\n";
+		}
+
+		return "Index out of bounds. Nothing has been CMI-ed.";
 	}
 
 	private String help() {
