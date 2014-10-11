@@ -263,7 +263,6 @@ public class Logic{
 
 	private String add(String description, boolean isRepeating, Date startDate, Date endDate,
 			Time startTime, Time endTime) {
-		// TODO check with kexin whether tasks are correctly allocated
 
 		Task newTask;
 
@@ -307,8 +306,7 @@ public class Logic{
 
 		sortLists();
 
-		storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
-		storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+		storeLists();
 
 		UI.setList(list());
 		return description + " has been added.\n";
@@ -323,10 +321,7 @@ public class Logic{
 			sortedPriority.remove(cmi);
 
 			sortLists();
-
-			storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
-			storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
-			storage.writeStorageArrayIntoFile(CMI, listCMI);
+			storeLists();
 			UI.setList(list());
 			return cmi.toString() + " cannot be done!\n";
 		}
@@ -359,11 +354,11 @@ public class Logic{
 			Task ticked = current.remove(index-1);
 			sortedTime.remove(ticked);
 			sortedPriority.remove(ticked);
+			listTicked.add(ticked);
 
 			sortLists();
+			storeLists();
 
-			storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
-			storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
 			UI.setList(list());
 			return ticked.toString() + " is done!\n";
 		}
@@ -372,6 +367,3 @@ public class Logic{
 	}
 }
 
-
-// TODO: 
-// -implement switch current
