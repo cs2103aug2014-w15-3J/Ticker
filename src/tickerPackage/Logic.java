@@ -61,6 +61,9 @@ public class Logic{
 
 
 	public String getLogic(String input) {
+		// Crash the program if Logic is contructed without TickerUI, missing dependency
+		assert UI != null;
+		
 		String feedback;
 		UserInput processed = parser.processInput(input);  // double check parser method
 
