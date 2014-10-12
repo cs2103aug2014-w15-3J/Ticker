@@ -7,6 +7,7 @@ public class Parser {
 	public static final String INVALID_ET_AND_SD = "Cannot add a task with only end time and start date";
 	public static final String INVALID_ARGUMENT = "Invalid Argument";
 	public static final String INVALID_SEARCH = "Invalid search, task description must be within double quote";
+	public static final String INVALID_PRIORITY = "Priority can only be A B or C";
 	
 	public Parser(){
 	}
@@ -122,6 +123,22 @@ public class Parser {
 					return null;
 				}
 			}
+			
+			if (words[i].equals("-p")){
+				if (words.length==i+1){
+					return new UserInput("error",INVALID_ARGUMENT);
+				}
+				
+				String priority = words[i+1].toUpperCase();
+				
+				if (priority=="A"||priority=="C"||priority=="C")
+					input.priority=priority.charAt(0);
+				else {
+					return new UserInput("error",INVALID_PRIORITY);
+				}
+				
+			}
+			
 			
 			if (words[i].equals("-ed")){
 				if (words.length==i+1){
