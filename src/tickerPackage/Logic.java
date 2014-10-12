@@ -17,11 +17,15 @@ public class Logic{
 
 	private static final int SORTED_TIME = 1;
 	private static final int SORTED_PRIORITY = 2;
+	private static final int TICKED = 3;
+	private static final int CMI = 4;
 
 
 	// Temporary sorted storages
 	Vector<Task> sortedTime;
 	Vector<Task> sortedPriority;
+	Vector<Task> listTicked; // not sorted
+	Vector<Task> listCMI; // not sorted
 	Vector<Task> searchResults;
 
 	// Tracker to track what Vector is being used
@@ -43,6 +47,8 @@ public class Logic{
 
 		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
 		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
+		listTicked = storage.restoreDataFromFile(TICKED);
+		listCMI = storage.restoreDataFromFile(CMI);
 
 		searchResults = new Vector<Task>();
 
@@ -61,25 +67,23 @@ public class Logic{
 		switch (processed.getCommand()) {
 		case "delete": 
 			feedback = this.delete(processed.getIndex()); break;
+		case "clear":
+			feedback = this.clear(); break;
 			// case "search":
-
-			//TODO: getWHAT?? get index or get number
 		case "list":
-			feedback = this.list(processed.getIndex()); break;
-
+			feedback = this.list(processed.getDescription()); break;
 		case "edit":
 			feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription()); break;
 		case "add":
 			feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), processed.getEndDate(), processed.getStartTime(), processed.getEndTime()); break;
-			// case "undo":
-		case "help":
-			feedback = this.help(); break;
-
-			// case "cmi":
+		case "cmi":
+			feedback = this.cmi(processed.getIndex()); break;
 			// case "undo":
 			// case "redo":
 		case "tick":
 			feedback = this.tick(processed.getIndex()); break;
+		case "help":
+			feedback = this.help(); break;
 		default:
 			feedback = "invalid command";
 			break;
@@ -92,19 +96,68 @@ public class Logic{
 		// Exception catching
 		if (index > 0 && index <= current.size()) {
 			Task deleted = current.remove(index-1);
-			sortedTime.remove(deleted);
-			sortedPriority.remove(deleted);
 
-			Collections.sort(sortedTime, new sortByTime());
-			Collections.sort(sortedPriority, new sortByPriority());
+			if (listTracker == SORTED_TIME) {
+				sortedPriority.remove(deleted);
+				sortLists();
 
-			storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
-			storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+			}
+			if (listTracker == SORTED_PRIORITY) {
+				sortedTime.remove(deleted);
+				sortLists();
+			}
+
+			storeLists();
+			
 			UI.setList(list());
 			return deleted.toString() + " has been removed.\n";
 		}
 
 		return "Index out of bounds. Nothing has been deleted.";
+	}
+
+	/**
+	 * 
+	 */
+	private void storeLists() {
+		storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
+		storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+		storage.writeStorageArrayIntoFile(TICKED, listTicked);
+		storage.writeStorageArrayIntoFile(CMI, listCMI);
+	}
+
+	/**
+	 * 
+	 */
+	private void sortLists() {
+		Collections.sort(sortedTime, new sortByTime());
+		Collections.sort(sortedPriority, new sortByPriority());
+	}
+
+	private String clear() {
+		sortedTime = new Vector<Task>();
+		sortedPriority = new Vector<Task>();
+		listTicked = new Vector<Task>();
+		listCMI = new Vector<Task>();
+
+		switch (listTracker) {
+		case SORTED_TIME:
+			current = sortedTime; break;
+		case SORTED_PRIORITY:
+			current = sortedPriority; break;
+		// TODO: decide whether the view should still stay in Ticked and CMI
+		case TICKED:
+			current = listTicked; break;
+		case CMI:
+			current = listCMI; break;
+		default:
+		}
+
+		UI.setList(list());
+
+		storeLists();
+
+		return "Spick and span!";
 	}
 
 	private boolean search(String str) {
@@ -121,29 +174,31 @@ public class Logic{
 		int i = 0;
 		String list = "";
 		for (Task task: current) {
-			
+
 			list += ++i + ". " + task.toString() + "\n";
-		
+
 		}
 		return list;
 	}
 
-	private String list(int listNo) {
+	private String list(String listType) {
 
-		if (listNo == SORTED_TIME) {
+		if (listType.equals("time")) {
 			current = sortedTime;
 			listTracker = SORTED_TIME;
-			return this.list();
+			UI.setList(list());
+			return "Listing by time..";
 		}
 
-		if (listNo == SORTED_PRIORITY) {
+		if (listType.equals("priority")) {
 			current = sortedPriority;
 			listTracker = SORTED_PRIORITY;
-			return this.list();
+			UI.setList(list());
+			return "Listing by priority..";
 		}
 
 		else {
-			return "Non-existent list.\n";
+			return "Non-existent list.";
 		}
 
 	}
@@ -152,53 +207,53 @@ public class Logic{
 		// Exception catching
 
 		if (index > 0 && index <= current.size()) {
-			Task editTask = current.remove(index - 1);
+			Task oldTask = current.remove(index - 1);
+			Task newTask = oldTask;
 
 			// Edit the other Vector<Task>
 			if (listTracker == SORTED_TIME ) {
-				sortedPriority.remove(editTask);
+				sortedPriority.remove(oldTask);
 			}
 			else if (listTracker == SORTED_PRIORITY) {
-				sortedTime.remove(editTask);
+				sortedTime.remove(oldTask);
 			}
 
 			if (isAppending) {
-				String taskName = editTask.getDescription();
+				String taskName = oldTask.getDescription();
 				taskName += " " + description;
-				editTask.setDescription(taskName);
+				newTask.setDescription(taskName);
 
-				// TODO: to implement sort function so there will not be need to keep index at the same place
-				current.add(index - 1, editTask);
+				current.add(index - 1, newTask);
 				if (listTracker == SORTED_TIME ) {
-					sortedPriority.add(editTask);
+					sortedPriority.add(newTask);
+					sortLists();
 				}
 				else if (listTracker == SORTED_PRIORITY) {
-					sortedTime.add(editTask);
+					sortedTime.add(newTask);
+					sortLists();
 				}
 
-				storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
-				storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+				storeLists();
+				
 				UI.setList(list());
-				return "Index " + index + " has been updated to " + current.get(index - 1) + ".\n";
+				return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
 			}
 
-			editTask.setDescription(description);
-			current.add(index - 1, editTask);
+			newTask.setDescription(description);
+			current.add(index - 1, newTask);
 			if (listTracker == SORTED_TIME ) {
-				sortedPriority.add(editTask);
+				sortedPriority.add(newTask);
+				sortLists();
 			}
 			else if (listTracker == SORTED_PRIORITY) {
-				sortedTime.add(editTask);
+				sortedTime.add(newTask);
+				sortLists();
 			}
 
-			Collections.sort(sortedTime, new sortByTime());
-			Collections.sort(sortedPriority, new sortByPriority());
-
-			storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
-			storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+			storeLists();
 
 			UI.setList(list());
-			return "Index " + index + " has been updated to " + current.get(index - 1) + ".\n";
+			return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
 		}
 
 		return"Index out of bounds. Nothing has been edited.\n";
@@ -208,7 +263,6 @@ public class Logic{
 
 	private String add(String description, boolean isRepeating, Date startDate, Date endDate,
 			Time startTime, Time endTime) {
-		// TODO check with kexin whether tasks are correctly allocated
 
 		Task newTask;
 
@@ -250,14 +304,30 @@ public class Logic{
 		sortedTime.add(newTask);
 		sortedPriority.add(newTask);
 
-		Collections.sort(sortedTime, new sortByTime());
-		Collections.sort(sortedPriority, new sortByPriority());
+		sortLists();
 
-		storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
-		storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+		storeLists();
 
 		UI.setList(list());
 		return description + " has been added.\n";
+	}
+
+	private String cmi(int index) {
+		// Exception catching
+		if (index > 0 && index <= current.size()) {
+			Task cmi = current.remove(index-1);
+			// Add to the front so the latest additions are on top
+			listCMI.add(0, cmi);
+			sortedTime.remove(cmi);
+			sortedPriority.remove(cmi);
+
+			sortLists();
+			storeLists();
+			UI.setList(list());
+			return cmi.toString() + " cannot be done!\n";
+		}
+
+		return "Index out of bounds. Nothing has been CMI-ed.";
 	}
 
 	private String help() {
@@ -285,12 +355,11 @@ public class Logic{
 			Task ticked = current.remove(index-1);
 			sortedTime.remove(ticked);
 			sortedPriority.remove(ticked);
+			listTicked.add(0, ticked);
 
-			Collections.sort(sortedTime, new sortByTime());
-			Collections.sort(sortedPriority, new sortByPriority());
+			sortLists();
+			storeLists();
 
-			storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
-			storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
 			UI.setList(list());
 			return ticked.toString() + " is done!\n";
 		}
@@ -299,6 +368,3 @@ public class Logic{
 	}
 }
 
-
-// TODO: 
-// -implement switch current

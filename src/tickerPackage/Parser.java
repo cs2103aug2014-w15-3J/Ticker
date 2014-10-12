@@ -69,7 +69,7 @@ public class Parser {
 		}
 		
 		if (words[0].toLowerCase().equals("exit")){
-			System.exit(9);
+			System.exit(0);
 		}
 		
 		return null;
