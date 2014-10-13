@@ -1,7 +1,7 @@
 package tickerPackage;
 
 import java.util.Vector;
-
+import java.util.logging.*;
 import tickerPackage.Logic;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -20,6 +20,7 @@ public class TickerUI extends Application {
 	private Logic logic;
 	private String list;
 	private Vector<Task> tasksToBeShown;
+	private static Logger logger = Logger.getLogger("UI");
 
 
 	public Logic getLogic() {
@@ -72,7 +73,9 @@ public class TickerUI extends Application {
 		command.setOnAction(new EventHandler<ActionEvent>() 
 				{
 			public void handle(ActionEvent event) {
+				logger.log(Level.INFO, "user press enter once");
 				String cmd = command.getText();
+				assert !cmd.equals("");
 				command.clear();
 				//result.setText(cmd);
 				feedback.setText(logic.getLogic(cmd));
@@ -113,6 +116,7 @@ public class TickerUI extends Application {
 	public static void main(String[] args) {
 		launch(args);
 		ticker = new TickerUI();
+		
 
 	}
 }
