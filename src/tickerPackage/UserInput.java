@@ -10,7 +10,7 @@ public class UserInput {
 	public Date startDate;
 	public boolean isAppendingRepeating;
 	public int index;
-	public int priority;
+	public char priority;
 	
 	// TODO: instantiate UserInput()
 	public UserInput(){
@@ -58,7 +58,7 @@ public class UserInput {
 		return index;
 	}
 	
-	public int getPriority() {
+	public char getPriority() {
 		return priority;
 	}
 

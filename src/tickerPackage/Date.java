@@ -106,4 +106,33 @@ public class Date {
 		else if (year%4==0&&year%100!=0) return true;
 		return false;
 	}
+	
+	//returns 0 for Sunday, 1 for Monday, 2 for Tuesday etc
+	//pre-condition: date cannot be earlier than 1st Jan, 1900.
+	//the calculation is based on the fact that 0th Jan, 1900 is a Sunday.
+	
+	public static int dayOfWeek(Date date){
+		
+		int numDays = 0;
+
+		for (int i=1900; i<date.year;i++){
+			if (isLeapYear(i))
+				numDays+=366;
+			else numDays+=365;
+		}
+		
+		int[] numOfDaysEachMonth = {0,31,28,31,30,31,30,31,31,30,31,30,31};
+		
+		if (isLeapYear(date.year)){
+			numOfDaysEachMonth[2]++;
+		}
+		
+		for (int i=1;i<date.month;i++){
+			numDays+=numOfDaysEachMonth[i];
+		}
+		
+		numDays+=date.date;
+		
+		return numDays%7;
+	}
 }
