@@ -7,6 +7,7 @@ public class Parser {
 	public static final String INVALID_ET_AND_SD = "Cannot add a task with only end time and start date";
 	public static final String INVALID_ARGUMENT = "Invalid Argument";
 	public static final String INVALID_SEARCH = "Invalid search, task description must be within double quote";
+	public static final String INVALID_PRIORITY = "Priority can only be A B or C";
 	
 	public Parser(){
 	}
@@ -122,6 +123,22 @@ public class Parser {
 					return null;
 				}
 			}
+			
+			if (words[i].equals("-p")){
+				if (words.length==i+1){
+					return new UserInput("error",INVALID_ARGUMENT);
+				}
+				
+				String priority = words[i+1].toUpperCase();
+				
+				if (priority=="A"||priority=="C"||priority=="C")
+					input.priority=priority.charAt(0);
+				else {
+					return new UserInput("error",INVALID_PRIORITY);
+				}
+				
+			}
+			
 			
 			if (words[i].equals("-ed")){
 				if (words.length==i+1){
@@ -278,10 +295,14 @@ public class Parser {
 		UserInput input = new UserInput();
 		input.command = "list";
 		if (words.length==2){
-			if (words[1].equals("p"))
-				input.description="priority";	
-			if (words[1].equals("t"))
+			if (words[1].equals("priority")||words[1].equals("p"))
+				input.description="priority";
+			if (words[1].equals("time")||words[1].equals("ti"))
 				input.description="time";
+			if (words[1].equals("c")||words[1].equals("cmi"))
+				input.description="cmi";
+			if (words[1].equals("ticked")||words[1].equals("tick"))
+				input.description="ticked";
 		}
 		if (input.description==null)
 			return new UserInput("error","invalid input");

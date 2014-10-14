@@ -25,9 +25,12 @@ import com.google.gson.JsonParser;
 public class Storage {
 	private Vector<Task> storedTasksByPriority = new Vector<Task>();
 	private Vector<Task> storedTasksByDeadline = new Vector<Task>();
-	private File fileSortedByPriority, fileSortedByDeadline;
+	private Vector<Task> storedTasksByTicked = new Vector<Task>();
+	private Vector<Task> storedTasksByCMI = new Vector<Task>();
+	private File fileSortedByPriority, fileSortedByDeadline, fileSortedByTicked, fileSortedByCMI;
 	private Scanner fileReader;
 	private BufferedWriter fileWriter;
+	private boolean isCorrupt = false, isMissing = false;
 	
 	// These messages are used when IO errors occur
 	private static final String MESSAGE_FILE_LOAD_ERROR = "Could not load from %1$s properly: %2$s";
@@ -37,8 +40,12 @@ public class Storage {
 
 	private static final int TASKS_DEADLINE_INDEX = 1;
 	private static final int TASKS_PRIORITY_INDEX = 2;
+	private static final int TASKS_TICKED_INDEX = 3;
+	private static final int TASKS_CMI_INDEX = 4;
 	private static final String TASKS_PRIORITY_FILENAME = "priority.json";
 	private static final String TASKS_DEADLINE_FILENAME = "deadline.json"; 
+	private static final String TASKS_TICKED_FILENAME = "ticked.json";
+	private static final String TASKS_CMI_FILENAME = "cmi.json";
 
 	public Storage() {
 		 initFile();
@@ -52,16 +59,26 @@ public class Storage {
 	private void initFile() {
 		fileSortedByDeadline = new File(TASKS_DEADLINE_FILENAME);
 		fileSortedByPriority = new File(TASKS_PRIORITY_FILENAME);
-		if (fileSortedByDeadline.exists()) {
-			readFileContentIntoStorageArray(fileSortedByDeadline);
-		} else {
-			createNewFile(fileSortedByDeadline);
-		}
+		fileSortedByTicked = new File(TASKS_TICKED_FILENAME);
+		fileSortedByCMI = new File(TASKS_CMI_FILENAME);
 		
-		if (fileSortedByPriority.exists()) {
-			readFileContentIntoStorageArray(fileSortedByPriority);
+		checkFileExist(fileSortedByDeadline);
+		checkFileExist(fileSortedByPriority);
+		checkFileExist(fileSortedByTicked);
+		checkFileExist(fileSortedByCMI);
+		
+		//if one or more of the file is being altered, reset all files
+		if(isMissing) {
+			clearFile();
+		}
+	}
+	
+	private void checkFileExist(File file) {
+		if (file.exists()) {
+			readFileContentIntoStorageArray(file);
 		} else {
-			createNewFile(fileSortedByPriority);
+			createNewFile(file);
+			isMissing = true;
 		}
 	}
 	
@@ -91,6 +108,7 @@ public class Storage {
 	*/
 	public boolean writeStorageArrayIntoFile(int key, Vector<Task> tasks) throws IllegalArgumentException {
 		try {
+			//TODO: refactor
 			if(key == TASKS_PRIORITY_INDEX) {
 				fileWriter = new BufferedWriter(new FileWriter(fileSortedByPriority));
 				setStoredTaskByPriority(tasks);
@@ -101,6 +119,16 @@ public class Storage {
 				setStoredTaskByDeadline(tasks);
 				String result = convertToJSON(storedTasksByDeadline);
 				fileWriter.write(result);
+			} else if (key == TASKS_TICKED_INDEX) {
+				fileWriter = new BufferedWriter(new FileWriter(fileSortedByTicked));
+				setStoredTaskByDeadline(tasks);
+				String result = convertToJSON(storedTasksByTicked);
+				fileWriter.write(result);
+			} else if (key == TASKS_CMI_INDEX) {
+				fileWriter = new BufferedWriter(new FileWriter(fileSortedByCMI));
+				setStoredTaskByDeadline(tasks);
+				String result = convertToJSON(storedTasksByCMI);
+				fileWriter.write(result);
 			} else {
 				throw new IllegalArgumentException("illegal key " + key);
 			}
@@ -110,6 +138,7 @@ public class Storage {
 			return true;
 			
 		} catch (IOException ioe) {
+			//TODO: to be modified
 			String fileWriteError = String.format(MESSAGE_FILE_WRITE_ERROR, fileSortedByDeadline.getName(), ioe.getMessage()); //TODO: to be changed
 			showToUser(fileWriteError);
 			return false;
@@ -150,6 +179,12 @@ public class Storage {
 		} else if (key == TASKS_DEADLINE_INDEX) {
 			readFileContentIntoStorageArray(fileSortedByDeadline);
 			return storedTasksByDeadline;
+		} else if (key == TASKS_TICKED_INDEX) {
+			readFileContentIntoStorageArray(fileSortedByTicked);
+			return storedTasksByTicked;
+		} else if (key == TASKS_CMI_INDEX) {
+			readFileContentIntoStorageArray(fileSortedByCMI);
+			return storedTasksByCMI;
 		} else {
 			throw new IllegalArgumentException("illegal key " + key);
 		}
@@ -184,12 +219,21 @@ public class Storage {
 	 */
 	private void clearFile() {
 		try {
+			//TODO: refactor
 			fileWriter = new BufferedWriter(new FileWriter(fileSortedByDeadline));
-			fileWriter.write(new String());
+			fileWriter.write(new String("[]"));
 			fileWriter.flush();
 
 			fileWriter = new BufferedWriter(new FileWriter(fileSortedByPriority));
-			fileWriter.write(new String());
+			fileWriter.write(new String("[]"));
+			fileWriter.flush();
+			
+			fileWriter = new BufferedWriter(new FileWriter(fileSortedByTicked));
+			fileWriter.write(new String("[]"));
+			fileWriter.flush();
+			
+			fileWriter = new BufferedWriter(new FileWriter(fileSortedByCMI));
+			fileWriter.write(new String("[]"));
 			fileWriter.flush();
 
 			fileWriter.close();
@@ -216,7 +260,7 @@ public class Storage {
 	*  @return JSON string
 	*/
 	public String convertToJSON(Vector<Task> tasks){
-		GsonBuilder gson = new GsonBuilder().setPrettyPrinting();
+		GsonBuilder gson = new GsonBuilder();
 		gson.registerTypeAdapter(Task.class, new CustomDeserializer());
 		String json = gson.create().toJson(tasks);
 		
