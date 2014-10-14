@@ -3,7 +3,7 @@ package tickerPackage;
 public class FloatingTask extends Task {
 	final int id = 1; //used in storage
 	
-	public FloatingTask(String description, int priority, boolean isRepeating) {
+	public FloatingTask(String description, char priority, boolean isRepeating) {
 		super(description, null, null, null, null, priority, isRepeating);
 	}
 }

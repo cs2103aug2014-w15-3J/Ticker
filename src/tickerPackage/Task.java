@@ -6,10 +6,10 @@ public class Task {
 	protected Time startTime;
 	protected Date endDate;
 	protected Time endTime;
-	protected int priority;
+	protected char priority;
 	protected boolean isRepeating;
 
-	public Task(String description, Date startDate, Time startTime, Date endDate, Time endTime, int priority, boolean isRepeating) {
+	public Task(String description, Date startDate, Time startTime, Date endDate, Time endTime, char priority, boolean isRepeating) {
 		this.description = description;
 		this.startDate = startDate;
 		this.startTime = startTime;
@@ -44,7 +44,7 @@ public class Task {
 		return endTime;
 	}
 	
-	public int getPriority() {
+	public char getPriority() {
 		return priority;
 	}
 	
@@ -73,7 +73,7 @@ public class Task {
 		endTime = input;
 	}
 	
-	public void setPriority(int input) {
+	public void setPriority(char input) {
 		priority = input;
 	}
 	

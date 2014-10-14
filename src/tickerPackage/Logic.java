@@ -2,6 +2,7 @@ package tickerPackage;
 
 import java.util.Collections;
 import java.util.Vector;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ticker.storage.*;
@@ -20,7 +21,8 @@ public class Logic{
 	private static final int SORTED_PRIORITY = 2;
 	private static final int TICKED = 3;
 	private static final int CMI = 4;
-
+	
+	private static Logger logger = Logger.getLogger("Logic");
 
 	// Temporary sorted storages
 	Vector<Task> sortedTime;
@@ -64,84 +66,96 @@ public class Logic{
 	public String getLogic(String input) {
 		// Crash the program if Logic is contructed without TickerUI, missing dependency
 		assert UI != null;
-		
-		String feedback;
+
+		String feedback = "";
 		UserInput processed = parser.processInput(input);  // double check parser method
+		
+		logger.log(Level.INFO, "Performing an action");
 
-		switch (processed.getCommand()) {
-		case "delete": 
-			try {
-				feedback = this.delete(processed.getIndex());
-			}
-			catch (ArrayIndexOutOfBoundsException ex) {
-				return "Index out of bounds. Nothing has been deleted.";
-			}
-			break;
-			
-		case "clear":
-			feedback = this.clear(); 
-			break;
-			
-		// case "search":
-		case "list":
-			try {
-				feedback = this.list(processed.getDescription());
-			}
-			catch (IllegalArgumentException ex) {
-				System.out.println("Wrong list name from parser");
-				return "List does not exist. Please re-enter.";
-			}
-			break;
-			
-			
-		case "edit":
-			try {
-				feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription());
-			}
-			catch (ArrayIndexOutOfBoundsException ex) {
-				return "Index out of bounds. Nothing has been edited.";
-			}
-			catch (IllegalArgumentException ex) {
-				return "Task description is empty. Please re-enter.";
-			}
-			break;
-			
-		case "add":
-			try {
-				feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
-									processed.getEndDate(), processed.getStartTime(), processed.getEndTime());
-			}
-			catch (IllegalArgumentException ex) {
-				return "Error in input. Either description is missing or date is missing for repeated tasks.";
-			}
-			break;
-			
-		case "cmi":
-			try {
-			feedback = this.cmi(processed.getIndex());
-			}
-			catch (ArrayIndexOutOfBoundsException ex) {
-				return "Index out of bounds. Nothing has been marked as cannot do.";
-			}
-			break;
+		try {
 
-			// case "undo":
-			// case "redo":
-		case "tick":
-			try {
-				feedback = this.tick(processed.getIndex());
-			}
-			catch (ArrayIndexOutOfBoundsException ex) {
-				return "Index out of bounds. Nothing has been ticked.";
-			}
-			break;
+			switch (processed.getCommand()) {
+			case "delete": 
+				try {
+					feedback = this.delete(processed.getIndex());
+				}
+				catch (ArrayIndexOutOfBoundsException ex) {
+					return "Index out of bounds. Nothing has been deleted.";
+				}
+				break;
 
-		case "help":
-			feedback = this.help(); break;
-		default:
-			feedback = "invalid command";
-			break;
+			case "clear":
+				feedback = this.clear(); 
+				break;
+
+				// case "search":
+			case "list":
+				try {
+					feedback = this.list(processed.getDescription());
+				}
+				catch (IllegalArgumentException ex) {
+					System.out.println("Wrong list name from parser");
+					return "List does not exist. Please re-enter.";
+				}
+				break;
+
+
+			case "edit":
+				try {
+					feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription());
+				}
+				catch (ArrayIndexOutOfBoundsException ex) {
+					return "Index out of bounds. Nothing has been edited.";
+				}
+				catch (IllegalArgumentException ex) {
+					return "Task description is empty. Please re-enter.";
+				}
+				break;
+
+			case "add":
+				try {
+					feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
+							processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
+				}
+				catch (IllegalArgumentException ex) {
+					return "Error in input. Either description is missing or date is missing for repeated tasks.";
+				}
+				break;
+
+			case "cmi":
+				try {
+					feedback = this.cmi(processed.getIndex());
+				}
+				catch (ArrayIndexOutOfBoundsException ex) {
+					return "Index out of bounds. Nothing has been marked as cannot do.";
+				}
+				break;
+
+				// case "undo":
+				// case "redo":
+			case "tick":
+				try {
+					feedback = this.tick(processed.getIndex());
+				}
+				catch (ArrayIndexOutOfBoundsException ex) {
+					return "Index out of bounds. Nothing has been ticked.";
+				}
+				break;
+
+			case "help":
+				feedback = this.help(); break;
+			default:
+				feedback = "invalid command";
+				break;
+			}
+
 		}
+		catch (NullPointerException ep) {
+			logger.log(Level.WARNING, "NO COMMANDS PASSED");
+			System.out.println("Parser just sent a null command");
+		}
+		
+		logger.log(Level.INFO, "Action proceeded successfully");
 		return feedback;
 	}
 
@@ -151,24 +165,24 @@ public class Logic{
 		if (index <= 0 || index > current.size()) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
-			Task deleted = current.remove(index-1);
+		Task deleted = current.remove(index-1);
 
-			if (listTracker == SORTED_TIME) {
-				sortedPriority.remove(deleted);
-				sortLists();
+		if (listTracker == SORTED_TIME) {
+			sortedPriority.remove(deleted);
+			sortLists();
 
-			}
-			if (listTracker == SORTED_PRIORITY) {
-				sortedTime.remove(deleted);
-				sortLists();
-			}
+		}
+		if (listTracker == SORTED_PRIORITY) {
+			sortedTime.remove(deleted);
+			sortLists();
+		}
 
-			storeLists();
-			
-			UI.setList(list());
-			return deleted.toString() + " has been removed.\n";
+		storeLists();
 
-		
+		UI.setList(list());
+		return deleted.toString() + " has been removed.\n";
+
+
 	}
 
 	/**
@@ -200,7 +214,7 @@ public class Logic{
 			current = sortedTime; break;
 		case SORTED_PRIORITY:
 			current = sortedPriority; break;
-		// TODO: decide whether the view should still stay in Ticked and CMI
+			// TODO: decide whether the view should still stay in Ticked and CMI
 		case TICKED:
 			current = listTicked; break;
 		case CMI:
@@ -265,48 +279,31 @@ public class Logic{
 	}
 
 	private String edit(int index, boolean isAppending, String description) 
-							throws ArrayIndexOutOfBoundsException, IllegalArgumentException{
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException{
 		// Exception catching
-		
+
 		if (index <= 0 || index > current.size()) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
 		if (description == null || description.equals("")) {
 			throw new IllegalArgumentException();
 		}
-			Task oldTask = current.remove(index - 1);
-			Task newTask = oldTask;
+		Task oldTask = current.remove(index - 1);
+		Task newTask = oldTask;
 
-			// Edit the other Vector<Task>
-			if (listTracker == SORTED_TIME ) {
-				sortedPriority.remove(oldTask);
-			}
-			else if (listTracker == SORTED_PRIORITY) {
-				sortedTime.remove(oldTask);
-			}
+		// Edit the other Vector<Task>
+		if (listTracker == SORTED_TIME ) {
+			sortedPriority.remove(oldTask);
+		}
+		else if (listTracker == SORTED_PRIORITY) {
+			sortedTime.remove(oldTask);
+		}
 
-			if (isAppending) {
-				String taskName = oldTask.getDescription();
-				taskName += " " + description;
-				newTask.setDescription(taskName);
+		if (isAppending) {
+			String taskName = oldTask.getDescription();
+			taskName += " " + description;
+			newTask.setDescription(taskName);
 
-				current.add(index - 1, newTask);
-				if (listTracker == SORTED_TIME ) {
-					sortedPriority.add(newTask);
-					sortLists();
-				}
-				else if (listTracker == SORTED_PRIORITY) {
-					sortedTime.add(newTask);
-					sortLists();
-				}
-
-				storeLists();
-				
-				UI.setList(list());
-				return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
-			}
-
-			newTask.setDescription(description);
 			current.add(index - 1, newTask);
 			if (listTracker == SORTED_TIME ) {
 				sortedPriority.add(newTask);
@@ -321,12 +318,29 @@ public class Logic{
 
 			UI.setList(list());
 			return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
+		}
+
+		newTask.setDescription(description);
+		current.add(index - 1, newTask);
+		if (listTracker == SORTED_TIME ) {
+			sortedPriority.add(newTask);
+			sortLists();
+		}
+		else if (listTracker == SORTED_PRIORITY) {
+			sortedTime.add(newTask);
+			sortLists();
+		}
+
+		storeLists();
+
+		UI.setList(list());
+		return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
 	}
 
 
 	private String add(String description, boolean isRepeating, Date startDate, Date endDate,
-			Time startTime, Time endTime) throws IllegalArgumentException {
-		
+			Time startTime, Time endTime, char priority) throws IllegalArgumentException {
+
 		if (description == null || description.equals("")) {
 			throw new IllegalArgumentException();
 		}
@@ -337,10 +351,10 @@ public class Logic{
 		if (isRepeating) {
 			// TODO: set priority
 			if (startDate != null) {
-				newTask = new RepeatingTask(description, startDate, startTime, endTime, 0, isRepeating);
+				newTask = new RepeatingTask(description, startDate, startTime, endTime, priority, isRepeating);
 			}
 			else if (endDate != null) {
-				newTask = new RepeatingTask(description, endDate, startTime, endTime, 0, isRepeating);
+				newTask = new RepeatingTask(description, endDate, startTime, endTime, priority, isRepeating);
 			}
 			else {
 				throw new IllegalArgumentException();
@@ -352,19 +366,19 @@ public class Logic{
 			// Creation of floating tasks
 			if (endDate == null && endTime == null) {
 				// TODO: set priority
-				newTask = new FloatingTask(description, 0, false);
+				newTask = new FloatingTask(description, priority, false);
 			}
 			// Creation of deadline tasks
 			else {
 				// TODO: set priority
-				newTask = new DeadlineTask(description, endDate, endTime, 0, false);
+				newTask = new DeadlineTask(description, endDate, endTime, priority, false);
 			}
 
 		}
 		// Creation of timed tasks
 		else {
 			// TODO: set priority
-			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, 0, false);
+			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
 		}
 
 		// TODO: implementation of search
@@ -385,16 +399,16 @@ public class Logic{
 			throw new ArrayIndexOutOfBoundsException();
 		}
 
-			Task cmi = current.remove(index-1);
-			// Add to the front so the latest additions are on top
-			listCMI.add(0, cmi);
-			sortedTime.remove(cmi);
-			sortedPriority.remove(cmi);
+		Task cmi = current.remove(index-1);
+		// Add to the front so the latest additions are on top
+		listCMI.add(0, cmi);
+		sortedTime.remove(cmi);
+		sortedPriority.remove(cmi);
 
-			sortLists();
-			storeLists();
-			UI.setList(list());
-			return cmi.toString() + " cannot be done!\n";
+		sortLists();
+		storeLists();
+		UI.setList(list());
+		return cmi.toString() + " cannot be done!\n";
 
 	}
 
@@ -423,16 +437,16 @@ public class Logic{
 			throw new ArrayIndexOutOfBoundsException();
 		}
 
-			Task ticked = current.remove(index-1);
-			sortedTime.remove(ticked);
-			sortedPriority.remove(ticked);
-			listTicked.add(0, ticked);
+		Task ticked = current.remove(index-1);
+		sortedTime.remove(ticked);
+		sortedPriority.remove(ticked);
+		listTicked.add(0, ticked);
 
-			sortLists();
-			storeLists();
+		sortLists();
+		storeLists();
 
-			UI.setList(list());
-			return ticked.toString() + " is done!\n";
+		UI.setList(list());
+		return ticked.toString() + " is done!\n";
 	}
 }
 
