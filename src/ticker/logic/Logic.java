@@ -1,11 +1,13 @@
-package tickerPackage;
+package ticker.logic;
+import ticker.parser.*;
+import ticker.storage.*;
+import ticker.ui.*;
+import ticker.common.*;
 
 import java.util.Collections;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import ticker.storage.*;
 
 
 public class Logic{
