@@ -6,7 +6,7 @@ public class RepeatingTask extends Task {
 	Date date;
 
 	public RepeatingTask(String description, Date date, Time startTime, Time endTime, int priority, boolean isRepeating) {
-		super(description, date, startTime, null, startTime, priority, isRepeating);
+		super(description, date, startTime, null, endTime, priority, isRepeating);
 		this.date = date;
 		System.out.println("created repeating task");
 	}
