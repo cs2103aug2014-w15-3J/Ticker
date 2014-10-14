@@ -62,6 +62,10 @@ public class TickerUI extends Application {
 
 		final Text feedback = new Text();
 		grid.add(feedback, 1, 3);
+		
+		final Text currentTime = new Text();
+		grid.add(currentTime, 0, 0);
+		currentTime.setText(Time.getCurrentTime().toString() + " "+ Date.getCurrentDate().toString());
 
 		primaryStage.show();
 
