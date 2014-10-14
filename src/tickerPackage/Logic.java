@@ -2,6 +2,7 @@ package tickerPackage;
 
 import java.util.Collections;
 import java.util.Vector;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ticker.storage.*;
@@ -20,7 +21,8 @@ public class Logic{
 	private static final int SORTED_PRIORITY = 2;
 	private static final int TICKED = 3;
 	private static final int CMI = 4;
-
+	
+	private static Logger logger = Logger.getLogger("Logic");
 
 	// Temporary sorted storages
 	Vector<Task> sortedTime;
@@ -67,6 +69,8 @@ public class Logic{
 
 		String feedback = "";
 		UserInput processed = parser.processInput(input);  // double check parser method
+		
+		logger.log(Level.INFO, "Performing an action");
 
 		try {
 
@@ -147,8 +151,11 @@ public class Logic{
 
 		}
 		catch (NullPointerException ep) {
+			logger.log(Level.WARNING, "NO COMMANDS PASSED");
 			System.out.println("Parser just sent a null command");
 		}
+		
+		logger.log(Level.INFO, "Action proceeded successfully");
 		return feedback;
 	}
 
