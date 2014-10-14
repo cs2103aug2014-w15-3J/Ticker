@@ -1,4 +1,4 @@
-package tickerPackage;
+package ticker.common;
 
 public class Task {
 	protected String description;

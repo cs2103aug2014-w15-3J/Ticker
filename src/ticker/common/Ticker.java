@@ -1,4 +1,6 @@
-package tickerPackage;
+package ticker.common;
+
+import ticker.logic.Logic;
 
 import java.util.Scanner;
 

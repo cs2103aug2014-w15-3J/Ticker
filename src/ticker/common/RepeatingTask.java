@@ -1,4 +1,4 @@
-package tickerPackage;
+package ticker.common;
 
 public class RepeatingTask extends Task {
 	// TODO: how is date implemented in Task
