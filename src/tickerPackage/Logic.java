@@ -111,7 +111,7 @@ public class Logic{
 			case "add":
 				try {
 					feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
-							processed.getEndDate(), processed.getStartTime(), processed.getEndTime());
+							processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
 				}
 				catch (IllegalArgumentException ex) {
 					return "Error in input. Either description is missing or date is missing for repeated tasks.";
@@ -332,7 +332,7 @@ public class Logic{
 
 
 	private String add(String description, boolean isRepeating, Date startDate, Date endDate,
-			Time startTime, Time endTime) throws IllegalArgumentException {
+			Time startTime, Time endTime, char priority) throws IllegalArgumentException {
 
 		if (description == null || description.equals("")) {
 			throw new IllegalArgumentException();
@@ -344,10 +344,10 @@ public class Logic{
 		if (isRepeating) {
 			// TODO: set priority
 			if (startDate != null) {
-				newTask = new RepeatingTask(description, startDate, startTime, endTime, 0, isRepeating);
+				newTask = new RepeatingTask(description, startDate, startTime, endTime, priority, isRepeating);
 			}
 			else if (endDate != null) {
-				newTask = new RepeatingTask(description, endDate, startTime, endTime, 0, isRepeating);
+				newTask = new RepeatingTask(description, endDate, startTime, endTime, priority, isRepeating);
 			}
 			else {
 				throw new IllegalArgumentException();
@@ -359,19 +359,19 @@ public class Logic{
 			// Creation of floating tasks
 			if (endDate == null && endTime == null) {
 				// TODO: set priority
-				newTask = new FloatingTask(description, 0, false);
+				newTask = new FloatingTask(description, priority, false);
 			}
 			// Creation of deadline tasks
 			else {
 				// TODO: set priority
-				newTask = new DeadlineTask(description, endDate, endTime, 0, false);
+				newTask = new DeadlineTask(description, endDate, endTime, priority, false);
 			}
 
 		}
 		// Creation of timed tasks
 		else {
 			// TODO: set priority
-			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, 0, false);
+			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
 		}
 
 		// TODO: implementation of search
