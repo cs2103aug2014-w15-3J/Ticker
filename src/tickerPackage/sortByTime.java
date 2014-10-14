@@ -16,7 +16,9 @@ public class sortByTime implements Comparator<Task> {
 		
 		// Comparing between RepeatingTasks
 		if (task1.isRepeating == true && task2.isRepeating == true) {
-			return task1.startDate.compareTo(task2.startDate);
+			RepeatingTask rt1 = (RepeatingTask) task1;
+			RepeatingTask rt2 = (RepeatingTask) task2;
+			return rt1.getDay() - rt2.getDay();
 		}
 
 		// Comparing between TimedTasks

@@ -5,7 +5,7 @@ import java.util.Comparator;
 public class sortByPriority implements Comparator <Task> {
 
 	public int compare(Task task1, Task task2) {
-		// Comparing between TimedTasks
+		// Comparing between Priority
 		if (task1.priority != task2.priority) {
 			return task2.priority - task1.priority;
 		}
@@ -20,8 +20,11 @@ public class sortByPriority implements Comparator <Task> {
 
 		// Comparing between RepeatingTasks
 		if (task1.isRepeating == true && task2.isRepeating == true) {
-			return task1.startDate.compareTo(task2.startDate);
+			RepeatingTask rt1 = (RepeatingTask) task1;
+			RepeatingTask rt2 = (RepeatingTask) task2;
+			return rt1.getDay() - rt2.getDay();
 		}
+
 
 		if (task1.startDate != null && task2.startDate != null) {
 
