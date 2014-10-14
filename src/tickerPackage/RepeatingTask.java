@@ -13,7 +13,7 @@ public class RepeatingTask extends Task {
 	
 	private int day;
 
-	public RepeatingTask(String description, Date date, Time startTime, Time endTime, int priority, boolean isRepeating) {
+	public RepeatingTask(String description, Date date, Time startTime, Time endTime, char priority, boolean isRepeating) {
 		super(description, date, startTime, null, endTime, priority, isRepeating);
 		this.day = Date.dayOfWeek(date);
 		System.out.println("created repeating task");
