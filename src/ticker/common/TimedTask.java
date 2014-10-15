@@ -10,10 +10,10 @@ public class TimedTask extends Task {
 	@Override 
 	public String toString(){
 		String timing = "";
-		String temp = "";
 		
 		System.out.println("got into floating");
 		
+		/*
 		if(getStartTime()!=null&&getEndTime()!=null&&getStartDate()!=null&&getEndTime()!=null){
 			temp = " from " + getStartDate() + ", " + getStartTime() + " to " + getEndDate() + ", " + getEndTime();
 		}
@@ -33,10 +33,15 @@ public class TimedTask extends Task {
 		else if (getStartDate()!=null) {
 			temp = " start at " + getStartDate();
 		}
+		*/
 		
-		timing += temp;
+		timing += (!(getStartTime()==null&&getStartDate()==null))?" from":"";
+		timing += (getStartDate()==null)?"":" "+getStartDate();
+		timing += (getStartTime()==null)?"":", "+getStartTime();
+		timing += (!(getEndTime()==null&&getEndDate()==null))?" to":"";
+		timing += (getEndDate()==null)?"":" "+getEndDate();
+		timing += (getEndTime()==null)?"":", "+getEndTime();
 		
-				
 		return getDescription() + timing; 
 	}
 }
