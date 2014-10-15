@@ -15,10 +15,13 @@ public class Logic{
 	Parser parser;
 	Storage storage;
 	TickerUI UI;
+	
+	UndoManager undoMng;
 
 	// Pointer to the Vector currently in display
 	Vector<Task> current;
 
+	private static final int UNDONE = 1;
 	private static final int SORTED_TIME = 1;
 	private static final int SORTED_PRIORITY = 2;
 	private static final int TICKED = 3;
@@ -49,6 +52,7 @@ public class Logic{
 		// Instantiating sub-components
 		parser = new Parser();
 		storage = new Storage();
+		undoMng = new UndoManager();
 
 		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
 		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
@@ -131,6 +135,21 @@ public class Logic{
 				catch (ArrayIndexOutOfBoundsException ex) {
 					return "Index out of bounds. Nothing has been marked as cannot do.";
 				}
+				catch (IllegalArgumentException ex) {
+					return "Cannot perform command on this list";
+				}
+				break;
+				
+			case "uncmi":
+				try {
+					feedback = this.uncmi(processed.getIndex());
+				}
+				catch (ArrayIndexOutOfBoundsException ex) {
+					return "Index out of bounds. Nothing has been unmarked as cannot do.";
+				}
+				catch (IllegalArgumentException ex) {
+					return "Cannot perform command on this list";
+				}
 				break;
 
 				// case "undo":
@@ -142,7 +161,23 @@ public class Logic{
 				catch (ArrayIndexOutOfBoundsException ex) {
 					return "Index out of bounds. Nothing has been ticked.";
 				}
+				catch (IllegalArugmentException ex) {
+					return "Cannot perform command on this list";
+				}
 				break;
+				
+			case "untick":
+				try {
+					feedback = this.untick(processed.getIndex());
+				}
+				catch (ArrayIndexOutOfBoundsException ex) {
+					return "Index out of bounds. Nothing has been unticked.";
+				}
+				catch (IllegalArgumentException ex) {
+					return "Cannot perform command on this list";
+				}
+				break;
+				
 
 			case "help":
 				UI.setHelp();
@@ -183,6 +218,9 @@ public class Logic{
 		}
 
 		storeLists();
+		
+		Event event = new ("delete", deleted);
+		//TODO: how to use undoManager
 
 		UI.setList(current);
 		return deleted.toString() + " has been removed.\n";
@@ -219,7 +257,6 @@ public class Logic{
 			current = sortedTime; break;
 		case SORTED_PRIORITY:
 			current = sortedPriority; break;
-			// TODO: decide whether the view should still stay in Ticked and CMI
 		case TICKED:
 			current = listTicked; break;
 		case CMI:
@@ -292,6 +329,7 @@ public class Logic{
 		if (description == null || description.equals("")) {
 			throw new IllegalArgumentException();
 		}
+		
 		Task oldTask = current.remove(index - 1);
 		Task newTask = oldTask;
 
@@ -317,6 +355,11 @@ public class Logic{
 				sortedTime.add(newTask);
 				sortLists();
 			}
+			
+			Event event = new Event(oldTask, newTask);
+			
+			//TODO: how to add event into undoManager
+			
 
 			storeLists();
 
@@ -353,7 +396,6 @@ public class Logic{
 
 		// Creation of RepeatingTask
 		if (isRepeating) {
-			// TODO: set priority
 			if (startDate != null) {
 				newTask = new RepeatingTask(description, startDate, startTime, endTime, priority, isRepeating);
 			}
@@ -388,9 +430,11 @@ public class Logic{
 		// TODO: implementation of search
 		sortedTime.add(newTask);
 		sortedPriority.add(newTask);
+		
+		Event event = new ("add", newTask);
+		//TODO: how to implement undoManager
 
 		sortLists();
-
 		storeLists();
 
 		UI.setList(current);
@@ -402,13 +446,20 @@ public class Logic{
 		if (index <= 0 || index > current.size()) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
+		
+		if (listTracker == TICKED) {
+			throw new IllegalArgumentException();
+		}
 
 		Task cmi = current.remove(index-1);
 		// Add to the front so the latest additions are on top
 		listCMI.add(0, cmi);
 		sortedTime.remove(cmi);
 		sortedPriority.remove(cmi);
-
+		
+		Event event = new Event(cmi, UNDONE, CMI);
+		//TODO: how to implement undoManager
+		
 		sortLists();
 		storeLists();
 		UI.setList(current);
@@ -416,6 +467,30 @@ public class Logic{
 
 	}
 
+	private String uncmi(int index) throws ArrayIndexOutOfBoundsException {
+		// Exception catching
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+		
+		if (listTracker != CMI) {
+			throw new IllegalArgumentException();
+		}
+
+		Task uncmi = current.remove(index-1);
+		// Add to the front so the latest additions are on top
+		sortedTime.add(uncmi);
+		sortedPriority.add(uncmi);
+		
+		Event event = new Event(uncmi, UNDONE, CMI);
+		//TODO: how to implement undoManager
+		
+		sortLists();
+		storeLists();
+		UI.setList(current);
+		return uncmi.toString() + "is back to undone!\n";
+
+	}
 	/*private String help() {
 		// TODO: check through helpList again!
 		String helpList = "";
@@ -440,11 +515,17 @@ public class Logic{
 		if (index <= 0 || index > current.size()) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
+		
+		if (listTracker == CMI) {
+			throw new IllegalArgumentException();
+		}
 
 		Task ticked = current.remove(index-1);
 		sortedTime.remove(ticked);
 		sortedPriority.remove(ticked);
 		listTicked.add(0, ticked);
+		
+		Event event = new Event(ticked, UNDONE, TICKED);
 
 		sortLists();
 		storeLists();
@@ -452,4 +533,31 @@ public class Logic{
 		UI.setList(current);
 		return ticked.toString() + " is done!\n";
 	}
+	
+	private String untick(int index) {
+		// Exception catching
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+		
+		if (listTracker != TICKED) {
+			throw new IllegalArgumentException();
+		}
+
+		Task unticked = current.remove(index-1);
+		sortedTime.add(unticked);
+		sortedPriority.add(unticked);
+		
+		Event event = new Event(unticked, UNDONE, TICKED);
+
+		sortLists();
+		storeLists();
+
+		UI.setList(current);
+		return ticked.toString() + " is back to undone\n";
+	}
 }
+
+//TODO: 
+//-Do exception handling for tick and cmi, cannot do certain commands
+//-refactor the code and make it neat
