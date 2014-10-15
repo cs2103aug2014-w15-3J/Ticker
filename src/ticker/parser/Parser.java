@@ -413,6 +413,9 @@ public class Parser {
 			monthStr = str.substring(index+1,str.lastIndexOf("/"));
 			try {
 				year = Integer.parseInt(str.substring(str.lastIndexOf("/")+1));  
+				if (year<100){
+					year += 2000;
+				}
 			}	catch(NumberFormatException nfe) {    
 			}  
 		}

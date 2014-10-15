@@ -38,7 +38,7 @@ public class Date {
 	}
 
 	public String toString(){
-		return date+", "+months[month]+", "+ year;
+		return date+" "+months[month]+", "+ year;
 	}
 	
 	public String getMonthStr(){
