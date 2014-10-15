@@ -52,7 +52,7 @@ public class Logic{
 		// Instantiating sub-components
 		parser = new Parser();
 		storage = new Storage();
-		undoMng = new UndoManager();
+		UndoManager undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
 
 		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
 		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
@@ -161,7 +161,7 @@ public class Logic{
 				catch (ArrayIndexOutOfBoundsException ex) {
 					return "Index out of bounds. Nothing has been ticked.";
 				}
-				catch (IllegalArugmentException ex) {
+				catch (IllegalArgumentException ex) {
 					return "Cannot perform command on this list";
 				}
 				break;
@@ -220,7 +220,7 @@ public class Logic{
 		storeLists();
 		
 		Event event = new ("delete", deleted);
-		//TODO: how to use undoManager
+		undoMng.add(event);
 
 		UI.setList(current);
 		return deleted.toString() + " has been removed.\n";
@@ -356,7 +356,8 @@ public class Logic{
 				sortLists();
 			}
 			
-			Event event = new Event(oldTask, newTask);
+			Event event = new Event("edit", oldTask, newTask);
+			undoMng.add(event);
 			
 			//TODO: how to add event into undoManager
 			
@@ -432,7 +433,7 @@ public class Logic{
 		sortedPriority.add(newTask);
 		
 		Event event = new ("add", newTask);
-		//TODO: how to implement undoManager
+		undoMng.add(event);
 
 		sortLists();
 		storeLists();
@@ -457,8 +458,8 @@ public class Logic{
 		sortedTime.remove(cmi);
 		sortedPriority.remove(cmi);
 		
-		Event event = new Event(cmi, UNDONE, CMI);
-		//TODO: how to implement undoManager
+		Event event = new Event("cmi", cmi, UNDONE, CMI);
+		undoMng.add(event);
 		
 		sortLists();
 		storeLists();
@@ -482,8 +483,8 @@ public class Logic{
 		sortedTime.add(uncmi);
 		sortedPriority.add(uncmi);
 		
-		Event event = new Event(uncmi, UNDONE, CMI);
-		//TODO: how to implement undoManager
+		Event event = new Event("uncmi", uncmi, UNDONE, CMI);
+		undoMng.add(event);
 		
 		sortLists();
 		storeLists();
@@ -525,8 +526,9 @@ public class Logic{
 		sortedPriority.remove(ticked);
 		listTicked.add(0, ticked);
 		
-		Event event = new Event(ticked, UNDONE, TICKED);
-
+		Event event = new Event("ticked", ticked, UNDONE, TICKED);
+		undoMng.add(event);
+		
 		sortLists();
 		storeLists();
 
@@ -548,7 +550,8 @@ public class Logic{
 		sortedTime.add(unticked);
 		sortedPriority.add(unticked);
 		
-		Event event = new Event(unticked, UNDONE, TICKED);
+		Event event = new Event("unticked", unticked, UNDONE, TICKED);
+		undoMng.add(event);
 
 		sortLists();
 		storeLists();
@@ -561,3 +564,4 @@ public class Logic{
 //TODO: 
 //-Do exception handling for tick and cmi, cannot do certain commands
 //-refactor the code and make it neat
+//-do singleton
