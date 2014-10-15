@@ -1,6 +1,6 @@
 package ticker.logic;
 
-import tickerPackage.Task;
+import ticker.common.Task;
 
 public class Event {
 	final private String COMMAND_ADD = "add";

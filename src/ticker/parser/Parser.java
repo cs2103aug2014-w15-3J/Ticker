@@ -1,5 +1,6 @@
 // TODO: add priority to task
-package tickerPackage;
+package ticker.parser;
+import ticker.common.*;
 
 public class Parser {
 	

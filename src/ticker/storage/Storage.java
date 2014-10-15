@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.util.Vector;
 
-import tickerPackage.Task;
+import ticker.common.Task;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;

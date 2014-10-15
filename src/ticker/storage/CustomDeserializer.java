@@ -2,11 +2,11 @@ package ticker.storage;
 
 import java.lang.reflect.Type;
 
-import tickerPackage.DeadlineTask;
-import tickerPackage.FloatingTask;
-import tickerPackage.RepeatingTask;
-import tickerPackage.Task;
-import tickerPackage.TimedTask;
+import ticker.common.DeadlineTask;
+import ticker.common.FloatingTask;
+import ticker.common.RepeatingTask;
+import ticker.common.Task;
+import ticker.common.TimedTask;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
