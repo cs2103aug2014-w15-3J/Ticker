@@ -1,4 +1,4 @@
-package tickerPackage;
+package ticker.common;
 
 public class DeadlineTask extends Task {
 	final int id = 4; //used in storage

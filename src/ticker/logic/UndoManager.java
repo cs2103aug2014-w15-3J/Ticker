@@ -3,7 +3,7 @@ package ticker.logic;
 import java.util.Stack;
 import java.util.Vector;
 
-import tickerPackage.Task;
+import ticker.common.Task;
 
 public class UndoManager {
 	final private String COMMAND_ADD = "add";

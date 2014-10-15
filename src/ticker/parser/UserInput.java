@@ -1,4 +1,6 @@
-package tickerPackage;
+package ticker.parser;
+import ticker.common.Date;
+import ticker.common.Time;
 
 public class UserInput {
 	

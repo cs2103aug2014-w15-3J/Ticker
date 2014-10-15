@@ -1,4 +1,4 @@
-package tickerPackage;
+package ticker.common;
 
 public class TimedTask extends Task {
 	final int id = 2; //used in storage

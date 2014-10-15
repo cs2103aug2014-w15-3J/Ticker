@@ -1,8 +1,9 @@
-package tickerPackage;
+package ticker.ui;
 
 import java.util.Vector;
 import java.util.logging.*;
-import tickerPackage.Logic;
+import ticker.logic.Logic;
+import ticker.common.*;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;

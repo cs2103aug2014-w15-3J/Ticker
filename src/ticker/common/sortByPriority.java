@@ -1,4 +1,4 @@
-package tickerPackage;
+package ticker.common;
 
 import java.util.Comparator;
 
