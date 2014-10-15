@@ -60,14 +60,14 @@ public class Logic{
 		current = sortedTime;
 		listTracker = SORTED_TIME;
 
-		UI.setList(list());
+		UI.setList(current);
 
 	}
 
 
 	public String getLogic(String input) {
 		// Crash the program if Logic is contructed without TickerUI, missing dependency
-		assert UI != null;
+		assert(UI != null);
 
 		String feedback = "";
 		UserInput processed = parser.processInput(input);  // double check parser method
@@ -145,7 +145,10 @@ public class Logic{
 				break;
 
 			case "help":
-				feedback = this.help(); break;
+				UI.setHelp();
+				feedback = "Help is on the way!"; 
+				break;
+				
 			default:
 				feedback = "invalid command";
 				break;
@@ -181,7 +184,7 @@ public class Logic{
 
 		storeLists();
 
-		UI.setList(list());
+		UI.setList(current);
 		return deleted.toString() + " has been removed.\n";
 
 
@@ -224,7 +227,7 @@ public class Logic{
 		default:
 		}
 
-		UI.setList(list());
+		UI.setList(current);
 
 		storeLists();
 
@@ -237,8 +240,7 @@ public class Logic{
 		return false;
 	}
 
-	// TODO: Add identifying method to Parser so that user can list in either Time or Array
-	private String list() {
+	/*private String list() {
 		if (current == null) {
 			return "Nothing to display.\n";
 		}
@@ -250,29 +252,29 @@ public class Logic{
 
 		}
 		return list;
-	}
+	}*/
 
 	private String list(String listType) throws IllegalArgumentException {
 		switch (listType) {
 		case "time":
 			current = sortedTime;
 			listTracker = SORTED_TIME;
-			UI.setList(list());
+			UI.setList(current);
 			return "Listing by time...";
 		case "priority":
 			current = sortedPriority;
 			listTracker = SORTED_PRIORITY;
-			UI.setList(list());
+			UI.setList(current);
 			return "Listing by priority...";
 		case "ticked":
 			current = listTicked;
 			listTracker = TICKED;
-			UI.setList(list());
+			UI.setList(current);
 			return "Listing ticked tasks...";
 		case "cmi":
 			current = listCMI;
 			listTracker = CMI;
-			UI.setList(list());
+			UI.setList(current);
 			return "Listing tasks that cannot be done...";
 		default:
 			throw new IllegalArgumentException();
@@ -318,7 +320,7 @@ public class Logic{
 
 			storeLists();
 
-			UI.setList(list());
+			UI.setList(current);
 			return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
 		}
 
@@ -335,7 +337,7 @@ public class Logic{
 
 		storeLists();
 
-		UI.setList(list());
+		UI.setList(current);
 		return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
 	}
 
@@ -391,7 +393,7 @@ public class Logic{
 
 		storeLists();
 
-		UI.setList(list());
+		UI.setList(current);
 		return description + " has been added.\n";
 	}
 
@@ -409,12 +411,12 @@ public class Logic{
 
 		sortLists();
 		storeLists();
-		UI.setList(list());
+		UI.setList(current);
 		return cmi.toString() + " cannot be done!\n";
 
 	}
 
-	private String help() {
+	/*private String help() {
 		// TODO: check through helpList again!
 		String helpList = "";
 		helpList += "HELP FOR USING TICKER\n";
@@ -431,7 +433,7 @@ public class Logic{
 
 		UI.setList(helpList);
 		return "Help is on the way!\n";
-	}
+	}*/
 
 	private String tick(int index) {
 		// Exception catching
@@ -447,8 +449,7 @@ public class Logic{
 		sortLists();
 		storeLists();
 
-		UI.setList(list());
+		UI.setList(current);
 		return ticked.toString() + " is done!\n";
 	}
 }
-
