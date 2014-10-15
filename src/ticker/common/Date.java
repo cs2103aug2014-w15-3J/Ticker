@@ -113,6 +113,7 @@ public class Date {
 	
 	public static int dayOfWeek(Date date){
 		
+		assert date.compareTo(new Date(1900,1,1))>=0;
 		int numDays = 0;
 
 		for (int i=1900; i<date.year;i++){

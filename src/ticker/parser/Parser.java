@@ -1,5 +1,8 @@
 // TODO: add priority to task
 package ticker.parser;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import ticker.common.*;
 
 public class Parser {
@@ -10,11 +13,13 @@ public class Parser {
 	public static final String INVALID_SEARCH = "Invalid search, task description must be within double quote";
 	public static final String INVALID_PRIORITY = "Priority can only be A B or C";
 	
+	private static Logger logger = Logger.getLogger("parser");
+	
 	public Parser(){
 	}
 
 	public UserInput processInput(String command){
-		//System.out.println("processInput");
+		logger.log(Level.INFO,"processInput");
 		String[] words = command.split(" ");
 		for (int i=0;i<words.length;i++){
 			words[i] = words[i].trim();
@@ -23,9 +28,15 @@ public class Parser {
 		if (words[0].equals("add")){
 			String description = null;
 			int firstIndex = command.indexOf('"');
-			if (firstIndex == -1) return null;
+			if (firstIndex == -1) {
+				logger.log(Level.INFO,"no double quotes in the user's input");
+				return null;
+			}
 			int secondIndex = command.indexOf('"',firstIndex+1);
-			if (secondIndex != command.lastIndexOf('"')) return null;
+			if (secondIndex != command.lastIndexOf('"')) {
+				logger.log(Level.INFO,"too many double quotes in the user's input");
+				return null;
+			}
 			
 			description = command.substring(firstIndex+1,secondIndex);
 			return callAdd(words,description,command);
@@ -40,8 +51,10 @@ public class Parser {
 			
 			int firstIndex = command.indexOf('"');
 			int secondIndex = command.indexOf('"',firstIndex+1);
-			if ((secondIndex != command.lastIndexOf('"'))||firstIndex==-1) 
+			if ((secondIndex != command.lastIndexOf('"'))||firstIndex==-1){ 
+				logger.log(Level.INFO,"invalid input for search");
 				return new UserInput("error",INVALID_SEARCH);
+			}
 
 			return callSearch(command.substring(firstIndex+1,secondIndex).trim());
 		}
@@ -178,8 +191,8 @@ public class Parser {
 		}
 		
 		input.validifyTime();
-		System.out.println(input.startDate +""+ input.startTime + input.endDate+input.endTime);
-		System.out.println("Current Date " + Date.getCurrentDate());
+		//System.out.println(input.startDate +""+ input.startTime + input.endDate+input.endTime);
+		//System.out.println("Current Date " + Date.getCurrentDate());
 		
 		if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
 			return new UserInput("error",INVALID_ST_AND_ED);
@@ -365,18 +378,20 @@ public class Parser {
 		}
 		
 		
-		if (hour>=0&&hour<24&&minute<60&&minute>=0)
+		if (hour>=0&&hour<24&&minute<60&&minute>=0){
+			logger.log(Level.INFO,"valid time constructed, hour = " + hour +" minute = " + minute);
 			return new Time(hour,minute);
+		}
 		
 		return null;
 	}
 	
 	
 	private static Date constructDate(String str){
-		//System.out.println("ConstructDate");
+
 		if (str.equals("")) return null;
 		int index = str.indexOf("/");
-		//System.out.println("index = " + index);
+
 		if (index==-1) return null;
 		
 		int date = Integer.parseInt(str.substring(0,index));
@@ -422,11 +437,10 @@ public class Parser {
 			}
 		}
 		
-		//System.out.println(year + "   " + month + "   "+ date);
-		
-		if (month!=0&&date<=numOfDays[month])
+		if (month!=0&&date<=numOfDays[month]){
+			logger.log(Level.INFO,"valid date constructed, year = " + year +" month = " + month + " date = " + date);
 			return new Date(year,month,date);
-		
+		}
 		return null;
 	}
 }
