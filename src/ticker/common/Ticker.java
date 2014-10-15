@@ -27,7 +27,7 @@ public class Ticker {
 	//private static Storage storage;
 
 	public Ticker() {
-		logic = new Logic(this);
+		logic = new Logic();
 	}
 
 	public static void main(String[] args) {
