@@ -75,6 +75,14 @@ public class Parser {
 			return callCMI(words);
 		}
 		
+		if (words[0].toLowerCase().equals("untick")){
+			return callUntick(words);
+		}
+		
+		if (words[0].toLowerCase().equals("cmi")){
+			return callUnCMI(words);
+		}
+		
 		if (words[0].toLowerCase().equals("help")){
 			return callHelp(words);
 		}
@@ -263,6 +271,26 @@ public class Parser {
 	private UserInput callCMI(String[] words){
 		UserInput input = new UserInput();
 		input.command="cmi";
+		if (words.length==1){
+			return new UserInput("error",INVALID_ARGUMENT);
+		}
+		input.index=Integer.parseInt(words[1]);
+		return input;
+	}
+
+	private UserInput callUntick(String[] words){
+		UserInput input = new UserInput();
+		input.command="untick";
+		if (words.length==1){
+			return new UserInput("error",INVALID_ARGUMENT);
+		}
+		input.index=Integer.parseInt(words[1]);
+		return input;
+	}
+
+	private UserInput callUnCMI(String[] words){
+		UserInput input = new UserInput();
+		input.command="uncmi";
 		if (words.length==1){
 			return new UserInput("error",INVALID_ARGUMENT);
 		}
