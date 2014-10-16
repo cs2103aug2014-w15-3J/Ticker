@@ -58,6 +58,15 @@ public class Time {
 		return 1;
 	}
 
+	public boolean equals(Object obj) {
+		if (obj instanceof Time) {
+			Time myTime = (Time) obj;
+			return this.getHour() == myTime.getHour() && this.getMinute() == myTime.getMinute();
+		} else {
+			return false;
+		}
+	}
+	
 	public static Time getCurrentTime(){
 		Calendar cal = Calendar.getInstance();
 		return new Time(cal.get(Calendar.HOUR_OF_DAY),cal.get(Calendar.MINUTE));
