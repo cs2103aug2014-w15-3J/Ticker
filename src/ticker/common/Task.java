@@ -81,4 +81,15 @@ public class Task {
 		isRepeating = input;
 	}
 
+	public boolean equals(Object obj) {
+		if (obj instanceof Task) {
+			Task myTask = (Task) obj;
+			return this.getDescription().equals(myTask.getDescription()) && this.getStartDate().equals(myTask.getStartDate()) 
+					&& this.getEndDate().equals(myTask.getEndDate()) && this.getStartTime().equals(myTask.getStartTime()) 
+					&& this.getEndTime().equals(myTask.getEndTime()) && this.getPriority() == myTask.getPriority() 
+					&& this.getRepeat() == myTask.getRepeat();
+		} else {
+			return false;
+		}
+	}
 }
