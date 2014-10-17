@@ -84,10 +84,26 @@ public class Task {
 	public boolean equals(Object obj) {
 		if (obj instanceof Task) {
 			Task myTask = (Task) obj;
-			return this.getDescription().equals(myTask.getDescription()) && this.getStartDate().equals(myTask.getStartDate()) 
-					&& this.getEndDate().equals(myTask.getEndDate()) && this.getStartTime().equals(myTask.getStartTime()) 
-					&& this.getEndTime().equals(myTask.getEndTime()) && this.getPriority() == myTask.getPriority() 
-					&& this.getRepeat() == myTask.getRepeat();
+			if (this.getStartDate() == null && this.getEndDate() == null && this.getStartTime() == null && this.getStartDate() == null) {
+				return this.getDescription().equals(myTask.getDescription()) && this.getPriority() == myTask.getPriority() 
+						&& this.getRepeat() == myTask.getRepeat();
+			} else if (this.getStartDate() == null && this.getEndDate() == null && this.getStartTime() == null) {
+				return this.getDescription().equals(myTask.getDescription()) && this.getPriority() == myTask.getPriority() 
+						&& this.getRepeat() == myTask.getRepeat() && this.getStartDate().equals(myTask.getStartDate());
+			} else if (this.getStartDate() == null && this.getEndDate() == null) {
+				return this.getDescription().equals(myTask.getDescription()) && this.getPriority() == myTask.getPriority() 
+						&& this.getRepeat() == myTask.getRepeat() && this.getStartDate().equals(myTask.getStartDate()) && this.getStartTime().equals(myTask.getStartTime());
+			} else if (this.getStartDate() == null) {
+				return this.getDescription().equals(myTask.getDescription()) && this.getPriority() == myTask.getPriority() 
+						&& this.getRepeat() == myTask.getRepeat() && this.getStartDate().equals(myTask.getStartDate()) && this.getStartTime().equals(myTask.getStartTime()) 
+						&& this.getEndDate().equals(myTask.getEndDate());
+			} else {
+				return this.getDescription().equals(myTask.getDescription()) && this.getPriority() == myTask.getPriority() 
+						&& this.getRepeat() == myTask.getRepeat() && this.getStartDate().equals(myTask.getStartDate()) && this.getStartTime().equals(myTask.getStartTime()) 
+						&& this.getEndDate().equals(myTask.getEndDate()) && this.getEndTime().equals(myTask.getEndTime());
+			}
+			
+
 		} else {
 			return false;
 		}
