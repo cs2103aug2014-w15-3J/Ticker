@@ -24,10 +24,10 @@ public class UndoManager {
 	private UndoManager(Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByDeadline, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
 		undoStack = new Stack<Event>();
 		redoStack = new Stack<Event>();
-		storedTasksByPriority = this.storedTasksByPriority;
-		storedTasksByDeadline = this.storedTasksByDeadline;
-		storedTasksByTicked = this.storedTasksByTicked;
-		storedTasksByCMI = this.storedTasksByCMI;
+		this.storedTasksByPriority = storedTasksByPriority;
+		this.storedTasksByDeadline = storedTasksByDeadline;
+		this.storedTasksByTicked = storedTasksByTicked;
+		this.storedTasksByCMI = storedTasksByCMI;
 	}
 	
 	public void undo() {
