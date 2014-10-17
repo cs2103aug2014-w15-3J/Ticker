@@ -75,6 +75,14 @@ public class Parser {
 			return callCMI(words);
 		}
 		
+		if (words[0].toLowerCase().equals("untick")){
+			return callUntick(words);
+		}
+		
+		if (words[0].toLowerCase().equals("cmi")){
+			return callUnCMI(words);
+		}
+		
 		if (words[0].toLowerCase().equals("help")){
 			return callHelp(words);
 		}
@@ -91,6 +99,46 @@ public class Parser {
 		
 	}
 	
+	private boolean processSTET(String[] words,int index,UserInput input){
+		if (words.length==index+1){
+			return false;
+		}
+		Time time = constructTime(words[index+1]);
+		if (time==null){
+			return false;
+		}
+		
+		if (words[index].equals("-st")){
+			input.startTime=time;
+		}
+		
+		else {
+			input.endTime=time;
+		}
+		
+		return true;
+	}
+	
+	private boolean processSDED(String[] words,int index,UserInput input){
+		if (words.length==index+1){
+			return false;
+		}
+		Date date = constructDate(words[index+1]);
+		if (date==null){
+			return false;
+		}
+		
+		if (words[index].equals("-sd")){
+			input.startDate=date;
+		}
+		
+		else {
+			input.endDate=date;
+		}
+		
+		return true;
+	}
+	
 	private UserInput callAdd(String[] words,String description,String command){
 		System.out.println("callAdd");
 		UserInput input = new UserInput();
@@ -100,41 +148,15 @@ public class Parser {
 		
 		for (int i=0;i<words.length;i++){
 			
-			if (words[i].equals("-st")){
-				if (words.length==i+1){
+			if (words[i].equals("-st")||words[i].equals("-et")){	
+				if (!(processSTET(words,i,input))){
 					return new UserInput("error",INVALID_ARGUMENT);
-				}
-				input.startTime = constructTime(words[i+1]);
-			
-				if (input.startTime==null){
-					System.out.println("Error");
-					return null;
 				}
 			}
 			
-			if (words[i].equals("-et")){
-				if (words.length==i+1){
+			if (words[i].equals("-sd")||words[i].equals("-ed")){
+				if (!(processSDED(words,i,input))){
 					return new UserInput("error",INVALID_ARGUMENT);
-				}
-				
-				input.endTime = constructTime(words[i+1]);
-				
-				if (input.endTime==null){
-					System.out.println("Error");
-					return null;
-				}
-			}
-			
-			if (words[i].equals("-sd")){
-				if (words.length==i+1){
-					return new UserInput("error",INVALID_ARGUMENT);
-				}
-				
-				input.startDate = constructDate(words[i+1]);
-			
-				if (input.startDate==null){
-					System.out.println("Error");
-					return null;
 				}
 			}
 			
@@ -145,28 +167,14 @@ public class Parser {
 				
 				String priority = words[i+1].toUpperCase();
 				
-				if (priority=="A"||priority=="C"||priority=="C")
+				if (priority.equals("A")||priority.equals("C")||priority.equals("C"))
 					input.priority=priority.charAt(0);
 				else {
 					return new UserInput("error",INVALID_PRIORITY);
 				}
 				
 			}
-			
-			
-			if (words[i].equals("-ed")){
-				if (words.length==i+1){
-					return new UserInput("error",INVALID_ARGUMENT);
-				}
-				
-				input.endDate = constructDate(words[i+1]);
-			
-				if (input.endDate==null){
-					System.out.println("Error");
-					return null;
-				}
-			}
-			
+
 			if (words[i].equals("-r")){
 				input.isAppendingRepeating = true;
 			}
@@ -269,6 +277,26 @@ public class Parser {
 		input.index=Integer.parseInt(words[1]);
 		return input;
 	}
+
+	private UserInput callUntick(String[] words){
+		UserInput input = new UserInput();
+		input.command="untick";
+		if (words.length==1){
+			return new UserInput("error",INVALID_ARGUMENT);
+		}
+		input.index=Integer.parseInt(words[1]);
+		return input;
+	}
+
+	private UserInput callUnCMI(String[] words){
+		UserInput input = new UserInput();
+		input.command="uncmi";
+		if (words.length==1){
+			return new UserInput("error",INVALID_ARGUMENT);
+		}
+		input.index=Integer.parseInt(words[1]);
+		return input;
+	}
 	
 	private UserInput callEdit(String[] words,String command){
 		String description = "";
@@ -351,7 +379,7 @@ public class Parser {
 					return null;
 			}
 		
-			int time = Integer.parseInt(str); System.out.println("time = " + time);
+			int time = Integer.parseInt(str);
 			
 			if (time < 100) {
 				hour = time;
@@ -455,8 +483,8 @@ class StartEndTimeDate{
 	private Time et;
 	
 	public StartEndTimeDate(){
-		
 	}
+	
 	public Date getStartDate(){return sd;}
 	public Time getStartTime(){return st;}
 	public Date getEndDate(){return ed;}

@@ -5,6 +5,7 @@ import java.util.logging.*;
 
 import ticker.logic.Logic;
 import ticker.common.*;
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -21,9 +22,12 @@ public class TickerUI extends Application {
 	private static TickerUI ticker;
 	private Logic logic;
 	private String list;
-	private Vector<Task> tasksToBeShown;
+	private Vector<Task> tasksToBeShown; //possible list: sortedTime, sortedPriority, cmi, ticked, search
 	private String help;
 	private boolean displayHelp=false;
+	
+	AnimationTimer time;
+	
 	private static Logger logger = Logger.getLogger("UI");
 
 
@@ -41,10 +45,10 @@ public class TickerUI extends Application {
 	}
 
 
-	public void start(Stage primaryStage) {
-		primaryStage.setTitle("Ticker");
+	public void start(Stage stage) {
+        stage.setTitle("Ticker");
 		GridPane grid = new GridPane();
-		grid.setAlignment(Pos.TOP_LEFT);
+		grid.setAlignment(Pos.TOP_CENTER);
 		grid.setHgap(10);
 		grid.setVgap(10);
 		grid.setPadding(new Insets(10,10,10,10));
@@ -68,20 +72,17 @@ public class TickerUI extends Application {
 
 		final Text currentTime = new Text();
 		grid.add(currentTime, 0, 0);
-
+        
 		currentTime.setText(Time.getCurrentTime().toString() + " "+ Date.getCurrentDate().toString());
 
-
-		primaryStage.show();
-
-
-
-
 		Scene scene = new Scene(grid);
-		primaryStage.setScene(scene);
-		primaryStage.show();
+		stage.setScene(scene);
+		stage.setWidth(700);
+		stage.setHeight(400);
+		
+		stage.show();
 
-		command.setOnAction(new EventHandler<ActionEvent>() 
+		/*command.setOnAction(new EventHandler<ActionEvent>() 
 				{
 			public void handle(ActionEvent event) {
 				logger.log(Level.INFO, "user press enter once");
@@ -89,11 +90,11 @@ public class TickerUI extends Application {
 				assert !cmd.equals("");
 				command.clear();
 				//result.setText(cmd);
-				if(displayHelp = true) {
+				if(displayHelp == true) {
 					result.setText(help);
 					displayHelp = false;
 				} else {
-					result.setText(list);  // to be changed into Vector of Task
+					result.setText(tasksToBeShown.toString());  // to be changed into Vector of Task
 				}
 				feedback.setText(logic.getLogic(cmd));
 				//feedback should disappear after one second
@@ -101,7 +102,7 @@ public class TickerUI extends Application {
 				
 			}
 				});
-
+*/
 	}
 
 	/*String printOut(Vector<Task> list) {
@@ -129,17 +130,16 @@ public class TickerUI extends Application {
 		helpList += "-to sort the tasks according to priority: list to be continued\n";
 		helpList += "-to undo the last command: undo\n";
 		helpList += "-to redo the last undo: redo\n";
-		//TODO help for tick and cmi to be added; help for edit is not complete
+		helpList += "-to mark a task as done: tick <index of task>\n";
+		helpList += "-to mark a task as cannot be done: cmi <index of task>\n";
+		//edit not done yet
 		return helpList;
 
 	}
 
-	//public void setList(Vector<Task> tasks) {
-	//	this.tasksToBeShown = tasks;
+	//public void setList(String list) {
+	//	this.list = list;
 	//}
-	public void setList(String list) {
-		this.list = list;
-	}
 	public void setList(Vector<Task> tasks) {
 		this.tasksToBeShown = tasks;
 	}

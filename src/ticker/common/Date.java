@@ -90,6 +90,16 @@ public class Date {
 			}
 		}
 	}
+	
+	public boolean equals(Object obj) {
+		if (obj instanceof Date) {
+			Date myDate = (Date) obj;
+			return this.getYear() == myDate.getYear() && this.getMonth() == myDate.getMonth() 
+					&& this.getDate() == myDate.getDate();
+		} else {
+			return false;
+		}
+	}
 
 	public static Date getCurrentDate(){
 		Calendar cal = Calendar.getInstance();

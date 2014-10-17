@@ -219,7 +219,7 @@ public class Logic{
 
 		storeLists();
 		
-		Event event = new ("delete", deleted);
+		Event event = new Event("delete", deleted);
 		undoMng.add(event);
 
 		UI.setList(current);
@@ -432,7 +432,7 @@ public class Logic{
 		sortedTime.add(newTask);
 		sortedPriority.add(newTask);
 		
-		Event event = new ("add", newTask);
+		Event event = new Event("add", newTask);
 		undoMng.add(event);
 
 		sortLists();
@@ -557,7 +557,7 @@ public class Logic{
 		storeLists();
 
 		UI.setList(current);
-		return ticked.toString() + " is back to undone\n";
+		return unticked.toString() + " is back to undone\n";
 	}
 }
 
