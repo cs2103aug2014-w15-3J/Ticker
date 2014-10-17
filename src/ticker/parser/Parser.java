@@ -144,6 +144,7 @@ public class Parser {
 		UserInput input = new UserInput();
 		
 		input.command="add";
+		input.priority='B';
 		input.description = description;
 		
 		for (int i=0;i<words.length;i++){
@@ -160,19 +161,12 @@ public class Parser {
 				}
 			}
 			
-			if (words[i].equals("-p")){
-				if (words.length==i+1){
-					return new UserInput("error",INVALID_ARGUMENT);
-				}
-				
-				String priority = words[i+1].toUpperCase();
-				
-				if (priority.equals("A")||priority.equals("C")||priority.equals("C"))
-					input.priority=priority.charAt(0);
-				else {
-					return new UserInput("error",INVALID_PRIORITY);
-				}
-				
+			if (words[i].equals("-trivial")){
+				input.priority='C';
+			}
+			
+			if (words[i].equals("-impt")){
+				input.priority='A';
 			}
 
 			if (words[i].equals("-r")){
@@ -299,14 +293,18 @@ public class Parser {
 	}
 	
 	private UserInput callEdit(String[] words,String command){
-		String description = "";
+		String description = null;
 		
 		if (command.indexOf('"')!=-1&&command.lastIndexOf('"')>command.indexOf('"'))
 			description = command.substring(command.indexOf('"')+1,command.lastIndexOf('"'));
 			
-		int index = Integer.parseInt(words[1]); 
-		boolean isAppending = false;
+		if (words.length==1){
+			return new UserInput("error",INVALID_ARGUMENT);
+		}
 		
+		int index = Integer.parseInt(words[1]); 
+		
+		boolean isAppending = false;
 		for (int i=0;i<words.length;i++){
 			if (words[i].equals("-a")){
 				isAppending = true;
