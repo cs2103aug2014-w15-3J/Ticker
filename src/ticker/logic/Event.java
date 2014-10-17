@@ -15,36 +15,36 @@ public class Event {
 	
 	public Event(String command, Task task) {
 		taskBeforeEdit = task;
-		command = this.command;
+		this.command = command;
 		
-		if(!(command.equals(COMMAND_ADD)) || !(command.equals(COMMAND_DELETE))) {
+		if(!(command.equals(COMMAND_ADD)) && !(command.equals(COMMAND_DELETE))) {
 			throw new IllegalArgumentException("This constructor is for add or delete command");
 		}
 	}
 	
 	//Called when the command is edit
 	public Event(String command, Task taskBeforeEdit, Task taskAfterEdit) {
-		command = this.command;
+		this.command = command;
 		
 		if(!command.equals(COMMAND_EDIT)) {
 			throw new IllegalArgumentException("This constructor is for edit command");
 		}
 		
-		taskBeforeEdit = this.taskBeforeEdit;
-		taskAfterEdit = this.taskAfterEdit;
+		this.taskBeforeEdit = taskBeforeEdit;
+		this.taskAfterEdit = taskAfterEdit;
 	}
 	
 	//Called when the command is ticked or cmi
 	public Event(String command, Task task, int listTypeInit, int listTypeAfter) {
-		command = this.command;
+		this.command = command;
 		
-		if(!(command.equals(COMMAND_TICK)) || !(command.equals(COMMAND_CMI))) {
+		if(!(command.equals(COMMAND_TICK)) && !(command.equals(COMMAND_CMI))) {
 			throw new IllegalArgumentException("This constructor is for cmi or tick command");
 		}
 		
 		taskBeforeEdit = task;
-		listTypeInit = this.listTypeBefore;
-		listTypeAfter = this.listTypeAfter;
+		this.listTypeBefore = listTypeBefore;
+		this.listTypeAfter = listTypeAfter;
 	}
 
 	public String getCommand() {
