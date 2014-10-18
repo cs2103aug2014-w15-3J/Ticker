@@ -2,15 +2,19 @@ package ticker.logic;
 
 public class StringMatch {
 	private int taskArrayIndex;
-	private double similarityScore;
+	private float similarityScore;
 
-	public StringMatch(int taskArrayIndex, double similarityScore) {
+	public StringMatch(int taskArrayIndex, float similarityScore) {
 		this.taskArrayIndex = taskArrayIndex;
 		this.similarityScore = similarityScore;
 	}
 
 	public int getIndex() {
 		return taskArrayIndex;
+	}
+	
+	public float getSimilarityScore() {
+		return similarityScore;
 	}
 }
 
