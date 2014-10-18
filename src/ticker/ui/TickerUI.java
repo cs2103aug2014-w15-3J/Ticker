@@ -48,7 +48,11 @@ public class TickerUI extends Application {
 	public void start(Stage stage) {
         stage.setTitle("Ticker");
 		GridPane grid = new GridPane();
+		
 		grid.setAlignment(Pos.TOP_CENTER);
+		
+		
+		grid.setStyle("-fx-background-color: white;");
 		grid.setHgap(10);
 		grid.setVgap(10);
 		grid.setPadding(new Insets(10,10,10,10));
@@ -74,15 +78,18 @@ public class TickerUI extends Application {
 		grid.add(currentTime, 0, 0);
         
 		currentTime.setText(Time.getCurrentTime().toString() + " "+ Date.getCurrentDate().toString());
+		
+		
 
 		Scene scene = new Scene(grid);
+		
 		stage.setScene(scene);
 		stage.setWidth(700);
 		stage.setHeight(400);
 		
 		stage.show();
 
-		/*command.setOnAction(new EventHandler<ActionEvent>() 
+		command.setOnAction(new EventHandler<ActionEvent>() 
 				{
 			public void handle(ActionEvent event) {
 				logger.log(Level.INFO, "user press enter once");
@@ -102,7 +109,7 @@ public class TickerUI extends Application {
 				
 			}
 				});
-*/
+
 	}
 
 	/*String printOut(Vector<Task> list) {
@@ -137,9 +144,9 @@ public class TickerUI extends Application {
 
 	}
 
-	//public void setList(String list) {
-	//	this.list = list;
-	//}
+	public void setList(String list) {
+		this.list = list;
+	}
 	public void setList(Vector<Task> tasks) {
 		this.tasksToBeShown = tasks;
 	}
