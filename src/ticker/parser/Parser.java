@@ -67,6 +67,14 @@ public class Parser {
 			return callList(words);
 		}
 		
+		if (words[0].toLowerCase().equals("redo")){
+			return new UserInput("redo",null);
+		}
+		
+		if (words[0].toLowerCase().equals("undo")){
+			return new UserInput("undo",null);
+		}
+		
 		if (words[0].toLowerCase().equals("tick")){
 			return callTick(words);
 		}
