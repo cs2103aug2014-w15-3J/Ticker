@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+
 public class Logic{
 	// Instances of other components
 	Parser parser;
@@ -26,6 +27,7 @@ public class Logic{
 	private static final int SORTED_PRIORITY = 2;
 	private static final int TICKED = 3;
 	private static final int CMI = 4;
+	private static final int SEARCH = 5;
 
 	private static Logger logger = Logger.getLogger("Logic");
 
@@ -52,7 +54,7 @@ public class Logic{
 		// Instantiating sub-components
 		parser = new Parser();
 		storage = new Storage();
-		UndoManager undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
+		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
 
 		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
 		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
@@ -76,7 +78,7 @@ public class Logic{
 		String feedback = "";
 		String command = "";
 		UserInput processed = parser.processInput(input);  // double check parser method
-		System.out.println(processed.getCommand());
+
 		logger.log(Level.INFO, "Performing an action");
 
 		try {
@@ -90,6 +92,10 @@ public class Logic{
 		}
 
 		switch(command){
+		case "search": 
+			feedback = this.search(processed.getDescription());
+			break;
+
 		case "delete": 
 			try {
 				feedback = this.delete(processed.getIndex());
@@ -103,7 +109,6 @@ public class Logic{
 			feedback = this.clear(); 
 			break;
 
-			// case "search":
 		case "list":
 			try {
 				feedback = this.list(processed.getDescription());
@@ -161,8 +166,23 @@ public class Logic{
 			}
 			break;
 
-			// case "undo":
-			// case "redo":
+		case "undo":
+			try {
+				undoMng.undo();
+			}
+			catch (NullPointerException ex) {
+				System.out.println("Error with UndoManager");
+			}
+			return "undoing action";
+
+		case "redo":
+			try {
+				undoMng.redo();
+			}
+			catch (NullPointerException ex) {
+				System.out.println("Error with UndoManager");
+			}
+			return "redoing action";
 		case "tick":
 			try {
 				feedback = this.tick(processed.getIndex());
@@ -201,7 +221,21 @@ public class Logic{
 		return feedback;
 	}
 
+	private String search(String key) {
+		SearchManager searchMng = new SearchManager();
+		searchResults = searchMng.search(current, key);
 
+		if (searchResults.isEmpty()) {
+			return "No search results";
+		}
+
+		UI.setList(listSearch());
+
+
+
+		return "Displaying search results";
+
+	}
 	private String delete(int index) throws ArrayIndexOutOfBoundsException {
 		// Exception catching
 		if (index <= 0 || index > current.size()) {
@@ -253,6 +287,7 @@ public class Logic{
 		sortedPriority = new Vector<Task>();
 		listTicked = new Vector<Task>();
 		listCMI = new Vector<Task>();
+		searchResults = new Vector<Task>();
 
 		switch (listTracker) {
 		case SORTED_TIME:
@@ -263,6 +298,8 @@ public class Logic{
 			current = listTicked; break;
 		case CMI:
 			current = listCMI; break;
+		case SEARCH:
+			current = sortedTime; break;
 		default:
 		}
 
@@ -273,12 +310,6 @@ public class Logic{
 		return "Spick and span!";
 	}
 
-	private boolean search(String str) {
-		// TODO Auto-generated method stub
-		System.out.println("search");
-		return false;
-	}
-
 	private String list() {
 		if (current == null) {
 			return "Nothing to display.\n";
@@ -286,6 +317,20 @@ public class Logic{
 		int i = 0;
 		String list = "";
 		for (Task task: current) {
+
+			list += ++i + ". " + task.toString() + "\n";
+
+		}
+		return list;
+	}
+	
+	private String listSearch() {
+		if (current == null) {
+			return "Nothing to display.\n";
+		}
+		int i = 0;
+		String list = "";
+		for (Task task: searchResults) {
 
 			list += ++i + ". " + task.toString() + "\n";
 
