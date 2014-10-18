@@ -25,7 +25,7 @@ public class Parser {
 			words[i] = words[i].trim();
 		}
 	
-		if (words[0].equals("add")){
+		if (words[0].toLowerCase().equals("add")){
 			String description = null;
 			int firstIndex = command.indexOf('"');
 			if (firstIndex == -1) {
@@ -40,6 +40,24 @@ public class Parser {
 			
 			description = command.substring(firstIndex+1,secondIndex);
 			return callAdd(words,description,command);
+		
+		}
+		
+		if (words[0].toLowerCase().equals("search")){
+			String description = null;
+			int firstIndex = command.indexOf('"');
+			if (firstIndex == -1) {
+				logger.log(Level.INFO,"no double quotes in the user's input");
+				return null;
+			}
+			int secondIndex = command.indexOf('"',firstIndex+1);
+			if (secondIndex != command.lastIndexOf('"')) {
+				logger.log(Level.INFO,"too many double quotes in the user's input");
+				return null;
+			}
+			
+			description = command.substring(firstIndex+1,secondIndex);
+			return callSearch(words,description,command);
 		
 		}
 		
@@ -141,10 +159,9 @@ public class Parser {
 	
 	private UserInput callAdd(String[] words,String description,String command){
 		System.out.println("callAdd");
-		UserInput input = new UserInput();
+		UserInput input = new UserInput("add",description);
 		
-		input.command="add";
-		input.description = description;
+		input.priority='B';
 		
 		for (int i=0;i<words.length;i++){
 			
@@ -160,19 +177,12 @@ public class Parser {
 				}
 			}
 			
-			if (words[i].equals("-p")){
-				if (words.length==i+1){
-					return new UserInput("error",INVALID_ARGUMENT);
-				}
-				
-				String priority = words[i+1].toUpperCase();
-				
-				if (priority.equals("A")||priority.equals("C")||priority.equals("C"))
-					input.priority=priority.charAt(0);
-				else {
-					return new UserInput("error",INVALID_PRIORITY);
-				}
-				
+			if (words[i].equals("-trivial")){
+				input.priority='C';
+			}
+			
+			if (words[i].equals("-impt")){
+				input.priority='A';
 			}
 
 			if (words[i].equals("-r")){
@@ -298,27 +308,73 @@ public class Parser {
 		return input;
 	}
 	
+	private UserInput callSearch(String[] words,String command,String description){
+		return new UserInput("search",description);
+	}
+	
 	private UserInput callEdit(String[] words,String command){
-		String description = "";
+		String description = null;
+		boolean changeTime=false;
 		
 		if (command.indexOf('"')!=-1&&command.lastIndexOf('"')>command.indexOf('"'))
 			description = command.substring(command.indexOf('"')+1,command.lastIndexOf('"'));
 			
+		if (words.length==1){
+			return new UserInput("error",INVALID_ARGUMENT);
+		}
+		
 		int index = Integer.parseInt(words[1]); 
-		boolean isAppending = false;
+			
+		UserInput input = new UserInput("edit",description);
+		input.index=index;
 		
 		for (int i=0;i<words.length;i++){
-			if (words[i].equals("-a")){
-				isAppending = true;
-				break;
+			
+			if(words[i].equals("-trivial")){
+				input.priority='C';
+			}
+			
+			if(words[i].equals("-normal")){
+				input.priority='B';
+			}
+		
+			if(words[i].equals("-impt")||words[i].equals("-important")){
+				input.priority='A';
+			}
+		
+			if(words[i].equals("-t")){
+				changeTime=true;
 			}
 		}
+		
+		if(changeTime){
+			input.command= "editt";
+			StartEndTimeDate result = checkDashTimeDate(command.substring(command.indexOf("-t")+1));
+			if (result.getStartDate()!=null){
+				input.startDate=result.getStartDate();
+			}
 			
-		UserInput input = new UserInput();
-		input.command = "edit";
-		input.index=index;
-		input.description = description;
-		input.isAppendingRepeating = isAppending;
+			if (result.getEndDate()!=null){
+				input.endDate=result.getEndDate();
+			}
+			
+			if (result.getStartTime()!=null){
+				input.startTime=result.getStartTime();
+			}
+			
+			if (result.getEndTime()!=null){
+				input.endTime=result.getEndTime();
+			}
+			
+			input.validifyTime();
+			
+			if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
+				return new UserInput("error",INVALID_ST_AND_ED);
+			}
+			else if (input.startDate!=null&&input.endDate==null&&input.startTime==null&&input.endTime!=null){
+				return new UserInput("error",INVALID_ET_AND_SD);
+			}
+		}
 		
 		return input;
 	}
