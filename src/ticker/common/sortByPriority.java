@@ -156,7 +156,7 @@ public class sortByPriority implements Comparator <Task> {
 		if ((task1.startDate == null && task1.endDate != null) && (task2.startDate == null && task2.endDate == null)) {
 			return -1;
 		}
-		if ((task1.startDate == null && task1.endDate == null) && (task2.startDate != null && task2.endDate == null)) {
+		if ((task1.startDate == null && task1.endDate == null) && (task2.startDate == null && task2.endDate != null)) {
 			return 1;
 		}
 
