@@ -48,7 +48,7 @@ public class SearchManager {
 		Vector<Task>searchResults = new Vector<Task>();
 		
 		for (StringMatch sm : matchList) {
-			if (sm.getSimilarityScore() < 45.0) {
+			if (sm.getSimilarityScore() < 40.0) {
 				continue;
 			}
 			searchResults.add(taskList.get(sm.getIndex()));
