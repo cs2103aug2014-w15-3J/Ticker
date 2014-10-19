@@ -209,8 +209,6 @@ public class Parser {
 		}
 		
 		input.validifyTime();
-		//System.out.println(input.startDate +""+ input.startTime + input.endDate+input.endTime);
-		//System.out.println("Current Date " + Date.getCurrentDate());
 		
 		if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
 			return new UserInput("error",INVALID_ST_AND_ED);
@@ -223,7 +221,7 @@ public class Parser {
 	}
 	
 	private static StartEndTimeDate checkDashTimeDate(String description){
-		String[] strings = description.split(" +");  System.out.println("description = " + description);
+		String[] strings = description.split(" +"); 
 		StartEndTimeDate result = new StartEndTimeDate();
 		for (String s:strings){
 			System.out.println(s);
