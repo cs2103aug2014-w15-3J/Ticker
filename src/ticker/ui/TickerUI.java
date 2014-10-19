@@ -57,9 +57,13 @@ public class TickerUI extends Application {
         //AnchorPane main = new AnchorPane();
         Group root = new Group();
         
-        Image logo = new Image("file:logo.png");
+        Image logo = new Image("ticker/ui/logo.png", true);
         ImageView imv = new ImageView();
         imv.setImage(logo);
+        imv.setFitWidth(130);
+        imv.setPreserveRatio(true);
+        imv.setSmooth(true);
+        imv.setCache(true);
         
         
 		GridPane grid = new GridPane();
@@ -71,7 +75,7 @@ public class TickerUI extends Application {
 		grid.setStyle("-fx-background-color: azure;");
 		grid.setHgap(10);
 		grid.setVgap(10);
-		grid.setPadding(new Insets(60,15,10,15));
+		grid.setPadding(new Insets(20,15,10,15));
 		
 
 		//Text enterCommand = new Text("Enter your command: ");
@@ -97,8 +101,8 @@ public class TickerUI extends Application {
 		grid.add(feedback, 0, 3);
 
 		final Text currentTime = new Text();
-		grid.add(currentTime, 0, 0);
-		//grid.add(imv, 0, 0);
+		//grid.add(currentTime, 0, 0);
+		grid.add(imv, 0, 0);
         
 		currentTime.setText(Time.getCurrentTime().toString() + " "+ Date.getCurrentDate().toString());
 		
