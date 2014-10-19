@@ -18,9 +18,9 @@ public class UserInput {
 	public UserInput(){
 		
 	}
-	
-	public UserInput(String command,String description){
-		this.command=command;
+
+	public UserInput(CMD command,String description){
+		this.command=command.toString();
 		this.description=description;
 	}
 	

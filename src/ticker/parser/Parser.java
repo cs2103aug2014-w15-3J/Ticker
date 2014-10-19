@@ -17,7 +17,7 @@ public class Parser {
 	
 	public Parser(){
 	}
-
+	
 	public UserInput processInput(String command){
 		logger.log(Level.INFO,"processInput");
 		String[] words = command.split(" ");
@@ -71,7 +71,7 @@ public class Parser {
 			int secondIndex = command.indexOf('"',firstIndex+1);
 			if ((secondIndex != command.lastIndexOf('"'))||firstIndex==-1){ 
 				logger.log(Level.INFO,"invalid input for search");
-				return new UserInput("error",INVALID_SEARCH);
+				return new UserInput(CMD.ERROR,INVALID_SEARCH);
 			}
 
 			return callSearch(command.substring(firstIndex+1,secondIndex).trim());
@@ -166,22 +166,21 @@ public class Parser {
 	}
 	
 	private UserInput callAdd(String[] words,String description,String command){
-		System.out.println("callAdd");
-		UserInput input = new UserInput("add",description);
-		
+
+		UserInput input = new UserInput(CMD.ADD,description);		
 		input.priority='B';
 		
 		for (int i=0;i<words.length;i++){
 			
 			if (words[i].equals("-st")||words[i].equals("-et")){	
 				if (!(processSTET(words,i,input))){
-					return new UserInput("error",INVALID_ARGUMENT);
+					return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 				}
 			}
 			
 			if (words[i].equals("-sd")||words[i].equals("-ed")){
 				if (!(processSDED(words,i,input))){
-					return new UserInput("error",INVALID_ARGUMENT);
+					return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 				}
 			}
 			
@@ -217,21 +216,19 @@ public class Parser {
 		}
 		
 		input.validifyTime();
-		//System.out.println(input.startDate +""+ input.startTime + input.endDate+input.endTime);
-		//System.out.println("Current Date " + Date.getCurrentDate());
 		
 		if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
-			return new UserInput("error",INVALID_ST_AND_ED);
+			return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
 		}
 		else if (input.startDate!=null&&input.endDate==null&&input.startTime==null&&input.endTime!=null){
-			return new UserInput("error",INVALID_ET_AND_SD);
+			return new UserInput(CMD.ERROR,INVALID_ET_AND_SD);
 		}
 		
 		return input;
 	}
 	
 	private static StartEndTimeDate checkDashTimeDate(String description){
-		String[] strings = description.split(" +");  System.out.println("description = " + description);
+		String[] strings = description.split(" +"); 
 		StartEndTimeDate result = new StartEndTimeDate();
 		for (String s:strings){
 			System.out.println(s);
@@ -258,29 +255,25 @@ public class Parser {
 		UserInput input = new UserInput();
 		input.command="delete";
 		if (words.length==1){
-			return new UserInput("error",INVALID_ARGUMENT);
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
 		input.index=Integer.parseInt(words[1]);
 		return input;
 	}
 	
 	private UserInput callHelp(String[] words){
-		UserInput input = new UserInput();
-		input.command="help";
-		return input;
+		return new UserInput(CMD.HELP,null);
 	}
 	
 	private UserInput callClear(String[] words){
-		UserInput input = new UserInput();
-		input.command="clear";
-		return input;
+		return new UserInput(CMD.CLEAR,null);
 	}
 
 	private UserInput callTick(String[] words){
 		UserInput input = new UserInput();
 		input.command="tick";
 		if (words.length==1){
-			return new UserInput("error",INVALID_ARGUMENT);
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
 		input.index=Integer.parseInt(words[1]);
 		return input;
@@ -290,7 +283,7 @@ public class Parser {
 		UserInput input = new UserInput();
 		input.command="cmi";
 		if (words.length==1){
-			return new UserInput("error",INVALID_ARGUMENT);
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
 		input.index=Integer.parseInt(words[1]);
 		return input;
@@ -300,7 +293,7 @@ public class Parser {
 		UserInput input = new UserInput();
 		input.command="untick";
 		if (words.length==1){
-			return new UserInput("error",INVALID_ARGUMENT);
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
 		input.index=Integer.parseInt(words[1]);
 		return input;
@@ -310,14 +303,14 @@ public class Parser {
 		UserInput input = new UserInput();
 		input.command="uncmi";
 		if (words.length==1){
-			return new UserInput("error",INVALID_ARGUMENT);
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
 		input.index=Integer.parseInt(words[1]);
 		return input;
 	}
 	
 	private UserInput callSearch(String[] words,String command,String description){
-		return new UserInput("search",description);
+		return new UserInput(CMD.SEARCH,description);
 	}
 	
 	private UserInput callEdit(String[] words,String command){
@@ -328,12 +321,12 @@ public class Parser {
 			description = command.substring(command.indexOf('"')+1,command.lastIndexOf('"'));
 			
 		if (words.length==1){
-			return new UserInput("error",INVALID_ARGUMENT);
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
 		
 		int index = Integer.parseInt(words[1]); 
 			
-		UserInput input = new UserInput("edit",description);
+		UserInput input = new UserInput(CMD.EDIT,description);
 		input.index=index;
 		
 		for (int i=0;i<words.length;i++){
@@ -377,10 +370,10 @@ public class Parser {
 			input.validifyTime();
 			
 			if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
-				return new UserInput("error",INVALID_ST_AND_ED);
+				return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
 			}
 			else if (input.startDate!=null&&input.endDate==null&&input.startTime==null&&input.endTime!=null){
-				return new UserInput("error",INVALID_ET_AND_SD);
+				return new UserInput(CMD.ERROR,INVALID_ET_AND_SD);
 			}
 		}
 		
@@ -390,8 +383,8 @@ public class Parser {
 	private UserInput callSearch(String str){
 		
 		UserInput input = new UserInput();
-		input.command = "search";
-		input.description = "str";
+		input.command = CMD.SEARCH;
+		input.description = str;
 		
 		return input;
 	}
@@ -411,7 +404,7 @@ public class Parser {
 				input.description="ticked";
 		}
 		if (input.description==null)
-			return new UserInput("error","invalid input");
+			return new UserInput(CMD.ERROR,"invalid input");
 		return input;
 		
 	}
