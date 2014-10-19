@@ -86,11 +86,11 @@ public class Parser {
 		}
 		
 		if (words[0].toLowerCase().equals("redo")){
-			return new UserInput("redo",null);
+			return new UserInput(CMD.REDO,null);
 		}
 		
 		if (words[0].toLowerCase().equals("undo")){
-			return new UserInput("undo",null);
+			return new UserInput(CMD.UNDO,null);
 		}
 		
 		if (words[0].toLowerCase().equals("tick")){
@@ -382,10 +382,7 @@ public class Parser {
 	
 	private UserInput callSearch(String str){
 		
-		UserInput input = new UserInput();
-		input.command = CMD.SEARCH;
-		input.description = str;
-		
+		UserInput input = new UserInput(CMD.SEARCH,str);
 		return input;
 	}
 	
