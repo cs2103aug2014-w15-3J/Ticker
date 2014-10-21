@@ -132,12 +132,13 @@ public class TickerUI extends Application {
 				String cmd = command.getText();
 				assert !cmd.equals("");
 				command.clear();
-				//result.setText(cmd);
+				
 				if(displayHelp == true) {
 					result.setText(help);
 					displayHelp = false;
 				} else {
-					result.setText(tasksToBeShown.toString());  // to be changed into Vector of Task
+					result.setText(list);
+					//result.setText(tasksToBeShown.toString());  // to be changed into Vector of Task
 				}
 				feedback.setText(logic.getLogic(cmd));
 				//feedback should disappear after one second
