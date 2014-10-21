@@ -17,7 +17,8 @@ public class TestLogic {
 		// Add deadlined tasks
 		assertEquals("aaa has been added.\n", ui.getLogic().getLogic("add \"aaa\" -23/10 -et 13:00"));
 		assertEquals("aaa has been added.\n", ui.getLogic().getLogic("add \"aaa\" 23/10 -et 13:00"));
-		// Adding invalid command
+		// Adding invalid command (This is testing the position of the dash "-" in relation to the date. If "-" is after date, it's starting time, if "-" is
+		// after it's ending time. Starting time and ending time creates an error due to ambiguity in the user wanting a scheduled task or deadline task
 		assertEquals("invalid command", ui.getLogic().getLogic("add \"aaa\" 23/10- -et 13:00"));
 		assertEquals("invalid command", ui.getLogic().getLogic("add aaa"));
 		
