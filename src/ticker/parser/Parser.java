@@ -20,11 +20,8 @@ public class Parser {
 
 	public UserInput processInput(String command){
 		logger.log(Level.INFO,"processInput");
-		String[] words = command.split(" ");
-		for (int i=0;i<words.length;i++){
-			words[i] = words[i].trim();
-		}
-	
+		String[] words = command.split(" +");
+
 		if (words[0].equals("add")){
 			String description = null;
 			int firstIndex = command.indexOf('"');
@@ -140,7 +137,7 @@ public class Parser {
 	}
 	
 	private UserInput callAdd(String[] words,String description,String command){
-		System.out.println("callAdd");
+		logger.log(Level.INFO,"callAdd");
 		UserInput input = new UserInput();
 		
 		input.command="add";
@@ -180,7 +177,7 @@ public class Parser {
 			}
 		}
 		
-		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1)); System.out.println("checkdash");
+		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		
 		if (result.getStartDate()!=null){
 			input.startDate=result.getStartDate();
@@ -199,9 +196,7 @@ public class Parser {
 		}
 		
 		input.validifyTime();
-		//System.out.println(input.startDate +""+ input.startTime + input.endDate+input.endTime);
-		//System.out.println("Current Date " + Date.getCurrentDate());
-		
+
 		if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
 			return new UserInput("error",INVALID_ST_AND_ED);
 		}
@@ -213,7 +208,7 @@ public class Parser {
 	}
 	
 	private static StartEndTimeDate checkDashTimeDate(String description){
-		String[] strings = description.split(" +");  System.out.println("description = " + description);
+		String[] strings = description.split(" +"); 
 		StartEndTimeDate result = new StartEndTimeDate();
 		for (String s:strings){
 			System.out.println(s);
