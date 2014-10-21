@@ -47,8 +47,16 @@ public class UndoManager {
 					storedTasksByDeadline.remove(previousAction.getTaskBeforeEdit());
 					break;
 				case COMMAND_DELETE:
-					storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
-					storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
+					if(previousAction.getListTypeBefore() == TASKS_DEADLINE_INDEX) {
+						storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
+						storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
+					} else if (previousAction.getListTypeBefore() == TASKS_TICKED_INDEX) {
+						storedTasksByTicked.add(previousAction.getTaskBeforeEdit());
+					} else if (previousAction.getListTypeBefore() == TASKS_CMI_INDEX) {
+						storedTasksByCMI.add(previousAction.getTaskBeforeEdit());
+					} else {
+						throw new IllegalArgumentException("the index must be 1, 3 or 4!");
+					}
 					break;
 				case COMMAND_TICK:
 					//TODO:refactor
@@ -100,8 +108,16 @@ public class UndoManager {
 				storedTasksByDeadline.add(nextAction.getTaskBeforeEdit());
 				break;
 			case COMMAND_DELETE:
-				storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
-				storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
+				if(nextAction.getListTypeBefore() == TASKS_DEADLINE_INDEX) {
+					storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
+					storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
+				} else if (nextAction.getListTypeBefore() == TASKS_TICKED_INDEX) {
+					storedTasksByTicked.remove(nextAction.getTaskBeforeEdit());
+				} else if (nextAction.getListTypeBefore() == TASKS_CMI_INDEX) {
+					storedTasksByCMI.remove(nextAction.getTaskBeforeEdit());
+				} else {
+					throw new IllegalArgumentException("the index must be 1, 3 or 4!");
+				}
 				break;
 			case COMMAND_TICK:
 				//TODO:refactor
