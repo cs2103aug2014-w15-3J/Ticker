@@ -2,7 +2,6 @@
 package ticker.parser;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import ticker.common.*;
 
 public class Parser {
@@ -197,7 +196,7 @@ public class Parser {
 			}
 		}
 		
-		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1)); System.out.println("checkdash");
+		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		
 		if (result.getStartDate()!=null){
 			input.startDate=result.getStartDate();
@@ -231,9 +230,8 @@ public class Parser {
 		String[] strings = description.split(" +"); 
 		StartEndTimeDate result = new StartEndTimeDate();
 		for (String s:strings){
-			System.out.println(s);
 			if (s.indexOf("-")!=-1&&s.indexOf("-")==s.lastIndexOf("-")){
-				int index = s.indexOf("-");System.out.println("index = "+index);
+				int index = s.indexOf("-");
 				if (constructTime(s.substring(0,index))!=null){
 					result.setStartTime(constructTime(s.substring(0,index)));
 				}
