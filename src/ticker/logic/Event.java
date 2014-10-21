@@ -13,14 +13,28 @@ public class Event {
 	private Task taskBeforeEdit, taskAfterEdit;
 	private int listTypeBefore, listTypeAfter;
 	
+	//Called when the command is add
 	public Event(String command, Task task) {
 		taskBeforeEdit = task;
 		this.command = command;
 		
-		if(!(command.equals(COMMAND_ADD)) && !(command.equals(COMMAND_DELETE))) {
+		if(!(command.equals(COMMAND_ADD))) {
 			throw new IllegalArgumentException("This constructor is for add or delete command");
 		}
 	}
+	
+	//Called when the command is delete
+	public Event(String command, Task task, int listTypeBefore) {
+		this.command = command;
+		
+		if(!(command.equals(COMMAND_DELETE))) {
+			throw new IllegalArgumentException("This constructor is for delete command");
+		}
+		
+		taskBeforeEdit = task;
+		this.listTypeBefore = listTypeBefore;
+		
+	} 
 	
 	//Called when the command is edit
 	public Event(String command, Task taskBeforeEdit, Task taskAfterEdit) {
@@ -35,7 +49,7 @@ public class Event {
 	}
 	
 	//Called when the command is ticked or cmi
-	public Event(String command, Task task, int listTypeInit, int listTypeAfter) {
+	public Event(String command, Task task, int listTypeBefore, int listTypeAfter) {
 		this.command = command;
 		
 		if(!(command.equals(COMMAND_TICK)) && !(command.equals(COMMAND_CMI))) {
@@ -45,7 +59,7 @@ public class Event {
 		taskBeforeEdit = task;
 		this.listTypeBefore = listTypeBefore;
 		this.listTypeAfter = listTypeAfter;
-	}
+	} 
 
 	public String getCommand() {
 		return command;
