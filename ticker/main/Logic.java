@@ -1,172 +1,615 @@
-package ticker.main;
-
+package ticker.logic;
+import ticker.parser.*;
 import ticker.storage.*;
+import ticker.ui.*;
+import ticker.common.*;
+
+import java.util.Collections;
 import java.util.Vector;
-import ticker.storage.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-class Logic{
+
+
+public class Logic{
 	// Instances of other components
 	Parser parser;
 	Storage storage;
 	TickerUI UI;
-	
+
+	UndoManager undoMng;
+
 	// Pointer to the Vector currently in display
 	Vector<Task> current;
+
+	private static final int UNDONE = 1;
+	private static final int SORTED_TIME = 1;
+	private static final int SORTED_PRIORITY = 2;
+	private static final int TICKED = 3;
+	private static final int CMI = 4;
+	private static final int SEARCH = 5;
+
+	private static Logger logger = Logger.getLogger("Logic");
 
 	// Temporary sorted storages
 	Vector<Task> sortedTime;
 	Vector<Task> sortedPriority;
+	Vector<Task> listTicked; // not sorted
+	Vector<Task> listCMI; // not sorted
 	Vector<Task> searchResults;
 
+	// Tracker to track what Vector is being used
+
+	static int listTracker;
+
 	// HashMaps to be added in later
+	public Logic() {
+
+	}
 
 	public Logic(TickerUI UI){
-		// TODO Transfer data from storage
-		
 		// Creating 1-1 dependency with UI
 		this.UI = UI;
-		
+
 		// Instantiating sub-components
 		parser = new Parser();
 		storage = new Storage();
+		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
 
-		// STUB:
-		sortedTime = new Vector<Task>();
-		sortedPriority = new Vector<Task>();
+		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
+		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
+		listTicked = storage.restoreDataFromFile(TICKED);
+		listCMI = storage.restoreDataFromFile(CMI);
+
 		searchResults = new Vector<Task>();
 
 		current = sortedTime;
-		this.run();
+		listTracker = SORTED_TIME;
+
+		UI.setList(list());
 
 	}
-	
-	// TODO: need UI API to call UI for command input
-	private void run() {
-		/*
-		String input = UI.getInput();
-		while(input != ...........) { what will UI return logic when there is no input
-			UserInput processed = parser.processInput(input);  // double check parser method
-			
-			switch (processed.getCommand()) {
-				case "delete": 
-					this.delete(processed.getIndex()); break;
-				// case "search":
-				case "list":
-					this.list(); break;
-				case "edit":
-					this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription()); break;
-				case "add":
-					this.delete(processed.getDescription(), processed.getRepeating(), processed,getStartDate(), 
-									processed.getEndDate(), processed.getStartTime(), processed.getEndTime()); break;
-				// case "undo":
-				default:
-					System.out.println("invalid command");
-					break;
-			}
-			
-			if (UI.hasNext()) {
-				input = UI.getInput();
-			}
+
+
+	public String getLogic(String input) {
+		// Crash the program if Logic is contructed without TickerUI, missing dependency
+		assert(UI != null);
+
+		String feedback = "";
+		String command = "";
+		UserInput processed = parser.processInput(input);  // double check parser method
+
+		logger.log(Level.INFO, "Performing an action");
+
+		try {
+
+			command = processed.getCommand();
 		}
-		*/
-	
+
+		catch (NullPointerException ep) {
+			logger.log(Level.WARNING, "NO COMMANDS PASSED");
+			System.out.println("Parser just sent a null command");
+		}
+
+		switch(command){
+		case "search": 
+			feedback = this.search(processed.getDescription());
+			break;
+
+		case "delete": 
+			try {
+				feedback = this.delete(processed.getIndex());
+			}
+			catch (ArrayIndexOutOfBoundsException ex) {
+				return "Index out of bounds. Nothing has been deleted.";
+			}
+			break;
+
+		case "clear":
+			feedback = this.clear(); 
+			break;
+
+		case "list":
+			try {
+				feedback = this.list(processed.getDescription());
+			}
+			catch (IllegalArgumentException ex) {
+				System.out.println("Wrong list name from parser");
+				return "List does not exist. Please re-enter.";
+			}
+			break;
+
+
+		case "edit":
+			try {
+				feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription());
+			}
+			catch (ArrayIndexOutOfBoundsException ex) {
+				return "Index out of bounds. Nothing has been edited.";
+			}
+			catch (IllegalArgumentException ex) {
+				return "Task description is empty. Please re-enter.";
+			}
+			break;
+
+		case "add":
+			try {
+				feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
+						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
+			}
+			catch (IllegalArgumentException ex) {
+				return "Error in input. Either description is missing or date is missing for repeated tasks.";
+			}
+			break;
+
+		case "cmi":
+			try {
+				feedback = this.cmi(processed.getIndex());
+			}
+			catch (ArrayIndexOutOfBoundsException ex) {
+				return "Index out of bounds. Nothing has been marked as cannot do.";
+			}
+			catch (IllegalArgumentException ex) {
+				return "Cannot perform command on this list";
+			}
+			break;
+
+		case "uncmi":
+			try {
+				feedback = this.uncmi(processed.getIndex());
+			}
+			catch (ArrayIndexOutOfBoundsException ex) {
+				return "Index out of bounds. Nothing has been unmarked as cannot do.";
+			}
+			catch (IllegalArgumentException ex) {
+				return "Cannot perform command on this list";
+			}
+			break;
+
+		case "undo":
+			try {
+				undoMng.undo();
+			}
+			catch (NullPointerException ex) {
+				System.out.println("Error with UndoManager");
+			}
+			return "undoing action";
+
+		case "redo":
+			try {
+				undoMng.redo();
+			}
+			catch (NullPointerException ex) {
+				System.out.println("Error with UndoManager");
+			}
+			return "redoing action";
+		case "tick":
+			try {
+				feedback = this.tick(processed.getIndex());
+			}
+			catch (ArrayIndexOutOfBoundsException ex) {
+				return "Index out of bounds. Nothing has been ticked.";
+			}
+			catch (IllegalArgumentException ex) {
+				return "Cannot perform command on this list";
+			}
+			break;
+
+		case "untick":
+			try {
+				feedback = this.untick(processed.getIndex());
+			}
+			catch (ArrayIndexOutOfBoundsException ex) {
+				return "Index out of bounds. Nothing has been unticked.";
+			}
+			catch (IllegalArgumentException ex) {
+				return "Cannot perform command on this list";
+			}
+			break;
+
+
+		case "help":
+			feedback = this.help(); 
+			break;
+
+		default:
+			feedback = "invalid command";
+			break;
+		}
+
+		logger.log(Level.INFO, "Action proceeded successfully");
+		return feedback;
 	}
 
-	public boolean delete(int index) {
+	private String search(String key) {
+		SearchManager searchMng = new SearchManager();
+		searchResults = searchMng.search(current, key);
+
+		if (searchResults.isEmpty()) {
+			return "No search results";
+		}
+
+		UI.setList(listSearch());
+
+
+
+		return "Displaying search results";
+
+	}
+	private String delete(int index) throws ArrayIndexOutOfBoundsException {
 		// Exception catching
-		if (index > 0 && index <= current.size()) {
-			Task deleted = current.remove(index-1);
-			sortedTime.remove(deleted);
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+		Task deleted = current.remove(index-1);
+
+		if (listTracker == SORTED_TIME) {
 			sortedPriority.remove(deleted);
-			System.out.printf("%s has been removed.\n", deleted);
-			return true;
+			sortLists();
+
+		}
+		if (listTracker == SORTED_PRIORITY) {
+			sortedTime.remove(deleted);
+			sortLists();
 		}
 
-		System.out.println("Index out of bounds. Nothing has been deleted.");
-		return false;
+		storeLists();
+
+		Event event = new Event("delete", deleted);
+		undoMng.add(event);
+
+		UI.setList(list());
+		return deleted.toString() + " has been removed.\n";
+
+
 	}
 
-	public boolean search(String str) {
-		// TODO Auto-generated method stub
-		System.out.println("search");
-		return false;
+	/**
+	 * 
+	 */
+	private void storeLists() {
+		storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
+		storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
+		storage.writeStorageArrayIntoFile(TICKED, listTicked);
+		storage.writeStorageArrayIntoFile(CMI, listCMI);
 	}
 
-	public boolean list() {
+	/**
+	 * 
+	 */
+	private void sortLists() {
+		Collections.sort(sortedTime, new sortByTime());
+		Collections.sort(sortedPriority, new sortByPriority());
+	}
+
+	private String clear() {
+		sortedTime = new Vector<Task>();
+		sortedPriority = new Vector<Task>();
+		listTicked = new Vector<Task>();
+		listCMI = new Vector<Task>();
+		searchResults = new Vector<Task>();
+
+		switch (listTracker) {
+		case SORTED_TIME:
+			current = sortedTime; break;
+		case SORTED_PRIORITY:
+			current = sortedPriority; break;
+		case TICKED:
+			current = listTicked; break;
+		case CMI:
+			current = listCMI; break;
+		case SEARCH:
+			current = sortedTime; break;
+		default:
+		}
+
+		UI.setList(list());
+
+		storeLists();
+
+		return "Spick and span!";
+	}
+
+	private String list() {
 		if (current == null) {
-			System.out.printf("Nothing to display.\n");
-			return false;
+			return "Nothing to display.\n";
 		}
-		int i = 1;
+		int i = 0;
+		String list = "";
 		for (Task task: current) {
-			System.out.printf("%d. %s\n", i++, task.toString());
+
+			list += ++i + ". " + task.toString() + "\n";
+
 		}
-		return true;
+		return list;
+	}
+	
+	private String listSearch() {
+		if (current == null) {
+			return "Nothing to display.\n";
+		}
+		int i = 0;
+		String list = "";
+		for (Task task: searchResults) {
+
+			list += ++i + ". " + task.toString() + "\n";
+
+		}
+		return list;
 	}
 
-	public void edit(int index, boolean isAppending, String description) {
+	private String list(String listType) throws IllegalArgumentException {
+		switch (listType) {
+		case "time":
+			current = sortedTime;
+			listTracker = SORTED_TIME;
+			UI.setList(list());
+			return "Listing by time...";
+		case "priority":
+			current = sortedPriority;
+			listTracker = SORTED_PRIORITY;
+			UI.setList(list());
+			return "Listing by priority...";
+		case "ticked":
+			current = listTicked;
+			listTracker = TICKED;
+			UI.setList(list());
+			return "Listing ticked tasks...";
+		case "cmi":
+			current = listCMI;
+			listTracker = CMI;
+			UI.setList(list());
+			return "Listing tasks that cannot be done...";
+		default:
+			throw new IllegalArgumentException();
+		}
+
+	}
+
+	private String edit(int index, boolean isAppending, String description) 
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException{
 		// Exception catching
-		if (index >= 0 && index < current.size()) {
-			Task editTask = current.remove(index - 1);
 
-			if (isAppending) {
-				String taskName = editTask.getDescription();
-				taskName += " " + description;
-				editTask.setDescription(taskName);
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+		if (description == null || description.equals("")) {
+			throw new IllegalArgumentException();
+		}
 
-				current.add(index - 1, editTask);
+		Task oldTask = current.remove(index - 1);
+		Task newTask = oldTask;
 
-				System.out.printf("Index %d has been updated to %s.\n", index, current.get(index));
-				return;
+		// Edit the other Vector<Task>
+		if (listTracker == SORTED_TIME ) {
+			sortedPriority.remove(oldTask);
+		}
+		else if (listTracker == SORTED_PRIORITY) {
+			sortedTime.remove(oldTask);
+		}
+
+		if (isAppending) {
+			String taskName = oldTask.getDescription();
+			taskName += " " + description;
+			newTask.setDescription(taskName);
+
+			current.add(index - 1, newTask);
+			if (listTracker == SORTED_TIME ) {
+				sortedPriority.add(newTask);
+				sortLists();
+			}
+			else if (listTracker == SORTED_PRIORITY) {
+				sortedTime.add(newTask);
+				sortLists();
 			}
 
-			editTask.setDescription(description);
-			current.add(index, editTask);
+			Event event = new Event("edit", oldTask, newTask);
+			undoMng.add(event);
 
-			System.out.printf("Index %d has been updated to %s.\n", index, current.get(index));
-			return;
+			//TODO: how to add event into undoManager
+
+
+			storeLists();
+
+			UI.setList(list());
+			return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
 		}
 
-		System.out.println("Index out of bounds. Nothing has been edited.\n");
+		newTask.setDescription(description);
+		current.add(index - 1, newTask);
+		if (listTracker == SORTED_TIME ) {
+			sortedPriority.add(newTask);
+			sortLists();
+		}
+		else if (listTracker == SORTED_PRIORITY) {
+			sortedTime.add(newTask);
+			sortLists();
+		}
 
+		storeLists();
+
+		UI.setList(list());
+		return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
 	}
 
 
-	public void add(String description, Boolean isRepeating, Date startDate, Date endDate,
-			Time startTime, Time endTime) {
-		// TODO priority is missing
-		// TODO check with kexin whether tasks are correctly allocated
-		// TODO how to implement repeating tasks
-		
+	private String add(String description, boolean isRepeating, Date startDate, Date endDate,
+			Time startTime, Time endTime, char priority) throws IllegalArgumentException {
+
+		if (description == null || description.equals("")) {
+			throw new IllegalArgumentException();
+		}
+
 		Task newTask;
 
-		if (startDate == null && startTime == null) {
+		// Creation of RepeatingTask
+		if (isRepeating) {
+			if (startDate != null) {
+				newTask = new RepeatingTask(description, startDate, startTime, endTime, priority, isRepeating);
+			}
+			else if (endDate != null) {
+				newTask = new RepeatingTask(description, endDate, startTime, endTime, priority, isRepeating);
+			}
+			else {
+				throw new IllegalArgumentException();
+			}
+
+		}
+
+		else if (startDate == null && startTime == null) {
 			// Creation of floating tasks
 			if (endDate == null && endTime == null) {
-				newTask = new FloatingTask(description);
+				// TODO: set priority
+				newTask = new FloatingTask(description, priority, false);
 			}
 			// Creation of deadline tasks
 			else {
-				newTask = new DeadlineTask(description, endDate, endTime);
+				// TODO: set priority
+				newTask = new DeadlineTask(description, endDate, endTime, priority, false);
 			}
 
 		}
 		// Creation of timed tasks
 		else {
-			newTask = new TimedTask(description, startDate, startTime, endDate, endTime);
+			// TODO: set priority
+			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
 		}
-		
+
 		// TODO: implementation of search
 		sortedTime.add(newTask);
 		sortedPriority.add(newTask);
-		
-		System.out.printf("%s has been added.\n", description);
+
+		Event event = new Event("add", newTask);
+		undoMng.add(event);
+
+		sortLists();
+		storeLists();
+
+		UI.setList(list());
+		return description + " has been added.\n";
+	}
+
+	private String cmi(int index) throws ArrayIndexOutOfBoundsException {
+		// Exception catching
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+
+		if (listTracker == TICKED) {
+			throw new IllegalArgumentException();
+		}
+
+		Task cmi = current.remove(index-1);
+		// Add to the front so the latest additions are on top
+		listCMI.add(0, cmi);
+		sortedTime.remove(cmi);
+		sortedPriority.remove(cmi);
+
+		Event event = new Event("cmi", cmi, UNDONE, CMI);
+		undoMng.add(event);
+
+		sortLists();
+		storeLists();
+		UI.setList(list());
+		return cmi.toString() + " cannot be done!\n";
+
+	}
+
+	private String uncmi(int index) throws ArrayIndexOutOfBoundsException {
+		// Exception catching
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+
+		if (listTracker != CMI) {
+			throw new IllegalArgumentException();
+		}
+
+		Task uncmi = current.remove(index-1);
+		// Add to the front so the latest additions are on top
+		sortedTime.add(uncmi);
+		sortedPriority.add(uncmi);
+
+		Event event = new Event("uncmi", uncmi, UNDONE, CMI);
+		undoMng.add(event);
+
+		sortLists();
+		storeLists();
+		UI.setList(list());
+		return uncmi.toString() + "is back to undone!\n";
+
+	}
+
+	private String help() {
+		// TODO: check through helpList again!
+		String helpList = "";
+		helpList += "HELP FOR USING TICKER\n";
+		helpList += "-to add a task: add \"<task name>\" -st <start time> -sd <start date in dd/mm/yy format> "
+				+ "-et <end time> -ed <end date in dd/mm/yy format.\n";
+		helpList += "-to set a task to repeat, add the flag: -r\n";
+		helpList += "-to set a priority for a task, add the flag: to be continued\n";
+		helpList += "-to delete a task: delete <index of task>\n";
+		helpList += "-to edit a task: to be continued\n";
+		helpList += "-to sort the tasks according to time and date: list to be continued\n";
+		helpList += "-to sort the tasks according to priority: list to be continued\n";
+		helpList += "-to undo the last command: undo\n";
+		helpList += "-to redo the last undo: redo\n";
+
+		UI.setList(helpList);
+		return "Help is on the way!\n";
+	}
+
+	private String tick(int index) {
+		// Exception catching
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+
+		if (listTracker == CMI) {
+			throw new IllegalArgumentException();
+		}
+
+		Task ticked = current.remove(index-1);
+		sortedTime.remove(ticked);
+		sortedPriority.remove(ticked);
+		listTicked.add(0, ticked);
+
+		Event event = new Event("ticked", ticked, UNDONE, TICKED);
+		undoMng.add(event);
+
+		sortLists();
+		storeLists();
+
+		UI.setList(list());
+		return ticked.toString() + " is done!\n";
+	}
+
+	private String untick(int index) {
+		// Exception catching
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+
+		if (listTracker != TICKED) {
+			throw new IllegalArgumentException();
+		}
+
+		Task unticked = current.remove(index-1);
+		sortedTime.add(unticked);
+		sortedPriority.add(unticked);
+
+		Event event = new Event("unticked", unticked, UNDONE, TICKED);
+		undoMng.add(event);
+
+		sortLists();
+		storeLists();
+
+		UI.setList(list());
+		return unticked.toString() + " is back to undone\n";
 	}
 }
 
-
-// TODO: 
-// -sort the different vectors
-// -how to implement repeating tasks
-// -implement switch current
-// -modify storage after every action
+//TODO: 
+//-Do exception handling for tick and cmi, cannot do certain commands
+//-refactor the code and make it neat
+//-do singleton
