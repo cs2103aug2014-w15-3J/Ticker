@@ -54,12 +54,13 @@ public class Logic{
 		// Instantiating sub-components
 		parser = new Parser();
 		storage = new Storage();
-		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
 
 		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
 		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
 		listTicked = storage.restoreDataFromFile(TICKED);
 		listCMI = storage.restoreDataFromFile(CMI);
+		
+		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
 
 		searchResults = new Vector<Task>();
 
@@ -169,6 +170,7 @@ public class Logic{
 		case "undo":
 			try {
 				undoMng.undo();
+				UI.setList(list());
 			}
 			catch (NullPointerException ex) {
 				System.out.println("Error with UndoManager");
@@ -178,6 +180,7 @@ public class Logic{
 		case "redo":
 			try {
 				undoMng.redo();
+				UI.setList(list());
 			}
 			catch (NullPointerException ex) {
 				System.out.println("Error with UndoManager");
