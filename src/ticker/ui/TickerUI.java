@@ -56,20 +56,8 @@ public class TickerUI extends Application {
         stage.setTitle("Ticker");
         //AnchorPane main = new AnchorPane();
         Group root = new Group();
-        
-        Image logo = new Image("ticker/ui/logo.png", true);
-        ImageView imv = new ImageView();
-        imv.setImage(logo);
-        imv.setFitWidth(130);
-        imv.setPreserveRatio(true);
-        imv.setSmooth(true);
-        imv.setCache(true);
-        
-        
-		GridPane grid = new GridPane();
-		
-		
-		grid.setAlignment(Pos.TOP_CENTER);
+        GridPane grid = new GridPane();
+        grid.setAlignment(Pos.TOP_CENTER);
 		
 		
 		grid.setStyle("-fx-background-color: azure;");
@@ -77,39 +65,57 @@ public class TickerUI extends Application {
 		grid.setVgap(10);
 		grid.setPadding(new Insets(20,15,10,15));
 		
+		
+        //load the image of the logo
+        Image logo = new Image("ticker/ui/logo.png", true);
+        ImageView imv = new ImageView();
+        imv.setImage(logo);
+        imv.setFitWidth(130);
+        imv.setX(15);
+        imv.setY(50);
+        imv.setPreserveRatio(true);
+        imv.setSmooth(true);
+        imv.setCache(true);
+        grid.add(imv, 0, 0);
+        //root.getChildren().add(imv);
 
 		//Text enterCommand = new Text("Enter your command: ");
 		//grid.add(enterCommand, 0, 2);
-
+        
+        //command line
 		final TextField command = new TextField();
+		command.setPromptText("Enter your command here...");
 		grid.add(command, 0, 2);
 		
+        //display console
+        final TextArea result = new TextArea();
+		result.setWrapText(true);
+		//result.setMaxSize(470, 400);
+		result.setPrefSize(470, 420);
+		result.setEditable(false);
+		grid.add(result, 0, 1);
+		result.setText(list);
+		//root.getChildren().add(result);
 		
-
+		
 		//Text showResult = new Text("Your To-dos: ");
 		//grid.add(showResult, 0, 1);
 
-		final TextArea result = new TextArea();
-		result.setWrapText(true);
-		result.setPrefSize(470, 400);
-		result.setEditable(false);
-		
-		grid.add(result, 0, 1);
-		result.setText(list);
-
+	    //feedback area
 		final Text feedback = new Text();
 		grid.add(feedback, 0, 3);
+		
+		
+		
 
 		final Text currentTime = new Text();
 		//grid.add(currentTime, 0, 0);
-		grid.add(imv, 0, 0);
+		
         
 		currentTime.setText(Time.getCurrentTime().toString() + " "+ Date.getCurrentDate().toString());
 		
-		
-		
 
-		Scene scene = new Scene(grid, Color.AZURE);
+		Scene scene = new Scene(grid);
 		
 		stage.setScene(scene);
 		stage.setMaxWidth(500);
