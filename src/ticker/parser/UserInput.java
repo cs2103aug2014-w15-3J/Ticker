@@ -10,7 +10,7 @@ public class UserInput {
 	public Time endTime;
 	public Date endDate;
 	public Date startDate;
-	public boolean isAppendingRepeating;
+	public boolean isRepeating;
 	public int index;
 	public char priority;
 	
@@ -19,8 +19,8 @@ public class UserInput {
 		
 	}
 	
-	public UserInput(String command,String description){
-		this.command=command;
+	public UserInput(CMD cmd,String description){
+		this.command=cmd.toString();
 		this.description=description;
 	}
 	
@@ -49,11 +49,11 @@ public class UserInput {
 	}
 	
 	public boolean getRepeating() {
-		return isAppendingRepeating;
+		return isRepeating;
 	}
 	
 	public boolean getAppending() {
-		return isAppendingRepeating;
+		return isRepeating;
 	}
 	
 	public int getIndex() {

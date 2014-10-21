@@ -20,12 +20,12 @@ public class Parser {
 
 	public UserInput processInput(String command){
 		logger.log(Level.INFO,"processInput");
-		String[] words = command.split(" ");
-		for (int i=0;i<words.length;i++){
-			words[i] = words[i].trim();
-		}
-	
-		if (words[0].equals("add")){
+		String[] words = command.split(" +");
+		if (words.length==0) return null;
+		
+		String key = words[0].toLowerCase();
+		
+		if (key.equals("add")){
 			String description = null;
 			int firstIndex = command.indexOf('"');
 			if (firstIndex == -1) {
@@ -43,55 +43,63 @@ public class Parser {
 		
 		}
 		
-		if (words[0].toLowerCase().equals("delete")){
+		if (key.equals("delete")||key.equals("del")||key.equals("remove")){
 			return callDelete(words);
 		}
 		
-		if (words[0].toLowerCase().equals("search")){
+		if (key.equals("search")){
 			
 			int firstIndex = command.indexOf('"');
 			int secondIndex = command.indexOf('"',firstIndex+1);
 			if ((secondIndex != command.lastIndexOf('"'))||firstIndex==-1){ 
 				logger.log(Level.INFO,"invalid input for search");
-				return new UserInput("error",INVALID_SEARCH);
+				return new UserInput(CMD.ERROR,INVALID_SEARCH);
 			}
 
 			return callSearch(command.substring(firstIndex+1,secondIndex).trim());
 		}
 		
-		if (words[0].toLowerCase().equals("edit")){
+		if (key.equals("edit")){
 			return callEdit(words,command);
 		}
 		
-		if (words[0].toLowerCase().equals("list")){
+		if (key.equals("list")){
 			return callList(words);
 		}
 		
-		if (words[0].toLowerCase().equals("tick")){
+		if (key.equals("tick")){
 			return callTick(words);
 		}
 		
-		if (words[0].toLowerCase().equals("cmi")){
+		if (key.equals("cmi")){
 			return callCMI(words);
 		}
 		
-		if (words[0].toLowerCase().equals("untick")){
+		if (key.equals("untick")){
 			return callUntick(words);
 		}
 		
-		if (words[0].toLowerCase().equals("cmi")){
+		if (key.equals("uncmi")){
 			return callUnCMI(words);
 		}
 		
-		if (words[0].toLowerCase().equals("help")){
+		if (key.equals("help")){
 			return callHelp(words);
 		}
 		
-		if (words[0].toLowerCase().equals("clear")){
+		if (key.equals("clear")){
 			return callClear(words);
 		}
 		
-		if (words[0].toLowerCase().equals("exit")){
+		if (key.equals("undo")){
+			return new UserInput(CMD.UNDO,null);
+		}
+		
+		if (key.equals("redo")){
+			return new UserInput(CMD.REDO,null);
+		}
+		
+		if (key.equals("exit")){
 			System.exit(0);
 		}
 		
@@ -140,7 +148,7 @@ public class Parser {
 	}
 	
 	private UserInput callAdd(String[] words,String description,String command){
-		System.out.println("callAdd");
+		logger.log(Level.INFO,"callAdd");
 		UserInput input = new UserInput();
 		
 		input.command="add";
@@ -150,19 +158,19 @@ public class Parser {
 			
 			if (words[i].equals("-st")||words[i].equals("-et")){	
 				if (!(processSTET(words,i,input))){
-					return new UserInput("error",INVALID_ARGUMENT);
+					return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 				}
 			}
 			
 			if (words[i].equals("-sd")||words[i].equals("-ed")){
 				if (!(processSDED(words,i,input))){
-					return new UserInput("error",INVALID_ARGUMENT);
+					return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 				}
 			}
 			
 			if (words[i].equals("-p")){
 				if (words.length==i+1){
-					return new UserInput("error",INVALID_ARGUMENT);
+					return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 				}
 				
 				String priority = words[i+1].toUpperCase();
@@ -170,17 +178,17 @@ public class Parser {
 				if (priority.equals("A")||priority.equals("C")||priority.equals("C"))
 					input.priority=priority.charAt(0);
 				else {
-					return new UserInput("error",INVALID_PRIORITY);
+					return new UserInput(CMD.ERROR,INVALID_PRIORITY);
 				}
 				
 			}
 
 			if (words[i].equals("-r")){
-				input.isAppendingRepeating = true;
+				input.isRepeating = true;
 			}
 		}
 		
-		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1)); System.out.println("checkdash");
+		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		
 		if (result.getStartDate()!=null){
 			input.startDate=result.getStartDate();
@@ -199,26 +207,23 @@ public class Parser {
 		}
 		
 		input.validifyTime();
-		//System.out.println(input.startDate +""+ input.startTime + input.endDate+input.endTime);
-		//System.out.println("Current Date " + Date.getCurrentDate());
-		
+
 		if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
-			return new UserInput("error",INVALID_ST_AND_ED);
+			return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
 		}
 		else if (input.startDate!=null&&input.endDate==null&&input.startTime==null&&input.endTime!=null){
-			return new UserInput("error",INVALID_ET_AND_SD);
+			return new UserInput(CMD.ERROR,INVALID_ET_AND_SD);
 		}
 		
 		return input;
 	}
 	
 	private static StartEndTimeDate checkDashTimeDate(String description){
-		String[] strings = description.split(" +");  System.out.println("description = " + description);
+		String[] strings = description.split(" +"); 
 		StartEndTimeDate result = new StartEndTimeDate();
 		for (String s:strings){
-			System.out.println(s);
 			if (s.indexOf("-")!=-1&&s.indexOf("-")==s.lastIndexOf("-")){
-				int index = s.indexOf("-");System.out.println("index = "+index);
+				int index = s.indexOf("-");
 				if (constructTime(s.substring(0,index))!=null){
 					result.setStartTime(constructTime(s.substring(0,index)));
 				}
@@ -240,7 +245,7 @@ public class Parser {
 		UserInput input = new UserInput();
 		input.command="delete";
 		if (words.length==1){
-			return new UserInput("error",INVALID_ARGUMENT);
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
 		input.index=Integer.parseInt(words[1]);
 		return input;
@@ -248,21 +253,21 @@ public class Parser {
 	
 	private UserInput callHelp(String[] words){
 		UserInput input = new UserInput();
-		input.command="help";
+		input.command=CMD.HELP.toString();
 		return input;
 	}
 	
 	private UserInput callClear(String[] words){
 		UserInput input = new UserInput();
-		input.command="clear";
+		input.command=CMD.CLEAR.toString();
 		return input;
 	}
 
 	private UserInput callTick(String[] words){
 		UserInput input = new UserInput();
-		input.command="tick";
+		input.command=CMD.TICK.toString();
 		if (words.length==1){
-			return new UserInput("error",INVALID_ARGUMENT);
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
 		input.index=Integer.parseInt(words[1]);
 		return input;
@@ -270,9 +275,9 @@ public class Parser {
 
 	private UserInput callCMI(String[] words){
 		UserInput input = new UserInput();
-		input.command="cmi";
+		input.command=CMD.CMI.toString();
 		if (words.length==1){
-			return new UserInput("error",INVALID_ARGUMENT);
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
 		input.index=Integer.parseInt(words[1]);
 		return input;
@@ -280,9 +285,9 @@ public class Parser {
 
 	private UserInput callUntick(String[] words){
 		UserInput input = new UserInput();
-		input.command="untick";
+		input.command=CMD.UNTICK.toString();
 		if (words.length==1){
-			return new UserInput("error",INVALID_ARGUMENT);
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
 		input.index=Integer.parseInt(words[1]);
 		return input;
@@ -290,9 +295,9 @@ public class Parser {
 
 	private UserInput callUnCMI(String[] words){
 		UserInput input = new UserInput();
-		input.command="uncmi";
+		input.command=CMD.UNCMI.toString();
 		if (words.length==1){
-			return new UserInput("error",INVALID_ARGUMENT);
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
 		input.index=Integer.parseInt(words[1]);
 		return input;
@@ -314,28 +319,23 @@ public class Parser {
 			}
 		}
 			
-		UserInput input = new UserInput();
-		input.command = "edit";
+		UserInput input = new UserInput(CMD.EDIT,description);
 		input.index=index;
-		input.description = description;
-		input.isAppendingRepeating = isAppending;
+		input.isRepeating = isAppending;
 		
 		return input;
 	}
 	
 	private UserInput callSearch(String str){
 		
-		UserInput input = new UserInput();
-		input.command = "search";
-		input.description = "str";
-		
+		UserInput input = new UserInput(CMD.SEARCH,str);
 		return input;
 	}
 	
 	private UserInput callList (String[] words){
 		
 		UserInput input = new UserInput();
-		input.command = "list";
+		input.command = CMD.LIST.toString();
 		if (words.length==2){
 			if (words[1].equals("priority")||words[1].equals("p"))
 				input.description="priority";
@@ -347,7 +347,7 @@ public class Parser {
 				input.description="ticked";
 		}
 		if (input.description==null)
-			return new UserInput("error","invalid input");
+			return new UserInput(CMD.ERROR,"invalid input");
 		return input;
 		
 	}

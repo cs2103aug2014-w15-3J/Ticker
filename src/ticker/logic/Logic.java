@@ -75,7 +75,7 @@ public class Logic{
 
 		String feedback = "";
 		UserInput processed = parser.processInput(input);  // double check parser method
-		
+		System.out.println("In logic: " + processed.getCommand());
 		logger.log(Level.INFO, "Performing an action");
 
 		try {

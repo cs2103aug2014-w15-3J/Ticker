@@ -11,17 +11,12 @@ public class testParser {
 	Parser par = new Parser();
 	@Test
 	public void test() {
-		
 	}
 	
 	@Test
 	public void testAdd(){
 		
 		assertEquals("add",par.processInput("add \"Project Meeting\"").getCommand());
-		assertEquals("delete",par.processInput("delete 1").getCommand());
-		assertEquals("search",par.processInput("search \"Lecture\"").getCommand());
-		assertEquals("redo",par.processInput("redo").getCommand());
-		assertEquals("undo",par.processInput("undo").getCommand());
 	
 		Date date1 = new Date(2014,4,3);
 		Date date2 = new Date(2014,6,5);
@@ -34,9 +29,22 @@ public class testParser {
 		assertEquals(ui1.endTime,time2);
 	}
 	
+	@Test
 	public void testDelete(){
 		assertEquals("delete",par.processInput("delete 1").getCommand());
-		assertEquals("error",par.processInput("delete 1").getCommand());
+		assertEquals("error",par.processInput("delete").getCommand());
 	}
 	
+	@Test
+	public void testSearch(){
+		assertEquals("search",par.processInput("search \"Lecture\"").getCommand());
+		assertEquals("Lecture",par.processInput("search \"Lecture\"").getDescription());
+	}
+	
+	@Test
+	public void testOthers(){
+		assertEquals("redo",par.processInput("redo").getCommand());
+		assertEquals("undo",par.processInput("undo").getCommand());
+		assertEquals("priority",par.processInput("list p").getDescription());
+	}
 }
