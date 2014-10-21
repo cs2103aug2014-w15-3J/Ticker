@@ -76,7 +76,7 @@ public class Parser {
 			return callUntick(words);
 		}
 		
-		if (words[0].toLowerCase().equals("cmi")){
+		if (words[0].toLowerCase().equals("uncmi")){
 			return callUnCMI(words);
 		}
 		
@@ -86,6 +86,14 @@ public class Parser {
 		
 		if (words[0].toLowerCase().equals("clear")){
 			return callClear(words);
+		}
+		
+		if (words[0].toLowerCase().equals("undo")){
+			return new UserInput("undo",null);
+		}
+		
+		if (words[0].toLowerCase().equals("redo")){
+			return new UserInput("redo",null);
 		}
 		
 		if (words[0].toLowerCase().equals("exit")){
@@ -173,7 +181,7 @@ public class Parser {
 			}
 
 			if (words[i].equals("-r")){
-				input.isAppendingRepeating = true;
+				input.isRepeating = true;
 			}
 		}
 		
@@ -211,9 +219,8 @@ public class Parser {
 		String[] strings = description.split(" +"); 
 		StartEndTimeDate result = new StartEndTimeDate();
 		for (String s:strings){
-			System.out.println(s);
 			if (s.indexOf("-")!=-1&&s.indexOf("-")==s.lastIndexOf("-")){
-				int index = s.indexOf("-");System.out.println("index = "+index);
+				int index = s.indexOf("-");
 				if (constructTime(s.substring(0,index))!=null){
 					result.setStartTime(constructTime(s.substring(0,index)));
 				}
@@ -313,17 +320,14 @@ public class Parser {
 		input.command = "edit";
 		input.index=index;
 		input.description = description;
-		input.isAppendingRepeating = isAppending;
+		input.isRepeating = isAppending;
 		
 		return input;
 	}
 	
 	private UserInput callSearch(String str){
 		
-		UserInput input = new UserInput();
-		input.command = "search";
-		input.description = "str";
-		
+		UserInput input = new UserInput("search",str);
 		return input;
 	}
 	

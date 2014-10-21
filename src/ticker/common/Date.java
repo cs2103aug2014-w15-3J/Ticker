@@ -15,22 +15,6 @@ public class Date {
 	private int date;
 	private static final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 	
-	/*
-	public static void main(String[] args){
-		Date dt1 = new Date(2014,3,16);
-		Date dt2 = new Date(2014,4,29);
-		Date dt3 = new Date(2015,1,1);
-		
-		System.out.println(dt1);
-		System.out.println(dt2);
-		System.out.println(dt3);
-
-		System.out.println(dt1.compareTo(dt2));
-		System.out.println(dt3.compareTo(dt1));
-		System.out.println(dt1.compareTo(dt1));
-	}
-	*/
-	
 	public Date (int year,int month, int date){
 		this.date= date;
 		this.month=month;
