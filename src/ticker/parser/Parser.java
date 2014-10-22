@@ -56,18 +56,18 @@ public class Parser {
 				return new UserInput(CMD.ERROR,INVALID_SEARCH);
 			}
 
-			return callSearch(command.substring(firstIndex+1,secondIndex).trim());
+			return callSearch(command,command.substring(firstIndex+1,secondIndex).trim());
 		}
 		
 		if (key.equals("edit")){
 			return callEdit(words,command);
 		}
 		
-		if (key.equals("list")){
+		if (key.equals("list")||key.equals("show")){
 			return callList(words);
 		}
 		
-		if (key.equals("tick")){
+		if (key.equals("tick")||key.equals("done")){
 			return callTick(words);
 		}
 		
@@ -149,10 +149,9 @@ public class Parser {
 	
 	private UserInput callAdd(String[] words,String description,String command){
 		logger.log(Level.INFO,"callAdd");
-		UserInput input = new UserInput();
+		UserInput input = new UserInput(CMD.ADD,description);
 		
-		input.command="add";
-		input.description = description;
+		input.priority='B';
 		
 		for (int i=0;i<words.length;i++){
 			
@@ -168,19 +167,12 @@ public class Parser {
 				}
 			}
 			
-			if (words[i].equals("-p")){
-				if (words.length==i+1){
-					return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
-				}
-				
-				String priority = words[i+1].toUpperCase();
-				
-				if (priority.equals("A")||priority.equals("C")||priority.equals("C"))
-					input.priority=priority.charAt(0);
-				else {
-					return new UserInput(CMD.ERROR,INVALID_PRIORITY);
-				}
-				
+			if (words[i].toLowerCase().equals("-impt")||words[i].toLowerCase().equals("-important")){
+				input.priority='A';
+			}
+			
+			if (words[i].toLowerCase().equals("-trivial")){
+				input.priority='C';
 			}
 
 			if (words[i].equals("-r")){
@@ -247,7 +239,11 @@ public class Parser {
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
-		input.index=Integer.parseInt(words[1]);
+		try{
+			input.index=Integer.parseInt(words[1]);
+		} catch(NumberFormatException nfe) { 
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		}
 		return input;
 	}
 	
@@ -338,12 +334,23 @@ public class Parser {
 			input.endTime=result.getEndTime();
 		}
 		
+		input.validifyTime();
+
+		if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
+			return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
+		}
+		else if (input.startDate!=null&&input.endDate==null&&input.startTime==null&&input.endTime!=null){
+			return new UserInput(CMD.ERROR,INVALID_ET_AND_SD);
+		}
+		
 		return input;
 	}
 	
-	private UserInput callSearch(String str){
+	private UserInput callSearch(String command,String str){
 		
 		UserInput input = new UserInput(CMD.SEARCH,str);
+		
+		
 		return input;
 	}
 	
