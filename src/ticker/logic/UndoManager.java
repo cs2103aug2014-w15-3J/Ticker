@@ -163,4 +163,8 @@ public class UndoManager {
 		}
 		return theOne;
 	}
+	
+	public void clearStateForTesting() {
+		theOne = null;
+	}
 }
