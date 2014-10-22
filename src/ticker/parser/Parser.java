@@ -305,23 +305,38 @@ public class Parser {
 	
 	private UserInput callEdit(String[] words,String command){
 		String description = "";
-		
 		if (command.indexOf('"')!=-1&&command.lastIndexOf('"')>command.indexOf('"'))
 			description = command.substring(command.indexOf('"')+1,command.lastIndexOf('"'));
 			
 		int index = Integer.parseInt(words[1]); 
-		boolean isAppending = false;
+		
+		UserInput input = new UserInput(CMD.EDIT,description);
+		input.index=index;
 		
 		for (int i=0;i<words.length;i++){
-			if (words[i].equals("-a")){
-				isAppending = true;
+			if (words[i].equals("-t")){
+				input.command = "editt";
 				break;
 			}
 		}
-			
-		UserInput input = new UserInput(CMD.EDIT,description);
-		input.index=index;
-		input.isRepeating = isAppending;
+		
+		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
+		
+		if (result.getStartDate()!=null){
+			input.startDate=result.getStartDate();
+		}
+		
+		if (result.getEndDate()!=null){
+			input.endDate=result.getEndDate();
+		}
+		
+		if (result.getStartTime()!=null){
+			input.startTime=result.getStartTime();
+		}
+		
+		if (result.getEndTime()!=null){
+			input.endTime=result.getEndTime();
+		}
 		
 		return input;
 	}

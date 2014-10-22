@@ -47,4 +47,13 @@ public class testParser {
 		assertEquals("undo",par.processInput("undo").getCommand());
 		assertEquals("priority",par.processInput("list p").getDescription());
 	}
+	
+	@Test
+	public void testEdit(){
+		assertEquals("edit",par.processInput("edit 1 \"have lunch\"").getCommand());
+		assertEquals("editt",par.processInput("edit 1 -t \"have lunch\" 13-14 ").getCommand());
+		assertEquals(new Time(13,0),par.processInput("edit 1 -t \"have lunch\" 13-14 ").getStartTime());
+		assertEquals(new Time(14,0),par.processInput("edit 1 -t \"have lunch\" 13-14 ").getEndTime());
+		assertEquals("have lunch",par.processInput("edit 1 \"have lunch\"").getDescription());
+	}
 }
