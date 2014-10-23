@@ -17,15 +17,15 @@ public class Parser {
 	
 	public Parser(){
 	}
-	
+
 	public UserInput processInput(String command){
 		logger.log(Level.INFO,"processInput");
-		String[] words = command.split(" ");
-		for (int i=0;i<words.length;i++){
-			words[i] = words[i].trim();
-		}
-	
-		if (words[0].toLowerCase().equals("add")){
+		String[] words = command.split(" +");
+		if (words.length==0) return null;
+		
+		String key = words[0].toLowerCase();
+		
+		if (key.equals("add")){
 			String description = null;
 			int firstIndex = command.indexOf('"');
 			if (firstIndex == -1) {
@@ -43,29 +43,11 @@ public class Parser {
 		
 		}
 		
-		if (words[0].toLowerCase().equals("search")){
-			String description = null;
-			int firstIndex = command.indexOf('"');
-			if (firstIndex == -1) {
-				logger.log(Level.INFO,"no double quotes in the user's input");
-				return null;
-			}
-			int secondIndex = command.indexOf('"',firstIndex+1);
-			if (secondIndex != command.lastIndexOf('"')) {
-				logger.log(Level.INFO,"too many double quotes in the user's input");
-				return null;
-			}
-			
-			description = command.substring(firstIndex+1,secondIndex);
-			return callSearch(words,description,command);
-		
-		}
-		
-		if (words[0].toLowerCase().equals("delete")){
+		if (key.equals("delete")||key.equals("del")||key.equals("remove")){
 			return callDelete(words);
 		}
 		
-		if (words[0].toLowerCase().equals("search")){
+		if (key.equals("search")){
 			
 			int firstIndex = command.indexOf('"');
 			int secondIndex = command.indexOf('"',firstIndex+1);
@@ -74,50 +56,50 @@ public class Parser {
 				return new UserInput(CMD.ERROR,INVALID_SEARCH);
 			}
 
-			return callSearch(command.substring(firstIndex+1,secondIndex).trim());
+			return callSearch(command,command.substring(firstIndex+1,secondIndex).trim());
 		}
 		
-		if (words[0].toLowerCase().equals("edit")){
+		if (key.equals("edit")){
 			return callEdit(words,command);
 		}
 		
-		if (words[0].toLowerCase().equals("list")){
+		if (key.equals("list")||key.equals("show")){
 			return callList(words);
 		}
 		
-		if (words[0].toLowerCase().equals("redo")){
-			return new UserInput(CMD.REDO,null);
-		}
-		
-		if (words[0].toLowerCase().equals("undo")){
-			return new UserInput(CMD.UNDO,null);
-		}
-		
-		if (words[0].toLowerCase().equals("tick")){
+		if (key.equals("tick")||key.equals("done")){
 			return callTick(words);
 		}
 		
-		if (words[0].toLowerCase().equals("cmi")){
+		if (key.equals("cmi")){
 			return callCMI(words);
 		}
 		
-		if (words[0].toLowerCase().equals("untick")){
+		if (key.equals("untick")){
 			return callUntick(words);
 		}
 		
-		if (words[0].toLowerCase().equals("cmi")){
+		if (key.equals("uncmi")){
 			return callUnCMI(words);
 		}
 		
-		if (words[0].toLowerCase().equals("help")){
+		if (key.equals("help")){
 			return callHelp(words);
 		}
 		
-		if (words[0].toLowerCase().equals("clear")){
+		if (key.equals("clear")){
 			return callClear(words);
 		}
 		
-		if (words[0].toLowerCase().equals("exit")){
+		if (key.equals("undo")){
+			return new UserInput(CMD.UNDO,null);
+		}
+		
+		if (key.equals("redo")){
+			return new UserInput(CMD.REDO,null);
+		}
+		
+		if (key.equals("exit")){
 			System.exit(0);
 		}
 		
@@ -166,8 +148,9 @@ public class Parser {
 	}
 	
 	private UserInput callAdd(String[] words,String description,String command){
-
-		UserInput input = new UserInput(CMD.ADD,description);		
+		logger.log(Level.INFO,"callAdd");
+		UserInput input = new UserInput(CMD.ADD,description);
+		
 		input.priority='B';
 		
 		for (int i=0;i<words.length;i++){
@@ -184,20 +167,20 @@ public class Parser {
 				}
 			}
 			
-			if (words[i].equals("-trivial")){
-				input.priority='C';
+			if (words[i].toLowerCase().equals("-impt")||words[i].toLowerCase().equals("-important")){
+				input.priority='A';
 			}
 			
-			if (words[i].equals("-impt")){
-				input.priority='A';
+			if (words[i].toLowerCase().equals("-trivial")){
+				input.priority='C';
 			}
 
 			if (words[i].equals("-r")){
-				input.isAppendingRepeating = true;
+				input.isRepeating = true;
 			}
 		}
 		
-		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1)); System.out.println("checkdash");
+		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		
 		if (result.getStartDate()!=null){
 			input.startDate=result.getStartDate();
@@ -216,7 +199,7 @@ public class Parser {
 		}
 		
 		input.validifyTime();
-		
+
 		if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
 			return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
 		}
@@ -231,9 +214,8 @@ public class Parser {
 		String[] strings = description.split(" +"); 
 		StartEndTimeDate result = new StartEndTimeDate();
 		for (String s:strings){
-			System.out.println(s);
 			if (s.indexOf("-")!=-1&&s.indexOf("-")==s.lastIndexOf("-")){
-				int index = s.indexOf("-");System.out.println("index = "+index);
+				int index = s.indexOf("-");
 				if (constructTime(s.substring(0,index))!=null){
 					result.setStartTime(constructTime(s.substring(0,index)));
 				}
@@ -257,21 +239,29 @@ public class Parser {
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
-		input.index=Integer.parseInt(words[1]);
+		try{
+			input.index=Integer.parseInt(words[1]);
+		} catch(NumberFormatException nfe) { 
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		}
 		return input;
 	}
 	
 	private UserInput callHelp(String[] words){
-		return new UserInput(CMD.HELP,null);
+		UserInput input = new UserInput();
+		input.command=CMD.HELP.toString();
+		return input;
 	}
 	
 	private UserInput callClear(String[] words){
-		return new UserInput(CMD.CLEAR,null);
+		UserInput input = new UserInput();
+		input.command=CMD.CLEAR.toString();
+		return input;
 	}
 
 	private UserInput callTick(String[] words){
 		UserInput input = new UserInput();
-		input.command="tick";
+		input.command=CMD.TICK.toString();
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
@@ -281,7 +271,7 @@ public class Parser {
 
 	private UserInput callCMI(String[] words){
 		UserInput input = new UserInput();
-		input.command="cmi";
+		input.command=CMD.CMI.toString();
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
@@ -291,7 +281,7 @@ public class Parser {
 
 	private UserInput callUntick(String[] words){
 		UserInput input = new UserInput();
-		input.command="untick";
+		input.command=CMD.UNTICK.toString();
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
@@ -301,7 +291,7 @@ public class Parser {
 
 	private UserInput callUnCMI(String[] words){
 		UserInput input = new UserInput();
-		input.command="uncmi";
+		input.command=CMD.UNCMI.toString();
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
@@ -309,87 +299,65 @@ public class Parser {
 		return input;
 	}
 	
-	private UserInput callSearch(String[] words,String command,String description){
-		return new UserInput(CMD.SEARCH,description);
-	}
-	
 	private UserInput callEdit(String[] words,String command){
-		String description = null;
-		boolean changeTime=false;
-		
+		String description = "";
 		if (command.indexOf('"')!=-1&&command.lastIndexOf('"')>command.indexOf('"'))
 			description = command.substring(command.indexOf('"')+1,command.lastIndexOf('"'));
 			
-		if (words.length==1){
-			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
-		}
-		
 		int index = Integer.parseInt(words[1]); 
-			
+		
 		UserInput input = new UserInput(CMD.EDIT,description);
 		input.index=index;
 		
 		for (int i=0;i<words.length;i++){
-			
-			if(words[i].equals("-trivial")){
-				input.priority='C';
-			}
-			
-			if(words[i].equals("-normal")){
-				input.priority='B';
-			}
-		
-			if(words[i].equals("-impt")||words[i].equals("-important")){
-				input.priority='A';
-			}
-		
-			if(words[i].equals("-t")){
-				changeTime=true;
+			if (words[i].equals("-t")){
+				input.command = "editt";
+				break;
 			}
 		}
 		
-		if(changeTime){
-			input.command= "editt";
-			StartEndTimeDate result = checkDashTimeDate(command.substring(command.indexOf("-t")+1));
-			if (result.getStartDate()!=null){
-				input.startDate=result.getStartDate();
-			}
-			
-			if (result.getEndDate()!=null){
-				input.endDate=result.getEndDate();
-			}
-			
-			if (result.getStartTime()!=null){
-				input.startTime=result.getStartTime();
-			}
-			
-			if (result.getEndTime()!=null){
-				input.endTime=result.getEndTime();
-			}
-			
-			input.validifyTime();
-			
-			if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
-				return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
-			}
-			else if (input.startDate!=null&&input.endDate==null&&input.startTime==null&&input.endTime!=null){
-				return new UserInput(CMD.ERROR,INVALID_ET_AND_SD);
-			}
+		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
+		
+		if (result.getStartDate()!=null){
+			input.startDate=result.getStartDate();
+		}
+		
+		if (result.getEndDate()!=null){
+			input.endDate=result.getEndDate();
+		}
+		
+		if (result.getStartTime()!=null){
+			input.startTime=result.getStartTime();
+		}
+		
+		if (result.getEndTime()!=null){
+			input.endTime=result.getEndTime();
+		}
+		
+		input.validifyTime();
+
+		if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
+			return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
+		}
+		else if (input.startDate!=null&&input.endDate==null&&input.startTime==null&&input.endTime!=null){
+			return new UserInput(CMD.ERROR,INVALID_ET_AND_SD);
 		}
 		
 		return input;
 	}
 	
-	private UserInput callSearch(String str){
+	private UserInput callSearch(String command,String str){
 		
 		UserInput input = new UserInput(CMD.SEARCH,str);
+		
+		
 		return input;
 	}
 	
 	private UserInput callList (String[] words){
 		
 		UserInput input = new UserInput();
-		input.command = "list";
+		input.command = CMD.LIST.toString();
 		if (words.length==2){
 			if (words[1].equals("priority")||words[1].equals("p"))
 				input.description="priority";
