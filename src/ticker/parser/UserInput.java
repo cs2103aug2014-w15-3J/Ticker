@@ -4,15 +4,15 @@ import ticker.common.Time;
 
 public class UserInput {
 	
-	public String command;
-	public String description;
-	public Time startTime;
-	public Time endTime;
-	public Date endDate;
-	public Date startDate;
-	public boolean isRepeating;
-	public int index;
-	public char priority;
+	private String command;
+	private String description;
+	private Time startTime;
+	private Time endTime;
+	private Date endDate;
+	private Date startDate;
+	private boolean isRepeating;
+	private int index;
+	private char priority;
 	
 	// TODO: instantiate UserInput()
 	public UserInput(){
@@ -20,8 +20,8 @@ public class UserInput {
 	}
 	
 	public UserInput(CMD cmd,String description){
-		this.command=cmd.toString();
-		this.description=description;
+		this.setCommand(cmd.toString());
+		this.setDescription(description);
 	}
 	
 	public String getCommand() {
@@ -48,12 +48,28 @@ public class UserInput {
 		return endDate;
 	}
 	
+	public void setStartTime(Time time){
+		this.startTime=time;
+	}
+	
+	public void setEndTime(Time time){
+		this.endTime=time;
+	}
+	
+	public void setStartDate(Date date){
+		this.startDate=date;
+	}
+	
+	public void setEndDate(Date date){
+		this.endDate=date;
+	}
+	
 	public boolean getRepeating() {
-		return isRepeating;
+		return isRepeating();
 	}
 	
 	public boolean getAppending() {
-		return isRepeating;
+		return isRepeating();
 	}
 	
 	public int getIndex() {
@@ -95,6 +111,30 @@ public class UserInput {
 			}
 		}
 		
+	}
+
+	public void setPriority(char priority) {
+		this.priority = priority;
+	}
+
+	public boolean isRepeating() {
+		return isRepeating;
+	}
+
+	public void setRepeating(boolean isRepeating) {
+		this.isRepeating = isRepeating;
+	}
+
+	public void setCommand(String command) {
+		this.command = command;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }
