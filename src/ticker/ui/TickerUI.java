@@ -133,14 +133,15 @@ public class TickerUI extends Application {
 				assert !cmd.equals("");
 				command.clear();
 				
-				if(displayHelp == true) {
+				/*if(displayHelp == true) {
 					result.setText(help);
 					displayHelp = false;
-				} else {
+				} else {*/
+				feedback.setText(logic.getLogic(cmd));
 					result.setText(list);
 					//result.setText(tasksToBeShown.toString());  // to be changed into Vector of Task
-				}
-				feedback.setText(logic.getLogic(cmd));
+				//}
+				
 				//feedback should disappear after one second
 
 				
