@@ -1,7 +1,7 @@
 package ticker.logic;
 import ticker.parser.*;
 import ticker.storage.*;
-import ticker.ui.*;
+import ticker.ui.TickerUI;
 import ticker.common.*;
 
 import java.util.Collections;
