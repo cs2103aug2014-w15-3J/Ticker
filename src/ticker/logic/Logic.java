@@ -10,12 +10,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
+
 public class Logic{
 	// Instances of other components
 	Parser parser;
 	Storage storage;
 	TickerUI UI;
-	
+
 	UndoManager undoMng;
 
 	// Pointer to the Vector currently in display
@@ -26,7 +27,8 @@ public class Logic{
 	private static final int SORTED_PRIORITY = 2;
 	private static final int TICKED = 3;
 	private static final int CMI = 4;
-	
+	private static final int SEARCH = 5;
+
 	private static Logger logger = Logger.getLogger("Logic");
 
 	// Temporary sorted storages
@@ -52,19 +54,20 @@ public class Logic{
 		// Instantiating sub-components
 		parser = new Parser();
 		storage = new Storage();
-		UndoManager undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
 
 		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
 		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
 		listTicked = storage.restoreDataFromFile(TICKED);
 		listCMI = storage.restoreDataFromFile(CMI);
+		
+		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
 
 		searchResults = new Vector<Task>();
 
 		current = sortedTime;
 		listTracker = SORTED_TIME;
 
-		UI.setList(current);
+		UI.setList(list());
 
 	}
 
@@ -74,132 +77,168 @@ public class Logic{
 		assert(UI != null);
 
 		String feedback = "";
+		String command = "";
 		UserInput processed = parser.processInput(input);  // double check parser method
-		System.out.println("In logic: " + processed.getCommand());
+
 		logger.log(Level.INFO, "Performing an action");
 
 		try {
 
-			switch (processed.getCommand()) {
-			case "delete": 
-				try {
-					feedback = this.delete(processed.getIndex());
-				}
-				catch (ArrayIndexOutOfBoundsException ex) {
-					return "Index out of bounds. Nothing has been deleted.";
-				}
-				break;
-
-			case "clear":
-				feedback = this.clear(); 
-				break;
-
-				// case "search":
-			case "list":
-				try {
-					feedback = this.list(processed.getDescription());
-				}
-				catch (IllegalArgumentException ex) {
-					System.out.println("Wrong list name from parser");
-					return "List does not exist. Please re-enter.";
-				}
-				break;
-
-
-			case "edit":
-				try {
-					feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription());
-				}
-				catch (ArrayIndexOutOfBoundsException ex) {
-					return "Index out of bounds. Nothing has been edited.";
-				}
-				catch (IllegalArgumentException ex) {
-					return "Task description is empty. Please re-enter.";
-				}
-				break;
-
-			case "add":
-				try {
-					feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
-							processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
-				}
-				catch (IllegalArgumentException ex) {
-					return "Error in input. Either description is missing or date is missing for repeated tasks.";
-				}
-				break;
-
-			case "cmi":
-				try {
-					feedback = this.cmi(processed.getIndex());
-				}
-				catch (ArrayIndexOutOfBoundsException ex) {
-					return "Index out of bounds. Nothing has been marked as cannot do.";
-				}
-				catch (IllegalArgumentException ex) {
-					return "Cannot perform command on this list";
-				}
-				break;
-				
-			case "uncmi":
-				try {
-					feedback = this.uncmi(processed.getIndex());
-				}
-				catch (ArrayIndexOutOfBoundsException ex) {
-					return "Index out of bounds. Nothing has been unmarked as cannot do.";
-				}
-				catch (IllegalArgumentException ex) {
-					return "Cannot perform command on this list";
-				}
-				break;
-
-				// case "undo":
-				// case "redo":
-			case "tick":
-				try {
-					feedback = this.tick(processed.getIndex());
-				}
-				catch (ArrayIndexOutOfBoundsException ex) {
-					return "Index out of bounds. Nothing has been ticked.";
-				}
-				catch (IllegalArgumentException ex) {
-					return "Cannot perform command on this list";
-				}
-				break;
-				
-			case "untick":
-				try {
-					feedback = this.untick(processed.getIndex());
-				}
-				catch (ArrayIndexOutOfBoundsException ex) {
-					return "Index out of bounds. Nothing has been unticked.";
-				}
-				catch (IllegalArgumentException ex) {
-					return "Cannot perform command on this list";
-				}
-				break;
-				
-
-			case "help":
-				UI.setHelp();
-				feedback = "Help is on the way!"; 
-				break;
-				
-			default:
-				feedback = "invalid command";
-				break;
-			}
-
+			command = processed.getCommand();
 		}
+
 		catch (NullPointerException ep) {
 			logger.log(Level.WARNING, "NO COMMANDS PASSED");
 			System.out.println("Parser just sent a null command");
 		}
-		
+
+		switch(command){
+		case "search": 
+			feedback = this.search(processed.getDescription());
+			break;
+
+		case "delete": 
+			try {
+				feedback = this.delete(processed.getIndex());
+			}
+			catch (ArrayIndexOutOfBoundsException ex) {
+				return "Index out of bounds. Nothing has been deleted.";
+			}
+			break;
+
+		case "clear":
+			feedback = this.clear(); 
+			break;
+
+		case "list":
+			try {
+				feedback = this.list(processed.getDescription());
+			}
+			catch (IllegalArgumentException ex) {
+				System.out.println("Wrong list name from parser");
+				return "List does not exist. Please re-enter.";
+			}
+			break;
+
+
+		case "edit":
+			try {
+				feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription());
+			}
+			catch (ArrayIndexOutOfBoundsException ex) {
+				return "Index out of bounds. Nothing has been edited.";
+			}
+			catch (IllegalArgumentException ex) {
+				return "Task description is empty. Please re-enter.";
+			}
+			break;
+
+		case "add":
+			try {
+				feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
+						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
+			}
+			catch (IllegalArgumentException ex) {
+				return "Error in input. Either description is missing or date is missing for repeated tasks.";
+			}
+			break;
+
+		case "cmi":
+			try {
+				feedback = this.cmi(processed.getIndex());
+			}
+			catch (ArrayIndexOutOfBoundsException ex) {
+				return "Index out of bounds. Nothing has been marked as cannot do.";
+			}
+			catch (IllegalArgumentException ex) {
+				return "Cannot perform command on this list";
+			}
+			break;
+
+		case "uncmi":
+			try {
+				feedback = this.uncmi(processed.getIndex());
+			}
+			catch (ArrayIndexOutOfBoundsException ex) {
+				return "Index out of bounds. Nothing has been unmarked as cannot do.";
+			}
+			catch (IllegalArgumentException ex) {
+				return "Cannot perform command on this list";
+			}
+			break;
+
+		case "undo":
+			try {
+				undoMng.undo();
+				UI.setList(list());
+			}
+			catch (NullPointerException ex) {
+				System.out.println("Error with UndoManager");
+			}
+			return "undoing action";
+
+		case "redo":
+			try {
+				undoMng.redo();
+				UI.setList(list());
+			}
+			catch (NullPointerException ex) {
+				System.out.println("Error with UndoManager");
+			}
+			return "redoing action";
+		case "tick":
+			try {
+				feedback = this.tick(processed.getIndex());
+			}
+			catch (ArrayIndexOutOfBoundsException ex) {
+				return "Index out of bounds. Nothing has been ticked.";
+			}
+			catch (IllegalArgumentException ex) {
+				return "Cannot perform command on this list";
+			}
+			break;
+
+		case "untick":
+			try {
+				feedback = this.untick(processed.getIndex());
+			}
+			catch (ArrayIndexOutOfBoundsException ex) {
+				return "Index out of bounds. Nothing has been unticked.";
+			}
+			catch (IllegalArgumentException ex) {
+				return "Cannot perform command on this list";
+			}
+			break;
+
+
+		case "help":
+			feedback = this.help(); 
+			break;
+
+		default:
+			feedback = "invalid command";
+			break;
+		}
+
 		logger.log(Level.INFO, "Action proceeded successfully");
 		return feedback;
 	}
 
+	private String search(String key) {
+		SearchManager searchMng = new SearchManager();
+		searchResults = searchMng.search(current, key);
 
+		if (searchResults.isEmpty()) {
+			return "No search results";
+		}
+
+		UI.setList(listSearch());
+
+
+
+		return "Displaying search results";
+
+	}
 	private String delete(int index) throws ArrayIndexOutOfBoundsException {
 		// Exception catching
 		if (index <= 0 || index > current.size()) {
@@ -218,11 +257,11 @@ public class Logic{
 		}
 
 		storeLists();
-		
+
 		Event event = new Event("delete", deleted);
 		undoMng.add(event);
 
-		UI.setList(current);
+		UI.setList(list());
 		return deleted.toString() + " has been removed.\n";
 
 
@@ -251,6 +290,7 @@ public class Logic{
 		sortedPriority = new Vector<Task>();
 		listTicked = new Vector<Task>();
 		listCMI = new Vector<Task>();
+		searchResults = new Vector<Task>();
 
 		switch (listTracker) {
 		case SORTED_TIME:
@@ -261,23 +301,19 @@ public class Logic{
 			current = listTicked; break;
 		case CMI:
 			current = listCMI; break;
+		case SEARCH:
+			current = sortedTime; break;
 		default:
 		}
 
-		UI.setList(current);
+		UI.setList(list());
 
 		storeLists();
 
 		return "Spick and span!";
 	}
 
-	private boolean search(String str) {
-		// TODO Auto-generated method stub
-		System.out.println("search");
-		return false;
-	}
-
-	/*private String list() {
+	private String list() {
 		if (current == null) {
 			return "Nothing to display.\n";
 		}
@@ -289,29 +325,43 @@ public class Logic{
 
 		}
 		return list;
-	}*/
+	}
+	
+	private String listSearch() {
+		if (current == null) {
+			return "Nothing to display.\n";
+		}
+		int i = 0;
+		String list = "";
+		for (Task task: searchResults) {
+
+			list += ++i + ". " + task.toString() + "\n";
+
+		}
+		return list;
+	}
 
 	private String list(String listType) throws IllegalArgumentException {
 		switch (listType) {
 		case "time":
 			current = sortedTime;
 			listTracker = SORTED_TIME;
-			UI.setList(current);
+			UI.setList(list());
 			return "Listing by time...";
 		case "priority":
 			current = sortedPriority;
 			listTracker = SORTED_PRIORITY;
-			UI.setList(current);
+			UI.setList(list());
 			return "Listing by priority...";
 		case "ticked":
 			current = listTicked;
 			listTracker = TICKED;
-			UI.setList(current);
+			UI.setList(list());
 			return "Listing ticked tasks...";
 		case "cmi":
 			current = listCMI;
 			listTracker = CMI;
-			UI.setList(current);
+			UI.setList(list());
 			return "Listing tasks that cannot be done...";
 		default:
 			throw new IllegalArgumentException();
@@ -329,7 +379,7 @@ public class Logic{
 		if (description == null || description.equals("")) {
 			throw new IllegalArgumentException();
 		}
-		
+
 		Task oldTask = current.remove(index - 1);
 		Task newTask = oldTask;
 
@@ -355,16 +405,16 @@ public class Logic{
 				sortedTime.add(newTask);
 				sortLists();
 			}
-			
+
 			Event event = new Event("edit", oldTask, newTask);
 			undoMng.add(event);
-			
+
 			//TODO: how to add event into undoManager
-			
+
 
 			storeLists();
 
-			UI.setList(current);
+			UI.setList(list());
 			return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
 		}
 
@@ -381,7 +431,7 @@ public class Logic{
 
 		storeLists();
 
-		UI.setList(current);
+		UI.setList(list());
 		return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
 	}
 
@@ -431,14 +481,14 @@ public class Logic{
 		// TODO: implementation of search
 		sortedTime.add(newTask);
 		sortedPriority.add(newTask);
-		
+
 		Event event = new Event("add", newTask);
 		undoMng.add(event);
 
 		sortLists();
 		storeLists();
 
-		UI.setList(current);
+		UI.setList(list());
 		return description + " has been added.\n";
 	}
 
@@ -447,7 +497,7 @@ public class Logic{
 		if (index <= 0 || index > current.size()) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
-		
+
 		if (listTracker == TICKED) {
 			throw new IllegalArgumentException();
 		}
@@ -457,13 +507,13 @@ public class Logic{
 		listCMI.add(0, cmi);
 		sortedTime.remove(cmi);
 		sortedPriority.remove(cmi);
-		
+
 		Event event = new Event("cmi", cmi, UNDONE, CMI);
 		undoMng.add(event);
-		
+
 		sortLists();
 		storeLists();
-		UI.setList(current);
+		UI.setList(list());
 		return cmi.toString() + " cannot be done!\n";
 
 	}
@@ -473,7 +523,7 @@ public class Logic{
 		if (index <= 0 || index > current.size()) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
-		
+
 		if (listTracker != CMI) {
 			throw new IllegalArgumentException();
 		}
@@ -482,17 +532,18 @@ public class Logic{
 		// Add to the front so the latest additions are on top
 		sortedTime.add(uncmi);
 		sortedPriority.add(uncmi);
-		
+
 		Event event = new Event("uncmi", uncmi, UNDONE, CMI);
 		undoMng.add(event);
-		
+
 		sortLists();
 		storeLists();
-		UI.setList(current);
+		UI.setList(list());
 		return uncmi.toString() + "is back to undone!\n";
 
 	}
-	/*private String help() {
+
+	private String help() {
 		// TODO: check through helpList again!
 		String helpList = "";
 		helpList += "HELP FOR USING TICKER\n";
@@ -509,14 +560,14 @@ public class Logic{
 
 		UI.setList(helpList);
 		return "Help is on the way!\n";
-	}*/
+	}
 
 	private String tick(int index) {
 		// Exception catching
 		if (index <= 0 || index > current.size()) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
-		
+
 		if (listTracker == CMI) {
 			throw new IllegalArgumentException();
 		}
@@ -525,23 +576,23 @@ public class Logic{
 		sortedTime.remove(ticked);
 		sortedPriority.remove(ticked);
 		listTicked.add(0, ticked);
-		
+
 		Event event = new Event("ticked", ticked, UNDONE, TICKED);
 		undoMng.add(event);
-		
+
 		sortLists();
 		storeLists();
 
-		UI.setList(current);
+		UI.setList(list());
 		return ticked.toString() + " is done!\n";
 	}
-	
+
 	private String untick(int index) {
 		// Exception catching
 		if (index <= 0 || index > current.size()) {
 			throw new ArrayIndexOutOfBoundsException();
 		}
-		
+
 		if (listTracker != TICKED) {
 			throw new IllegalArgumentException();
 		}
@@ -549,14 +600,14 @@ public class Logic{
 		Task unticked = current.remove(index-1);
 		sortedTime.add(unticked);
 		sortedPriority.add(unticked);
-		
+
 		Event event = new Event("unticked", unticked, UNDONE, TICKED);
 		undoMng.add(event);
 
 		sortLists();
 		storeLists();
 
-		UI.setList(current);
+		UI.setList(list());
 		return unticked.toString() + " is back to undone\n";
 	}
 }
