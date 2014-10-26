@@ -165,6 +165,9 @@ public class Logic{
 			try {
 				feedback = cruMng.edit(processed.getIndex(), processed.getAppending(),
 						processed.getDescription(), listTracker, current);
+				sortLists();
+				storeLists();
+				UI.setList(list());
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been edited.";
@@ -271,7 +274,8 @@ public class Logic{
 
 
 		case COMMAND_HELP:
-			feedback = this.help(); 
+			feedback = "help is on the way!";
+			UI.setHelp();
 			break;
 
 		default:
@@ -430,27 +434,9 @@ public class Logic{
 		}
 
 	}
-
-	private String help() {
-		// TODO: check through helpList again!
-		String helpList = "";
-		helpList += "HELP FOR USING TICKER\n";
-		helpList += "-to add a task: add \"<task name>\" -st <start time> -sd <start date in dd/mm/yy format> "
-				+ "-et <end time> -ed <end date in dd/mm/yy format.\n";
-		helpList += "-to set a task to repeat, add the flag: -r\n";
-		helpList += "-to set a priority for a task, add the flag: to be continued\n";
-		helpList += "-to delete a task: delete <index of task>\n";
-		helpList += "-to edit a task: to be continued\n";
-		helpList += "-to sort the tasks according to time and date: list to be continued\n";
-		helpList += "-to sort the tasks according to priority: list to be continued\n";
-		helpList += "-to undo the last command: undo\n";
-		helpList += "-to redo the last undo: redo\n";
-
-		UI.setList(helpList);
-		return "Help is on the way!\n";
-	}
 }
 
 //TODO: 
 //-Do exception handling for tick and cmi, cannot do certain commands
 //-refactor the code and make it neat
+//-weird stuff with edit
