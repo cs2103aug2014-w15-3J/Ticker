@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -156,8 +155,14 @@ public class Storage {
 			Vector<Task> tasks = JSONToTasksVector(json);
 			if(jsonFile.getName().equals(TASKS_DEADLINE_FILENAME)) {
 				setStoredTaskByDeadline(tasks);			
-			} else {
+			} else if(jsonFile.getName().equals(TASKS_PRIORITY_FILENAME)){
 				setStoredTaskByPriority(tasks);
+			} else if(jsonFile.getName().equals(TASKS_CMI_FILENAME)) {
+				setStoredTaskByCMI(tasks);
+			} else if(jsonFile.getName().equals(TASKS_TICKED_FILENAME)) {
+				setStoredTaskByTicked(tasks);
+			} else {
+				throw new IllegalArgumentException("Invalid filename"); //TODO: magic number
 			}
 		} catch (IllegalStateException ise) {
 			System.out.println(); //TODO: decision to be made. if system is being tampered with, delete the whole database? To be completed
@@ -196,10 +201,16 @@ public class Storage {
 	 */
 	private void createNewFileReader(File jsonFile) {
 		try {
-			if(jsonFile.getName() == "deadline.json") {
+			if(jsonFile.getName() == TASKS_DEADLINE_FILENAME) {
 				fileReader = new Scanner(fileSortedByDeadline);
-			} else {
+			} else if(jsonFile.getName() == TASKS_PRIORITY_FILENAME){
 				fileReader = new Scanner(fileSortedByPriority);
+			} else if(jsonFile.getName() == TASKS_CMI_FILENAME){
+				fileReader = new Scanner(fileSortedByCMI);
+			} else if(jsonFile.getName() == TASKS_TICKED_FILENAME){
+				fileReader = new Scanner(fileSortedByTicked);
+			} else {
+				throw new FileNotFoundException(); //TODO: improve on the exception string?
 			}
 		} catch (FileNotFoundException fnfe) {
 			String fileReadError = null;
@@ -293,6 +304,14 @@ public class Storage {
 	
 	public void setStoredTaskByDeadline(Vector<Task> tasks) {
 		storedTasksByDeadline = tasks;
+	}
+	
+	public void setStoredTaskByCMI(Vector<Task> tasks) {
+		storedTasksByCMI = tasks;
+	}
+	
+	public void setStoredTaskByTicked(Vector<Task> tasks) {
+		storedTasksByTicked = tasks;
 	}
 }
 
