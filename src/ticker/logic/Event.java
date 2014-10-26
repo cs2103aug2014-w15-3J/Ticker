@@ -11,7 +11,8 @@ public class Event {
 	
 	private String command;
 	private Task taskBeforeEdit, taskAfterEdit;
-	private int listTypeBefore, listTypeAfter;
+	private String listTypeBefore, listTypeAfter;
+	private int indexBefore;
 	
 	//Called when the command is add
 	public Event(String command, Task task) {
@@ -24,7 +25,7 @@ public class Event {
 	}
 	
 	//Called when the command is delete
-	public Event(String command, Task task, int listTypeBefore) {
+	public Event(String command, Task task, String listTypeBefore, int indexBefore) {
 		this.command = command;
 		
 		if(!(command.equals(COMMAND_DELETE))) {
@@ -33,7 +34,7 @@ public class Event {
 		
 		taskBeforeEdit = task;
 		this.listTypeBefore = listTypeBefore;
-		
+		this.indexBefore = indexBefore;
 	} 
 	
 	//Called when the command is edit
@@ -49,7 +50,7 @@ public class Event {
 	}
 	
 	//Called when the command is ticked or cmi
-	public Event(String command, Task task, int listTypeBefore, int listTypeAfter) {
+	public Event(String command, Task task, String listTypeBefore, String listTypeAfter) {
 		this.command = command;
 		
 		if(!(command.equals(COMMAND_TICK)) && !(command.equals(COMMAND_CMI))) {
@@ -73,12 +74,16 @@ public class Event {
 		return taskAfterEdit;
 	}
 	
-	public int getListTypeBefore() {
+	public String getListTypeBefore() {
 		return listTypeBefore;
 	}
 	
-	public int getListTypeAfter() {
+	public String getListTypeAfter() {
 		return listTypeAfter;
+	}
+	
+	public int getIndexBefore() {
+		return indexBefore;
 	}
 	
 }
