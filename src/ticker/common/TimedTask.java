@@ -7,6 +7,11 @@ public class TimedTask extends Task {
 		super(description, startDate, startTime, endDate, endTime, priority, isRepeating);
 	}
 	
+	public TimedTask copy() {
+		return new TimedTask(this.getDescription(), this.getStartDate(), this.getStartTime(), this.getEndDate(),
+				this.getEndTime(), this.getPriority(), this.getRepeat());
+	}
+	
 	@Override 
 	public String toString(){
 		String timing = "";

@@ -19,6 +19,10 @@ public class RepeatingTask extends Task {
 		System.out.println("created repeating task");
 	}
 	
+	public RepeatingTask copy() {
+		return new RepeatingTask(this.getDescription(), this.getStartDate(), this.getStartTime(), this.getEndTime(), this.getPriority(), this.getRepeat());
+	}
+	
 	public int getDay() { // 0: Sunday, 1: Monday, ... 6: Saturday
 		return day;
 	}
