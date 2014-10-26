@@ -1,22 +1,45 @@
 package ticker.logic;
-import ticker.parser.*;
-import ticker.storage.*;
-import ticker.ui.TickerUI;
-import ticker.common.*;
 
+// Package Parser
+import ticker.parser.Parser;
+import ticker.parser.UserInput;
+// Package Storage
+import ticker.storage.Storage;
+// Package UI
+import ticker.ui.TickerUI;
+// Package Common
+import ticker.common.Date;
+import ticker.common.Time;
+import ticker.common.Task;
+import ticker.common.DeadlineTask;
+import ticker.common.FloatingTask;
+import ticker.common.RepeatingTask;
+import ticker.common.TimedTask;
+import ticker.common.sortByTime;
+import ticker.common.sortByPriority;
+// Package Java util
 import java.util.Collections;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// TODO: make logic.java an interface
+// TODO: make UI an observer
+// TODO: check description by end of project
 
+/*
+ * Class: Logic
+ * Description: Passes the user input from UI to the Parser to process the input. Logic then receives the
+ * processed command and acts on it. Functions provided include adding task, deleting task, edit an existing task,
+ * listing out the tasks in different formats (e.g priority, time, done and cannot be completed), as well as
+ * searching and auto-complete.
+ */
 
 public class Logic{
 	// Instances of other components
 	Parser parser;
 	Storage storage;
 	TickerUI UI;
-
 	UndoManager undoMng;
 
 	// Pointer to the Vector currently in display
