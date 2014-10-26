@@ -17,6 +17,7 @@ import ticker.common.RepeatingTask;
 import ticker.common.TimedTask;
 import ticker.common.sortByTime;
 import ticker.common.sortByPriority;
+
 // Package Java util
 import java.util.Collections;
 import java.util.Vector;
@@ -37,14 +38,17 @@ import java.util.logging.Logger;
 
 public class Logic{
 	// CONSTANTS
-	// Integer key constants for sorted lists
+	// Integer key constants for lists used by listTracker
 	private static final int SORTED_TIME = 1;
 	private static final int SORTED_PRIORITY = 2;
-	// Integer key constants for type of lists
-	private static final int UNDONE = 1;
 	private static final int TICKED = 3;
 	private static final int CMI = 4;
 	private static final int SEARCH = 5;
+	// String constants for type of lists used by UndoManager
+	private static final String TASKS_TIME = "TIME";
+	private static final String TASKS_PRIORITY = "PRIORITY";
+	private static final String TASKS_TICKED = "TICKED";
+	private static final String TASKS_CMI = "CMI";
 	
 	// Instances of other components
 	private Parser parser;
@@ -54,6 +58,7 @@ public class Logic{
 	private static Logger logger;
 	// Tracker to track which list is being displayed
 	private static int listTracker;
+	private static String currentListName;
 	// Pointer to the Vector currently in display
 	private static Vector<Task> current;
 	// Temporary sorted storages
@@ -86,6 +91,7 @@ public class Logic{
 
 		current = sortedTime;
 		listTracker = SORTED_TIME;
+		currentListName = TASKS_TIME;
 
 		UI.setList(list());
 
@@ -171,7 +177,7 @@ public class Logic{
 				return "Index out of bounds. Nothing has been marked as cannot do.";
 			}
 			catch (IllegalArgumentException ex) {
-				return "Current list: " + listTracker + "Cannot perform command on this list";
+				return "Current list: " + currentListName + "Cannot perform command on this list";
 			}
 			break;
 
@@ -183,7 +189,7 @@ public class Logic{
 				return "Index out of bounds. Nothing has been unmarked as cannot do.";
 			}
 			catch (IllegalArgumentException ex) {
-				return "Current list: " + listTracker + "Cannot perform command on this list";
+				return "Current list: " + currentListName + "Cannot perform command on this list";
 			}
 			break;
 
@@ -215,7 +221,7 @@ public class Logic{
 				return "Index out of bounds. Nothing has been ticked.";
 			}
 			/*catch (IllegalArgumentException ex) {
-				return "Current list: " + listTracker + "Cannot perform command on this list";
+				return "Current list: " + currentListName + "Cannot perform command on this list";
 			}*/
 			break;
 
@@ -227,7 +233,7 @@ public class Logic{
 				return "Index out of bounds. Nothing has been unticked.";
 			}
 			catch (IllegalArgumentException ex) {
-				return "Current list: " + listTracker + "Cannot perform command on this list";
+				return "Current list: " + currentListName + "Cannot perform command on this list";
 			}
 			break;
 
@@ -295,7 +301,7 @@ public class Logic{
 
 		storeLists();
 		//TODO: add index of deleted to parameter
-		Event event = new Event("delete", deleted, listTracker);
+		Event event = new Event("delete", deleted, currentListName, index - 1);
 		undoMng.add(event);
 
 		UI.setList(list());
@@ -331,15 +337,25 @@ public class Logic{
 
 		switch (listTracker) {
 		case SORTED_TIME:
-			current = sortedTime; break;
+			current = sortedTime; 
+			currentListName = TASKS_TIME; 
+			break;
 		case SORTED_PRIORITY:
-			current = sortedPriority; break;
+			current = sortedPriority; 
+			currentListName = TASKS_PRIORITY;
+			break;
 		case TICKED:
-			current = listTicked; break;
+			current = listTicked;
+			currentListName = TASKS_TICKED;
+			break;
 		case CMI:
-			current = listCMI; break;
+			current = listCMI; 
+			currentListName = TASKS_CMI;
+			break;
 		case SEARCH:
-			current = sortedTime; break;
+			current = sortedTime; 
+			currentListName = TASKS_TIME;
+			break;
 		default:
 		}
 
@@ -383,21 +399,25 @@ public class Logic{
 		case "time":
 			current = sortedTime;
 			listTracker = SORTED_TIME;
+			currentListName = TASKS_TIME;
 			UI.setList(list());
 			return "Listing by time...";
 		case "priority":
 			current = sortedPriority;
 			listTracker = SORTED_PRIORITY;
+			currentListName = TASKS_PRIORITY;
 			UI.setList(list());
 			return "Listing by priority...";
 		case "ticked":
 			current = listTicked;
 			listTracker = TICKED;
+			currentListName = TASKS_TICKED;
 			UI.setList(list());
 			return "Listing ticked tasks...";
 		case "cmi":
 			current = listCMI;
 			listTracker = CMI;
+			currentListName = TASKS_CMI;
 			UI.setList(list());
 			return "Listing tasks that cannot be done...";
 		default:
@@ -496,23 +516,19 @@ public class Logic{
 		else if (startDate == null && startTime == null) {
 			// Creation of floating tasks
 			if (endDate == null && endTime == null) {
-				// TODO: set priority
 				newTask = new FloatingTask(description, priority, false);
 			}
 			// Creation of deadline tasks
 			else {
-				// TODO: set priority
 				newTask = new DeadlineTask(description, endDate, endTime, priority, false);
 			}
 
 		}
 		// Creation of timed tasks
 		else {
-			// TODO: set priority
 			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
 		}
 
-		// TODO: implementation of search
 		sortedTime.add(newTask);
 		sortedPriority.add(newTask);
 
@@ -542,7 +558,7 @@ public class Logic{
 		sortedTime.remove(cmi);
 		sortedPriority.remove(cmi);
 
-		Event event = new Event("cmi", cmi, UNDONE, CMI);
+		Event event = new Event("cmi", cmi, TASKS_TIME, TASKS_CMI);
 		undoMng.add(event);
 
 		sortLists();
@@ -567,7 +583,7 @@ public class Logic{
 		sortedTime.add(uncmi);
 		sortedPriority.add(uncmi);
 
-		Event event = new Event("uncmi", uncmi, UNDONE, CMI);
+		Event event = new Event("uncmi", uncmi, TASKS_TIME, TASKS_CMI);
 		undoMng.add(event);
 
 		sortLists();
@@ -612,7 +628,7 @@ public class Logic{
 		sortedPriority.remove(ticked);
 		listTicked.add(0, ticked);
 
-		Event event = new Event("tick", ticked, UNDONE, TICKED);
+		Event event = new Event("tick", ticked, TASKS_TIME, TASKS_TICKED);
 		undoMng.add(event);
 
 		sortLists();
@@ -636,7 +652,7 @@ public class Logic{
 		sortedTime.add(unticked);
 		sortedPriority.add(unticked);
 
-		Event event = new Event("unticked", unticked, UNDONE, TICKED);
+		Event event = new Event("unticked", unticked, TASKS_TIME, TASKS_TICKED);
 		undoMng.add(event);
 
 		sortLists();
