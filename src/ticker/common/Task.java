@@ -9,7 +9,8 @@ public class Task {
 	protected char priority;
 	protected boolean isRepeating;
 
-	public Task(String description, Date startDate, Time startTime, Date endDate, Time endTime, char priority, boolean isRepeating) {
+	public Task(String description, Date startDate, Time startTime, Date endDate, Time endTime, 
+			char priority, boolean isRepeating) {
 		this.description = description;
 		this.startDate = startDate;
 		this.startTime = startTime;
@@ -17,6 +18,11 @@ public class Task {
 		this.endTime = endTime;
 		this.priority = priority;
 		this.isRepeating = isRepeating;
+	}
+	
+	public Task copy() {
+		return new Task(this.getDescription(), this.getStartDate(), this.getStartTime(), this.getEndDate(),
+				this.getEndTime(), this.getPriority(), this.getRepeat());
 	}
 
 	public String toString() {

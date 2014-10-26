@@ -12,10 +12,9 @@ public class UndoManager {
 	private static final String COMMAND_TICK = "tick";
 	private static final String COMMAND_CMI = "cmi";
 	
-	private static final int TASKS_DEADLINE_INDEX = 1;
-	private static final int TASKS_PRIORITY_INDEX = 2;
-	private static final int TASKS_TICKED_INDEX = 3;
-	private static final int TASKS_CMI_INDEX = 4;
+	private static final String TASKS_TIME = "TIME";
+	private static final String TASKS_TICKED = "TICKED";
+	private static final String TASKS_CMI = "CMI";
 	
 	private static UndoManager theOne;
 	private Stack<Event> undoStack, redoStack;
@@ -47,44 +46,44 @@ public class UndoManager {
 					storedTasksByDeadline.remove(previousAction.getTaskBeforeEdit());
 					break;
 				case COMMAND_DELETE:
-					if(previousAction.getListTypeBefore() == TASKS_DEADLINE_INDEX) {
+					if(previousAction.getListTypeBefore().equals(TASKS_TIME)) {
 						storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
 						storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
-					} else if (previousAction.getListTypeBefore() == TASKS_TICKED_INDEX) {
-						storedTasksByTicked.add(previousAction.getTaskBeforeEdit());
-					} else if (previousAction.getListTypeBefore() == TASKS_CMI_INDEX) {
-						storedTasksByCMI.add(previousAction.getTaskBeforeEdit());
+					} else if (previousAction.getListTypeBefore().equals(TASKS_TICKED)) {
+						storedTasksByTicked.add(previousAction.getIndexBefore(), previousAction.getTaskBeforeEdit());
+					} else if (previousAction.getListTypeBefore().equals(TASKS_CMI)) {
+						storedTasksByCMI.add(previousAction.getIndexBefore(), previousAction.getTaskBeforeEdit());
 					} else {
-						throw new IllegalArgumentException("the index must be 1, 3 or 4!");
+						throw new IllegalArgumentException("The tasks must be DEADLINE, TICKED OR CMI");
 					}
 					break;
 				case COMMAND_TICK:
 					//TODO:refactor
 					//the previous action moves task from normal to ticked, hence now moves task from ticked to normal
-					if(previousAction.getListTypeBefore() == TASKS_DEADLINE_INDEX) {
+					if(previousAction.getListTypeBefore().equals(TASKS_TIME)) {
 						storedTasksByTicked.remove(previousAction.getTaskBeforeEdit());
 						storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
 						storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
-					} else if(previousAction.getListTypeBefore() == TASKS_TICKED_INDEX) {
+					} else if(previousAction.getListTypeBefore().equals(TASKS_TICKED)) {
 						storedTasksByTicked.add(previousAction.getTaskBeforeEdit());
 						storedTasksByPriority.remove(previousAction.getTaskBeforeEdit());
 						storedTasksByDeadline.remove(previousAction.getTaskBeforeEdit());
 					} else {
-						throw new IllegalArgumentException("the index must be 1 or 3!");
+						throw new IllegalArgumentException("The tasks must be DEADLINE or TICKED");
 					}
 					break;
 				case COMMAND_CMI:
 					//TODO:refactor
-					if(previousAction.getListTypeBefore() == TASKS_DEADLINE_INDEX) {
+					if(previousAction.getListTypeBefore().equals(TASKS_TIME)) {
 						storedTasksByCMI.remove(previousAction.getTaskBeforeEdit());
 						storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
 						storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
-					} else if(previousAction.getListTypeBefore() == TASKS_CMI_INDEX) {
+					} else if(previousAction.getListTypeBefore().equals(TASKS_CMI)) {
 						storedTasksByCMI.add(previousAction.getTaskBeforeEdit());
 						storedTasksByPriority.remove(previousAction.getTaskBeforeEdit());
 						storedTasksByDeadline.remove(previousAction.getTaskBeforeEdit());
 					} else {
-						throw new IllegalArgumentException("the index must be 1 or 4!");
+						throw new IllegalArgumentException("The tasks must be DEADLINE or CMI");
 					}
 					break;
 			}
@@ -108,43 +107,43 @@ public class UndoManager {
 				storedTasksByDeadline.add(nextAction.getTaskBeforeEdit());
 				break;
 			case COMMAND_DELETE:
-				if(nextAction.getListTypeBefore() == TASKS_DEADLINE_INDEX) {
+				if(nextAction.getListTypeBefore().equals(TASKS_TIME)) {
 					storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
 					storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
-				} else if (nextAction.getListTypeBefore() == TASKS_TICKED_INDEX) {
+				} else if (nextAction.getListTypeBefore().equals(TASKS_TICKED)) {
 					storedTasksByTicked.remove(nextAction.getTaskBeforeEdit());
-				} else if (nextAction.getListTypeBefore() == TASKS_CMI_INDEX) {
+				} else if (nextAction.getListTypeBefore().equals(TASKS_CMI)) {
 					storedTasksByCMI.remove(nextAction.getTaskBeforeEdit());
 				} else {
-					throw new IllegalArgumentException("the index must be 1, 3 or 4!");
+					throw new IllegalArgumentException("The tasks must be DEADLINE, TICKED OR CMI");
 				}
 				break;
 			case COMMAND_TICK:
 				//TODO:refactor
-				if(nextAction.getListTypeBefore() == TASKS_DEADLINE_INDEX) {
+				if(nextAction.getListTypeBefore().equals(TASKS_TIME)) {
 					storedTasksByTicked.add(nextAction.getTaskBeforeEdit());
 					storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
 					storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
-				} else if(nextAction.getListTypeBefore() == TASKS_TICKED_INDEX) {
+				} else if(nextAction.getListTypeBefore().equals(TASKS_TICKED)) {
 					storedTasksByTicked.remove(nextAction.getTaskBeforeEdit());
 					storedTasksByPriority.add(nextAction.getTaskBeforeEdit());
 					storedTasksByDeadline.add(nextAction.getTaskBeforeEdit());
 				} else {
-					throw new IllegalArgumentException("the index must be 1 or 3!");
+					throw new IllegalArgumentException("The tasks must be DEADLINE or TICKED");
 				}
 				break;
 			case COMMAND_CMI:
 				//TODO:refactor
-				if(nextAction.getListTypeBefore() == TASKS_DEADLINE_INDEX) {
+				if(nextAction.getListTypeBefore().equals(TASKS_TIME)) {
 					storedTasksByCMI.add(nextAction.getTaskBeforeEdit());
 					storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
 					storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
-				} else if(nextAction.getListTypeBefore() == TASKS_CMI_INDEX) {
+				} else if(nextAction.getListTypeBefore().equals(TASKS_CMI)) {
 					storedTasksByCMI.remove(nextAction.getTaskBeforeEdit());
 					storedTasksByPriority.add(nextAction.getTaskBeforeEdit());
 					storedTasksByDeadline.add(nextAction.getTaskBeforeEdit());
 				} else {
-					throw new IllegalArgumentException("the index must be 1 or 4!");
+					throw new IllegalArgumentException("The tasks must be DEADLINE or CMI");
 				}
 				break;
 			}

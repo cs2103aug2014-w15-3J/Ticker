@@ -6,4 +6,8 @@ public class FloatingTask extends Task {
 	public FloatingTask(String description, char priority, boolean isRepeating) {
 		super(description, null, null, null, null, priority, isRepeating);
 	}
+	
+	public FloatingTask copy() {
+		return new FloatingTask(this.getDescription(), this.getPriority(), this.getRepeat());
+	}
 }

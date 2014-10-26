@@ -1,8 +1,9 @@
 package ticker.logic;
 
+// Package Common
 import ticker.common.Task;
 import ticker.common.sortByTime;
-
+// Package Java util
 import java.util.Collections;
 import java.util.Vector;
 
@@ -19,6 +20,13 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.SmithWaterman;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.SmithWatermanGotoh;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.SmithWatermanGotohWindowedAffine;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.Soundex;
+
+// TODO: check description by end of project
+/*
+ * Class: SearchManager
+ * Description: Calculates the level of similarity between the search key and the existing tasks in
+ * the task list. Returns only the tasks with appointed level of similarity.
+ */
 
 public class SearchManager {
 	Vector<StringMatch> matchList;
@@ -48,7 +56,7 @@ public class SearchManager {
 		Vector<Task>searchResults = new Vector<Task>();
 		
 		for (StringMatch sm : matchList) {
-			if (sm.getSimilarityScore() < 40.0) {
+			if (sm.getSimilarityScore() < 70.0) {
 				continue;
 			}
 			searchResults.add(taskList.get(sm.getIndex()));

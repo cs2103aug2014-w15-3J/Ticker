@@ -8,7 +8,13 @@ import ticker.storage.Storage;
 // Package UI
 import ticker.ui.TickerUI;
 // Package Common
+import ticker.common.Date;
+import ticker.common.Time;
 import ticker.common.Task;
+import ticker.common.DeadlineTask;
+import ticker.common.FloatingTask;
+import ticker.common.RepeatingTask;
+import ticker.common.TimedTask;
 import ticker.common.sortByTime;
 import ticker.common.sortByPriority;
 
@@ -30,8 +36,7 @@ import java.util.logging.Logger;
  * searching and auto-complete.
  */
 
-public class Logic{
-	// CONSTANTS
+public class LogicDuplicate{
 	// String constants for command types
 	private static final String COMMAND_HELP = "help";
 	private static final String COMMAND_UNTICK = "untick";
@@ -46,6 +51,7 @@ public class Logic{
 	private static final String COMMAND_CLEAR = "clear";
 	private static final String COMMAND_DELETE = "delete";
 	private static final String COMMAND_SEARCH = "search";
+	// CONSTANTS
 	// Integer key constants for lists used by listTracker
 	private static final int KEY_SORTED_TIME = 1;
 	private static final int KEY_SORTED_PRIORITY = 2;
@@ -63,8 +69,6 @@ public class Logic{
 	private Storage storage;
 	private TickerUI UI;
 	private UndoManager undoMng;
-	private CRUManager cruMng;
-	private TickCMIManager tickCMIMng;
 	private static Logger logger;
 	// Tracker to track which list is being displayed
 	private static int listTracker;
@@ -95,8 +99,6 @@ public class Logic{
 		listTicked = storage.restoreDataFromFile(KEY_TICKED);
 		listCMI = storage.restoreDataFromFile(KEY_CMI);
 		
-		cruMng = new CRUManager(sortedTime, sortedPriority, listTicked, listCMI);
-		tickCMIMng = new TickCMIManager(sortedTime, sortedPriority, listTicked, listCMI);
 		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
 
 		searchResults = new Vector<Task>();
@@ -136,10 +138,7 @@ public class Logic{
 
 		case COMMAND_DELETE: 
 			try {
-				feedback = cruMng.delete(processed.getIndex(), listTracker, current, currentListName);
-				sortLists();
-				storeLists();
-				UI.setList(list());
+				feedback = this.delete(processed.getIndex());
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been deleted.";
@@ -163,11 +162,7 @@ public class Logic{
 
 		case COMMAND_EDIT:
 			try {
-				feedback = cruMng.edit(processed.getIndex(), processed.getAppending(),
-						processed.getDescription(), listTracker, current);
-				sortLists();
-				storeLists();
-				UI.setList(list());
+				feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription());
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been edited.";
@@ -179,11 +174,8 @@ public class Logic{
 
 		case COMMAND_ADD:
 			try {
-				feedback = cruMng.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
+				feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
-				sortLists();
-				storeLists();
-				UI.setList(list());
 			}
 			catch (IllegalArgumentException ex) {
 				return "Error in input. Either description is missing or date is missing for repeated tasks.";
@@ -192,10 +184,7 @@ public class Logic{
 
 		case COMMAND_CMI:
 			try {
-				feedback = tickCMIMng.cmi(processed.getIndex(), listTracker, current, currentListName);
-				sortLists();
-				storeLists();
-				UI.setList(list());
+				feedback = this.cmi(processed.getIndex());
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been marked as cannot do.";
@@ -207,10 +196,7 @@ public class Logic{
 
 		case COMMAND_UNCMI:
 			try {
-				feedback = tickCMIMng.uncmi(processed.getIndex(), listTracker, current);
-				sortLists();
-				storeLists();
-				UI.setList(list());
+				feedback = this.uncmi(processed.getIndex());
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been unmarked as cannot do.";
@@ -244,10 +230,7 @@ public class Logic{
 			
 		case COMMAND_TICK:
 			try {
-				feedback = tickCMIMng.tick(processed.getIndex(), listTracker, current);
-				sortLists();
-				storeLists();
-				UI.setList(list());
+				feedback = this.tick(processed.getIndex());
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been ticked.";
@@ -259,10 +242,7 @@ public class Logic{
 
 		case COMMAND_UNTICK:
 			try {
-				feedback = tickCMIMng.untick(processed.getIndex(), listTracker, current);
-				sortLists();
-				storeLists();
-				UI.setList(list());
+				feedback = this.untick(processed.getIndex());
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been unticked.";
@@ -274,8 +254,7 @@ public class Logic{
 
 
 		case COMMAND_HELP:
-			feedback = "help is on the way!";
-			UI.setHelp();
+			feedback = this.help(); 
 			break;
 
 		default:
@@ -318,7 +297,34 @@ public class Logic{
 		return "Displaying search results";
 
 	}
-	
+	private String delete(int index) throws ArrayIndexOutOfBoundsException {
+		// Exception catching
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+		Task deleted = current.remove(index-1);
+
+		if (listTracker == KEY_SORTED_TIME) {
+			sortedPriority.remove(deleted);
+			sortLists();
+
+		}
+		if (listTracker == KEY_SORTED_PRIORITY) {
+			sortedTime.remove(deleted);
+			sortLists();
+		}
+
+		storeLists();
+		//TODO: add index of deleted to parameter
+		Event event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
+		undoMng.add(event);
+
+		UI.setList(list());
+		return deleted.toString() + " has been removed.\n";
+
+
+	}
+
 	/**
 	 * 
 	 */
@@ -393,7 +399,7 @@ public class Logic{
 		if (current == null) {
 			return "Nothing to display.\n";
 		}
-		// int i = 0;
+		int i = 0;
 		String list = "";
 		for (Task task: searchResults) {
 
@@ -434,9 +440,244 @@ public class Logic{
 		}
 
 	}
+
+	private String edit(int index, boolean isAppending, String description) 
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException{
+		// Exception catching
+
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+		if (description == null || description.equals("")) {
+			throw new IllegalArgumentException();
+		}
+
+		Task oldTask = current.remove(index - 1);
+		Task newTask = oldTask;
+
+		// Edit the other Vector<Task>
+		if (listTracker == KEY_SORTED_TIME ) {
+			sortedPriority.remove(oldTask);
+		}
+		else if (listTracker == KEY_SORTED_PRIORITY) {
+			sortedTime.remove(oldTask);
+		}
+
+		if (isAppending) {
+			String taskName = oldTask.getDescription();
+			taskName += " " + description;
+			newTask.setDescription(taskName);
+
+			current.add(index - 1, newTask);
+			if (listTracker == KEY_SORTED_TIME ) {
+				sortedPriority.add(newTask);
+				sortLists();
+			}
+			else if (listTracker == KEY_SORTED_PRIORITY) {
+				sortedTime.add(newTask);
+				sortLists();
+			}
+
+			Event event = new Event(COMMAND_EDIT, oldTask, newTask);
+			undoMng.add(event);
+
+			storeLists();
+
+			UI.setList(list());
+			return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
+		}
+
+		newTask.setDescription(description);
+		current.add(index - 1, newTask);
+		if (listTracker == KEY_SORTED_TIME ) {
+			sortedPriority.add(newTask);
+			sortLists();
+		}
+		else if (listTracker == KEY_SORTED_PRIORITY) {
+			sortedTime.add(newTask);
+			sortLists();
+		}
+
+		storeLists();
+
+		UI.setList(list());
+		return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
+	}
+
+
+	private String add(String description, boolean isRepeating, Date startDate, Date endDate,
+			Time startTime, Time endTime, char priority) throws IllegalArgumentException {
+
+		if (description == null || description.equals("")) {
+			throw new IllegalArgumentException();
+		}
+
+		Task newTask;
+
+		// Creation of RepeatingTask
+		if (isRepeating) {
+			if (startDate != null) {
+				newTask = new RepeatingTask(description, startDate, startTime, endTime, priority, isRepeating);
+			}
+			else if (endDate != null) {
+				newTask = new RepeatingTask(description, endDate, startTime, endTime, priority, isRepeating);
+			}
+			else {
+				throw new IllegalArgumentException();
+			}
+
+		}
+
+		else if (startDate == null && startTime == null) {
+			// Creation of floating tasks
+			if (endDate == null && endTime == null) {
+				newTask = new FloatingTask(description, priority, false);
+			}
+			// Creation of deadline tasks
+			else {
+				newTask = new DeadlineTask(description, endDate, endTime, priority, false);
+			}
+
+		}
+		// Creation of timed tasks
+		else {
+			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
+		}
+
+		sortedTime.add(newTask);
+		sortedPriority.add(newTask);
+
+		Event event = new Event(COMMAND_ADD, newTask);
+		undoMng.add(event);
+
+		sortLists();
+		storeLists();
+
+		UI.setList(list());
+		return description + " has been added.\n";
+	}
+
+	private String cmi(int index) throws ArrayIndexOutOfBoundsException {
+		// Exception catching
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+
+		if (listTracker == KEY_TICKED) {
+			throw new IllegalArgumentException();
+		}
+
+		Task cmi = current.remove(index-1);
+		// Add to the front so the latest additions are on top
+		listCMI.add(0, cmi);
+		sortedTime.remove(cmi);
+		sortedPriority.remove(cmi);
+
+		Event event = new Event(COMMAND_CMI, cmi, TASKS_TIME, TASKS_CMI);
+		undoMng.add(event);
+
+		sortLists();
+		storeLists();
+		UI.setList(list());
+		return cmi.toString() + " cannot be done!\n";
+
+	}
+
+	private String uncmi(int index) throws ArrayIndexOutOfBoundsException {
+		// Exception catching
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+
+		if (listTracker != KEY_CMI) {
+			throw new IllegalArgumentException();
+		}
+
+		Task uncmi = current.remove(index-1);
+		// Add to the front so the latest additions are on top
+		sortedTime.add(uncmi);
+		sortedPriority.add(uncmi);
+
+		Event event = new Event(COMMAND_UNCMI, uncmi, TASKS_TIME, TASKS_CMI);
+		undoMng.add(event);
+
+		sortLists();
+		storeLists();
+		UI.setList(list());
+		return uncmi.toString() + "is back to undone!\n";
+
+	}
+
+	private String help() {
+		// TODO: check through helpList again!
+		String helpList = "";
+		helpList += "HELP FOR USING TICKER\n";
+		helpList += "-to add a task: add \"<task name>\" -st <start time> -sd <start date in dd/mm/yy format> "
+				+ "-et <end time> -ed <end date in dd/mm/yy format.\n";
+		helpList += "-to set a task to repeat, add the flag: -r\n";
+		helpList += "-to set a priority for a task, add the flag: to be continued\n";
+		helpList += "-to delete a task: delete <index of task>\n";
+		helpList += "-to edit a task: to be continued\n";
+		helpList += "-to sort the tasks according to time and date: list to be continued\n";
+		helpList += "-to sort the tasks according to priority: list to be continued\n";
+		helpList += "-to undo the last command: undo\n";
+		helpList += "-to redo the last undo: redo\n";
+
+		UI.setList(helpList);
+		return "Help is on the way!\n";
+	}
+
+	private String tick(int index) {
+		// Exception catching
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+
+		if (listTracker == KEY_CMI) {
+			System.out.println("Error in listTracker");
+			throw new IllegalArgumentException();
+		}
+
+		Task ticked = current.remove(index-1);
+		sortedTime.remove(ticked);
+		sortedPriority.remove(ticked);
+		listTicked.add(0, ticked);
+
+		Event event = new Event(COMMAND_TICK, ticked, TASKS_TIME, TASKS_TICKED);
+		undoMng.add(event);
+
+		sortLists();
+		storeLists();
+
+		UI.setList(list());
+		return ticked.toString() + " is done!\n";
+	}
+
+	private String untick(int index) {
+		// Exception catching
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+
+		if (listTracker != KEY_TICKED) {
+			throw new IllegalArgumentException();
+		}
+
+		Task unticked = current.remove(index-1);
+		sortedTime.add(unticked);
+		sortedPriority.add(unticked);
+
+		Event event = new Event(COMMAND_UNTICK, unticked, TASKS_TIME, TASKS_TICKED);
+		undoMng.add(event);
+
+		sortLists();
+		storeLists();
+
+		UI.setList(list());
+		return unticked.toString() + " is back to undone\n";
+	}
 }
 
 //TODO: 
 //-Do exception handling for tick and cmi, cannot do certain commands
 //-refactor the code and make it neat
-//-weird stuff with edit

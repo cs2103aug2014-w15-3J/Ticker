@@ -7,6 +7,11 @@ public class DeadlineTask extends Task {
 		super(description, null, null, endDate, endTime, priority, isRepeating);
 	}
 	
+	public DeadlineTask copy() {
+		return new DeadlineTask(this.getDescription(), this.getEndDate(),	this.getEndTime(), this.getPriority(), 
+				this.getRepeat());
+	}
+	
 	@Override
 	public String toString(){
 		
