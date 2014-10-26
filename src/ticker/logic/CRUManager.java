@@ -10,11 +10,12 @@ import ticker.common.Task;
 import ticker.common.Time;
 import ticker.common.TimedTask;
 
-public class AddDeleteManager {
+public class CRUManager {
 	// CONSTANTS
 	// String constants for command types
 	private static final String COMMAND_ADD = "add";
 	private static final String COMMAND_DELETE = "delete";
+	private static final String COMMAND_EDIT = "edit";
 	// Integer key constants for lists used by listTracker
 	private static final int KEY_SORTED_TIME = 1;
 	private static final int KEY_SORTED_PRIORITY = 2;
@@ -23,7 +24,7 @@ public class AddDeleteManager {
 	private UndoManager undoMng;
 	private Vector<Task> storedTasksByPriority, storedTasksByTime;
 	
-	AddDeleteManager(Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
+	CRUManager(Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTime = storedTasksByTime;
 		
@@ -97,6 +98,58 @@ public class AddDeleteManager {
 
 		return description + " has been added.\n";
 	}
+	
+	String edit(int index, boolean isAppending, String description, int listTracker, Vector<Task> current)
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		// Exception catching
 
+		if (index <= 0 || index > current.size()) {
+			throw new ArrayIndexOutOfBoundsException();
+		}
+		if (description == null || description.equals("")) {
+			throw new IllegalArgumentException();
+		}
+
+		Task oldTask = current.remove(index - 1);
+		Task newTask = oldTask;
+
+		// Edit the other Vector<Task>
+		if (listTracker == KEY_SORTED_TIME ) {
+			storedTasksByPriority.remove(oldTask);
+		}
+		else if (listTracker == KEY_SORTED_PRIORITY) {
+			storedTasksByTime.remove(oldTask);
+		}
+
+		if (isAppending) {
+			String taskName = oldTask.getDescription();
+			taskName += " " + description;
+			newTask.setDescription(taskName);
+
+			current.add(index - 1, newTask);
+			if (listTracker == KEY_SORTED_TIME ) {
+				storedTasksByPriority.add(newTask);
+			}
+			else if (listTracker == KEY_SORTED_PRIORITY) {
+				storedTasksByTime.add(newTask);
+			}
+
+			Event event = new Event(COMMAND_EDIT, oldTask, newTask);
+			undoMng.add(event);
+
+			return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
+		}
+
+		newTask.setDescription(description);
+		current.add(index - 1, newTask);
+		if (listTracker == KEY_SORTED_TIME ) {
+			storedTasksByPriority.add(newTask);
+		}
+		else if (listTracker == KEY_SORTED_PRIORITY) {
+			storedTasksByTime.add(newTask);
+		}
+
+		return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
+	}
 
 }

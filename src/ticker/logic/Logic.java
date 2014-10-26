@@ -63,7 +63,7 @@ public class Logic{
 	private Storage storage;
 	private TickerUI UI;
 	private UndoManager undoMng;
-	private AddDeleteManager addDeleteMng;
+	private CRUManager cruMng;
 	private TickCMIManager tickCMIMng;
 	private static Logger logger;
 	// Tracker to track which list is being displayed
@@ -95,7 +95,7 @@ public class Logic{
 		listTicked = storage.restoreDataFromFile(KEY_TICKED);
 		listCMI = storage.restoreDataFromFile(KEY_CMI);
 		
-		addDeleteMng = new AddDeleteManager(sortedTime, sortedPriority, listTicked, listCMI);
+		cruMng = new CRUManager(sortedTime, sortedPriority, listTicked, listCMI);
 		tickCMIMng = new TickCMIManager(sortedTime, sortedPriority, listTicked, listCMI);
 		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
 
@@ -136,7 +136,7 @@ public class Logic{
 
 		case COMMAND_DELETE: 
 			try {
-				feedback = addDeleteMng.delete(processed.getIndex(), listTracker, current, currentListName);
+				feedback = cruMng.delete(processed.getIndex(), listTracker, current, currentListName);
 				sortLists();
 				storeLists();
 				UI.setList(list());
@@ -163,7 +163,8 @@ public class Logic{
 
 		case COMMAND_EDIT:
 			try {
-				feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription());
+				feedback = cruMng.edit(processed.getIndex(), processed.getAppending(),
+						processed.getDescription(), listTracker, current);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been edited.";
@@ -175,7 +176,7 @@ public class Logic{
 
 		case COMMAND_ADD:
 			try {
-				feedback = addDeleteMng.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
+				feedback = cruMng.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
 				sortLists();
 				storeLists();
@@ -428,69 +429,6 @@ public class Logic{
 			throw new IllegalArgumentException();
 		}
 
-	}
-
-	private String edit(int index, boolean isAppending, String description) 
-			throws ArrayIndexOutOfBoundsException, IllegalArgumentException{
-		// Exception catching
-
-		if (index <= 0 || index > current.size()) {
-			throw new ArrayIndexOutOfBoundsException();
-		}
-		if (description == null || description.equals("")) {
-			throw new IllegalArgumentException();
-		}
-
-		Task oldTask = current.remove(index - 1);
-		Task newTask = oldTask;
-
-		// Edit the other Vector<Task>
-		if (listTracker == KEY_SORTED_TIME ) {
-			sortedPriority.remove(oldTask);
-		}
-		else if (listTracker == KEY_SORTED_PRIORITY) {
-			sortedTime.remove(oldTask);
-		}
-
-		if (isAppending) {
-			String taskName = oldTask.getDescription();
-			taskName += " " + description;
-			newTask.setDescription(taskName);
-
-			current.add(index - 1, newTask);
-			if (listTracker == KEY_SORTED_TIME ) {
-				sortedPriority.add(newTask);
-				sortLists();
-			}
-			else if (listTracker == KEY_SORTED_PRIORITY) {
-				sortedTime.add(newTask);
-				sortLists();
-			}
-
-			Event event = new Event(COMMAND_EDIT, oldTask, newTask);
-			undoMng.add(event);
-
-			storeLists();
-
-			UI.setList(list());
-			return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
-		}
-
-		newTask.setDescription(description);
-		current.add(index - 1, newTask);
-		if (listTracker == KEY_SORTED_TIME ) {
-			sortedPriority.add(newTask);
-			sortLists();
-		}
-		else if (listTracker == KEY_SORTED_PRIORITY) {
-			sortedTime.add(newTask);
-			sortLists();
-		}
-
-		storeLists();
-
-		UI.setList(list());
-		return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
 	}
 
 	private String help() {
