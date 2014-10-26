@@ -111,7 +111,7 @@ public class CRUManager {
 		}
 
 		Task oldTask = current.remove(index - 1);
-		Task newTask = oldTask;
+		Task newTask = oldTask.copy();
 
 		// Edit the other Vector<Task>
 		if (listTracker == KEY_SORTED_TIME ) {
@@ -151,5 +151,4 @@ public class CRUManager {
 
 		return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
 	}
-
 }
