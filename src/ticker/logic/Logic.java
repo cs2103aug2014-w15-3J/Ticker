@@ -36,38 +36,34 @@ import java.util.logging.Logger;
  */
 
 public class Logic{
-	// Instances of other components
-	Parser parser;
-	Storage storage;
-	TickerUI UI;
-	UndoManager undoMng;
-
-	// Pointer to the Vector currently in display
-	Vector<Task> current;
-
-	private static final int UNDONE = 1;
+	// CONSTANTS
+	// Integer key constants for sorted lists
 	private static final int SORTED_TIME = 1;
 	private static final int SORTED_PRIORITY = 2;
+	// Integer key constants for type of lists
+	private static final int UNDONE = 1;
 	private static final int TICKED = 3;
 	private static final int CMI = 4;
 	private static final int SEARCH = 5;
-
-	private static Logger logger = Logger.getLogger("Logic");
-
+	
+	// Instances of other components
+	private Parser parser;
+	private Storage storage;
+	private TickerUI UI;
+	private UndoManager undoMng;
+	private static Logger logger;
+	// Tracker to track which list is being displayed
+	private static int listTracker;
+	// Pointer to the Vector currently in display
+	private static Vector<Task> current;
 	// Temporary sorted storages
-	Vector<Task> sortedTime;
-	Vector<Task> sortedPriority;
-	Vector<Task> listTicked; // not sorted
-	Vector<Task> listCMI; // not sorted
-	Vector<Task> searchResults;
+	private static Vector<Task> sortedTime;
+	private static Vector<Task> sortedPriority;
+	private static Vector<Task> listTicked; // not sorted
+	private static Vector<Task> listCMI; // not sorted
+	private static Vector<Task> searchResults;
 
-	// Tracker to track what Vector is being used
-
-	static int listTracker;
-
-	// HashMaps to be added in later
 	public Logic() {
-
 	}
 
 	public Logic(TickerUI UI){
@@ -77,6 +73,7 @@ public class Logic{
 		// Instantiating sub-components
 		parser = new Parser();
 		storage = new Storage();
+		logger = Logger.getLogger("Logic");
 
 		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
 		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
@@ -174,7 +171,7 @@ public class Logic{
 				return "Index out of bounds. Nothing has been marked as cannot do.";
 			}
 			catch (IllegalArgumentException ex) {
-				return "Cannot perform command on this list";
+				return "Current list: " + listTracker + "Cannot perform command on this list";
 			}
 			break;
 
@@ -186,7 +183,7 @@ public class Logic{
 				return "Index out of bounds. Nothing has been unmarked as cannot do.";
 			}
 			catch (IllegalArgumentException ex) {
-				return "Cannot perform command on this list";
+				return "Current list: " + listTracker + "Cannot perform command on this list";
 			}
 			break;
 
@@ -209,6 +206,7 @@ public class Logic{
 				System.out.println("Error with UndoManager");
 			}
 			return "redoing action";
+			
 		case "tick":
 			try {
 				feedback = this.tick(processed.getIndex());
@@ -216,9 +214,9 @@ public class Logic{
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been ticked.";
 			}
-			catch (IllegalArgumentException ex) {
-				return "Cannot perform command on this list";
-			}
+			/*catch (IllegalArgumentException ex) {
+				return "Current list: " + listTracker + "Cannot perform command on this list";
+			}*/
 			break;
 
 		case "untick":
@@ -229,7 +227,7 @@ public class Logic{
 				return "Index out of bounds. Nothing has been unticked.";
 			}
 			catch (IllegalArgumentException ex) {
-				return "Cannot perform command on this list";
+				return "Current list: " + listTracker + "Cannot perform command on this list";
 			}
 			break;
 
@@ -249,15 +247,31 @@ public class Logic{
 
 	private String search(String key) {
 		SearchManager searchMng = new SearchManager();
-		searchResults = searchMng.search(current, key);
+		Vector<Task> searchResultsTime = searchMng.search(sortedTime, key);
+		Vector<Task> searchResultsTicked = searchMng.search(listTicked, key);
+		Vector<Task> searchResultsCMI = searchMng.search(listCMI, key);
+		
+		for (Task searchTime: searchResultsTime) {
+			searchResults.add(searchTime);
+		}
+		
+		searchResults.add(new Task("\\***TICKED***\\", null, null, null, null, 'B', false));
 
+		for (Task searchTicked: searchResultsTicked) {
+			searchResults.add(searchTicked);
+		}
+		
+		searchResults.add(new Task("\\***CMI***\\", null, null, null, null, 'B', false));
+		
+		for (Task searchCMI: searchResultsCMI) {
+			searchResults.add(searchCMI);
+		}
+		
 		if (searchResults.isEmpty()) {
 			return "No search results";
 		}
 
 		UI.setList(listSearch());
-
-
 
 		return "Displaying search results";
 
@@ -280,7 +294,7 @@ public class Logic{
 		}
 
 		storeLists();
-
+		//TODO: add index of deleted to parameter
 		Event event = new Event("delete", deleted, listTracker);
 		undoMng.add(event);
 
@@ -358,8 +372,8 @@ public class Logic{
 		String list = "";
 		for (Task task: searchResults) {
 
-			list += ++i + ". " + task.toString() + "\n";
-
+			// list += ++i + ". " + task.toString() + "\n";
+			list += task.toString() + "\n";
 		}
 		return list;
 	}
@@ -431,9 +445,6 @@ public class Logic{
 
 			Event event = new Event("edit", oldTask, newTask);
 			undoMng.add(event);
-
-			//TODO: how to add event into undoManager
-
 
 			storeLists();
 
@@ -592,6 +603,7 @@ public class Logic{
 		}
 
 		if (listTracker == CMI) {
+			System.out.println("Error in listTracker");
 			throw new IllegalArgumentException();
 		}
 
@@ -600,7 +612,7 @@ public class Logic{
 		sortedPriority.remove(ticked);
 		listTicked.add(0, ticked);
 
-		Event event = new Event("ticked", ticked, UNDONE, TICKED);
+		Event event = new Event("tick", ticked, UNDONE, TICKED);
 		undoMng.add(event);
 
 		sortLists();
