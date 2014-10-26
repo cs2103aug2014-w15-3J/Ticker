@@ -281,7 +281,7 @@ public class Logic{
 
 		storeLists();
 
-		Event event = new Event("delete", deleted);
+		Event event = new Event("delete", deleted, listTracker);
 		undoMng.add(event);
 
 		UI.setList(list());
