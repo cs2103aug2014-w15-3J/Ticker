@@ -37,18 +37,34 @@ import java.util.logging.Logger;
  */
 
 public class Logic{
+	// String constants for command types
+	private static final String COMMAND_HELP = "help";
+	private static final String COMMAND_UNTICK = "untick";
+	private static final String COMMAND_TICK = "tick";
+	private static final String COMMAND_REDO = "redo";
+	private static final String COMMAND_UNDO = "undo";
+	private static final String COMMAND_UNCMI = "uncmi";
+	private static final String COMMAND_CMI = "cmi";
+	private static final String COMMAND_ADD = "add";
+	private static final String COMMAND_EDIT = "edit";
+	private static final String COMMAND_LIST = "list";
+	private static final String COMMAND_CLEAR = "clear";
+	private static final String COMMAND_DELETE = "delete";
+	private static final String COMMAND_SEARCH = "search";
 	// CONSTANTS
 	// Integer key constants for lists used by listTracker
-	private static final int SORTED_TIME = 1;
-	private static final int SORTED_PRIORITY = 2;
-	private static final int TICKED = 3;
-	private static final int CMI = 4;
-	private static final int SEARCH = 5;
+	private static final int KEY_SORTED_TIME = 1;
+	private static final int KEY_SORTED_PRIORITY = 2;
+	private static final int KEY_TICKED = 3;
+	private static final int KEY_CMI = 4;
+	private static final int KEY_SEARCH = 5;
 	// String constants for type of lists used by UndoManager
 	private static final String TASKS_TIME = "TIME";
 	private static final String TASKS_PRIORITY = "PRIORITY";
 	private static final String TASKS_TICKED = "TICKED";
 	private static final String TASKS_CMI = "CMI";
+	
+
 	
 	// Instances of other components
 	private Parser parser;
@@ -80,17 +96,17 @@ public class Logic{
 		storage = new Storage();
 		logger = Logger.getLogger("Logic");
 
-		sortedTime = storage.restoreDataFromFile(SORTED_TIME);
-		sortedPriority = storage.restoreDataFromFile(SORTED_PRIORITY);
-		listTicked = storage.restoreDataFromFile(TICKED);
-		listCMI = storage.restoreDataFromFile(CMI);
+		sortedTime = storage.restoreDataFromFile(KEY_SORTED_TIME);
+		sortedPriority = storage.restoreDataFromFile(KEY_SORTED_PRIORITY);
+		listTicked = storage.restoreDataFromFile(KEY_TICKED);
+		listCMI = storage.restoreDataFromFile(KEY_CMI);
 		
 		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
 
 		searchResults = new Vector<Task>();
 
 		current = sortedTime;
-		listTracker = SORTED_TIME;
+		listTracker = KEY_SORTED_TIME;
 		currentListName = TASKS_TIME;
 
 		UI.setList(list());
@@ -104,12 +120,11 @@ public class Logic{
 
 		String feedback = "";
 		String command = "";
-		UserInput processed = parser.processInput(input);  // double check parser method
+		UserInput processed = parser.processInput(input);
 
 		logger.log(Level.INFO, "Performing an action");
 
 		try {
-
 			command = processed.getCommand();
 		}
 
@@ -119,11 +134,11 @@ public class Logic{
 		}
 
 		switch(command){
-		case "search": 
+		case COMMAND_SEARCH: 
 			feedback = this.search(processed.getDescription());
 			break;
 
-		case "delete": 
+		case COMMAND_DELETE: 
 			try {
 				feedback = this.delete(processed.getIndex());
 			}
@@ -132,11 +147,11 @@ public class Logic{
 			}
 			break;
 
-		case "clear":
+		case COMMAND_CLEAR:
 			feedback = this.clear(); 
 			break;
 
-		case "list":
+		case COMMAND_LIST:
 			try {
 				feedback = this.list(processed.getDescription());
 			}
@@ -147,7 +162,7 @@ public class Logic{
 			break;
 
 
-		case "edit":
+		case COMMAND_EDIT:
 			try {
 				feedback = this.edit(processed.getIndex(), processed.getAppending(), processed.getDescription());
 			}
@@ -159,7 +174,7 @@ public class Logic{
 			}
 			break;
 
-		case "add":
+		case COMMAND_ADD:
 			try {
 				feedback = this.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
@@ -169,7 +184,7 @@ public class Logic{
 			}
 			break;
 
-		case "cmi":
+		case COMMAND_CMI:
 			try {
 				feedback = this.cmi(processed.getIndex());
 			}
@@ -181,7 +196,7 @@ public class Logic{
 			}
 			break;
 
-		case "uncmi":
+		case COMMAND_UNCMI:
 			try {
 				feedback = this.uncmi(processed.getIndex());
 			}
@@ -193,9 +208,10 @@ public class Logic{
 			}
 			break;
 
-		case "undo":
+		case COMMAND_UNDO:
 			try {
 				undoMng.undo();
+				sortLists();
 				UI.setList(list());
 			}
 			catch (NullPointerException ex) {
@@ -203,9 +219,10 @@ public class Logic{
 			}
 			return "undoing action";
 
-		case "redo":
+		case COMMAND_REDO:
 			try {
 				undoMng.redo();
+				sortLists();
 				UI.setList(list());
 			}
 			catch (NullPointerException ex) {
@@ -213,7 +230,7 @@ public class Logic{
 			}
 			return "redoing action";
 			
-		case "tick":
+		case COMMAND_TICK:
 			try {
 				feedback = this.tick(processed.getIndex());
 			}
@@ -225,7 +242,7 @@ public class Logic{
 			}*/
 			break;
 
-		case "untick":
+		case COMMAND_UNTICK:
 			try {
 				feedback = this.untick(processed.getIndex());
 			}
@@ -238,7 +255,7 @@ public class Logic{
 			break;
 
 
-		case "help":
+		case COMMAND_HELP:
 			feedback = this.help(); 
 			break;
 
@@ -289,19 +306,19 @@ public class Logic{
 		}
 		Task deleted = current.remove(index-1);
 
-		if (listTracker == SORTED_TIME) {
+		if (listTracker == KEY_SORTED_TIME) {
 			sortedPriority.remove(deleted);
 			sortLists();
 
 		}
-		if (listTracker == SORTED_PRIORITY) {
+		if (listTracker == KEY_SORTED_PRIORITY) {
 			sortedTime.remove(deleted);
 			sortLists();
 		}
 
 		storeLists();
 		//TODO: add index of deleted to parameter
-		Event event = new Event("delete", deleted, currentListName, index - 1);
+		Event event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
 		undoMng.add(event);
 
 		UI.setList(list());
@@ -314,10 +331,10 @@ public class Logic{
 	 * 
 	 */
 	private void storeLists() {
-		storage.writeStorageArrayIntoFile(SORTED_TIME, sortedTime);
-		storage.writeStorageArrayIntoFile(SORTED_PRIORITY, sortedPriority);
-		storage.writeStorageArrayIntoFile(TICKED, listTicked);
-		storage.writeStorageArrayIntoFile(CMI, listCMI);
+		storage.writeStorageArrayIntoFile(KEY_SORTED_TIME, sortedTime);
+		storage.writeStorageArrayIntoFile(KEY_SORTED_PRIORITY, sortedPriority);
+		storage.writeStorageArrayIntoFile(KEY_TICKED, listTicked);
+		storage.writeStorageArrayIntoFile(KEY_CMI, listCMI);
 	}
 
 	/**
@@ -336,23 +353,23 @@ public class Logic{
 		searchResults = new Vector<Task>();
 
 		switch (listTracker) {
-		case SORTED_TIME:
+		case KEY_SORTED_TIME:
 			current = sortedTime; 
 			currentListName = TASKS_TIME; 
 			break;
-		case SORTED_PRIORITY:
+		case KEY_SORTED_PRIORITY:
 			current = sortedPriority; 
 			currentListName = TASKS_PRIORITY;
 			break;
-		case TICKED:
+		case KEY_TICKED:
 			current = listTicked;
 			currentListName = TASKS_TICKED;
 			break;
-		case CMI:
+		case KEY_CMI:
 			current = listCMI; 
 			currentListName = TASKS_CMI;
 			break;
-		case SEARCH:
+		case KEY_SEARCH:
 			current = sortedTime; 
 			currentListName = TASKS_TIME;
 			break;
@@ -398,25 +415,25 @@ public class Logic{
 		switch (listType) {
 		case "time":
 			current = sortedTime;
-			listTracker = SORTED_TIME;
+			listTracker = KEY_SORTED_TIME;
 			currentListName = TASKS_TIME;
 			UI.setList(list());
 			return "Listing by time...";
 		case "priority":
 			current = sortedPriority;
-			listTracker = SORTED_PRIORITY;
+			listTracker = KEY_SORTED_PRIORITY;
 			currentListName = TASKS_PRIORITY;
 			UI.setList(list());
 			return "Listing by priority...";
 		case "ticked":
 			current = listTicked;
-			listTracker = TICKED;
+			listTracker = KEY_TICKED;
 			currentListName = TASKS_TICKED;
 			UI.setList(list());
 			return "Listing ticked tasks...";
-		case "cmi":
+		case COMMAND_CMI:
 			current = listCMI;
-			listTracker = CMI;
+			listTracker = KEY_CMI;
 			currentListName = TASKS_CMI;
 			UI.setList(list());
 			return "Listing tasks that cannot be done...";
@@ -441,10 +458,10 @@ public class Logic{
 		Task newTask = oldTask;
 
 		// Edit the other Vector<Task>
-		if (listTracker == SORTED_TIME ) {
+		if (listTracker == KEY_SORTED_TIME ) {
 			sortedPriority.remove(oldTask);
 		}
-		else if (listTracker == SORTED_PRIORITY) {
+		else if (listTracker == KEY_SORTED_PRIORITY) {
 			sortedTime.remove(oldTask);
 		}
 
@@ -454,16 +471,16 @@ public class Logic{
 			newTask.setDescription(taskName);
 
 			current.add(index - 1, newTask);
-			if (listTracker == SORTED_TIME ) {
+			if (listTracker == KEY_SORTED_TIME ) {
 				sortedPriority.add(newTask);
 				sortLists();
 			}
-			else if (listTracker == SORTED_PRIORITY) {
+			else if (listTracker == KEY_SORTED_PRIORITY) {
 				sortedTime.add(newTask);
 				sortLists();
 			}
 
-			Event event = new Event("edit", oldTask, newTask);
+			Event event = new Event(COMMAND_EDIT, oldTask, newTask);
 			undoMng.add(event);
 
 			storeLists();
@@ -474,11 +491,11 @@ public class Logic{
 
 		newTask.setDescription(description);
 		current.add(index - 1, newTask);
-		if (listTracker == SORTED_TIME ) {
+		if (listTracker == KEY_SORTED_TIME ) {
 			sortedPriority.add(newTask);
 			sortLists();
 		}
-		else if (listTracker == SORTED_PRIORITY) {
+		else if (listTracker == KEY_SORTED_PRIORITY) {
 			sortedTime.add(newTask);
 			sortLists();
 		}
@@ -532,7 +549,7 @@ public class Logic{
 		sortedTime.add(newTask);
 		sortedPriority.add(newTask);
 
-		Event event = new Event("add", newTask);
+		Event event = new Event(COMMAND_ADD, newTask);
 		undoMng.add(event);
 
 		sortLists();
@@ -548,7 +565,7 @@ public class Logic{
 			throw new ArrayIndexOutOfBoundsException();
 		}
 
-		if (listTracker == TICKED) {
+		if (listTracker == KEY_TICKED) {
 			throw new IllegalArgumentException();
 		}
 
@@ -558,7 +575,7 @@ public class Logic{
 		sortedTime.remove(cmi);
 		sortedPriority.remove(cmi);
 
-		Event event = new Event("cmi", cmi, TASKS_TIME, TASKS_CMI);
+		Event event = new Event(COMMAND_CMI, cmi, TASKS_TIME, TASKS_CMI);
 		undoMng.add(event);
 
 		sortLists();
@@ -574,7 +591,7 @@ public class Logic{
 			throw new ArrayIndexOutOfBoundsException();
 		}
 
-		if (listTracker != CMI) {
+		if (listTracker != KEY_CMI) {
 			throw new IllegalArgumentException();
 		}
 
@@ -583,7 +600,7 @@ public class Logic{
 		sortedTime.add(uncmi);
 		sortedPriority.add(uncmi);
 
-		Event event = new Event("uncmi", uncmi, TASKS_TIME, TASKS_CMI);
+		Event event = new Event(COMMAND_UNCMI, uncmi, TASKS_TIME, TASKS_CMI);
 		undoMng.add(event);
 
 		sortLists();
@@ -618,7 +635,7 @@ public class Logic{
 			throw new ArrayIndexOutOfBoundsException();
 		}
 
-		if (listTracker == CMI) {
+		if (listTracker == KEY_CMI) {
 			System.out.println("Error in listTracker");
 			throw new IllegalArgumentException();
 		}
@@ -628,7 +645,7 @@ public class Logic{
 		sortedPriority.remove(ticked);
 		listTicked.add(0, ticked);
 
-		Event event = new Event("tick", ticked, TASKS_TIME, TASKS_TICKED);
+		Event event = new Event(COMMAND_TICK, ticked, TASKS_TIME, TASKS_TICKED);
 		undoMng.add(event);
 
 		sortLists();
@@ -644,7 +661,7 @@ public class Logic{
 			throw new ArrayIndexOutOfBoundsException();
 		}
 
-		if (listTracker != TICKED) {
+		if (listTracker != KEY_TICKED) {
 			throw new IllegalArgumentException();
 		}
 
@@ -652,7 +669,7 @@ public class Logic{
 		sortedTime.add(unticked);
 		sortedPriority.add(unticked);
 
-		Event event = new Event("unticked", unticked, TASKS_TIME, TASKS_TICKED);
+		Event event = new Event(COMMAND_UNTICK, unticked, TASKS_TIME, TASKS_TICKED);
 		undoMng.add(event);
 
 		sortLists();
@@ -666,4 +683,3 @@ public class Logic{
 //TODO: 
 //-Do exception handling for tick and cmi, cannot do certain commands
 //-refactor the code and make it neat
-//-do singleton
