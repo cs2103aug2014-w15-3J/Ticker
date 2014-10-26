@@ -31,6 +31,7 @@ import java.util.logging.Logger;
  */
 
 public class Logic{
+	// CONSTANTS
 	// String constants for command types
 	private static final String COMMAND_HELP = "help";
 	private static final String COMMAND_UNTICK = "untick";
@@ -45,7 +46,6 @@ public class Logic{
 	private static final String COMMAND_CLEAR = "clear";
 	private static final String COMMAND_DELETE = "delete";
 	private static final String COMMAND_SEARCH = "search";
-	// CONSTANTS
 	// Integer key constants for lists used by listTracker
 	private static final int KEY_SORTED_TIME = 1;
 	private static final int KEY_SORTED_PRIORITY = 2;
