@@ -26,10 +26,10 @@ public class testParser {
 		Time time1 = new Time(1,0);
 		Time time2 = new Time(2,0);
 		UserInput ui1 = par.processInput("add \"blah blah blah\" 1-2 3/4-5/6");
-		assertEquals(ui1.startDate,date1);
-		assertEquals(ui1.endDate,date2);
-		assertEquals(ui1.startTime,time1);
-		assertEquals(ui1.endTime,time2);
+		assertEquals(ui1.getStartDate(),date1);
+		assertEquals(ui1.getEndDate(),date2);
+		assertEquals(ui1.getStartTime(),time1);
+		assertEquals(ui1.getEndTime(),time2);
 		
 		//check whether repeating task is correctly parsed 
 		UserInput ui2 = par.processInput("add \"blah blah blah\" 1-2 3/4-5/6 -r -impt");
