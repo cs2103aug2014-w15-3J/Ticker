@@ -117,11 +117,11 @@ public class Parser {
 		}
 		
 		if (words[index].equals("-st")){
-			input.startTime=time;
+			input.setStartTime(time);
 		}
 		
 		else {
-			input.endTime=time;
+			input.setEndTime(time);
 		}
 		
 		return true;
@@ -137,11 +137,11 @@ public class Parser {
 		}
 		
 		if (words[index].equals("-sd")){
-			input.startDate=date;
+			input.setStartDate(date);
 		}
 		
 		else {
-			input.endDate=date;
+			input.setEndDate(date);
 		}
 		
 		return true;
@@ -151,7 +151,7 @@ public class Parser {
 		logger.log(Level.INFO,"callAdd");
 		UserInput input = new UserInput(CMD.ADD,description);
 		
-		input.priority='B';
+		input.setPriority('B');
 		
 		for (int i=0;i<words.length;i++){
 			
@@ -168,42 +168,27 @@ public class Parser {
 			}
 			
 			if (words[i].toLowerCase().equals("-impt")||words[i].toLowerCase().equals("-important")){
-				input.priority='A';
+				input.setPriority('A');
 			}
 			
 			if (words[i].toLowerCase().equals("-trivial")){
-				input.priority='C';
+				input.setPriority('C');
 			}
 
 			if (words[i].equals("-r")){
-				input.isRepeating = true;
+				input.setRepeating(true);
 			}
 		}
 		
 		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
-		
-		if (result.getStartDate()!=null){
-			input.startDate=result.getStartDate();
-		}
-		
-		if (result.getEndDate()!=null){
-			input.endDate=result.getEndDate();
-		}
-		
-		if (result.getStartTime()!=null){
-			input.startTime=result.getStartTime();
-		}
-		
-		if (result.getEndTime()!=null){
-			input.endTime=result.getEndTime();
-		}
+		mergeTimeResult(result,input);
 		
 		input.validifyTime();
 
-		if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
+		if (input.getStartDate()==null&&input.getEndDate()!=null&&input.getStartTime()!=null&&input.getEndTime()==null){
 			return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
 		}
-		else if (input.startDate!=null&&input.endDate==null&&input.startTime==null&&input.endTime!=null){
+		else if (input.getStartDate()!=null&&input.getEndDate()==null&&input.getStartTime()==null&&input.getEndTime()!=null){
 			return new UserInput(CMD.ERROR,INVALID_ET_AND_SD);
 		}
 		
@@ -235,12 +220,12 @@ public class Parser {
 	
 	private UserInput callDelete(String[] words){
 		UserInput input = new UserInput();
-		input.command="delete";
+		input.setCommand("delete");
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
 		try{
-			input.index=Integer.parseInt(words[1]);
+			input.setIndex(Integer.parseInt(words[1]));
 		} catch(NumberFormatException nfe) { 
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
@@ -249,53 +234,53 @@ public class Parser {
 	
 	private UserInput callHelp(String[] words){
 		UserInput input = new UserInput();
-		input.command=CMD.HELP.toString();
+		input.setCommand(CMD.HELP.toString());
 		return input;
 	}
 	
 	private UserInput callClear(String[] words){
 		UserInput input = new UserInput();
-		input.command=CMD.CLEAR.toString();
+		input.setCommand(CMD.CLEAR.toString());
 		return input;
 	}
 
 	private UserInput callTick(String[] words){
 		UserInput input = new UserInput();
-		input.command=CMD.TICK.toString();
+		input.setCommand(CMD.TICK.toString());
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
-		input.index=Integer.parseInt(words[1]);
+		input.setIndex(Integer.parseInt(words[1]));
 		return input;
 	}
 
 	private UserInput callCMI(String[] words){
 		UserInput input = new UserInput();
-		input.command=CMD.CMI.toString();
+		input.setCommand(CMD.CMI.toString());
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
-		input.index=Integer.parseInt(words[1]);
+		input.setIndex(Integer.parseInt(words[1]));
 		return input;
 	}
 
 	private UserInput callUntick(String[] words){
 		UserInput input = new UserInput();
-		input.command=CMD.UNTICK.toString();
+		input.setCommand(CMD.UNTICK.toString());
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
-		input.index=Integer.parseInt(words[1]);
+		input.setIndex(Integer.parseInt(words[1]));
 		return input;
 	}
 
 	private UserInput callUnCMI(String[] words){
 		UserInput input = new UserInput();
-		input.command=CMD.UNCMI.toString();
+		input.setCommand(CMD.UNCMI.toString());
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
-		input.index=Integer.parseInt(words[1]);
+		input.setIndex(Integer.parseInt(words[1]));
 		return input;
 	}
 	
@@ -307,39 +292,24 @@ public class Parser {
 		int index = Integer.parseInt(words[1]); 
 		
 		UserInput input = new UserInput(CMD.EDIT,description);
-		input.index=index;
+		input.setIndex(index);
 		
 		for (int i=0;i<words.length;i++){
 			if (words[i].equals("-t")){
-				input.command = "editt";
+				input.setCommand(input.getCommand() + "t");
 				break;
 			}
 		}
 		
 		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
-		
-		if (result.getStartDate()!=null){
-			input.startDate=result.getStartDate();
-		}
-		
-		if (result.getEndDate()!=null){
-			input.endDate=result.getEndDate();
-		}
-		
-		if (result.getStartTime()!=null){
-			input.startTime=result.getStartTime();
-		}
-		
-		if (result.getEndTime()!=null){
-			input.endTime=result.getEndTime();
-		}
+		mergeTimeResult(result,input);
 		
 		input.validifyTime();
 
-		if (input.startDate==null&&input.endDate!=null&&input.startTime!=null&&input.endTime==null){
+		if (input.getStartDate()==null&&input.getEndDate()!=null&&input.getStartTime()!=null&&input.getEndTime()==null){
 			return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
 		}
-		else if (input.startDate!=null&&input.endDate==null&&input.startTime==null&&input.endTime!=null){
+		else if (input.getStartDate()!=null&&input.getEndDate()==null&&input.getStartTime()==null&&input.getEndTime()!=null){
 			return new UserInput(CMD.ERROR,INVALID_ET_AND_SD);
 		}
 		
@@ -349,7 +319,15 @@ public class Parser {
 	private UserInput callSearch(String command,String str){
 		
 		UserInput input = new UserInput(CMD.SEARCH,str);
+		String[] words = command.split(" +");
 		
+		for (int i=0;i<words.length;i++){
+			if (words[i].equalsIgnoreCase("-t")){
+				input.setCommand(input.getCommand() + "t");
+				getSearchTimePeriod(input,command);
+				break;
+			}	
+		}
 		
 		return input;
 	}
@@ -357,23 +335,62 @@ public class Parser {
 	private UserInput callList (String[] words){
 		
 		UserInput input = new UserInput();
-		input.command = CMD.LIST.toString();
+		input.setCommand(CMD.LIST.toString());
 		if (words.length==2){
 			if (words[1].equals("priority")||words[1].equals("p"))
-				input.description="priority";
+				input.setDescription("priority");
 			if (words[1].equals("time")||words[1].equals("ti"))
-				input.description="time";
+				input.setDescription("time");
 			if (words[1].equals("c")||words[1].equals("cmi"))
-				input.description="cmi";
+				input.setDescription("cmi");
 			if (words[1].equals("ticked")||words[1].equals("tick"))
-				input.description="ticked";
+				input.setDescription("ticked");
 		}
-		if (input.description==null)
+		if (input.getDescription()==null)
 			return new UserInput(CMD.ERROR,"invalid input");
 		return input;
 		
 	}
 	
+	private void getSearchTimePeriod(UserInput input, String description){
+		StartEndTimeDate result = checkDashTimeDate(description);
+		mergeTimeResult(result,input);
+	
+		if(input.getStartTime()==null){
+			input.setStartTime(new Time(0,0));
+		}
+		if(input.getEndTime()==null){
+			input.setEndTime(new Time(23,59));
+		}
+		if(input.getStartDate()==null&&input.getEndDate()==null){
+			input.setStartDate(Date.getCurrentDate());
+			input.setEndDate(Date.getCurrentDate());
+		}
+		else if (input.getStartDate()==null){
+			input.setStartDate(input.getEndDate());
+		}
+		else if (input.getEndDate()==null){
+			input.setEndDate(input.getStartDate());
+		}
+	}
+	
+	private void mergeTimeResult(StartEndTimeDate result,UserInput ui){
+		if (result.getStartDate()!=null){
+			ui.setStartDate(result.getStartDate());
+		}
+		
+		if (result.getEndDate()!=null){
+			ui.setEndDate(result.getEndDate());
+		}
+		
+		if (result.getStartTime()!=null){
+			ui.setStartTime(result.getStartTime());
+		}
+		
+		if (result.getEndTime()!=null){
+			ui.setEndTime(result.getEndTime());
+		}
+	}
 	
 	private static String removeBlank(String str){
 		str=str.trim();
@@ -426,7 +443,6 @@ public class Parser {
 				minute = Integer.parseInt(str.substring(firstIndex+1)); 
 			}
 		}
-		
 		
 		if (hour>=0&&hour<24&&minute<60&&minute>=0){
 			logger.log(Level.INFO,"valid time constructed, hour = " + hour +" minute = " + minute);
