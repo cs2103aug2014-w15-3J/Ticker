@@ -8,6 +8,7 @@ public class Task {
 	protected Time endTime;
 	protected char priority;
 	protected boolean isRepeating;
+	protected boolean isExpired;
 
 	public Task(String description, Date startDate, Time startTime, Date endDate, Time endTime, 
 			char priority, boolean isRepeating) {
@@ -85,6 +86,10 @@ public class Task {
 	
 	public void setRepeat(boolean input) {
 		isRepeating = input;
+	}
+	
+	public void isExpired() {
+		isExpired = false;
 	}
 
 	public boolean equals(Object obj) {
