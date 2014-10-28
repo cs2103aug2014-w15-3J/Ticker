@@ -11,7 +11,6 @@ import ticker.ui.TickerUI;
 import ticker.common.Task;
 import ticker.common.sortByTime;
 import ticker.common.sortByPriority;
-
 // Package Java util
 import java.util.Collections;
 import java.util.Vector;
@@ -67,7 +66,7 @@ public class Logic{
 	private TickCMIManager tickCMIMng;
 	private static Logger logger;
 	// Tracker to track which list is being displayed
-	private static int listTracker;
+	private static Integer listTracker;
 	private static String currentListName;
 	// Pointer to the Vector currently in display
 	private static Vector<Task> current;
@@ -163,6 +162,10 @@ public class Logic{
 
 		case COMMAND_EDIT:
 			try {
+				if (listTracker == KEY_CMI || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
+					return "Cannot perform edit in this list";
+				}
+				
 				feedback = cruMng.edit(processed.getIndex(), processed.getAppending(),
 						processed.getDescription(), listTracker, current);
 				sortLists();
@@ -181,6 +184,12 @@ public class Logic{
 			try {
 				feedback = cruMng.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
+				
+				if (listTracker == KEY_CMI || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
+					listTracker = KEY_SORTED_TIME;
+					current = sortedTime;
+					currentListName = TASKS_TIME;
+				}
 				sortLists();
 				storeLists();
 				UI.setList(list());
@@ -338,35 +347,11 @@ public class Logic{
 	}
 
 	private String clear() {
-		sortedTime = new Vector<Task>();
-		sortedPriority = new Vector<Task>();
-		listTicked = new Vector<Task>();
-		listCMI = new Vector<Task>();
-		searchResults = new Vector<Task>();
-
-		switch (listTracker) {
-		case KEY_SORTED_TIME:
-			current = sortedTime; 
-			currentListName = TASKS_TIME; 
-			break;
-		case KEY_SORTED_PRIORITY:
-			current = sortedPriority; 
-			currentListName = TASKS_PRIORITY;
-			break;
-		case KEY_TICKED:
-			current = listTicked;
-			currentListName = TASKS_TICKED;
-			break;
-		case KEY_CMI:
-			current = listCMI; 
-			currentListName = TASKS_CMI;
-			break;
-		case KEY_SEARCH:
-			current = sortedTime; 
-			currentListName = TASKS_TIME;
-			break;
-		default:
-		}
+		sortedTime.removeAllElements();
+		sortedPriority.removeAllElements();
+		listTicked.removeAllElements();
+		listCMI.removeAllElements();
+		searchResults.removeAllElements();
 
 		UI.setList(list());
 
