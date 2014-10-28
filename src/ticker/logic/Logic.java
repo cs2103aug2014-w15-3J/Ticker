@@ -105,7 +105,7 @@ public class Logic{
 		currentListName = TASKS_TIME;
 
 		checkForTaskExpiry();
-		UI.setList(list());
+		UI.setList(current);
 
 	}
 
@@ -141,7 +141,7 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(list());
+				UI.setList(current);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been deleted.";
@@ -175,7 +175,7 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(list());
+				UI.setList(current);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been edited.";
@@ -199,7 +199,7 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(list());
+				UI.setList(current);
 			}
 			catch (IllegalArgumentException ex) {
 				return "Error in input. Either description is missing or date is missing for repeated tasks.";
@@ -213,7 +213,7 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(list());
+				UI.setList(current);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been marked as cannot do.";
@@ -230,7 +230,7 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(list());
+				UI.setList(current);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been unmarked as cannot do.";
@@ -246,7 +246,7 @@ public class Logic{
 
 				checkForTaskExpiry();
 				sortLists();
-				UI.setList(list());
+				UI.setList(current);
 			}
 			catch (NullPointerException ex) {
 				System.out.println("Error with UndoManager");
@@ -259,7 +259,7 @@ public class Logic{
 
 				checkForTaskExpiry();
 				sortLists();
-				UI.setList(list());
+				UI.setList(current);
 			}
 			catch (NullPointerException ex) {
 				System.out.println("Error with UndoManager");
@@ -273,7 +273,7 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(list());
+				UI.setList(current);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been ticked.";
@@ -290,7 +290,7 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(list());
+				UI.setList(current);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been unticked.";
@@ -344,7 +344,7 @@ public class Logic{
 			return "No search results";
 		}
 
-		UI.setList(listSearch());
+		UI.setList(current);
 
 		return "Displaying search results";
 
@@ -396,12 +396,12 @@ public class Logic{
 		searchResults.removeAllElements();
 
 		storeLists();
-		UI.setList(list());
+		UI.setList(current);
 
 		return "Spick and span!";
 	}
 
-	private String list() {
+	/*private String list() {
 		if (current == null) {
 			return "Nothing to display.\n";
 		}
@@ -412,9 +412,9 @@ public class Logic{
 			list += ++i + ". " + task.toString() + "\n";
 		}
 		return list;
-	}
+	}*/
 
-	private String listSearch() {
+	/*private String listSearch() {
 		if (current == null) {
 			return "Nothing to display.\n";
 		}
@@ -426,7 +426,7 @@ public class Logic{
 			list += task.toString() + "\n";
 		}
 		return list;
-	}
+	}*/
 
 	private String list(String listType) throws IllegalArgumentException {
 		switch (listType) {
@@ -434,25 +434,25 @@ public class Logic{
 			current = sortedTime;
 			listTracker = KEY_SORTED_TIME;
 			currentListName = TASKS_TIME;
-			UI.setList(list());
+			UI.setList(current);
 			return "Listing by time...";
 		case "priority":
 			current = sortedPriority;
 			listTracker = KEY_SORTED_PRIORITY;
 			currentListName = TASKS_PRIORITY;
-			UI.setList(list());
+			UI.setList(current);
 			return "Listing by priority...";
 		case "ticked":
 			current = listTicked;
 			listTracker = KEY_TICKED;
 			currentListName = TASKS_TICKED;
-			UI.setList(list());
+			UI.setList(current);
 			return "Listing ticked tasks...";
 		case COMMAND_CMI:
 			current = listCMI;
 			listTracker = KEY_CMI;
 			currentListName = TASKS_CMI;
-			UI.setList(list());
+			UI.setList(current);
 			return "Listing tasks that cannot be done...";
 		default:
 			throw new IllegalArgumentException();
