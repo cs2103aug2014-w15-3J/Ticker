@@ -56,7 +56,7 @@ public class Logic{
 	private static final String TASKS_PRIORITY = "PRIORITY";
 	private static final String TASKS_TICKED = "TICKED";
 	private static final String TASKS_CMI = "CMI";
-	
+
 	// Instances of other components
 	private Parser parser;
 	private Storage storage;
@@ -93,7 +93,7 @@ public class Logic{
 		sortedPriority = storage.restoreDataFromFile(KEY_SORTED_PRIORITY);
 		listTicked = storage.restoreDataFromFile(KEY_TICKED);
 		listCMI = storage.restoreDataFromFile(KEY_CMI);
-		
+
 		cruMng = new CRUManager(sortedTime, sortedPriority, listTicked, listCMI);
 		tickCMIMng = new TickCMIManager(sortedTime, sortedPriority, listTicked, listCMI);
 		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
@@ -104,11 +104,12 @@ public class Logic{
 		listTracker = KEY_SORTED_TIME;
 		currentListName = TASKS_TIME;
 
+		checkForTaskExpiry();
 		UI.setList(list());
 
 	}
 
-
+	
 	public String getLogic(String input) {
 		// Crash the program if Logic is contructed without TickerUI, missing dependency
 		assert(UI != null);
@@ -136,6 +137,8 @@ public class Logic{
 		case COMMAND_DELETE: 
 			try {
 				feedback = cruMng.delete(processed.getIndex(), listTracker, current, currentListName);
+
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(list());
@@ -151,6 +154,7 @@ public class Logic{
 
 		case COMMAND_LIST:
 			try {
+				checkForTaskExpiry();
 				feedback = this.list(processed.getDescription());
 			}
 			catch (IllegalArgumentException ex) {
@@ -165,9 +169,10 @@ public class Logic{
 				if (listTracker == KEY_CMI || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
 					return "Cannot perform edit in this list";
 				}
-				
+
 				feedback = cruMng.edit(processed.getIndex(), processed.getAppending(),
 						processed.getDescription(), listTracker, current);
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(list());
@@ -184,12 +189,14 @@ public class Logic{
 			try {
 				feedback = cruMng.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
-				
+
 				if (listTracker == KEY_CMI || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
 					listTracker = KEY_SORTED_TIME;
 					current = sortedTime;
 					currentListName = TASKS_TIME;
 				}
+
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(list());
@@ -202,6 +209,8 @@ public class Logic{
 		case COMMAND_CMI:
 			try {
 				feedback = tickCMIMng.cmi(processed.getIndex(), listTracker, current, currentListName);
+
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(list());
@@ -217,6 +226,8 @@ public class Logic{
 		case COMMAND_UNCMI:
 			try {
 				feedback = tickCMIMng.uncmi(processed.getIndex(), listTracker, current);
+
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(list());
@@ -232,6 +243,8 @@ public class Logic{
 		case COMMAND_UNDO:
 			try {
 				undoMng.undo();
+
+				checkForTaskExpiry();
 				sortLists();
 				UI.setList(list());
 			}
@@ -243,6 +256,8 @@ public class Logic{
 		case COMMAND_REDO:
 			try {
 				undoMng.redo();
+
+				checkForTaskExpiry();
 				sortLists();
 				UI.setList(list());
 			}
@@ -250,10 +265,12 @@ public class Logic{
 				System.out.println("Error with UndoManager");
 			}
 			return "redoing action";
-			
+
 		case COMMAND_TICK:
 			try {
 				feedback = tickCMIMng.tick(processed.getIndex(), listTracker, current);
+
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(list());
@@ -269,6 +286,8 @@ public class Logic{
 		case COMMAND_UNTICK:
 			try {
 				feedback = tickCMIMng.untick(processed.getIndex(), listTracker, current);
+
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(list());
@@ -298,26 +317,29 @@ public class Logic{
 
 	private String search(String key) {
 		SearchManager searchMng = new SearchManager();
+
+		checkForTaskExpiry();
+
 		Vector<Task> searchResultsTime = searchMng.search(sortedTime, key);
 		Vector<Task> searchResultsTicked = searchMng.search(listTicked, key);
 		Vector<Task> searchResultsCMI = searchMng.search(listCMI, key);
-		
+
 		for (Task searchTime: searchResultsTime) {
 			searchResults.add(searchTime);
 		}
-		
+
 		searchResults.add(new Task("\\***TICKED***\\", null, null, null, null, 'B', false));
 
 		for (Task searchTicked: searchResultsTicked) {
 			searchResults.add(searchTicked);
 		}
-		
+
 		searchResults.add(new Task("\\***CMI***\\", null, null, null, null, 'B', false));
-		
+
 		for (Task searchCMI: searchResultsCMI) {
 			searchResults.add(searchCMI);
 		}
-		
+
 		if (searchResults.isEmpty()) {
 			return "No search results";
 		}
@@ -328,6 +350,26 @@ public class Logic{
 
 	}
 	
+	/**
+	 * 
+	 */
+	private void checkForTaskExpiry() {
+		for (Task timeTask: sortedTime) {
+			timeTask.isExpired();
+		}
+		for (Task priorityTask: sortedTime) {
+			priorityTask.isExpired();
+		}
+		for (Task cmiTask: listCMI) {
+			cmiTask.isExpired();
+		}
+		for (Task tickedTask: listTicked) {
+			tickedTask.isExpired();
+		}
+	}
+
+
+
 	/**
 	 * 
 	 */
@@ -353,9 +395,8 @@ public class Logic{
 		listCMI.removeAllElements();
 		searchResults.removeAllElements();
 
-		UI.setList(list());
-
 		storeLists();
+		UI.setList(list());
 
 		return "Spick and span!";
 	}
@@ -369,11 +410,10 @@ public class Logic{
 		for (Task task: current) {
 
 			list += ++i + ". " + task.toString() + "\n";
-
 		}
 		return list;
 	}
-	
+
 	private String listSearch() {
 		if (current == null) {
 			return "Nothing to display.\n";
@@ -417,11 +457,9 @@ public class Logic{
 		default:
 			throw new IllegalArgumentException();
 		}
-
 	}
 }
 
 //TODO: 
 //-Do exception handling for tick and cmi, cannot do certain commands
 //-refactor the code and make it neat
-//-weird stuff with edit
