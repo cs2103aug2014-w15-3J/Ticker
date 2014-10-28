@@ -129,7 +129,6 @@ public class TickerUI extends Application {
 		sp.setContent(chart);
 		sp.setOpacity(0.8);
 		
-		//displayTasks();
 		
 		root.getChildren().add(sp); 
 		
@@ -242,6 +241,7 @@ public class TickerUI extends Application {
 					feedback.setText(logic.getLogic(cmd));        //this line is correct and will remain unchanged
 					//find another way!!!!
 					//result.setText(list);
+					chart.getChildren().clear();
 					displayTasks();
 				}
 

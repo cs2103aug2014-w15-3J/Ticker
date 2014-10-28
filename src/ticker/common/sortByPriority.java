@@ -51,7 +51,7 @@ public class sortByPriority implements Comparator <Task> {
 			}
 
 			// Tertiary comparison between TimedTasks using description
-			return task1.description.compareTo(task2.description);
+			return task1.description.compareToIgnoreCase(task2.description);
 
 		}
 
@@ -81,7 +81,7 @@ public class sortByPriority implements Comparator <Task> {
 			}
 
 			// Tertiary comparison using description
-			return task1.description.compareTo(task2.description);				
+			return task1.description.compareToIgnoreCase(task2.description);				
 
 		}
 
@@ -110,7 +110,7 @@ public class sortByPriority implements Comparator <Task> {
 			}
 
 			// Tertiary comparison using description
-			return task1.description.compareTo(task2.description);				
+			return task1.description.compareToIgnoreCase(task2.description);				
 
 		}
 
@@ -148,7 +148,7 @@ public class sortByPriority implements Comparator <Task> {
 			}
 
 			// Tertiary comparison between DeadlineTasks using description
-			return task1.description.compareTo(task2.description);	
+			return task1.description.compareToIgnoreCase(task2.description);	
 		}
 
 		// Comparing DeadlineTasks with FloatingTasks
@@ -161,6 +161,6 @@ public class sortByPriority implements Comparator <Task> {
 		}
 
 		// Comparing between FloatingTasks
-		return task1.description.compareTo(task2.description);
+		return task1.description.compareToIgnoreCase(task2.description);
 	}
 }

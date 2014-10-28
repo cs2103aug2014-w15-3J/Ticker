@@ -24,7 +24,7 @@ public class CRUManager {
 	private UndoManager undoMng;
 	private Vector<Task> storedTasksByPriority, storedTasksByTime;
 	
-	CRUManager(Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
+	CRUManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTime = storedTasksByTime;
 		
@@ -50,8 +50,8 @@ public class CRUManager {
 
 
 	}
-	String add(String description, boolean isRepeating, Date startDate, Date endDate,
-			Time startTime, Time endTime, char priority) throws IllegalArgumentException {
+	String add(String description, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
+			char priority) throws IllegalArgumentException {
 
 		if (description == null || description.equals("")) {
 			throw new IllegalArgumentException();
@@ -116,9 +116,11 @@ public class CRUManager {
 		// Edit the other Vector<Task>
 		if (listTracker == KEY_SORTED_TIME ) {
 			storedTasksByPriority.remove(oldTask);
+			System.out.print("here1");
 		}
 		else if (listTracker == KEY_SORTED_PRIORITY) {
 			storedTasksByTime.remove(oldTask);
+			System.out.print("here2");
 		}
 
 		if (isAppending) {
