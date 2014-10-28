@@ -2,6 +2,10 @@
 package ticker.parser;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Calendar;
+import java.util.List;
+
+import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
 
 import ticker.common.*;
 
@@ -14,8 +18,10 @@ public class Parser {
 	public static final String INVALID_PRIORITY = "Priority can only be A B or C";
 	
 	private static Logger logger = Logger.getLogger("parser");
+	private PrettyTimeParser ptp;
 	
 	public Parser(){
+		ptp = new PrettyTimeParser();
 	}
 
 	public UserInput processInput(String command){
@@ -180,6 +186,7 @@ public class Parser {
 			}
 		}
 		
+		nlp(description,input);
 		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
 		
@@ -390,6 +397,64 @@ public class Parser {
 		if (result.getEndTime()!=null){
 			ui.setEndTime(result.getEndTime());
 		}
+	}
+	
+	private void nlp(String description,UserInput input){
+		List<java.util.Date> dates = this.ptp.parse(description);
+		if (dates.size()==2){
+			input.setStartDate(convertDate(dates.get(0)));
+			input.setStartTime(convertTime(dates.get(0)));
+			input.setEndDate(convertDate(dates.get(1)));
+			input.setEndTime(convertTime(dates.get(1)));
+		}
+		else if (dates.size()==1){
+			if (isDeadLine(description)){
+				input.setEndDate(convertDate(dates.get(0)));
+				input.setEndTime(convertTime(dates.get(0)));
+			}
+			
+			else {
+				input.setStartDate(convertDate(dates.get(0)));
+				input.setStartTime(convertTime(dates.get(0)));
+			}
+		}
+	}
+	
+	private boolean isDeadLine(String description){
+		description = description.toLowerCase();
+		if (description.indexOf("deadline")!=-1){
+			return true;
+		}
+		
+		int index=description.indexOf("by");
+		if (index!=-1&&this.ptp.parse(description.substring(index)).size()==1){
+			return true;
+		}
+
+		index=description.indexOf("before");
+		if (index!=-1&&this.ptp.parse(description.substring(index)).size()==1){
+			return true;
+		}
+		
+		index=description.indexOf("in");
+		if (index!=-1&&this.ptp.parse(description.substring(index)).size()==1){
+			if (description.indexOf("finish")!=-1||description.indexOf("do")!=-1||description.indexOf("complete")!=-1)
+				return true;
+		}
+		
+		return false;
+	}
+	
+	private Time convertTime(java.util.Date date){
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		return new Time(cal.get(Calendar.HOUR_OF_DAY),cal.get(Calendar.MINUTE));
+	}
+	
+	private Date convertDate(java.util.Date date){
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		return new Date(cal.get(Calendar.YEAR),cal.get(Calendar.MONTH)+1,cal.get(Calendar.DATE));
 	}
 	
 	private static String removeBlank(String str){
