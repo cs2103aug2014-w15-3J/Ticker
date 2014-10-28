@@ -1,7 +1,6 @@
 package ticker.common;
 
 public class RepeatingTask extends Task {
-	// TODO: how is date implemented in Task
 	final int id = 3; //used in storage
 	private static final int SUNDAY = 0;
 	private static final int MONDAY = 1;
@@ -25,6 +24,15 @@ public class RepeatingTask extends Task {
 	
 	public int getDay() { // 0: Sunday, 1: Monday, ... 6: Saturday
 		return day;
+	}
+	
+	public void isExpired() {
+		if (this.endDate.compareTo(Date.getCurrentDate()) == 1 && this.endTime.compareTo(Time.getCurrentTime()) == 1) {
+			this.isExpired = true;
+			return;
+		}
+		this.isExpired = false;
+		return;
 	}
 	
 	@Override
