@@ -129,6 +129,7 @@ public class TickerUI extends Application {
 		sp.setContent(chart);
 		sp.setOpacity(0.8);
 		
+		//displayTasks();
 		
 		root.getChildren().add(sp); 
 		
@@ -310,7 +311,7 @@ public class TickerUI extends Application {
 	public void displayTasks() {
 		int prefHeight = 30;
 		int maxHeight = 100;
-		int widthIndex = 15;
+		int widthIndex = 20;
 		int widthDes = 250;
 		int widthTime = 140;
 		for(int i = 0; i < tasksToBeShown.size(); i++ ) {
@@ -335,28 +336,37 @@ public class TickerUI extends Application {
 			Time st = tasksToBeShown.get(i).getStartTime();
 			Time et = tasksToBeShown.get(i).getEndTime();
 			
+String SD, ED, ST, ET;
+			
+			SD = (sd==null)? "" : sd.toString();
+			ED = (ed==null)? "" : ed.toString();
+			ST = (st==null)? "" : st.toString();
+			ET = (et==null)? "" : et.toString();
+			
+		
+			
 			
 			if(sd==null && st==null && ed==null && et==null) {
 				hb.getChildren().addAll(index, description);
 			}
 			else if (ed==null && et==null) {
-				Label start = new Label("Start: " + st.toString() + " " + sd.toString());
+				Label start = new Label("Start: " + ST + " " + SD);
 				start.setMaxSize(widthTime, prefHeight);
 				start.setAlignment(Pos.TOP_LEFT);
 				hb.getChildren().addAll(index, description, start);
 			}
 			else if (sd==null && st==null) {
-			    Label end = new Label("End: " + et.toString() + " " + ed.toString());
+			    Label end = new Label("End: " + ET + " " + ED);
 			    end.setMaxSize(widthTime, prefHeight);
 				end.setAlignment(Pos.TOP_LEFT);
 				hb.getChildren().addAll(index, description, end);
 			}
 			else {
-				Label start = new Label("Start: " + st.toString() + " " + sd.toString());
+				Label start = new Label("Start: " + ST + " " + SD);
 				//start.setMaxSize(widthTime, prefHeight);
 				start.setAlignment(Pos.TOP_LEFT);
 				
-				Label end = new Label("End: " + et.toString() + " " + ed.toString());
+				Label end = new Label("End: " + ET + " " + ED);
 				//end.setMaxSize(widthTime, prefHeight);
 				end.setAlignment(Pos.TOP_LEFT);
 				
@@ -365,9 +375,9 @@ public class TickerUI extends Application {
 				time.getChildren().add(end);
 				time.setPrefSize(widthTime, prefHeight);
 				hb.getChildren().addAll(index, description, time);
-
 			}
 			
+	
 			chart.add(hb, 0, i);
 		}
 		
