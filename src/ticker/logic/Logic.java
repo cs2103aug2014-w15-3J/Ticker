@@ -51,11 +51,12 @@ public class Logic{
 	private static final int KEY_TICKED = 3;
 	private static final int KEY_CMI = 4;
 	private static final int KEY_SEARCH = 5;
-	// String constants for type of lists used by UndoManager
+	// String constants for type of lists used
 	private static final String TASKS_TIME = "TIME";
 	private static final String TASKS_PRIORITY = "PRIORITY";
 	private static final String TASKS_TICKED = "TICKED";
 	private static final String TASKS_CMI = "CMI";
+	private static final String TASKS_SEARCH = "SEARCH";
 
 	// Instances of other components
 	private Parser parser;
@@ -317,6 +318,8 @@ public class Logic{
 
 	private String search(String key) {
 		SearchManager searchMng = new SearchManager();
+		
+		searchResults.removeAllElements();
 
 		//checkForTaskExpiry();
 
@@ -343,6 +346,11 @@ public class Logic{
 		if (searchResults.isEmpty()) {
 			return "No search results";
 		}
+		
+		listTracker = KEY_SEARCH;
+		current = searchResults;
+		currentListName = TASKS_SEARCH;
+	
 
 		UI.setList(current);
 
