@@ -52,7 +52,7 @@ public class TickerUI extends Application {
 	private Vector <Task> tasksToBeShown = new Vector<Task>();
 	GridPane chart = new GridPane();
 	private String help;
-	private boolean displayHelp=false;
+	private boolean displayHelp = false;
 
 	double initialX, initialY;
 
@@ -281,7 +281,21 @@ public class TickerUI extends Application {
 				stage.setIconified(true);
 			}
 		});
-
+		
+		//TODO set the content of help and design better looking help page
+		//implement the help page
+		TextArea help = new TextArea();
+		String listCommands = help();
+		help.setWrapText(true);
+		help.setText(listCommands);
+		help.setVisible(false);
+		help.setLayoutX(45);
+		help.setLayoutY(75);
+		help.setPrefSize(400, 500);
+		
+		root.getChildren().add(help);
+		
+		
 		Scene scene = new Scene(root);
 
 		stage.setScene(scene);
@@ -329,14 +343,38 @@ public class TickerUI extends Application {
 
 				assert !cmd.equals("");
 				command.clear();
+				
+				feedback.setText(logic.getLogic(cmd));
 
 				if(displayHelp == true) {
-					//maybe use another way to display the help message?
-					//result.setText(help);
-					displayHelp = false;
+				
+					help.setVisible(true);
+					FadeTransition ft = new FadeTransition(Duration.millis(250), help);
+					ft.setFromValue(0);
+					ft.setToValue(1.0);
+					ft.play();
+					
+					command.setOnKeyPressed(new EventHandler<KeyEvent>() 
+							{
+						public void handle(KeyEvent e) {
+							KeyCode code = e.getCode();  
+							if(code == KeyCode.ENTER){  
+								FadeTransition ft = new FadeTransition(Duration.millis(250), help);
+								ft.setFromValue(1.0);
+								ft.setToValue(0);
+								ft.play();
+								
+								displayHelp = false;
+								
+							}  
+
+						}
+						
+							});
+					
+					
 				} 
 				else {
-					feedback.setText(logic.getLogic(cmd));        //this line is correct and will remain unchanged
 					//find another way!!!!
 					//result.setText(list);
 					chart.getChildren().clear();
