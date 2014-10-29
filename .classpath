@@ -6,5 +6,6 @@
 	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
 	<classpathentry kind="lib" path="gson-2.3.jar"/>
 	<classpathentry kind="lib" path="simmetrics_jar_v1_6_2_d07_02_07.jar"/>
+	<classpathentry kind="lib" path="prettytime-nlp-3.2.5.Final.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
