@@ -93,30 +93,48 @@ public class Task {
 	}*/
 
 	public boolean equals(Object obj) {
+		
+
 		if (obj instanceof Task) {
-			Task myTask = (Task) obj;
-			if (this.getStartDate() == null && this.getEndDate() == null && this.getStartTime() == null && this.getStartDate() == null) {
-				return this.getDescription().equals(myTask.getDescription()) && this.getPriority() == myTask.getPriority() 
-						&& this.getRepeat() == myTask.getRepeat();
-			} else if (this.getStartDate() == null && this.getEndDate() == null && this.getStartTime() == null) {
-				return this.getDescription().equals(myTask.getDescription()) && this.getPriority() == myTask.getPriority() 
-						&& this.getRepeat() == myTask.getRepeat() && this.getStartDate().equals(myTask.getStartDate());
-			} else if (this.getStartDate() == null && this.getEndDate() == null) {
-				return this.getDescription().equals(myTask.getDescription()) && this.getPriority() == myTask.getPriority() 
-						&& this.getRepeat() == myTask.getRepeat() && this.getStartDate().equals(myTask.getStartDate()) && this.getStartTime().equals(myTask.getStartTime());
-			} else if (this.getStartDate() == null) {
-				return this.getDescription().equals(myTask.getDescription()) && this.getPriority() == myTask.getPriority() 
-						&& this.getRepeat() == myTask.getRepeat() && this.getStartDate().equals(myTask.getStartDate()) && this.getStartTime().equals(myTask.getStartTime()) 
-						&& this.getEndDate().equals(myTask.getEndDate());
-			} else {
-				return this.getDescription().equals(myTask.getDescription()) && this.getPriority() == myTask.getPriority() 
-						&& this.getRepeat() == myTask.getRepeat() && this.getStartDate().equals(myTask.getStartDate()) && this.getStartTime().equals(myTask.getStartTime()) 
-						&& this.getEndDate().equals(myTask.getEndDate()) && this.getEndTime().equals(myTask.getEndTime());
+			Task myTask = (Task) obj; 
+			if (myTask.getRepeat()!=this.getRepeat()) {
+				return false;
 			}
 			
-
-		} else {
-			return false;
+			if (!myTask.getDescription().equals(this.getDescription())){ 
+				return false;
+			}
+			
+			if (this.getPriority()!=myTask.getPriority()) {
+				return false;
+			}
+			
+			if ((this.getStartTime()==null&&myTask.getStartTime()!=null)||
+				(this.getStartTime()!=null&&myTask.getStartTime()==null)||
+				(this.getStartTime()!=null)&&myTask.getStartTime()!=null&&this.getStartTime().equals(myTask.getStartTime())){
+				return false;
+			}
+			
+			if ((this.getEndTime()==null&&myTask.getEndTime()!=null)||
+				(this.getEndTime()!=null&&myTask.getEndTime()==null)||
+				(this.getEndTime()!=null)&&myTask.getEndTime()!=null&&this.getEndTime().equals(myTask.getEndTime())){
+				return false;
+			}
+			
+			if ((this.getStartDate()==null&&myTask.getStartDate()!=null)||
+				(this.getStartDate()!=null&&myTask.getStartDate()==null)||
+				(this.getStartDate()!=null)&&myTask.getStartDate()!=null&&this.getStartDate().equals(myTask.getStartDate())){
+				return false;
+			}
+			
+			if ((this.getEndDate()==null&&myTask.getEndDate()!=null)||
+				(this.getEndDate()!=null&&myTask.getEndDate()==null)||
+				(this.getEndDate()!=null)&&myTask.getEndDate()!=null&&this.getEndDate().equals(myTask.getEndDate())){
+				return false;
+			}
 		}
+		else return false;
+		
+		return true;
 	}
 }
