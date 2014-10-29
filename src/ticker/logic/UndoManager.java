@@ -36,16 +36,22 @@ public class UndoManager {
 			
 			switch(previousAction.getCommand()) {
 				case COMMAND_EDIT:
+					assert previousAction.getTaskAfterEdit() != null && previousAction.getTaskBeforeEdit() != null;
+					
 					storedTasksByPriority.remove(previousAction.getTaskAfterEdit());
 					storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
 					storedTasksByDeadline.remove(previousAction.getTaskAfterEdit());
 					storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
 					break;
 				case COMMAND_ADD:
+					assert previousAction.getTaskBeforeEdit() != null;
+					
 					storedTasksByPriority.remove(previousAction.getTaskBeforeEdit());
 					storedTasksByDeadline.remove(previousAction.getTaskBeforeEdit());
 					break;
 				case COMMAND_DELETE:
+					assert previousAction.getTaskBeforeEdit() != null && previousAction.getListTypeBefore() != null;
+					
 					if(previousAction.getListTypeBefore().equals(TASKS_TIME)) {
 						storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
 						storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
@@ -60,6 +66,8 @@ public class UndoManager {
 				case COMMAND_TICK:
 					//TODO:refactor
 					//the previous action moves task from normal to ticked, hence now moves task from ticked to normal
+					assert previousAction.getListTypeBefore() != null && previousAction.getTaskBeforeEdit() != null;
+					
 					if(previousAction.getListTypeBefore().equals(TASKS_TIME)) {
 						storedTasksByTicked.remove(previousAction.getTaskBeforeEdit());
 						storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
@@ -74,6 +82,8 @@ public class UndoManager {
 					break;
 				case COMMAND_CMI:
 					//TODO:refactor
+					assert previousAction.getListTypeBefore() != null && previousAction.getTaskBeforeEdit() != null;
+					
 					if(previousAction.getListTypeBefore().equals(TASKS_TIME)) {
 						storedTasksByCMI.remove(previousAction.getTaskBeforeEdit());
 						storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
@@ -97,16 +107,22 @@ public class UndoManager {
 			
 			switch(nextAction.getCommand()) {
 			case COMMAND_EDIT:
+				assert nextAction.getTaskAfterEdit() != null && nextAction.getTaskBeforeEdit() != null;
+				
 				storedTasksByPriority.add(nextAction.getTaskAfterEdit());
 				storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
 				storedTasksByDeadline.add(nextAction.getTaskAfterEdit());
 				storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
 				break;
 			case COMMAND_ADD:
+				assert nextAction.getTaskBeforeEdit() != null;
+				
 				storedTasksByPriority.add(nextAction.getTaskBeforeEdit());
 				storedTasksByDeadline.add(nextAction.getTaskBeforeEdit());
 				break;
 			case COMMAND_DELETE:
+				assert nextAction.getTaskBeforeEdit() != null;
+				
 				if(nextAction.getListTypeBefore().equals(TASKS_TIME)) {
 					storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
 					storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
@@ -120,6 +136,8 @@ public class UndoManager {
 				break;
 			case COMMAND_TICK:
 				//TODO:refactor
+				assert nextAction.getTaskBeforeEdit() != null && nextAction.getListTypeBefore() != null;
+				
 				if(nextAction.getListTypeBefore().equals(TASKS_TIME)) {
 					storedTasksByTicked.add(nextAction.getTaskBeforeEdit());
 					storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
@@ -134,6 +152,8 @@ public class UndoManager {
 				break;
 			case COMMAND_CMI:
 				//TODO:refactor
+				assert nextAction.getTaskBeforeEdit() != null && nextAction.getListTypeBefore() != null;
+				
 				if(nextAction.getListTypeBefore().equals(TASKS_TIME)) {
 					storedTasksByCMI.add(nextAction.getTaskBeforeEdit());
 					storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
