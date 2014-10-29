@@ -26,6 +26,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -75,7 +77,8 @@ public class TickerUI extends Application {
 
 
 	public void start(Stage stage) {
-		stage = new Stage(StageStyle.UNDECORATED);
+		stage.initStyle(StageStyle.UNDECORATED);
+		//stage = new Stage(StageStyle.UNDECORATED);
 		//overall structure: root.add background pic, logo, display box, command box, feedback line
 
 		Group root = new Group();
@@ -123,6 +126,9 @@ public class TickerUI extends Application {
 		sp.setLayoutY(110);
 		sp.setContent(chart);
 		sp.setOpacity(0.8);
+		sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+		sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+		;
 
 		root.getChildren().add(sp); 
 
@@ -253,9 +259,7 @@ public class TickerUI extends Application {
 				//stage.close();
 			}
 		});
-		
-		
-		//TODO figure out how to solve this problem and get minimise button to work
+
 		//for the minimise button
 		imv3.setOnMouseEntered(new EventHandler<MouseEvent>() {
 
@@ -289,7 +293,31 @@ public class TickerUI extends Application {
 
 		stage.show();
 		displayTasks();
-		
+
+
+        //can scroll up and down and minimise the window using keyboard
+		command.setOnKeyPressed(new EventHandler<KeyEvent>() 
+				{
+			
+			public void handle(KeyEvent e) {
+				
+				KeyCode code = e.getCode();  
+				if(code == KeyCode.PAGE_UP){  
+					sp.setVvalue(sp.getVvalue()-0.1);
+					e.consume();  
+				}  
+				else if(code==KeyCode.PAGE_DOWN) {
+					sp.setVvalue(sp.getVvalue()+0.1);
+					e.consume(); 
+				}
+				else if(code==KeyCode.ESCAPE) {
+					stage.setIconified(true);
+				}
+			}
+				});
+
+
+
 		logger.log(Level.INFO, "the stage is set up");
 
 		command.setOnAction(new EventHandler<ActionEvent>() 
@@ -298,6 +326,7 @@ public class TickerUI extends Application {
 				logger.log(Level.INFO, "user press enter once");
 
 				String cmd = command.getText();
+
 				assert !cmd.equals("");
 				command.clear();
 
