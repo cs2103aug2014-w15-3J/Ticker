@@ -104,7 +104,7 @@ public class Logic{
 		listTracker = KEY_SORTED_TIME;
 		currentListName = TASKS_TIME;
 
-		checkForTaskExpiry();
+		//checkForTaskExpiry();
 		UI.setList(current);
 
 	}
@@ -138,7 +138,7 @@ public class Logic{
 			try {
 				feedback = cruMng.delete(processed.getIndex(), listTracker, current, currentListName);
 
-				checkForTaskExpiry();
+				//checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -154,7 +154,7 @@ public class Logic{
 
 		case COMMAND_LIST:
 			try {
-				checkForTaskExpiry();
+				//checkForTaskExpiry();
 				feedback = this.list(processed.getDescription());
 			}
 			catch (IllegalArgumentException ex) {
@@ -172,7 +172,7 @@ public class Logic{
 
 				feedback = cruMng.edit(processed.getIndex(), processed.getAppending(),
 						processed.getDescription(), listTracker, current);
-				checkForTaskExpiry();
+				//checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -196,7 +196,7 @@ public class Logic{
 					currentListName = TASKS_TIME;
 				}
 
-				checkForTaskExpiry();
+				//checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -210,7 +210,7 @@ public class Logic{
 			try {
 				feedback = tickCMIMng.cmi(processed.getIndex(), listTracker, current, currentListName);
 
-				checkForTaskExpiry();
+				//checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -227,7 +227,7 @@ public class Logic{
 			try {
 				feedback = tickCMIMng.uncmi(processed.getIndex(), listTracker, current);
 
-				checkForTaskExpiry();
+				//checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -244,7 +244,7 @@ public class Logic{
 			try {
 				undoMng.undo();
 
-				checkForTaskExpiry();
+				//checkForTaskExpiry();
 				sortLists();
 				UI.setList(current);
 			}
@@ -257,7 +257,7 @@ public class Logic{
 			try {
 				undoMng.redo();
 
-				checkForTaskExpiry();
+				//checkForTaskExpiry();
 				sortLists();
 				UI.setList(current);
 			}
@@ -270,7 +270,7 @@ public class Logic{
 			try {
 				feedback = tickCMIMng.tick(processed.getIndex(), listTracker, current);
 
-				checkForTaskExpiry();
+				//checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -287,7 +287,7 @@ public class Logic{
 			try {
 				feedback = tickCMIMng.untick(processed.getIndex(), listTracker, current);
 
-				checkForTaskExpiry();
+				//checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -318,7 +318,7 @@ public class Logic{
 	private String search(String key) {
 		SearchManager searchMng = new SearchManager();
 
-		checkForTaskExpiry();
+		//checkForTaskExpiry();
 
 		Vector<Task> searchResultsTime = searchMng.search(sortedTime, key);
 		Vector<Task> searchResultsTicked = searchMng.search(listTicked, key);
@@ -353,7 +353,7 @@ public class Logic{
 	/**
 	 * 
 	 */
-	private void checkForTaskExpiry() {
+	/*private void checkForTaskExpiry() {
 		for (Task timeTask: sortedTime) {
 			timeTask.isExpired();
 		}
@@ -366,7 +366,7 @@ public class Logic{
 		for (Task tickedTask: listTicked) {
 			tickedTask.isExpired();
 		}
-	}
+	}*/
 
 
 

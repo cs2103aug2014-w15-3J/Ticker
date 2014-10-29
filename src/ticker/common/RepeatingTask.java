@@ -26,14 +26,14 @@ public class RepeatingTask extends Task {
 		return day;
 	}
 	
-	public void isExpired() {
+	/*public void isExpired() {
 		if (this.endDate.compareTo(Date.getCurrentDate()) == 1 && this.endTime.compareTo(Time.getCurrentTime()) == 1) {
 			this.isExpired = true;
 			return;
 		}
 		this.isExpired = false;
 		return;
-	}
+	}*/
 	
 	@Override
 	// TODO: error in printing time for startTime + endTime, endTime only
