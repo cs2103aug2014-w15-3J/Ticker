@@ -326,11 +326,22 @@ public class Parser {
 	private UserInput callSearch(String command,String str){
 		
 		UserInput input = new UserInput(CMD.SEARCH,str);
-		String[] words = command.split(" +");
+		String[] words = command.toLowerCase().split(" +");
 		
 		for (int i=0;i<words.length;i++){
-			if (words[i].equalsIgnoreCase("-t")){
-				input.setCommand(input.getCommand() + "t");
+			if (words[i].equals("-impt")||words[i].equals("-important")){
+				input.setPriority('A');
+			}
+			if (words[i].equals("-trivial")){
+				input.setPriority('C');
+			}
+			if (words[i].equals("-normal")){
+				input.setPriority('B');
+			}
+		}
+		
+		for (int i=0;i<words.length;i++){
+			if (words[i].equals("-t")){
 				getSearchTimePeriod(input,command);
 				break;
 			}	
