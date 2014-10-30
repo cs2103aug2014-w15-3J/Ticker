@@ -121,9 +121,9 @@ public class TickerUI extends Application {
 		//display console
 
 		ScrollPane sp = new ScrollPane();
-		sp.setPrefSize(450, 460);
+		sp.setPrefSize(450, 450);
 		sp.setLayoutX(20);
-		sp.setLayoutY(110);
+		sp.setLayoutY(120);
 		sp.setContent(chart);
 		sp.setOpacity(0.8);
 		sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -280,7 +280,7 @@ public class TickerUI extends Application {
 				stage.setIconified(true);
 			}
 		});
-		
+
 		//TODO set the content of help and design better looking help page
 		//implement the help page
 		TextArea help = new TextArea();
@@ -291,10 +291,10 @@ public class TickerUI extends Application {
 		help.setLayoutX(45);
 		help.setLayoutY(75);
 		help.setPrefSize(400, 500);
-		
+
 		root.getChildren().add(help);
-		
-		
+
+
 		Scene scene = new Scene(root);
 
 		stage.setScene(scene);
@@ -302,18 +302,101 @@ public class TickerUI extends Application {
 		stage.setMinWidth(490);
 		stage.setMaxHeight(650);
 		stage.setMinHeight(650);
-		//System.out.println(stage.getWidth());
+
+
+		Group tabs = new Group();
+
+		//tab3 cmi
+		Image cmi_1 = new Image("ticker/ui/CMI_1.png", true);
+		Image cmi_2 = new Image("ticker/ui/CMI_2.png", true);
+		Image cmi_3 = new Image("ticker/ui/CMI_3.png", true);
+		ImageView imv7 = new ImageView();
+		imv7.setImage(cmi_2);
+		imv7.setFitWidth(80);
+		imv7.setPreserveRatio(true);
+		imv7.setX(380);
+		imv7.setY(95);
+		imv7.setSmooth(true);
+		imv7.setCache(true);
+		tabs.getChildren().add(imv7);
+
+
+
+
+		//tab2 ticked
+		Image ticked_1 = new Image("ticker/ui/Ticked_1.png", true);
+		Image ticked_2 = new Image("ticker/ui/Ticked_2.png", true);
+		Image ticked_3 = new Image("ticker/ui/Ticked_3.png", true);
+		ImageView imv6 = new ImageView();
+		imv6.setImage(ticked_2);
+		imv6.setFitWidth(80);
+		imv6.setPreserveRatio(true);
+		imv6.setX(310);
+		imv6.setY(95);
+		imv6.setSmooth(true);
+		imv6.setCache(true);
+		tabs.getChildren().add(imv6);
+
+
+		//tab1 To-do
+		Image todo_1 = new Image("ticker/ui/todo_1.png", true);
+		Image todo_2 = new Image("ticker/ui/todo_2.png", true);
+		Image todo_3 = new Image("ticker/ui/todo_3.png", true);
+
+		ImageView imv8 = new ImageView();
+		imv8.setImage(todo_1);                 //default view is current task list
+		imv8.setFitWidth(80);
+		imv8.setPreserveRatio(true);
+		imv8.setX(240);
+		imv8.setY(95);
+		imv8.setSmooth(true);
+		imv8.setCache(true);
+		tabs.getChildren().add(imv8);
+
+
+
+
+		//set up the three tabs: current, ticked and cmi
+		Image bar = new Image("ticker/ui/bar.png", true);
+		ImageView imv5 = new ImageView();
+		imv5.setImage(bar);
+		imv5.setFitWidth(450);
+		imv5.setPreserveRatio(true);
+		imv5.setX(20);
+		imv5.setY(114);
+		imv5.setSmooth(true);
+		imv5.setCache(true);
+		tabs.getChildren().add(imv5);
+
+		root.getChildren().add(tabs);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		stage.show();
 		displayTasks();
 
 
-        //can scroll up and down and minimise the window using keyboard
+		//can scroll up and down and minimise the window using keyboard
 		command.setOnKeyPressed(new EventHandler<KeyEvent>() 
 				{
-			
+
 			public void handle(KeyEvent e) {
-				
+
 				KeyCode code = e.getCode();  
 				if(code == KeyCode.PAGE_UP){  
 					sp.setVvalue(sp.getVvalue()-0.1);
@@ -342,17 +425,17 @@ public class TickerUI extends Application {
 
 				assert !cmd.equals("");
 				command.clear();
-				
+
 				feedback.setText(logic.getLogic(cmd));
 
 				if(displayHelp == true) {
-				
+
 					help.setVisible(true);
 					FadeTransition ft = new FadeTransition(Duration.millis(250), help);
 					ft.setFromValue(0);
 					ft.setToValue(1.0);
 					ft.play();
-					
+
 					command.setOnKeyPressed(new EventHandler<KeyEvent>() 
 							{
 						public void handle(KeyEvent e) {
@@ -362,9 +445,9 @@ public class TickerUI extends Application {
 								ft.setFromValue(1.0);
 								ft.setToValue(0);
 								ft.play();
-								
+
 								displayHelp = false;
-								
+
 							}  
 							//repeat of codes here, try to figure out another way
 							else if(code == KeyCode.PAGE_UP){  
@@ -380,7 +463,7 @@ public class TickerUI extends Application {
 							}
 
 						}
-						
+
 							});
 				} 
 				else {
