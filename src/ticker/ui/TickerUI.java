@@ -256,7 +256,6 @@ public class TickerUI extends Application {
 
 			public void handle(MouseEvent evt) {
 				System.exit(0);
-				//stage.close();
 			}
 		});
 
@@ -367,12 +366,22 @@ public class TickerUI extends Application {
 								displayHelp = false;
 								
 							}  
+							//repeat of codes here, try to figure out another way
+							else if(code == KeyCode.PAGE_UP){  
+								sp.setVvalue(sp.getVvalue()-0.1);
+								e.consume();  
+							}  
+							else if(code==KeyCode.PAGE_DOWN) {
+								sp.setVvalue(sp.getVvalue()+0.1);
+								e.consume(); 
+							}
+							else if(code==KeyCode.ESCAPE) {
+								stage.setIconified(true);
+							}
 
 						}
 						
 							});
-					
-					
 				} 
 				else {
 					//find another way!!!!
