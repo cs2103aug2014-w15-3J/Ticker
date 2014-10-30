@@ -352,20 +352,16 @@ public class Parser {
 	
 	private UserInput callList (String[] words){
 		
-		UserInput input = new UserInput();
-		input.setCommand(CMD.LIST.toString());
-		if (words.length==2){
+		UserInput input = new UserInput(CMD.LIST,"time");
+			
+		if (words.length>=2){
 			if (words[1].equals("priority")||words[1].equals("p"))
 				input.setDescription("priority");
-			if (words[1].equals("time")||words[1].equals("ti"))
-				input.setDescription("time");
 			if (words[1].equals("c")||words[1].equals("cmi"))
 				input.setDescription("cmi");
 			if (words[1].equals("ticked")||words[1].equals("tick"))
 				input.setDescription("ticked");
 		}
-		if (input.getDescription()==null)
-			return new UserInput(CMD.ERROR,"invalid input");
 		return input;
 		
 	}
