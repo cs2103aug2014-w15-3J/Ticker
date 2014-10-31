@@ -291,6 +291,23 @@ public class Parser {
 		return input;
 	}
 	
+	private String extractDesc(String str){
+		String[] splitted = str.split(" +");
+		String res = str;
+		for (int i = 0;i<splitted.length;i++){
+			if (splitted[i].indexOf('-')!=-1){
+				int startIndex = res.indexOf(splitted[i]);
+				int endIndex = startIndex + splitted[i].length();
+				if (startIndex-1>=0&&res.charAt(startIndex-1)==' '){
+					startIndex--;
+				}
+				res=res.substring(0,startIndex)+res.substring(endIndex);
+			}
+		}
+		
+		return res.trim();
+	}
+	
 	private UserInput callEdit(String[] words,String command){
 		String description = "";
 		if (command.indexOf('"')!=-1&&command.lastIndexOf('"')>command.indexOf('"'))
