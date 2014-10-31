@@ -111,25 +111,25 @@ public class Task {
 			
 			if ((this.getStartTime()==null&&myTask.getStartTime()!=null)||
 				(this.getStartTime()!=null&&myTask.getStartTime()==null)||
-				(this.getStartTime()!=null)&&myTask.getStartTime()!=null&&this.getStartTime().equals(myTask.getStartTime())){
+				(this.getStartTime()!=null)&&myTask.getStartTime()!=null&&!this.getStartTime().equals(myTask.getStartTime())){
 				return false;
 			}
 			
 			if ((this.getEndTime()==null&&myTask.getEndTime()!=null)||
 				(this.getEndTime()!=null&&myTask.getEndTime()==null)||
-				(this.getEndTime()!=null)&&myTask.getEndTime()!=null&&this.getEndTime().equals(myTask.getEndTime())){
+				(this.getEndTime()!=null)&&myTask.getEndTime()!=null&&!this.getEndTime().equals(myTask.getEndTime())){
 				return false;
 			}
 			
 			if ((this.getStartDate()==null&&myTask.getStartDate()!=null)||
 				(this.getStartDate()!=null&&myTask.getStartDate()==null)||
-				(this.getStartDate()!=null)&&myTask.getStartDate()!=null&&this.getStartDate().equals(myTask.getStartDate())){
+				(this.getStartDate()!=null)&&myTask.getStartDate()!=null&&!this.getStartDate().equals(myTask.getStartDate())){
 				return false;
 			}
 			
 			if ((this.getEndDate()==null&&myTask.getEndDate()!=null)||
 				(this.getEndDate()!=null&&myTask.getEndDate()==null)||
-				(this.getEndDate()!=null)&&myTask.getEndDate()!=null&&this.getEndDate().equals(myTask.getEndDate())){
+				(this.getEndDate()!=null)&&myTask.getEndDate()!=null&&!this.getEndDate().equals(myTask.getEndDate())){
 				return false;
 			}
 		}
