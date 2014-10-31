@@ -14,8 +14,9 @@ public class Parser {
 	public static final String INVALID_ST_AND_ED = "Cannot add a task with only start time and end date";
 	public static final String INVALID_ET_AND_SD = "Cannot add a task with only end time and start date";
 	public static final String INVALID_ARGUMENT = "Invalid Argument";
-	public static final String INVALID_SEARCH = "Invalid search, task description must be within double quote";
-	public static final String INVALID_PRIORITY = "Priority can only be A B or C";
+	public static final String INVALID_SEARCH = "Invalid search";
+	public static final String INVALID_EDIT = "Invalid edit";
+	public static final String EMPTY_ADD = "Cannot add a task with empty description";
 	
 	private static Logger logger = Logger.getLogger("parser");
 	private PrettyTimeParser ptp;
@@ -32,21 +33,10 @@ public class Parser {
 		String key = words[0].toLowerCase();
 		
 		if (key.equals("add")){
-			String description = null;
-			int firstIndex = command.indexOf('"');
-			if (firstIndex == -1) {
-				logger.log(Level.INFO,"no double quotes in the user's input");
-				return null;
+			if (words.length==1){
+				return new UserInput(CMD.ERROR,EMPTY_ADD);
 			}
-			int secondIndex = command.indexOf('"',firstIndex+1);
-			if (secondIndex != command.lastIndexOf('"')) {
-				logger.log(Level.INFO,"too many double quotes in the user's input");
-				return null;
-			}
-			
-			description = command.substring(firstIndex+1,secondIndex);
-			return callAdd(words,description,command);
-		
+			return callAdd(words,command);
 		}
 		
 		if (key.equals("delete")||key.equals("del")||key.equals("remove")){
@@ -54,18 +44,16 @@ public class Parser {
 		}
 		
 		if (key.equals("search")){
-			
-			int firstIndex = command.indexOf('"');
-			int secondIndex = command.indexOf('"',firstIndex+1);
-			if ((secondIndex != command.lastIndexOf('"'))||firstIndex==-1){ 
-				logger.log(Level.INFO,"invalid input for search");
+			if(words.length==1){
 				return new UserInput(CMD.ERROR,INVALID_SEARCH);
 			}
-
-			return callSearch(command,command.substring(firstIndex+1,secondIndex).trim());
+			return callSearch(command);
 		}
 		
 		if (key.equals("edit")){
+			if (words.length<=2){
+				return new UserInput(CMD.ERROR,INVALID_EDIT);
+			}
 			return callEdit(words,command);
 		}
 		
@@ -113,65 +101,14 @@ public class Parser {
 		
 	}
 	
-	private boolean processSTET(String[] words,int index,UserInput input){
-		if (words.length==index+1){
-			return false;
-		}
-		Time time = constructTime(words[index+1]);
-		if (time==null){
-			return false;
-		}
-		
-		if (words[index].equals("-st")){
-			input.setStartTime(time);
-		}
-		
-		else {
-			input.setEndTime(time);
-		}
-		
-		return true;
-	}
-	
-	private boolean processSDED(String[] words,int index,UserInput input){
-		if (words.length==index+1){
-			return false;
-		}
-		Date date = constructDate(words[index+1]);
-		if (date==null){
-			return false;
-		}
-		
-		if (words[index].equals("-sd")){
-			input.setStartDate(date);
-		}
-		
-		else {
-			input.setEndDate(date);
-		}
-		
-		return true;
-	}
-	
-	private UserInput callAdd(String[] words,String description,String command){
+	private UserInput callAdd(String[] words,String command){
 		logger.log(Level.INFO,"callAdd");
+		String description = extractDesc(command);
 		UserInput input = new UserInput(CMD.ADD,description);
 		
 		input.setPriority('B');
 		
 		for (int i=0;i<words.length;i++){
-			
-			if (words[i].equals("-st")||words[i].equals("-et")){	
-				if (!(processSTET(words,i,input))){
-					return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
-				}
-			}
-			
-			if (words[i].equals("-sd")||words[i].equals("-ed")){
-				if (!(processSDED(words,i,input))){
-					return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
-				}
-			}
 			
 			if (words[i].toLowerCase().equals("-impt")||words[i].toLowerCase().equals("-important")){
 				input.setPriority('A');
@@ -292,6 +229,16 @@ public class Parser {
 	}
 	
 	private String extractDesc(String str){
+		if ((str.length()>4&&str.substring(0,4).equalsIgnoreCase("add "))
+				||(str.length()>6&&str.substring(0, 7).equalsIgnoreCase("search "))){
+			str=str.substring(str.indexOf(" ")+1);
+		}
+		
+		else if (str.length()>5&&str.substring(0,5).equalsIgnoreCase("edit ")){
+			str=str.substring(str.indexOf(" ")+1);
+			str=str.substring(str.indexOf(" ")+1);
+		}
+		
 		String[] splitted = str.split(" +");
 		String res = str;
 		for (int i = 0;i<splitted.length;i++){
@@ -309,9 +256,7 @@ public class Parser {
 	}
 	
 	private UserInput callEdit(String[] words,String command){
-		String description = "";
-		if (command.indexOf('"')!=-1&&command.lastIndexOf('"')>command.indexOf('"'))
-			description = command.substring(command.indexOf('"')+1,command.lastIndexOf('"'));
+		String description = extractDesc(command);
 			
 		int index = Integer.parseInt(words[1]); 
 		
@@ -340,9 +285,11 @@ public class Parser {
 		return input;
 	}
 	
-	private UserInput callSearch(String command,String str){
+	private UserInput callSearch(String command){
 		
-		UserInput input = new UserInput(CMD.SEARCH,str);
+		String description = extractDesc(command); 
+		
+		UserInput input = new UserInput(CMD.SEARCH,description);
 		String[] words = command.toLowerCase().split(" +");
 		
 		for (int i=0;i<words.length;i++){
@@ -595,7 +542,7 @@ public class Parser {
 			}
 		}
 		
-		if (month!=0&&date<=numOfDays[month]){
+		if (month>0&&month<13&&date<=numOfDays[month]){
 			logger.log(Level.INFO,"valid date constructed, year = " + year +" month = " + month + " date = " + date);
 			return new Date(year,month,date);
 		}
