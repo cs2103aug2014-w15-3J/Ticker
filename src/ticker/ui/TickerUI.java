@@ -24,6 +24,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -46,20 +47,32 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 
 public class TickerUI extends Application {
+	//dependency on Logic
 	private static TickerUI ticker;
 	private Logic logic;
-	private String list;
-	private Vector <Task> tasksToBeShown = new Vector<Task>();
-	GridPane chart = new GridPane();
-	private String help;
-	private boolean displayHelp = false;
 
+	private Vector <Task> tasksToBeShown = new Vector<Task>();
+	private String commandList = getHelp();
+	private boolean displayHelp = false;
 	double initialX, initialY;
+
+	Scene scene;
+	Group root;
+	//basic display
+	Image background, logo, min, min_, close, close_;
+	ImageView imv1, imv2, imv3, imv4;
+	GridPane chart;
+	TextField command;
+	Text feedback;
+	ScrollPane sp;
+	//tabs
+	Group tabs;
+	ImageView imv5, imv6, imv7, imv8;
+	Image cmi_1, cmi_2, cmi_3, ticked_1, ticked_2, ticked_3, todo_1, todo_2, todo_3, bar;
+	int currentView = 1;          //1 for todo(default), 2 for ticked, 3 for cmi
 
 
 	private static Logger logger = Logger.getLogger("UI");
-
-
 
 	public Logic getLogic() {
 		return logic;
@@ -71,56 +84,45 @@ public class TickerUI extends Application {
 		// Initialisation
 		ticker = this;
 		logic = new Logic(this);
-		help = help();
-		//fillInTasks();
 	}
-
 
 	public void start(Stage stage) {
 		stage.initStyle(StageStyle.UNDECORATED);
-		//stage = new Stage(StageStyle.UNDECORATED);
-		//overall structure: root.add background pic, logo, display box, command box, feedback line
-
-		Group root = new Group();
+		root = new Group();
 
 		//background pic
-		Image background = new Image("ticker/ui/background.png", true);
-		ImageView imv1 = new ImageView();
+		background = new Image("ticker/ui/pic/background.png", true);
+		imv1 = new ImageView();
 		imv1.setImage(background);
-		//imv1.setFitWidth(500);
 		imv1.setFitHeight(650);
 		imv1.setFitWidth(490);
 		imv1.setX(0);
 		imv1.setY(0);
 		imv1.setSmooth(true);
-		imv1.setCache(true);
 		root.getChildren().add(imv1);
 		addDragListeners(imv1);
 
-		//load the image of the logo
-		Image logo = new Image("ticker/ui/logo2.png", true);
-		ImageView imv2 = new ImageView();
+		//logo
+		logo = new Image("ticker/ui/pic/logo2.png", true);
+		imv2 = new ImageView();
 		imv2.setImage(logo);
 		imv2.setFitWidth(130);
 		imv2.setPreserveRatio(true);
 		imv2.setX(15);
 		imv2.setY(25);
 		imv2.setSmooth(true);
-		imv2.setCache(true);
 		root.getChildren().add(imv2);
 
 		//command line
-		final TextField command = new TextField();
+		command = new TextField();
 		command.setPromptText("Enter your command here...");
 		command.setPrefSize(450, 30);
-		//command.setMaxWidth(440);
 		command.setLayoutX(20);
 		command.setLayoutY(580);
 		root.getChildren().add(command);
 
 		//display console
-
-		ScrollPane sp = new ScrollPane();
+		sp = new ScrollPane();
 		sp.setPrefSize(450, 450);
 		sp.setLayoutX(20);
 		sp.setLayoutY(120);
@@ -128,8 +130,6 @@ public class TickerUI extends Application {
 		sp.setOpacity(0.8);
 		sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 		sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-		;
-
 		root.getChildren().add(sp); 
 
 
@@ -139,7 +139,7 @@ public class TickerUI extends Application {
 
 
 		//feedback area
-		final Text feedback = new Text();
+		feedback = new Text();
 		feedback.setLayoutX(22);
 		feedback.setLayoutY(628);
 		feedback.setFill(Color.BISQUE);
@@ -212,8 +212,9 @@ public class TickerUI extends Application {
 		//String time;
 
 		//add the minimise and close button
-		Image min = new Image("ticker/ui/minimise2.png", true);
-		ImageView imv3 = new ImageView();
+		min = new Image("ticker/ui/pic/minimise2.png", true);
+		min_ = new Image("ticker/ui/pic/minimiseMouseOn.png", true);
+		imv3 = new ImageView();
 		imv3.setImage(min);
 		imv3.setFitWidth(18);
 		imv3.setPreserveRatio(true);
@@ -223,8 +224,9 @@ public class TickerUI extends Application {
 		imv3.setCache(true);
 		root.getChildren().add(imv3);
 
-		Image close = new Image("ticker/ui/close2.png", true);
-		ImageView imv4 = new ImageView();
+		close = new Image("ticker/ui/pic/close2.png", true);
+		close_ = new Image("ticker/ui/pic/closeMouseOn.png", true);
+		imv4 = new ImageView();
 		imv4.setImage(close);
 		imv4.setFitWidth(20);
 		imv4.setPreserveRatio(true);
@@ -235,25 +237,18 @@ public class TickerUI extends Application {
 		imv4.setCache(true);
 		root.getChildren().add(imv4);
 
-		//add in the mouseOn status of those two buttons
-		Image min_ = new Image("ticker/ui/minimiseMouseOn.png", true);
-		Image close_ = new Image("ticker/ui/closeMouseOn.png", true);
-
 		//for the close button
 		imv4.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
 			public void handle(MouseEvent evt) {
 				imv4.setImage(close_);
 			}
 		});
 		imv4.setOnMouseExited(new EventHandler<MouseEvent>() {
-
 			public void handle(MouseEvent evt) {
 				imv4.setImage(close);
 			}
 		});
 		imv4.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
 			public void handle(MouseEvent evt) {
 				System.exit(0);
 			}
@@ -261,56 +256,37 @@ public class TickerUI extends Application {
 
 		//for the minimise button
 		imv3.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
 			public void handle(MouseEvent evt) {
-				imv3.setY(12);
+				imv3.setY(13);
 				imv3.setImage(min_);
 			}
 		});
 		imv3.setOnMouseExited(new EventHandler<MouseEvent>() {
-
 			public void handle(MouseEvent evt) {
 				imv3.setY(15);
 				imv3.setImage(min);
 			}
 		});
 		imv3.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
 			public void handle(MouseEvent evt) {
 				stage.setIconified(true);
 			}
 		});
 
-		//TODO set the content of help and design better looking help page
-		//implement the help page
-		TextArea help = new TextArea();
-		String listCommands = help();
-		help.setWrapText(true);
-		help.setText(listCommands);
-		help.setVisible(false);
-		help.setLayoutX(45);
-		help.setLayoutY(75);
-		help.setPrefSize(400, 500);
+		//TODO finish the tab function
+		tabs = new Group();
 
-		root.getChildren().add(help);
-
-
-		Scene scene = new Scene(root);
-
-		stage.setScene(scene);
-		stage.setMaxWidth(490);
-		stage.setMinWidth(490);
-		stage.setMaxHeight(650);
-		stage.setMinHeight(650);
-
-
-		Group tabs = new Group();
+		DropShadow ds = new DropShadow();
+		ds.setRadius(5.0);
+		ds.setOffsetX(3.0);
+		ds.setOffsetY(3.0);
+		ds.setColor(Color.rgb(0, 0, 0, 0.6));
 
 		//tab3 cmi
-		Image cmi_1 = new Image("ticker/ui/CMI_1.png", true);
-		Image cmi_2 = new Image("ticker/ui/CMI_2.png", true);
-		Image cmi_3 = new Image("ticker/ui/CMI_3.png", true);
-		ImageView imv7 = new ImageView();
+		cmi_1 = new Image("ticker/ui/pic/CMI_1.png", true);
+		cmi_2 = new Image("ticker/ui/pic/CMI_2.png", true);
+		cmi_3 = new Image("ticker/ui/pic/CMI_3.png", true);
+		imv7 = new ImageView();
 		imv7.setImage(cmi_2);
 		imv7.setFitWidth(80);
 		imv7.setPreserveRatio(true);
@@ -318,16 +294,14 @@ public class TickerUI extends Application {
 		imv7.setY(95);
 		imv7.setSmooth(true);
 		imv7.setCache(true);
+		imv7.setEffect(ds);
 		tabs.getChildren().add(imv7);
 
-
-
-
 		//tab2 ticked
-		Image ticked_1 = new Image("ticker/ui/Ticked_1.png", true);
-		Image ticked_2 = new Image("ticker/ui/Ticked_2.png", true);
-		Image ticked_3 = new Image("ticker/ui/Ticked_3.png", true);
-		ImageView imv6 = new ImageView();
+		ticked_1 = new Image("ticker/ui/pic/Ticked_1.png", true);
+		ticked_2 = new Image("ticker/ui/pic/Ticked_2.png", true);
+		ticked_3 = new Image("ticker/ui/pic/Ticked_3.png", true);
+		imv6 = new ImageView();
 		imv6.setImage(ticked_2);
 		imv6.setFitWidth(80);
 		imv6.setPreserveRatio(true);
@@ -335,15 +309,14 @@ public class TickerUI extends Application {
 		imv6.setY(95);
 		imv6.setSmooth(true);
 		imv6.setCache(true);
+		imv6.setEffect(ds);
 		tabs.getChildren().add(imv6);
 
-
 		//tab1 To-do
-		Image todo_1 = new Image("ticker/ui/todo_1.png", true);
-		Image todo_2 = new Image("ticker/ui/todo_2.png", true);
-		Image todo_3 = new Image("ticker/ui/todo_3.png", true);
-
-		ImageView imv8 = new ImageView();
+		todo_1 = new Image("ticker/ui/pic/todo_1.png", true);
+		todo_2 = new Image("ticker/ui/pic/todo_2.png", true);
+		todo_3 = new Image("ticker/ui/pic/todo_3.png", true);
+		imv8 = new ImageView();
 		imv8.setImage(todo_1);                 //default view is current task list
 		imv8.setFitWidth(80);
 		imv8.setPreserveRatio(true);
@@ -351,14 +324,13 @@ public class TickerUI extends Application {
 		imv8.setY(95);
 		imv8.setSmooth(true);
 		imv8.setCache(true);
+		imv8.setEffect(ds);
 		tabs.getChildren().add(imv8);
 
+		root.getChildren().add(tabs);  
 
-
-
-		//set up the three tabs: current, ticked and cmi
-		Image bar = new Image("ticker/ui/bar.png", true);
-		ImageView imv5 = new ImageView();
+		bar = new Image("ticker/ui/pic/bar.png", true);
+		imv5 = new ImageView();
 		imv5.setImage(bar);
 		imv5.setFitWidth(450);
 		imv5.setPreserveRatio(true);
@@ -366,29 +338,146 @@ public class TickerUI extends Application {
 		imv5.setY(114);
 		imv5.setSmooth(true);
 		imv5.setCache(true);
-		tabs.getChildren().add(imv5);
+		root.getChildren().add(imv5);
 
-		root.getChildren().add(tabs);
+		if(currentView==1) {
+			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					imv6.setImage(ticked_3);
+				}
+
+			});
+			imv6.setOnMouseExited(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					imv6.setImage(ticked_2);
+				}
+			});
+			imv6.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					TickedListWanted();
+				}
+			});
+
+			imv7.setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					imv7.setImage(cmi_3);
+				}
+
+			});
+			imv7.setOnMouseExited(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					imv7.setImage(cmi_2);
+				}
+			});
+			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					CMIListWanted();
+				}
+			});
+		}
+		if(currentView==2) {
+			imv8.setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					imv8.setImage(todo_3);
+				}
+
+			});
+			imv8.setOnMouseExited(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					imv8.setImage(todo_2);
+				}
+			});
+			imv8.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					TodoListWanted();
+				}
+			});
+
+			imv7.setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					imv7.setImage(cmi_3);
+				}
+
+			});
+			imv7.setOnMouseExited(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					imv7.setImage(cmi_2);
+				}
+			});
+			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					CMIListWanted();
+				}
+			});
+		}
+		if(currentView==3) {
+			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					imv6.setImage(ticked_3);
+				}
+
+			});
+			imv6.setOnMouseExited(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					imv6.setImage(ticked_2);
+				}
+			});
+			imv6.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					TickedListWanted();
+				}
+			});
+
+			imv8.setOnMouseEntered(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					imv8.setImage(todo_3);
+				}
+
+			});
+			imv8.setOnMouseExited(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					imv8.setImage(todo_2);
+				}
+			});
+			imv8.setOnMouseClicked(new EventHandler<MouseEvent>() {
+
+				public void handle(MouseEvent evt) {
+					TodoListWanted();
+				}
+			});
+		}
 
 
 
+		//TODO set the content of help and design better looking help page
+		//implement the help page
+		TextArea help = new TextArea();
+		help.setWrapText(true);
+		help.setText(commandList);
+		help.setVisible(false);
+		help.setLayoutX(45);
+		help.setLayoutY(75);
+		help.setPrefSize(400, 500);
 
+		root.getChildren().add(help);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-		stage.show();
-		displayTasks();
 
 
 		//can scroll up and down and minimise the window using keyboard
@@ -481,13 +570,32 @@ public class TickerUI extends Application {
 			}
 				});
 
+
+
+
+
+		Scene scene = new Scene(root);
+		stage.setScene(scene);
+		stage.setMaxWidth(490);
+		stage.setMinWidth(490);
+		stage.setMaxHeight(650);
+		stage.setMinHeight(650);
+		stage.show();
+		displayTasks();
+
 	}
-
-
+	public static void main(String[] args) {
+		launch(args);
+		ticker = new TickerUI();
+	}
+	
+	
+	
+    //helper methods:
 	public void setHelp() {
 		this.displayHelp = true;
 	}
-	private String help() {
+	private String getHelp() {
 		String helpList = "";
 		helpList += "HELP FOR USING TICKER\n";
 		helpList += "-to add a task: add \"<task name>\" -st <start time> -sd <start date in dd/mm/yy format> "
@@ -510,26 +618,6 @@ public class TickerUI extends Application {
 
 	public void setList(Vector<Task> tasks) {
 		this.tasksToBeShown = tasks;
-	}
-
-
-	public static void main(String[] args) {
-		launch(args);
-		ticker = new TickerUI();
-	}
-
-	//a fake task list used for testing correctness of display
-	public void fillInTasks() {
-		Task task1 = new Task("do homework", new Date(2014,11,13), new Time(6, 0), null, null, 'A', false);
-		Task task2 = new Task("dfjdksljdklfjlsdfjlsdjflsdjflsjfljdlfjdgjggfdfsfkfdjkjfkjkjskfjkjf3ijrfksfjksfjlsfjv nsnsd,ndsffdfdfhkjhshfkhfjhfkshfksfhksfksn", new Date(2014,11,13), new Time(6, 0), new Date(2014,11,13), new Time(7, 0), 'A', false);
-		Task task3 = new Task("blah blah", null, null, new Date(2014,11,16), new Time(18, 3), 'C', false);
-		Task task4 = new Task("stats tutorial", null, null, null, null, 'A', false);
-		Task task5 = new Task("blah blah", new Date(2014,11,16), new Time(18, 3), null, null, 'B', false);
-		tasksToBeShown.add(task1);
-		tasksToBeShown.add(task2);
-		tasksToBeShown.add(task3);
-		tasksToBeShown.add(task4);
-		tasksToBeShown.add(task5);
 	}
 
 	public void displayTasks() {
@@ -638,4 +726,42 @@ public class TickerUI extends Application {
 			}
 		});
 	}
+
+	//methods for tab display
+	private void TodoListWanted() {
+		tabs.getChildren().clear();
+		imv7.setImage(cmi_2);
+		tabs.getChildren().add(imv7);
+		imv6.setImage(ticked_2);
+		tabs.getChildren().add(imv6);
+		imv8.setImage(todo_1);
+		tabs.getChildren().add(imv8);
+		tabs.getChildren().add(imv5);
+		currentView = 1;
+	}
+	private void TickedListWanted() {
+		tabs.getChildren().clear();
+		imv7.setImage(cmi_2);
+		tabs.getChildren().add(imv7);
+		imv8.setImage(todo_2);
+		tabs.getChildren().add(imv8);
+		imv6.setImage(ticked_1);
+		tabs.getChildren().add(imv6);
+		tabs.getChildren().add(imv5);
+		currentView = 2;
+	}
+	private void CMIListWanted() {
+		tabs.getChildren().clear();
+		imv8.setImage(todo_2);
+		tabs.getChildren().add(imv8);
+		imv6.setImage(ticked_2);
+		tabs.getChildren().add(imv6);
+		imv7.setImage(cmi_1);
+		tabs.getChildren().add(imv7);
+		tabs.getChildren().add(imv5);
+		currentView = 3;
+	}
+
 }
+
+
