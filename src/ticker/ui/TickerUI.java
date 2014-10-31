@@ -61,7 +61,7 @@ public class TickerUI extends Application {
 	//basic display
 	Image background, logo, min, min_, close, close_;
 	ImageView imv1, imv2, imv3, imv4;
-	GridPane chart;
+	GridPane chart = new GridPane();
 	TextField command;
 	Text feedback;
 	ScrollPane sp;
@@ -69,8 +69,8 @@ public class TickerUI extends Application {
 	Group tabs;
 	ImageView imv5, imv6, imv7, imv8;
 	Image cmi_1, cmi_2, cmi_3, ticked_1, ticked_2, ticked_3, todo_1, todo_2, todo_3, bar;
-	int currentView = 1;          //1 for todo(default), 2 for ticked, 3 for cmi
-
+	private int currentView = 1;          //1 for todo(default), 2 for ticked, 3 for cmi
+	private int nextView;
 
 	private static Logger logger = Logger.getLogger("UI");
 
@@ -277,9 +277,9 @@ public class TickerUI extends Application {
 		tabs = new Group();
 
 		DropShadow ds = new DropShadow();
-		ds.setRadius(5.0);
-		ds.setOffsetX(3.0);
-		ds.setOffsetY(3.0);
+		ds.setRadius(8.0);
+		ds.setOffsetX(0);
+		ds.setOffsetY(0);
 		ds.setColor(Color.rgb(0, 0, 0, 0.6));
 
 		//tab3 cmi
@@ -328,6 +328,7 @@ public class TickerUI extends Application {
 		tabs.getChildren().add(imv8);
 
 		root.getChildren().add(tabs);  
+		currentAnimation();
 
 		bar = new Image("ticker/ui/pic/bar.png", true);
 		imv5 = new ImageView();
@@ -340,130 +341,6 @@ public class TickerUI extends Application {
 		imv5.setCache(true);
 		root.getChildren().add(imv5);
 
-		if(currentView==1) {
-			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					imv6.setImage(ticked_3);
-				}
-
-			});
-			imv6.setOnMouseExited(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					imv6.setImage(ticked_2);
-				}
-			});
-			imv6.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					TickedListWanted();
-				}
-			});
-
-			imv7.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					imv7.setImage(cmi_3);
-				}
-
-			});
-			imv7.setOnMouseExited(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					imv7.setImage(cmi_2);
-				}
-			});
-			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					CMIListWanted();
-				}
-			});
-		}
-		if(currentView==2) {
-			imv8.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					imv8.setImage(todo_3);
-				}
-
-			});
-			imv8.setOnMouseExited(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					imv8.setImage(todo_2);
-				}
-			});
-			imv8.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					TodoListWanted();
-				}
-			});
-
-			imv7.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					imv7.setImage(cmi_3);
-				}
-
-			});
-			imv7.setOnMouseExited(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					imv7.setImage(cmi_2);
-				}
-			});
-			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					CMIListWanted();
-				}
-			});
-		}
-		if(currentView==3) {
-			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					imv6.setImage(ticked_3);
-				}
-
-			});
-			imv6.setOnMouseExited(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					imv6.setImage(ticked_2);
-				}
-			});
-			imv6.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					TickedListWanted();
-				}
-			});
-
-			imv8.setOnMouseEntered(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					imv8.setImage(todo_3);
-				}
-
-			});
-			imv8.setOnMouseExited(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					imv8.setImage(todo_2);
-				}
-			});
-			imv8.setOnMouseClicked(new EventHandler<MouseEvent>() {
-
-				public void handle(MouseEvent evt) {
-					TodoListWanted();
-				}
-			});
-		}
-
 
 
 		//TODO set the content of help and design better looking help page
@@ -475,7 +352,6 @@ public class TickerUI extends Application {
 		help.setLayoutX(45);
 		help.setLayoutY(75);
 		help.setPrefSize(400, 500);
-
 		root.getChildren().add(help);
 
 
@@ -483,7 +359,6 @@ public class TickerUI extends Application {
 		//can scroll up and down and minimise the window using keyboard
 		command.setOnKeyPressed(new EventHandler<KeyEvent>() 
 				{
-
 			public void handle(KeyEvent e) {
 
 				KeyCode code = e.getCode();  
@@ -502,23 +377,15 @@ public class TickerUI extends Application {
 				});
 
 
-
-		logger.log(Level.INFO, "the stage is set up");
-
 		command.setOnAction(new EventHandler<ActionEvent>() 
 				{
 			public void handle(ActionEvent event) {
-				logger.log(Level.INFO, "user press enter once");
-
 				String cmd = command.getText();
-
-				assert !cmd.equals("");
 				command.clear();
 
 				feedback.setText(logic.getLogic(cmd));
 
-				if(displayHelp == true) {
-
+				if(displayHelp == true) {            //if command is "help"
 					help.setVisible(true);
 					FadeTransition ft = new FadeTransition(Duration.millis(250), help);
 					ft.setFromValue(0);
@@ -555,11 +422,14 @@ public class TickerUI extends Application {
 
 							});
 				} 
-				else {
-					//find another way!!!!
-					//result.setText(list);
-					chart.getChildren().clear();
-					displayTasks();
+				else {		
+					if(chart.getChildren().size()==0) {
+						displayTasks();
+					}
+					else {
+						chart.getChildren().clear();
+						displayTasks();
+					}
 				}
 
 				//feedback fades off after 5 seconds
@@ -569,10 +439,6 @@ public class TickerUI extends Application {
 				ft.play();
 			}
 				});
-
-
-
-
 
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
@@ -588,13 +454,23 @@ public class TickerUI extends Application {
 		launch(args);
 		ticker = new TickerUI();
 	}
-	
-	
-	
-    //helper methods:
+
+
+	//MARK helper functions start here 
+	/*the following methods are for Logic to call*/
 	public void setHelp() {
 		this.displayHelp = true;
 	}
+
+	public void setList(Vector<Task> tasks) {
+		this.tasksToBeShown = tasks;
+	}
+
+	public void setNextView(int next) {
+		this.nextView = next;
+	}
+	/*--------------------------------------------*/
+
 	private String getHelp() {
 		String helpList = "";
 		helpList += "HELP FOR USING TICKER\n";
@@ -610,87 +486,80 @@ public class TickerUI extends Application {
 		helpList += "-to redo the last undo: redo\n";
 		helpList += "-to mark a task as done: tick <index of task>\n";
 		helpList += "-to mark a task as cannot be done: cmi <index of task>\n";
-		//edit not done yet
 		return helpList;
-
 	}
 
-
-	public void setList(Vector<Task> tasks) {
-		this.tasksToBeShown = tasks;
-	}
-
-	public void displayTasks() {
+	private void displayTasks() {
 		int prefHeight = 30;
 		int maxHeight = 100;
 		int widthIndex = 20;
 		int widthDes = 250;
 		int widthTime = 140;
-		for(int i = 0; i < tasksToBeShown.size(); i++ ) {
+		System.out.println(tasksToBeShown.size() + " tasks!");
+		if(tasksToBeShown.size()==0) {
+			return;
+		} else {
+			for(int i = 0; i < tasksToBeShown.size(); i++ ) {
 
-			HBox hb = new HBox(10);
-			hb.setPadding(new Insets(15, 10, 5, 10));
+				HBox hb = new HBox(10);
+				hb.setPadding(new Insets(15, 10, 5, 10));
 
-			//index
-			Label index = new Label(""+(i+1)+".");
-			index.setPrefSize(widthIndex, prefHeight);
-			index.setAlignment(Pos.TOP_LEFT);
+				//index
+				Label index = new Label(""+(i+1)+".");
+				index.setPrefSize(widthIndex, prefHeight);
+				index.setAlignment(Pos.TOP_LEFT);
 
-			//task description
-			Label description = new Label(tasksToBeShown.get(i).getDescription());
-			description.setMaxSize(widthDes, maxHeight);
-			description.setPrefSize(widthDes, prefHeight);
-			description.setAlignment(Pos.TOP_LEFT);
-			description.setWrapText(true);
+				//task description
+				Label description = new Label(tasksToBeShown.get(i).getDescription());
+				description.setMaxSize(widthDes, maxHeight);
+				description.setPrefSize(widthDes, prefHeight);
+				description.setAlignment(Pos.TOP_LEFT);
+				description.setWrapText(true);
 
-			Date sd = tasksToBeShown.get(i).getStartDate();
-			Date ed = tasksToBeShown.get(i).getEndDate();
-			Time st = tasksToBeShown.get(i).getStartTime();
-			Time et = tasksToBeShown.get(i).getEndTime();
+				Date sd = tasksToBeShown.get(i).getStartDate();
+				Date ed = tasksToBeShown.get(i).getEndDate();
+				Time st = tasksToBeShown.get(i).getStartTime();
+				Time et = tasksToBeShown.get(i).getEndTime();
 
-			String SD, ED, ST, ET;
+				String SD, ED, ST, ET;
 
-			SD = (sd==null)? "" : sd.toString();
-			ED = (ed==null)? "" : ed.toString();
-			ST = (st==null)? "" : st.toString();
-			ET = (et==null)? "" : et.toString();
+				SD = (sd==null)? "" : sd.toString();
+				ED = (ed==null)? "" : ed.toString();
+				ST = (st==null)? "" : st.toString();
+				ET = (et==null)? "" : et.toString();
 
+				if(sd==null && st==null && ed==null && et==null) {
+					hb.getChildren().addAll(index, description);
+				}
+				else if (ed==null && et==null) {
+					Label start = new Label("Start: " + ST + " " + SD);
+					start.setMaxSize(widthTime, prefHeight);
+					start.setAlignment(Pos.TOP_LEFT);
+					hb.getChildren().addAll(index, description, start);
+				}
+				else if (sd==null && st==null) {
+					Label end = new Label("End: " + ET + " " + ED);
+					end.setMaxSize(widthTime, prefHeight);
+					end.setAlignment(Pos.TOP_LEFT);
+					hb.getChildren().addAll(index, description, end);
+				}
+				else {
+					Label start = new Label("Start: " + ST + " " + SD);
+					//start.setMaxSize(widthTime, prefHeight);
+					start.setAlignment(Pos.TOP_LEFT);
 
+					Label end = new Label("End: " + ET + " " + ED);
+					//end.setMaxSize(widthTime, prefHeight);
+					end.setAlignment(Pos.TOP_LEFT);
 
-
-			if(sd==null && st==null && ed==null && et==null) {
-				hb.getChildren().addAll(index, description);
+					VBox time = new VBox(5);
+					time.getChildren().add(start);
+					time.getChildren().add(end);
+					time.setPrefSize(widthTime, prefHeight);
+					hb.getChildren().addAll(index, description, time);
+				}
+				chart.add(hb, 0, i);
 			}
-			else if (ed==null && et==null) {
-				Label start = new Label("Start: " + ST + " " + SD);
-				start.setMaxSize(widthTime, prefHeight);
-				start.setAlignment(Pos.TOP_LEFT);
-				hb.getChildren().addAll(index, description, start);
-			}
-			else if (sd==null && st==null) {
-				Label end = new Label("End: " + ET + " " + ED);
-				end.setMaxSize(widthTime, prefHeight);
-				end.setAlignment(Pos.TOP_LEFT);
-				hb.getChildren().addAll(index, description, end);
-			}
-			else {
-				Label start = new Label("Start: " + ST + " " + SD);
-				//start.setMaxSize(widthTime, prefHeight);
-				start.setAlignment(Pos.TOP_LEFT);
-
-				Label end = new Label("End: " + ET + " " + ED);
-				//end.setMaxSize(widthTime, prefHeight);
-				end.setAlignment(Pos.TOP_LEFT);
-
-				VBox time = new VBox(5);
-				time.getChildren().add(start);
-				time.getChildren().add(end);
-				time.setPrefSize(widthTime, prefHeight);
-				hb.getChildren().addAll(index, description, time);
-			}
-
-
-			chart.add(hb, 0, i);
 		}
 
 	}
@@ -727,8 +596,113 @@ public class TickerUI extends Application {
 		});
 	}
 
+	private void currentAnimation() {
+		if(currentView==1) {
+			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv6.setImage(ticked_3);
+				}
+			});
+			imv6.setOnMouseExited(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv6.setImage(ticked_2);
+				}
+			});
+			imv6.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					TickedListWanted();
+				}
+			});
+
+			imv7.setOnMouseEntered(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv7.setImage(cmi_3);
+				}
+			});
+			imv7.setOnMouseExited(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv7.setImage(cmi_2);
+				}
+			});
+			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					CMIListWanted();
+				}
+			});
+		}
+		if(currentView==2) {
+
+			imv8.setOnMouseEntered(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv8.setImage(todo_3);
+				}
+			});
+			imv8.setOnMouseExited(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv8.setImage(todo_2);
+				}
+			});
+			imv8.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					TodoListWanted();
+				}
+			});
+
+			imv7.setOnMouseEntered(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv7.setImage(cmi_3);
+				}
+			});
+			imv7.setOnMouseExited(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv7.setImage(cmi_2);
+				}
+			});
+			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					CMIListWanted();
+				}
+			});
+		}
+		if(currentView==3) {
+
+			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv6.setImage(ticked_3);
+				}
+			});
+			imv6.setOnMouseExited(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv6.setImage(ticked_2);
+				}
+			});
+			imv6.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					TickedListWanted();
+				}
+			});
+
+			imv8.setOnMouseEntered(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv8.setImage(todo_3);
+				}
+			});
+			imv8.setOnMouseExited(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv8.setImage(todo_2);
+				}
+			});
+			imv8.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					TodoListWanted();
+				}
+			});
+		}
+	}
+
 	//methods for tab display
 	private void TodoListWanted() {
+		root.getChildren().remove(tabs);
 		tabs.getChildren().clear();
 		imv7.setImage(cmi_2);
 		tabs.getChildren().add(imv7);
@@ -736,10 +710,12 @@ public class TickerUI extends Application {
 		tabs.getChildren().add(imv6);
 		imv8.setImage(todo_1);
 		tabs.getChildren().add(imv8);
-		tabs.getChildren().add(imv5);
+		root.getChildren().add(6, tabs);
 		currentView = 1;
+		currentAnimation();
 	}
 	private void TickedListWanted() {
+		root.getChildren().remove(tabs);
 		tabs.getChildren().clear();
 		imv7.setImage(cmi_2);
 		tabs.getChildren().add(imv7);
@@ -747,10 +723,12 @@ public class TickerUI extends Application {
 		tabs.getChildren().add(imv8);
 		imv6.setImage(ticked_1);
 		tabs.getChildren().add(imv6);
-		tabs.getChildren().add(imv5);
+		root.getChildren().add(6, tabs);
 		currentView = 2;
+		currentAnimation();
 	}
 	private void CMIListWanted() {
+		root.getChildren().remove(tabs);
 		tabs.getChildren().clear();
 		imv8.setImage(todo_2);
 		tabs.getChildren().add(imv8);
@@ -758,8 +736,9 @@ public class TickerUI extends Application {
 		tabs.getChildren().add(imv6);
 		imv7.setImage(cmi_1);
 		tabs.getChildren().add(imv7);
-		tabs.getChildren().add(imv5);
+		root.getChildren().add(6, tabs);
 		currentView = 3;
+		currentAnimation();
 	}
 
 }
