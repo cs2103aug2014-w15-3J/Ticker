@@ -19,32 +19,84 @@ public class CRUManager {
 	// Integer key constants for lists used by listTracker
 	private static final int KEY_SORTED_TIME = 1;
 	private static final int KEY_SORTED_PRIORITY = 2;
+	private static final int KEY_SEARCH = 5;
+	// String constants for type of lists used
+	private static final String TASKS_TIME = "TIME";
+	private static final String TASKS_TICKED = "TICKED";
+	private static final String TASKS_CMI = "CMI";
 
 	// Instances of other components
 	private UndoManager undoMng;
-	private Vector<Task> storedTasksByPriority, storedTasksByTime;
+	private Vector<Task> storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByCMI;
 	
 	CRUManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTime = storedTasksByTime;
+		this.storedTasksByTicked = storedTasksByTicked;
+		this.storedTasksByCMI = storedTasksByTicked;
 		
 		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByCMI);
 	}
 	
 	String delete(int index, int listTracker, Vector<Task> current, String currentListName) throws ArrayIndexOutOfBoundsException {
 		// Exception catching
-
+		Event event;
 		Task deleted = current.remove(index-1);
 
 		if (listTracker == KEY_SORTED_TIME) {
 			storedTasksByPriority.remove(deleted);
+			event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
+			undoMng.add(event);
 		}
-		if (listTracker == KEY_SORTED_PRIORITY) {
+		else if (listTracker == KEY_SORTED_PRIORITY) {
 			storedTasksByTime.remove(deleted);
+			event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
+			undoMng.add(event);
 		}
-
-		Event event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
-		undoMng.add(event);
+		else if (listTracker == KEY_SEARCH) {
+			int indexCounter;
+			if (storedTasksByTime.contains(deleted) || storedTasksByPriority.contains(deleted)) {
+				indexCounter = 0;
+				for (Task task: storedTasksByTime) {
+					if (task.equals(deleted)) {
+						break;
+					}
+					indexCounter++;
+				}
+				storedTasksByTime.remove(deleted);
+				storedTasksByPriority.remove(deleted);
+				event = new Event(COMMAND_DELETE, deleted, TASKS_TIME, indexCounter);
+				undoMng.add(event);
+			}
+			else if (storedTasksByTicked.contains(deleted)) {
+				indexCounter = 0;
+				for (Task task: storedTasksByTicked) {
+					if (task.equals(deleted)) {
+						break;
+					}
+					indexCounter++;
+				}
+				storedTasksByTicked.remove(deleted);
+				event = new Event(COMMAND_DELETE, deleted, TASKS_TICKED, indexCounter);
+				undoMng.add(event);
+			}
+			else if (storedTasksByCMI.contains(deleted)) {
+				indexCounter = 0;
+				for (Task task: storedTasksByCMI) {
+					if (task.equals(deleted)) {
+						break;
+					}
+					indexCounter++;
+				}
+				storedTasksByCMI.remove(deleted);
+				event = new Event(COMMAND_DELETE, deleted, TASKS_CMI, indexCounter);
+				undoMng.add(event);
+			}
+		}
+		else {
+			event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
+			undoMng.add(event);
+		}
 
 		return deleted.toString() + " has been removed.\n";
 
