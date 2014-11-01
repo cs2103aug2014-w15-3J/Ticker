@@ -397,11 +397,12 @@ public class Logic{
 	}
 
 	private String clear() {
-		sortedTime.removeAllElements();
-		sortedPriority.removeAllElements();
-		listTicked.removeAllElements();
-		listCMI.removeAllElements();
-		searchResults.removeAllElements();
+		current.removeAllElements();
+		
+		if (listTracker == KEY_SORTED_TIME || listTracker == KEY_SORTED_PRIORITY) {
+			sortedTime.removeAllElements();
+			sortedPriority.removeAllElements();
+		}
 
 		storeLists();
 		UI.setList(current);
