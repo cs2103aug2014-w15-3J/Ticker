@@ -256,6 +256,12 @@ public class Logic{
 		case COMMAND_UNCMI:
 			try {
 				feedback = tickCMIMng.uncmi(processed.getIndex(), listTracker, current);
+				
+				if (listTracker == KEY_SEARCH) {
+					searchResults.removeAllElements();
+					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+				}
 
 				//checkForTaskExpiry();
 				sortLists();
@@ -335,7 +341,13 @@ public class Logic{
 		case COMMAND_UNTICK:
 			try {
 				feedback = tickCMIMng.untick(processed.getIndex(), listTracker, current);
-
+				
+				if (listTracker == KEY_SEARCH) {
+					searchResults.removeAllElements();
+					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+				}
+				
 				//checkForTaskExpiry();
 				sortLists();
 				storeLists();

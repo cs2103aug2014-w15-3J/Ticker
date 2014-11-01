@@ -34,7 +34,7 @@ public class TickCMIManager {
 		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByCMI);
 	}
 
-	String tick(int index, int listTracker, Vector<Task> current) {
+	String tick(int index, int listTracker, Vector<Task> current) throws IllegalArgumentException {
 		Task ticked;
 
 		if (listTracker == KEY_CMI) {
@@ -70,17 +70,30 @@ public class TickCMIManager {
 		return ticked.toString() + " is done!\n";
 	}
 
-	String untick(int index, int listTracker, Vector<Task> current) {
-		// Exception catching
-		if (index <= 0 || index > current.size()) {
-			throw new ArrayIndexOutOfBoundsException();
-		}
+	String untick(int index, int listTracker, Vector<Task> current) throws IllegalArgumentException{
+		Task unticked;
 
-		if (listTracker != KEY_TICKED) {
+		if (listTracker != KEY_TICKED && listTracker != KEY_SEARCH) {
 			throw new IllegalArgumentException();
 		}
+		
+		if (listTracker == KEY_SEARCH) {
+			unticked = current.get(index-1);
+			if (storedTasksByTime.contains(unticked) || storedTasksByPriority.contains(unticked)) {
+				return "Cannot untick a task from undone list.";
+			}
+			else if (storedTasksByTicked.contains(unticked)) {
+				storedTasksByTicked.remove(unticked);
+			}
+			else if (storedTasksByCMI.contains(unticked)) {
+				return "Cannot untick a task from CMI.";
+			}
 
-		Task unticked = current.remove(index-1);
+		}
+		else {
+				unticked = current.remove(index-1);
+		}
+		
 		storedTasksByTime.add(unticked);
 		storedTasksByPriority.add(unticked);
 
@@ -90,7 +103,7 @@ public class TickCMIManager {
 		return unticked.toString() + " is back to undone\n";
 	}
 
-	String cmi(int index, int listTracker, Vector<Task> current, String currentListName) throws ArrayIndexOutOfBoundsException {
+	String cmi(int index, int listTracker, Vector<Task> current, String currentListName) throws IllegalArgumentException {
 		if (listTracker == KEY_TICKED) {
 			throw new IllegalArgumentException();
 		}
@@ -133,17 +146,30 @@ public class TickCMIManager {
 
 	}
 
-	String uncmi(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException {
-		// Exception catching
-		if (index <= 0 || index > current.size()) {
-			throw new ArrayIndexOutOfBoundsException();
-		}
-
-		if (listTracker != KEY_CMI) {
+	String uncmi(int index, int listTracker, Vector<Task> current) throws IllegalArgumentException {
+		Task uncmi;
+		
+		if (listTracker != KEY_CMI && listTracker != KEY_SEARCH) {
 			throw new IllegalArgumentException();
 		}
+		
+		if (listTracker == KEY_SEARCH) {
+			uncmi = current.get(index-1);
+			if (storedTasksByTime.contains(uncmi) || storedTasksByPriority.contains(uncmi)) {
+				return "Cannot uncmi a task from undone list.";
+			}
+			else if (storedTasksByTicked.contains(uncmi)) {
+				return "Cannot uncmi a task from ticked list.";
+			}
+			else if (storedTasksByCMI.contains(uncmi)) {
+				storedTasksByCMI.remove(uncmi);
+			}
 
-		Task uncmi = current.remove(index-1);
+		}
+		else {
+				uncmi = current.remove(index-1);
+		}
+
 		// Add to the front so the latest additions are on top
 		storedTasksByTime.add(uncmi);
 		storedTasksByPriority.add(uncmi);
