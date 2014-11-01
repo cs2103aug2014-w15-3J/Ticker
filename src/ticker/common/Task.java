@@ -88,12 +88,11 @@ public class Task {
 		isRepeating = input;
 	}
 	
-	/*public void isExpired() {
+	public void isExpired() {
 		isExpired = false;
-	}*/
+	}
 
 	public boolean equals(Object obj) {
-		
 
 		if (obj instanceof Task) {
 			Task myTask = (Task) obj; 
