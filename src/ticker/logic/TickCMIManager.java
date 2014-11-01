@@ -14,10 +14,12 @@ public class TickCMIManager {
 	// Integer key constants for lists used by listTracker
 	private static final int KEY_TICKED = 3;
 	private static final int KEY_CMI = 4;
+	private static final int KEY_SEARCH = 5;
 	// String constants for type of lists used by UndoManager
 	private static final String TASKS_TIME = "TIME";
 	private static final String TASKS_TICKED = "TICKED";
 	private static final String TASKS_CMI = "CMI";
+	private static final String TASKS_SEARCH = "SEARCH";
 
 	// Instances of other components
 	private UndoManager undoMng;
@@ -33,17 +35,31 @@ public class TickCMIManager {
 	}
 
 	String tick(int index, int listTracker, Vector<Task> current) {
-		// Exception catching
-		if (index <= 0 || index > current.size()) {
-			throw new ArrayIndexOutOfBoundsException();
-		}
+		Task ticked;
 
 		if (listTracker == KEY_CMI) {
-			System.out.println("Error in listTracker");
+			System.out.println("cannot tick in cmi list");
 			throw new IllegalArgumentException();
 		}
 
-		Task ticked = current.remove(index-1);
+		else if (listTracker == KEY_SEARCH) {
+			ticked = current.get(index-1);
+			if (storedTasksByTime.contains(ticked) || storedTasksByPriority.contains(ticked)) {
+				storedTasksByTime.remove(ticked);
+				storedTasksByPriority.remove(ticked);
+			}
+			else if (storedTasksByTicked.contains(ticked)) {
+				return "Task is already ticked.";
+			}
+			else if (storedTasksByCMI.contains(ticked)) {
+				return "Cannot tick a task from CMI. Please unCMI task first.";
+			}
+
+		}
+
+		else {
+			ticked = current.remove(index-1);
+		}
 		storedTasksByTime.remove(ticked);
 		storedTasksByPriority.remove(ticked);
 		storedTasksByTicked.add(0, ticked);
@@ -75,16 +91,36 @@ public class TickCMIManager {
 	}
 
 	String cmi(int index, int listTracker, Vector<Task> current, String currentListName) throws ArrayIndexOutOfBoundsException {
-		// Exception catching
-		if (index <= 0 || index > current.size()) {
-			throw new ArrayIndexOutOfBoundsException();
-		}
-
 		if (listTracker == KEY_TICKED) {
 			throw new IllegalArgumentException();
 		}
 
-		Task cmi = current.remove(index-1);
+		Task cmi;
+
+		if (listTracker == KEY_TICKED) {
+			System.out.println("Cannot cmi in ticked list");
+			throw new IllegalArgumentException();
+		}
+
+		else if (listTracker == KEY_SEARCH) {
+			cmi = current.get(index-1);
+			if (storedTasksByTime.contains(cmi) || storedTasksByPriority.contains(cmi)) {
+				storedTasksByTime.remove(cmi);
+				storedTasksByPriority.remove(cmi);
+			}
+			else if (storedTasksByCMI.contains(cmi)) {
+				return "Task is already CMIed.";
+			}
+			else if (storedTasksByTicked.contains(cmi)) {
+				return "Cannot CMI a task from ticked. Please untick task first.";
+			}
+
+		}
+
+		else {
+			cmi = current.remove(index-1);
+		}
+		
 		// Add to the front so the latest additions are on top
 		storedTasksByCMI.add(0, cmi);
 		storedTasksByTime.remove(cmi);

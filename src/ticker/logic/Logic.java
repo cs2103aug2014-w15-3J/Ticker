@@ -233,6 +233,12 @@ public class Logic{
 		case COMMAND_CMI:
 			try {
 				feedback = tickCMIMng.cmi(processed.getIndex(), listTracker, current, currentListName);
+				
+				if (listTracker == KEY_SEARCH) {
+					searchResults.removeAllElements();
+					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+				}
 
 				//checkForTaskExpiry();
 				sortLists();
@@ -272,7 +278,6 @@ public class Logic{
 					searchResults.removeAllElements();
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
-					
 				}
 
 				//checkForTaskExpiry();
@@ -307,6 +312,12 @@ public class Logic{
 		case COMMAND_TICK:
 			try {
 				feedback = tickCMIMng.tick(processed.getIndex(), listTracker, current);
+				
+				if (listTracker == KEY_SEARCH) {
+					searchResults.removeAllElements();
+					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+				}
 
 				//checkForTaskExpiry();
 				sortLists();
@@ -333,9 +344,9 @@ public class Logic{
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been unticked.";
 			}
-			catch (IllegalArgumentException ex) {
-				return "Current list: " + currentListName + "Cannot perform command on this list";
-			}
+			//catch (IllegalArgumentException ex) {
+				//return "Current list: " + currentListName + "Cannot perform command on this list";
+			//}
 			break;
 
 
