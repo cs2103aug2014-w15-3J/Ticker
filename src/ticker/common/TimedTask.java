@@ -12,14 +12,14 @@ public class TimedTask extends Task {
 				this.getEndTime(), this.getPriority(), this.getRepeat());
 	}
 	
-	/*public void isExpired() {
-		if (this.endDate.compareTo(Date.getCurrentDate()) == 1 && this.endTime.compareTo(Time.getCurrentTime()) == 1) {
+	public void isExpired() {
+		if (this.endDate != null && this.endTime != null && this.endDate.compareTo(Date.getCurrentDate()) == 1 && this.endTime.compareTo(Time.getCurrentTime()) == 1) {
 			this.isExpired = true;
 			return;
 		}
 		this.isExpired = false;
 		return;
-	}*/
+	}
 	
 	@Override 
 	public String toString(){

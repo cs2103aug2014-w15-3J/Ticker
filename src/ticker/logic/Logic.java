@@ -109,7 +109,7 @@ public class Logic{
 		listTracker = KEY_SORTED_TIME;
 		currentListName = TASKS_TIME;
 
-		//checkForTaskExpiry();
+		checkForTaskExpiry();
 		UI.setList(current);
 
 	}
@@ -142,7 +142,7 @@ public class Logic{
 				searchResults = searchMng.search(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
 				
-				//checkForTaskExpiry();
+				checkForTaskExpiry();
 				
 				listTracker = KEY_SEARCH;
 				current = searchResults;
@@ -162,7 +162,7 @@ public class Logic{
 			try {
 				feedback = cruMng.delete(processed.getIndex(), listTracker, current, currentListName);
 
-				//checkForTaskExpiry();
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -178,7 +178,7 @@ public class Logic{
 
 		case COMMAND_LIST:
 			try {
-				//checkForTaskExpiry();
+				checkForTaskExpiry();
 				feedback = this.list(processed.getDescription());
 			}
 			catch (IllegalArgumentException ex) {
@@ -200,7 +200,7 @@ public class Logic{
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
 				
-				//checkForTaskExpiry();
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -224,7 +224,7 @@ public class Logic{
 					currentListName = TASKS_TIME;
 				}
 
-				//checkForTaskExpiry();
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -244,7 +244,7 @@ public class Logic{
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
 
-				//checkForTaskExpiry();
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -267,7 +267,7 @@ public class Logic{
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
 
-				//checkForTaskExpiry();
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -290,7 +290,7 @@ public class Logic{
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
 
-				//checkForTaskExpiry();
+				checkForTaskExpiry();
 				sortLists();
 				UI.setList(current);
 			}
@@ -310,7 +310,7 @@ public class Logic{
 					
 				}
 
-				//checkForTaskExpiry();
+				checkForTaskExpiry();
 				sortLists();
 				UI.setList(current);
 			}
@@ -329,7 +329,7 @@ public class Logic{
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
 
-				//checkForTaskExpiry();
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -352,7 +352,7 @@ public class Logic{
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
 				
-				//checkForTaskExpiry();
+				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
@@ -383,7 +383,7 @@ public class Logic{
 	/**
 	 * 
 	 */
-	/*private void checkForTaskExpiry() {
+	private void checkForTaskExpiry() {
 		for (Task timeTask: sortedTime) {
 			timeTask.isExpired();
 		}
@@ -396,7 +396,7 @@ public class Logic{
 		for (Task tickedTask: listTicked) {
 			tickedTask.isExpired();
 		}
-	}*/
+	}
 
 
 
