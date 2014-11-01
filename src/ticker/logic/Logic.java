@@ -78,6 +78,8 @@ public class Logic{
 	private static Vector<Task> listTicked; // not sorted
 	private static Vector<Task> listCMI; // not sorted
 	private static Vector<Task> searchResults;
+	// Store existing (current) search request
+	private static UserInput searchRequest;
 
 	public Logic() {
 	}
@@ -134,7 +136,8 @@ public class Logic{
 
 		switch(command){
 		case COMMAND_SEARCH: 
-			//try {
+			try {
+				searchRequest = processed;
 				searchResults.removeAllElements();
 				searchResults = searchMng.search(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
@@ -148,10 +151,10 @@ public class Logic{
 				UI.setList(current);
 				
 				feedback = "searching for tasks...";
-			//}
-			//catch (Exception e) {
-				//System.out.println("error in search");
-			//}
+			}
+			catch (Exception e) {
+				System.out.println("error in search");
+			}
 			
 			break;
 
@@ -264,6 +267,13 @@ public class Logic{
 		case COMMAND_UNDO:
 			try {
 				undoMng.undo();
+				
+				if (listTracker == KEY_SEARCH) {
+					searchResults.removeAllElements();
+					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+					
+				}
 
 				//checkForTaskExpiry();
 				sortLists();
@@ -277,6 +287,13 @@ public class Logic{
 		case COMMAND_REDO:
 			try {
 				undoMng.redo();
+				
+				if (listTracker == KEY_SEARCH) {
+					searchResults.removeAllElements();
+					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+					
+				}
 
 				//checkForTaskExpiry();
 				sortLists();
