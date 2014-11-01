@@ -34,7 +34,7 @@ public class TickCMIManager {
 		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByCMI);
 	}
 
-	String tick(int index, int listTracker, Vector<Task> current) throws IllegalArgumentException {
+	String tick(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task ticked;
 
 		if (listTracker == KEY_CMI) {
@@ -70,7 +70,7 @@ public class TickCMIManager {
 		return ticked.toString() + " is done!\n";
 	}
 
-	String untick(int index, int listTracker, Vector<Task> current) throws IllegalArgumentException{
+	String untick(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException{
 		Task unticked;
 
 		if (listTracker != KEY_TICKED && listTracker != KEY_SEARCH) {
@@ -103,7 +103,8 @@ public class TickCMIManager {
 		return unticked.toString() + " is back to undone\n";
 	}
 
-	String cmi(int index, int listTracker, Vector<Task> current, String currentListName) throws IllegalArgumentException {
+	String cmi(int index, int listTracker, Vector<Task> current, String currentListName) 
+			throws ArrayIndexOutOfBoundsException,IllegalArgumentException {
 		if (listTracker == KEY_TICKED) {
 			throw new IllegalArgumentException();
 		}
@@ -146,7 +147,8 @@ public class TickCMIManager {
 
 	}
 
-	String uncmi(int index, int listTracker, Vector<Task> current) throws IllegalArgumentException {
+	String uncmi(int index, int listTracker, Vector<Task> current) 
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task uncmi;
 		
 		if (listTracker != KEY_CMI && listTracker != KEY_SEARCH) {

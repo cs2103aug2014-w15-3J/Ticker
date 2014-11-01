@@ -190,12 +190,16 @@ public class Logic{
 
 		case COMMAND_EDIT:
 			try {
-				if (listTracker == KEY_CMI || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
-					return "Cannot perform edit in this list";
-				}
 
-				feedback = cruMng.edit(processed.getIndex(), processed.getAppending(),
-						processed.getDescription(), listTracker, current);
+				feedback = cruMng.edit(processed.getIndex(), processed.getAppending(), processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
+						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority(), listTracker, current);
+				
+				if (listTracker == KEY_SEARCH) {
+					searchResults.removeAllElements();
+					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+				}
+				
 				//checkForTaskExpiry();
 				sortLists();
 				storeLists();

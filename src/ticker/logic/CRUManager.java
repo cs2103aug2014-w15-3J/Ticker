@@ -19,6 +19,8 @@ public class CRUManager {
 	// Integer key constants for lists used by listTracker
 	private static final int KEY_SORTED_TIME = 1;
 	private static final int KEY_SORTED_PRIORITY = 2;
+	private static final int KEY_TICKED = 3;
+	private static final int KEY_CMI = 4;
 	private static final int KEY_SEARCH = 5;
 	// String constants for type of lists used
 	private static final String TASKS_TIME = "TIME";
@@ -28,18 +30,18 @@ public class CRUManager {
 	// Instances of other components
 	private UndoManager undoMng;
 	private Vector<Task> storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByCMI;
-	
+
 	CRUManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTime = storedTasksByTime;
 		this.storedTasksByTicked = storedTasksByTicked;
 		this.storedTasksByCMI = storedTasksByTicked;
-		
+
 		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByCMI);
 	}
-	
-	String delete(int index, int listTracker, Vector<Task> current, String currentListName) throws ArrayIndexOutOfBoundsException {
-		// Exception catching
+
+	String delete(int index, int listTracker, Vector<Task> current, String currentListName) 
+			throws ArrayIndexOutOfBoundsException {
 		Event event;
 		Task deleted = current.remove(index-1);
 
@@ -150,29 +152,42 @@ public class CRUManager {
 
 		return description + " has been added.\n";
 	}
-	
-	String edit(int index, boolean isAppending, String description, int listTracker, Vector<Task> current)
-			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
-		// Exception catching
 
-		if (index <= 0 || index > current.size()) {
-			throw new ArrayIndexOutOfBoundsException();
-		}
+	String edit(int index, boolean isAppending, String description,boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
+			char priority, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		Task oldTask;
+		Task newTask;
+
 		if (description == null || description.equals("")) {
 			throw new IllegalArgumentException();
 		}
 
-		Task oldTask = current.remove(index - 1);
-		Task newTask = oldTask.copy();
+		if (listTracker == KEY_TICKED && listTracker == KEY_CMI) {
+			return "Cannot edit from ticked and CMI list.";
+		}
+
+		if (listTracker == KEY_SEARCH) {
+			oldTask = current.get(index - 1);
+			if (storedTasksByTime.contains(oldTask) || storedTasksByPriority.contains(oldTask)) {
+				storedTasksByTime.remove(oldTask);
+				storedTasksByTime.remove(oldTask);
+			}
+			else if (storedTasksByTicked.contains(oldTask) || storedTasksByCMI.contains(oldTask)) {
+				return "Cannot edit from ticked and CMI list.";
+			}
+		}
+		else {
+			oldTask = current.remove(index-1);
+		}
+
+		newTask = oldTask.copy();
 
 		// Edit the other Vector<Task>
 		if (listTracker == KEY_SORTED_TIME ) {
 			storedTasksByPriority.remove(oldTask);
-			System.out.print("here1");
 		}
 		else if (listTracker == KEY_SORTED_PRIORITY) {
 			storedTasksByTime.remove(oldTask);
-			System.out.print("here2");
 		}
 
 		if (isAppending) {
@@ -195,14 +210,19 @@ public class CRUManager {
 		}
 
 		newTask.setDescription(description);
-		current.add(index - 1, newTask);
-		if (listTracker == KEY_SORTED_TIME ) {
+		if (listTracker == KEY_SEARCH) {
+			storedTasksByTime.add(newTask);
 			storedTasksByPriority.add(newTask);
 		}
-		else if (listTracker == KEY_SORTED_PRIORITY) {
-			storedTasksByTime.add(newTask);
+		else {
+			current.add(index - 1, newTask);
+			if (listTracker == KEY_SORTED_TIME ) {
+				storedTasksByPriority.add(newTask);
+			}
+			else if (listTracker == KEY_SORTED_PRIORITY) {
+				storedTasksByTime.add(newTask);
+			}
 		}
-
 		return oldTask.getDescription() + " has been updated to " + newTask.getDescription() + ".\n";
 	}
 }
