@@ -1,8 +1,11 @@
 package ticker.logic;
 
 // Package Common
+import ticker.common.Date;
 import ticker.common.Task;
+import ticker.common.Time;
 import ticker.common.sortByTime;
+
 // Package Java util
 import java.util.Collections;
 import java.util.Vector;
@@ -30,40 +33,182 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.Soundex;
 
 public class SearchManager {
 	Vector<StringMatch> matchList;
-	Vector<Task> taskList;
+	private static Vector<Task> storedTasksByTime;
+	private static Vector<Task> storedTasksByPriority;
+	private static Vector<Task> storedTasksByTicked; // not sorted
+	private static Vector<Task> storedTasksByCMI; // not sorted
+	private static Vector<Task> searchResultsTime;
+	private static Vector<Task> searchResultsTicked;
+	private static Vector<Task> searchResultsCMI;
+	private static Vector<Task> searchResults;
 	String key; 
-	
-	public SearchManager() {
 
+	public SearchManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
+		this.storedTasksByPriority = storedTasksByPriority;
+		this.storedTasksByTime = storedTasksByTime;
+		this.storedTasksByTicked = storedTasksByTicked;
+		this.storedTasksByCMI = storedTasksByCMI;
+		
+		searchResults = new Vector<Task>();
 	}
-	
-	public Vector<Task> search(Vector<Task> taskList, String key) {
+
+	public Vector<Task> search(String key, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
+			char priority) {
 		matchList = new Vector<StringMatch>();
-		this.taskList = taskList;
 		this.key = key;
 		
-		int i = 0;
+		searchResultsTime = storedTasksByTime;
+		searchResultsTicked = storedTasksByTicked;
+		searchResultsCMI = storedTasksByCMI;
+
+		// Search by Key only
+		if (key != null && key.length() != 0) {
+			searchResultsTime = searchByKey(key, storedTasksByTime);
+			searchResultsTicked = searchByKey(key, storedTasksByTicked);
+			searchResultsCMI = searchByKey(key, storedTasksByCMI);
+		}
+		//TODO: implement isRepeat Search
+		// Search by priority
+		if (priority != '\u0000' && (priority == 'A' || priority == 'B' || priority == 'C')) {
+			searchResultsTime = searchByPriority(priority, storedTasksByTime);
+			searchResultsTicked = searchByPriority(priority, storedTasksByTicked);
+			searchResultsCMI = searchByPriority(priority, storedTasksByCMI);
+		}
+
+		// Search by start date and start time
+		if (startDate != null) {
+			if (startTime != null) {
+				searchResultsTime = searchByStartDateAndTime(startDate, startTime, searchResultsTime);
+				searchResultsTicked = searchByStartDateAndTime(startDate, startTime, searchResultsTicked);
+				searchResultsCMI = searchByStartDateAndTime(startDate, startTime, searchResultsCMI);
+			}
+			else if (startTime == null) {
+				searchResultsTime = searchByStartDate(startDate, searchResultsTime);
+				searchResultsTicked = searchByStartDate(startDate, searchResultsTicked);
+				searchResultsCMI = searchByStartDate(startDate, searchResultsCMI);
+			}
+			
+		}
+
+		// Search by end date and end time
+		if (endDate != null) {
+			if (endTime != null) {
+				searchResultsTime = searchByEndDateAndTime(startDate, startTime, searchResultsTime);
+				searchResultsTicked = searchByEndDateAndTime(startDate, startTime, searchResultsTicked);
+				searchResultsCMI = searchByEndDateAndTime(startDate, startTime, searchResultsCMI);
+			}
+			else if (startTime == null) {
+				searchResultsTime = searchByEndDate(startDate, searchResultsTime);
+				searchResultsTicked = searchByEndDate(startDate, searchResultsTicked);
+				searchResultsCMI = searchByEndDate(startDate, searchResultsCMI);
+			}
+		}
+
+		for (Task searchTime: searchResultsTime) {
+			searchResults.add(searchTime);
+		}
+
+		searchResults.add(new Task("\\***TICKED***\\", null, null, null, null, 'B', false));
+
+		for (Task searchTicked: searchResultsTicked) {
+			searchResults.add(searchTicked);
+		}
+
+		searchResults.add(new Task("\\***CMI***\\", null, null, null, null, 'B', false));
+
+		for (Task searchCMI: searchResultsCMI) {
+			searchResults.add(searchCMI);
+		}
+
+		return searchResults;
+
+	}
+
+	/**
+	 * @param key
+	 * @param taskList
+	 * @return
+	 */
+	private Vector<Task> searchByKey(String key, Vector<Task> taskList) {
+		Vector<Task> temp = new Vector<Task>();
+		matchList.removeAllElements();
 		
+		int i = 0;
 		for (Task task: taskList) {
 			float score = getMatchLikelyhood(key, task.toString());
 			System.out.println(score);
 			matchList.add(new StringMatch(i, score));
 			i++;
 		}
-		
+
 		Collections.sort(matchList, new StringMatchComparator());
-		
-		Vector<Task>searchResults = new Vector<Task>();
-		
+
 		for (StringMatch sm : matchList) {
 			if (sm.getSimilarityScore() < 70.0) {
-				continue;
+				break;
 			}
-			searchResults.add(taskList.get(sm.getIndex()));
+			temp.add(taskList.get(sm.getIndex()));
 		}
-		
-		return searchResults;
-		
+		return temp;
+	}
+
+	private Vector<Task> searchByPriority(char priority, Vector<Task> taskList) {
+		Vector<Task> temp = new Vector<Task>();
+
+		for (Task task: taskList) {
+			if (task.getPriority() == priority) {
+				temp.add(task);
+			}
+		}
+		return temp;
+	}
+
+	private Vector<Task> searchByStartDateAndTime(Date startDate, Time startTime, Vector<Task> taskList) {
+		Vector<Task> temp = new Vector<Task>();
+
+		for (Task task: taskList) {
+			if (task.getStartDate() != null && task.getStartTime() != null 
+					&& task.getStartDate().compareTo(startDate) >= 0 && task.getStartTime().compareTo(startTime) >= 0) {
+				temp.add(task);
+			}
+		}
+		return temp;
+	}
+	
+	private Vector<Task> searchByStartDate(Date startDate, Vector<Task> taskList) {
+		Vector<Task> temp = new Vector<Task>();
+
+		for (Task task: taskList) {
+			System.out.println("got here");
+			if (task.getStartDate() != null && task.getStartDate().compareTo(startDate) >= 0) {
+				temp.add(task);
+				System.out.println("in here");
+			}
+		}
+		return temp;
+	}
+	
+	private Vector<Task> searchByEndDateAndTime(Date endDate, Time endTime, Vector<Task> taskList) {
+		Vector<Task> temp = new Vector<Task>();
+
+		for (Task task: taskList) {
+			if (task.getEndDate() != null && task.getEndTime() != null && task.getEndDate().compareTo(endDate) <= 0 
+					&& task.getEndTime().compareTo(endTime) <= 0) {
+				temp.add(task);
+			}
+		}
+		return temp;
+	}
+	
+	private Vector<Task> searchByEndDate(Date endDate, Vector<Task> taskList) {
+		Vector<Task> temp = new Vector<Task>();
+
+		for (Task task: taskList) {
+			if (task.getEndDate() != null && task.getEndDate().compareTo(endDate) <= 0) {
+				temp.add(task);
+			}
+		}
+		return temp;
 	}
 
 	private static float getMatchLikelyhood(final String str1, final String str2) {

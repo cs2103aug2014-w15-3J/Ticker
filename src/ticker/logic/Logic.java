@@ -65,6 +65,7 @@ public class Logic{
 	private UndoManager undoMng;
 	private CRUManager cruMng;
 	private TickCMIManager tickCMIMng;
+	private SearchManager searchMng;
 	private static Logger logger;
 	// Tracker to track which list is being displayed
 	private static Integer listTracker;
@@ -97,6 +98,7 @@ public class Logic{
 
 		cruMng = new CRUManager(sortedTime, sortedPriority, listTicked, listCMI);
 		tickCMIMng = new TickCMIManager(sortedTime, sortedPriority, listTicked, listCMI);
+		searchMng = new SearchManager(sortedTime, sortedPriority, listTicked, listCMI);
 		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
 
 		searchResults = new Vector<Task>();
@@ -132,7 +134,25 @@ public class Logic{
 
 		switch(command){
 		case COMMAND_SEARCH: 
-			feedback = this.search(processed.getDescription());
+			//try {
+				searchResults.removeAllElements();
+				searchResults = searchMng.search(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
+						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
+				
+				//checkForTaskExpiry();
+				
+				listTracker = KEY_SEARCH;
+				current = searchResults;
+				currentListName = TASKS_SEARCH;
+				
+				UI.setList(current);
+				
+				feedback = "searching for tasks...";
+			//}
+			//catch (Exception e) {
+				//System.out.println("error in search");
+			//}
+			
 			break;
 
 		case COMMAND_DELETE: 
@@ -314,48 +334,6 @@ public class Logic{
 
 		logger.log(Level.INFO, "Action proceeded successfully");
 		return feedback;
-	}
-
-	private String search(String key) {
-		SearchManager searchMng = new SearchManager();
-		
-		searchResults.removeAllElements();
-
-		//checkForTaskExpiry();
-
-		Vector<Task> searchResultsTime = searchMng.search(sortedTime, key);
-		Vector<Task> searchResultsTicked = searchMng.search(listTicked, key);
-		Vector<Task> searchResultsCMI = searchMng.search(listCMI, key);
-
-		for (Task searchTime: searchResultsTime) {
-			searchResults.add(searchTime);
-		}
-
-		searchResults.add(new Task("\\***TICKED***\\", null, null, null, null, 'B', false));
-
-		for (Task searchTicked: searchResultsTicked) {
-			searchResults.add(searchTicked);
-		}
-
-		searchResults.add(new Task("\\***CMI***\\", null, null, null, null, 'B', false));
-
-		for (Task searchCMI: searchResultsCMI) {
-			searchResults.add(searchCMI);
-		}
-
-		if (searchResults.isEmpty()) {
-			return "No search results";
-		}
-		
-		listTracker = KEY_SEARCH;
-		current = searchResults;
-		currentListName = TASKS_SEARCH;
-	
-
-		UI.setList(current);
-
-		return "Displaying search results";
-
 	}
 	
 	/**
