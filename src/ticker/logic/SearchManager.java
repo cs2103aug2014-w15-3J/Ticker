@@ -91,14 +91,14 @@ public class SearchManager {
 		// Search by end date and end time
 		if (endDate != null) {
 			if (endTime != null) {
-				searchResultsTime = searchByEndDateAndTime(startDate, startTime, searchResultsTime);
-				searchResultsTicked = searchByEndDateAndTime(startDate, startTime, searchResultsTicked);
-				searchResultsCMI = searchByEndDateAndTime(startDate, startTime, searchResultsCMI);
+				searchResultsTime = searchByEndDateAndTime(endDate, endTime, searchResultsTime);
+				searchResultsTicked = searchByEndDateAndTime(endDate, endTime, searchResultsTicked);
+				searchResultsCMI = searchByEndDateAndTime(endDate, endTime, searchResultsCMI);
 			}
-			else if (startTime == null) {
-				searchResultsTime = searchByEndDate(startDate, searchResultsTime);
-				searchResultsTicked = searchByEndDate(startDate, searchResultsTicked);
-				searchResultsCMI = searchByEndDate(startDate, searchResultsCMI);
+			else if (endTime == null) {
+				searchResultsTime = searchByEndDate(endDate, searchResultsTime);
+				searchResultsTicked = searchByEndDate(endDate, searchResultsTicked);
+				searchResultsCMI = searchByEndDate(endDate, searchResultsCMI);
 			}
 		}
 
@@ -168,6 +168,19 @@ public class SearchManager {
 			if (task.getStartDate() != null && task.getStartTime() != null 
 					&& task.getStartDate().compareTo(startDate) >= 0 && task.getStartTime().compareTo(startTime) >= 0) {
 				temp.add(task);
+				continue;
+			}
+			if (task.getStartDate() != null && task.getStartTime() == null && task.getStartDate().compareTo(startDate) >= 0) {
+				temp.add(task);
+				continue;
+			}
+			if (task.getEndDate() != null && task.getEndTime() != null  && task.getEndDate().compareTo(startDate) >= 0 
+					&& task.getEndTime().compareTo(startTime) >= 0) {
+				temp.add(task);
+				continue;
+			}
+			if (task.getEndDate() != null && task.getEndTime() == null && task.getEndDate().compareTo(startDate) >= 0) {
+				temp.add(task);
 			}
 		}
 		return temp;
@@ -177,10 +190,12 @@ public class SearchManager {
 		Vector<Task> temp = new Vector<Task>();
 
 		for (Task task: taskList) {
-			System.out.println("got here");
 			if (task.getStartDate() != null && task.getStartDate().compareTo(startDate) >= 0) {
 				temp.add(task);
-				System.out.println("in here");
+				continue;
+			}
+			if (task.getEndDate() != null && task.getEndDate().compareTo(startDate) >= 0) {
+				temp.add(task);
 			}
 		}
 		return temp;
@@ -193,6 +208,23 @@ public class SearchManager {
 			if (task.getEndDate() != null && task.getEndTime() != null && task.getEndDate().compareTo(endDate) <= 0 
 					&& task.getEndTime().compareTo(endTime) <= 0) {
 				temp.add(task);
+				continue;
+			}
+			if (task.getEndDate() != null && task.getEndTime() == null && task.getEndDate().compareTo(endDate) <= 0) {
+				temp.add(task);
+				continue;
+			}
+			if (task.getStartDate() != null && task.getStartTime() != null && task.getStartDate().compareTo(endDate) <= 0
+					&& task.getStartTime().compareTo(endTime) <= 0) {
+				temp.add(task);
+				continue;
+			}
+			if (task.getStartDate() != null && task.getStartDate().compareTo(endDate) < 0) {
+				temp.add(task);
+				continue;
+			}
+			if (task.getStartDate() != null && task.getStartTime() == null && task.getStartDate().compareTo(endDate) == 0) {
+				temp.add(task);
 			}
 		}
 		return temp;
@@ -203,6 +235,10 @@ public class SearchManager {
 
 		for (Task task: taskList) {
 			if (task.getEndDate() != null && task.getEndDate().compareTo(endDate) <= 0) {
+				temp.add(task);
+				continue;
+			}
+			if (task.getStartDate() != null && task.getStartDate().compareTo(endDate) <= 0) {
 				temp.add(task);
 			}
 		}
