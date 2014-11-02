@@ -2,6 +2,7 @@ package ticker.ui;
 
 import java.text.DateFormat;
 import java.util.Calendar;
+import java.util.Random;
 import java.util.Vector;
 import java.util.logging.*;
 
@@ -66,11 +67,12 @@ public class TickerUI extends Application {
 	Text feedback;
 	ScrollPane sp;
 	//tabs
-	Group tabs;
+	int indexTabs = 7;       //tabs is the 7th children that root added
+	Group tabs_todo, tabs_ticked, tabs_cmi;
 	ImageView imv5, imv6, imv7, imv8;
 	Image cmi_1, cmi_2, cmi_3, ticked_1, ticked_2, ticked_3, todo_1, todo_2, todo_3, bar;
-	private int currentView = 1;          //1 for todo(default), 2 for ticked, 3 for cmi
-	private int nextView;
+	private int currentView = 0;          //??1 for todo_time(default), 2 for todo_priority, 3 for ticked, 4 for cmi, 5 for search
+	private int nextView = 0;
 
 	private static Logger logger = Logger.getLogger("UI");
 
@@ -273,8 +275,10 @@ public class TickerUI extends Application {
 			}
 		});
 
-		//TODO finish the tab function
-		tabs = new Group();
+		
+		tabs_todo = new Group();
+		tabs_cmi = new Group();
+		tabs_ticked = new Group();
 
 		DropShadow ds = new DropShadow();
 		ds.setRadius(8.0);
@@ -287,7 +291,6 @@ public class TickerUI extends Application {
 		cmi_2 = new Image("ticker/ui/pic/CMI_2.png", true);
 		cmi_3 = new Image("ticker/ui/pic/CMI_3.png", true);
 		imv7 = new ImageView();
-		imv7.setImage(cmi_2);
 		imv7.setFitWidth(80);
 		imv7.setPreserveRatio(true);
 		imv7.setX(380);
@@ -295,14 +298,12 @@ public class TickerUI extends Application {
 		imv7.setSmooth(true);
 		imv7.setCache(true);
 		imv7.setEffect(ds);
-		tabs.getChildren().add(imv7);
 
 		//tab2 ticked
 		ticked_1 = new Image("ticker/ui/pic/Ticked_1.png", true);
 		ticked_2 = new Image("ticker/ui/pic/Ticked_2.png", true);
 		ticked_3 = new Image("ticker/ui/pic/Ticked_3.png", true);
 		imv6 = new ImageView();
-		imv6.setImage(ticked_2);
 		imv6.setFitWidth(80);
 		imv6.setPreserveRatio(true);
 		imv6.setX(310);
@@ -310,14 +311,13 @@ public class TickerUI extends Application {
 		imv6.setSmooth(true);
 		imv6.setCache(true);
 		imv6.setEffect(ds);
-		tabs.getChildren().add(imv6);
+
 
 		//tab1 To-do
 		todo_1 = new Image("ticker/ui/pic/todo_1.png", true);
 		todo_2 = new Image("ticker/ui/pic/todo_2.png", true);
 		todo_3 = new Image("ticker/ui/pic/todo_3.png", true);
 		imv8 = new ImageView();
-		imv8.setImage(todo_1);                 //default view is current task list
 		imv8.setFitWidth(80);
 		imv8.setPreserveRatio(true);
 		imv8.setX(240);
@@ -325,10 +325,14 @@ public class TickerUI extends Application {
 		imv8.setSmooth(true);
 		imv8.setCache(true);
 		imv8.setEffect(ds);
-		tabs.getChildren().add(imv8);
 
-		root.getChildren().add(tabs);  
-		currentAnimation();
+		//imv7.setImage(cmi_2);
+		//imv6.setImage(ticked_2);
+		//imv8.setImage(todo_1);
+		//tabs_todo.getChildren().addAll(imv7, imv6, imv8);
+		root.getChildren().add(tabs_todo);  
+		buildTabs(currentView);
+
 
 		bar = new Image("ticker/ui/pic/bar.png", true);
 		imv5 = new ImageView();
@@ -340,7 +344,6 @@ public class TickerUI extends Application {
 		imv5.setSmooth(true);
 		imv5.setCache(true);
 		root.getChildren().add(imv5);
-
 
 
 		//TODO set the content of help and design better looking help page
@@ -355,13 +358,11 @@ public class TickerUI extends Application {
 		root.getChildren().add(help);
 		
 		
-		
-		
+		System.out.println(root.getChildren().size());
+
 		trivial = new Image("ticker/ui/pic/trivial.png", true);
 		normal = new Image("ticker/ui/pic/normal.png", true);
 		impt = new Image("ticker/ui/pic/impt.png", true);
-
-
 
 		//can scroll up and down and minimise the window using keyboard
 		command.setOnKeyPressed(new EventHandler<KeyEvent>() 
@@ -389,12 +390,16 @@ public class TickerUI extends Application {
 			public void handle(ActionEvent event) {
 				String cmd = command.getText();
 				command.clear();
-
 				feedback.setText(logic.getLogic(cmd));
+				//any change in view should reflect here
+				//nextView is ready
+				if(nextView != currentView) {
+					buildTabs(nextView);
+				}
 
 				if(displayHelp == true) {            //if command is "help"
 					help.setVisible(true);
-					FadeTransition ft = new FadeTransition(Duration.millis(250), help);
+					FadeTransition ft = new FadeTransition(Duration.millis(250), help);               //fade in
 					ft.setFromValue(0);
 					ft.setToValue(1.0);
 					ft.play();
@@ -404,7 +409,7 @@ public class TickerUI extends Application {
 						public void handle(KeyEvent e) {
 							KeyCode code = e.getCode();  
 							if(code == KeyCode.ENTER){  
-								FadeTransition ft = new FadeTransition(Duration.millis(250), help);
+								FadeTransition ft = new FadeTransition(Duration.millis(250), help);    //fade out
 								ft.setFromValue(1.0);
 								ft.setToValue(0);
 								ft.play();
@@ -430,13 +435,8 @@ public class TickerUI extends Application {
 							});
 				} 
 				else {		
-					if(chart.getChildren().size()==0) {
-						displayTasks();
-					}
-					else {
 						chart.getChildren().clear();
 						displayTasks();
-					}
 				}
 
 				//feedback fades off after 5 seconds
@@ -463,7 +463,7 @@ public class TickerUI extends Application {
 	}
 
 
-	//MARK helper functions start here 
+
 	/*the following methods are for Logic to call*/
 	public void setHelp() {
 		this.displayHelp = true;
@@ -474,7 +474,7 @@ public class TickerUI extends Application {
 	}
 
 	public void setNextView(int next) {
-		this.nextView = next;
+		this.nextView = next-1;
 	}
 	/*--------------------------------------------*/
 
@@ -503,8 +503,8 @@ public class TickerUI extends Application {
 		int widthDes = 240;
 		int widthTime = 140;
 		int avgCharNum = 40;
-		int additionalHeight = 12;
-		
+		int additionalHeight = 14;
+
 		//ystem.out.println(tasksToBeShown.size() + " tasks!");
 		if(tasksToBeShown.size()==0) {
 			return;
@@ -519,14 +519,14 @@ public class TickerUI extends Application {
 				Label index = new Label(""+(i+1)+".");
 				index.setPrefSize(widthIndex, prefHeight);
 				index.setAlignment(Pos.CENTER_RIGHT);
-				
+
 				//priority
 				ImageView priority = new ImageView();
 				priority.setFitWidth(8);
 				priority.setPreserveRatio(true);
 				priority.setSmooth(true);
 				priority.setCache(true);
-				
+
 				char p = tasksToBeShown.get(i).getPriority();
 				if(p=='A') {
 					priority.setImage(impt);
@@ -579,7 +579,7 @@ public class TickerUI extends Application {
 					Label start = new Label("Start: " + ST + " " + SD);
 
 					Label end = new Label("End:  " + ET + " " + ED);
-		
+
 					VBox time = new VBox(5);
 					time.getChildren().add(start);
 					time.getChildren().add(end);
@@ -625,8 +625,21 @@ public class TickerUI extends Application {
 		});
 	}
 
-	private void currentAnimation() {
-		if(currentView==1) {
+
+	private void buildTabs(int view) {
+		if(view==0) {
+			root.getChildren().remove(7);
+			imv7.setImage(cmi_2);
+			imv6.setImage(ticked_2);
+			imv8.setImage(todo_1);
+			tabs_todo.getChildren().addAll(imv7, imv6, imv8);
+			root.getChildren().add(7, tabs_todo);  
+			currentView = 1;
+			
+			imv8.setDisable(true);
+			imv7.setDisable(false);
+			imv6.setDisable(false);
+			
 			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
 					imv6.setImage(ticked_3);
@@ -639,7 +652,11 @@ public class TickerUI extends Application {
 			});
 			imv6.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					TickedListWanted();
+					String autoCommand = "list ticked";
+					feedback.setText(logic.getLogic(autoCommand));
+					chart.getChildren().clear();
+					displayTasks();
+					buildTabs(2);
 				}
 			});
 
@@ -655,25 +672,45 @@ public class TickerUI extends Application {
 			});
 			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					CMIListWanted();
+					String autoCommand = "list cmi";
+					feedback.setText(logic.getLogic(autoCommand));
+					chart.getChildren().clear();
+					displayTasks();
+					buildTabs(3);
 				}
 			});
+			
 		}
-		if(currentView==2) {
-
-			imv8.setOnMouseEntered(new EventHandler<MouseEvent>() {
+		else if(view==1) {
+			root.getChildren().remove(7);
+			imv7.setImage(cmi_2);
+			imv6.setImage(ticked_2);
+			imv8.setImage(todo_1);
+			tabs_todo.getChildren().addAll(imv7, imv6, imv8);
+			root.getChildren().add(7, tabs_todo);  
+			currentView = 1;
+			
+			imv8.setDisable(true);
+			imv7.setDisable(false);
+			imv6.setDisable(false);
+			
+			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					imv8.setImage(todo_3);
+					imv6.setImage(ticked_3);
 				}
 			});
-			imv8.setOnMouseExited(new EventHandler<MouseEvent>() {
+			imv6.setOnMouseExited(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					imv8.setImage(todo_2);
+					imv6.setImage(ticked_2);
 				}
 			});
-			imv8.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			imv6.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					TodoListWanted();
+					String autoCommand = "list ticked";
+					feedback.setText(logic.getLogic(autoCommand));
+					chart.getChildren().clear();
+					displayTasks();
+					buildTabs(2);
 				}
 			});
 
@@ -689,12 +726,85 @@ public class TickerUI extends Application {
 			});
 			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					CMIListWanted();
+					String autoCommand = "list cmi";
+					feedback.setText(logic.getLogic(autoCommand));
+					chart.getChildren().clear();
+					displayTasks();
+					buildTabs(3);
 				}
 			});
+			
 		}
-		if(currentView==3) {
+		
+		
+		else if(view == 2) {
+			root.getChildren().remove(7);
+			imv7.setImage(cmi_2);
+			imv6.setImage(ticked_1);
+			imv8.setImage(todo_2);
+			tabs_ticked.getChildren().addAll(imv7, imv8, imv6);
+			root.getChildren().add(7, tabs_ticked);  
+			currentView = 2;
+		
+			imv6.setDisable(true);
+			imv7.setDisable(false);
+			imv8.setDisable(false);
+			
+			imv8.setOnMouseEntered(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv8.setImage(todo_3);
+				}
+			});
+			imv8.setOnMouseExited(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv8.setImage(todo_2);
+				}
+			});
+			imv8.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					String autoCommand = "list time";
+					feedback.setText(logic.getLogic(autoCommand));
+					chart.getChildren().clear();
+					displayTasks();
+					buildTabs(0);
+				}
+			});
 
+			imv7.setOnMouseEntered(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv7.setImage(cmi_3);
+				}
+			});
+			imv7.setOnMouseExited(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv7.setImage(cmi_2);
+				}
+			});
+			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					String autoCommand = "list cmi";
+					feedback.setText(logic.getLogic(autoCommand));
+					chart.getChildren().clear();
+					displayTasks();
+					buildTabs(3);
+				}
+			});
+
+		}
+		else if(view == 3) {
+			root.getChildren().remove(7);
+			imv7.setImage(cmi_1);
+			imv6.setImage(ticked_2);
+			imv8.setImage(todo_2);
+			tabs_cmi.getChildren().addAll(imv8, imv6, imv7);
+			root.getChildren().add(7, tabs_cmi);  
+			
+			imv7.setDisable(true);
+			imv8.setDisable(false);
+			imv6.setDisable(false);
+
+			currentView = 3;
+			
 			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
 					imv6.setImage(ticked_3);
@@ -707,7 +817,11 @@ public class TickerUI extends Application {
 			});
 			imv6.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					TickedListWanted();
+					String autoCommand = "list ticked";
+					feedback.setText(logic.getLogic(autoCommand));
+					chart.getChildren().clear();
+					displayTasks();
+					buildTabs(2);
 				}
 			});
 
@@ -723,51 +837,89 @@ public class TickerUI extends Application {
 			});
 			imv8.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					TodoListWanted();
+					String autoCommand = "list time";
+					feedback.setText(logic.getLogic(autoCommand));
+					chart.getChildren().clear();
+					displayTasks();
+					buildTabs(0);
 				}
 			});
+			
 		}
-	}
+		else if(view==4) {
+			root.getChildren().remove(7);
+			imv7.setImage(cmi_2);
+			imv6.setImage(ticked_2);
+			imv8.setImage(todo_2);
+			tabs_todo.getChildren().addAll(imv7, imv6, imv8);
+			root.getChildren().add(7, tabs_todo);  
+			currentView = 4;
+			
+			imv8.setDisable(false);
+			imv7.setDisable(false);
+			imv6.setDisable(false);
+			
+			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv6.setImage(ticked_3);
+				}
+			});
+			imv6.setOnMouseExited(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv6.setImage(ticked_2);
+				}
+			});
+			imv6.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					String autoCommand = "list ticked";
+					feedback.setText(logic.getLogic(autoCommand));
+					chart.getChildren().clear();
+					displayTasks();
+					buildTabs(2);
+				}
+			});
 
-	//methods for tab display
-	private void TodoListWanted() {
-		root.getChildren().remove(tabs);
-		tabs.getChildren().clear();
-		imv7.setImage(cmi_2);
-		tabs.getChildren().add(imv7);
-		imv6.setImage(ticked_2);
-		tabs.getChildren().add(imv6);
-		imv8.setImage(todo_1);
-		tabs.getChildren().add(imv8);
-		root.getChildren().add(6, tabs);
-		currentView = 1;
-		currentAnimation();
-	}
-	private void TickedListWanted() {
-		root.getChildren().remove(tabs);
-		tabs.getChildren().clear();
-		imv7.setImage(cmi_2);
-		tabs.getChildren().add(imv7);
-		imv8.setImage(todo_2);
-		tabs.getChildren().add(imv8);
-		imv6.setImage(ticked_1);
-		tabs.getChildren().add(imv6);
-		root.getChildren().add(6, tabs);
-		currentView = 2;
-		currentAnimation();
-	}
-	private void CMIListWanted() {
-		root.getChildren().remove(tabs);
-		tabs.getChildren().clear();
-		imv8.setImage(todo_2);
-		tabs.getChildren().add(imv8);
-		imv6.setImage(ticked_2);
-		tabs.getChildren().add(imv6);
-		imv7.setImage(cmi_1);
-		tabs.getChildren().add(imv7);
-		root.getChildren().add(6, tabs);
-		currentView = 3;
-		currentAnimation();
+			imv7.setOnMouseEntered(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv7.setImage(cmi_3);
+				}
+			});
+			imv7.setOnMouseExited(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv7.setImage(cmi_2);
+				}
+			});
+			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					String autoCommand = "list cmi";
+					feedback.setText(logic.getLogic(autoCommand));
+					chart.getChildren().clear();
+					displayTasks();
+					buildTabs(3);
+				}
+			});
+			
+			imv8.setOnMouseEntered(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv6.setImage(todo_3);
+				}
+			});
+			imv8.setOnMouseExited(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					imv6.setImage(todo_2);
+				}
+			});
+			imv8.setOnMouseClicked(new EventHandler<MouseEvent>() {
+				public void handle(MouseEvent evt) {
+					String autoCommand = "list time";
+					feedback.setText(logic.getLogic(autoCommand));
+					chart.getChildren().clear();
+					displayTasks();
+					buildTabs(0);
+				}
+			});
+			
+		}
 	}
 
 }
