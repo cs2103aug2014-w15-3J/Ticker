@@ -11,6 +11,8 @@ public class UndoManager {
 	private static final String COMMAND_EDIT = "edit";
 	private static final String COMMAND_TICK = "tick";
 	private static final String COMMAND_CMI = "cmi";
+	private static final String COMMAND_UNCMI = "uncmi";
+	private static final String COMMAND_UNTICK = "untick";
 	
 	private static final String TASKS_TIME = "TIME";
 	private static final String TASKS_TICKED = "TICKED";
@@ -64,6 +66,7 @@ public class UndoManager {
 					}
 					break;
 				case COMMAND_TICK:
+				case COMMAND_UNTICK:
 					//TODO:refactor
 					//the previous action moves task from normal to ticked, hence now moves task from ticked to normal
 					assert previousAction.getListTypeBefore() != null && previousAction.getTaskBeforeEdit() != null;
@@ -81,6 +84,7 @@ public class UndoManager {
 					}
 					break;
 				case COMMAND_CMI:
+				case COMMAND_UNCMI:
 					//TODO:refactor
 					assert previousAction.getListTypeBefore() != null && previousAction.getTaskBeforeEdit() != null;
 					
@@ -135,6 +139,7 @@ public class UndoManager {
 				}
 				break;
 			case COMMAND_TICK:
+			case COMMAND_UNTICK:
 				//TODO:refactor
 				assert nextAction.getTaskBeforeEdit() != null && nextAction.getListTypeBefore() != null;
 				
@@ -151,6 +156,7 @@ public class UndoManager {
 				}
 				break;
 			case COMMAND_CMI:
+			case COMMAND_UNCMI:
 				//TODO:refactor
 				assert nextAction.getTaskBeforeEdit() != null && nextAction.getListTypeBefore() != null;
 				
