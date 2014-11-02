@@ -321,8 +321,8 @@ public class TestLogic {
 		input.setIndex(2);
 		input.isAppending(true);*/
 		
-		// TODO: Test delete in priority list
-		/*input = new UserInput();
+		//Test delete in priority list
+		input = new UserInput();
 		input.setCommand(COMMAND_DELETE);
 		input.setIndex(2);
 		
@@ -335,7 +335,7 @@ public class TestLogic {
 		
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
-		assertEquals("Undoing action", logic.getOutput(input));*/
+		assertEquals("Undoing action", logic.getOutput(input));
 		
 		// Test edit startDate and endDate
 		input = new UserInput();
@@ -386,6 +386,18 @@ public class TestLogic {
 		input.setDescription("size");
 
 		assertEquals("List does not exist. Please re-enter.", logic.getOutput(input));
+		
+		// Test delete from CMI
+		input = new UserInput();
+		input.setCommand(COMMAND_DELETE);
+		input.setIndex(1);
+		
+		assertEquals("Self: Get a haircut has been removed.", logic.getOutput(input));
+		assertEquals("", logic.list());
+		
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
 
 		// Test search for description
 		input = new UserInput();
@@ -547,7 +559,7 @@ public class TestLogic {
 				+ "5. \\***TICKED***\\\n"
 				+ "6. \\***CMI***\\\n", logic.list());
 
-		// Test priority
+		// Test search priority
 		input = new UserInput();
 		input.setCommand(COMMAND_SEARCH);
 		input.setPriority('A');
@@ -556,5 +568,18 @@ public class TestLogic {
 		assertEquals("1. \\***TICKED***\\\n"
 				+ "2. \\***CMI***\\\n"
 				+ "3. Self: Get a haircut\n", logic.list());
+		
+		// Test delete from search
+		input = new UserInput();
+		input.setCommand(COMMAND_DELETE);
+		input.setIndex(3);
+		
+		assertEquals("Self: Get a haircut has been removed.", logic.getOutput(input));
+		assertEquals("1. \\***TICKED***\\\n"
+				+ "2. \\***CMI***\\\n", logic.list());
+		
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
 	}
 }
