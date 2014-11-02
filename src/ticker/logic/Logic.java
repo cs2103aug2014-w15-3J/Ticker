@@ -108,6 +108,7 @@ public class Logic{
 
 		checkForTaskExpiry();
 		UI.setList(current);
+		UI.setNextView(listTracker);
 
 	}
 	
@@ -151,6 +152,7 @@ public class Logic{
 				currentListName = LIST_SEARCH;
 				
 				UI.setList(current);
+				UI.setNextView(listTracker);
 				
 				feedback = "Searching for tasks...";
 			}
@@ -168,6 +170,7 @@ public class Logic{
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been deleted.";
@@ -206,6 +209,7 @@ public class Logic{
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been edited.";
@@ -230,6 +234,7 @@ public class Logic{
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (IllegalArgumentException ex) {
 				return "Error in input. Either description is missing or date is missing for repeated tasks.";
@@ -250,6 +255,7 @@ public class Logic{
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been marked as cannot do.";
@@ -273,6 +279,7 @@ public class Logic{
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been unmarked as cannot do.";
@@ -295,6 +302,7 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (NullPointerException ex) {
 				System.out.println("Error with UndoManager");
@@ -315,6 +323,7 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (NullPointerException ex) {
 				System.out.println("Error with UndoManager");
@@ -335,6 +344,7 @@ public class Logic{
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been ticked.";
@@ -358,6 +368,7 @@ public class Logic{
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been unticked.";
@@ -430,6 +441,7 @@ public class Logic{
 
 		storeLists();
 		UI.setList(current);
+		UI.setNextView(listTracker);
 
 		return "Spick and span!";
 	}
@@ -468,24 +480,28 @@ public class Logic{
 			listTracker = KEY_SORTED_TIME;
 			currentListName = LIST_TIME;
 			UI.setList(current);
+			UI.setNextView(listTracker);
 			return "Listing by time...";
 		case LIST_PRIORITY:
 			current = sortedPriority;
 			listTracker = KEY_SORTED_PRIORITY;
 			currentListName = LIST_PRIORITY;
 			UI.setList(current);
+			UI.setNextView(listTracker);
 			return "Listing by priority...";
 		case LIST_TICKED:
 			current = listTicked;
 			listTracker = KEY_TICKED;
 			currentListName = LIST_TICKED;
 			UI.setList(current);
+			UI.setNextView(listTracker);
 			return "Listing ticked tasks...";
 		case COMMAND_CMI:
 			current = listCMI;
 			listTracker = KEY_CMI;
 			currentListName = LIST_CMI;
 			UI.setList(current);
+			UI.setNextView(listTracker);
 			return "Listing tasks that are kept in view...";
 		default:
 			throw new IllegalArgumentException();
