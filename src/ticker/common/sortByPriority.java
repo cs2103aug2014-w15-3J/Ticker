@@ -7,7 +7,7 @@ public class sortByPriority implements Comparator <Task> {
 	public int compare(Task task1, Task task2) {
 		// Comparing between Priority
 		if (task1.priority != task2.priority) {
-			return task2.priority - task1.priority;
+			return -1*(task2.priority - task1.priority);
 		}
 
 		// Comparing between non-repeating tasks and RepeatingTasks
