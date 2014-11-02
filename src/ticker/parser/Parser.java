@@ -27,7 +27,7 @@ public class Parser {
 
 	public UserInput processInput(String command){
 		logger.log(Level.INFO,"processInput");
-		String[] words = command.split(" +");
+		String[] words = command.toLowerCase().split(" +");
 		if (words.length==0) return null;
 		
 		String key = words[0].toLowerCase();
@@ -47,7 +47,7 @@ public class Parser {
 			if(words.length==1){
 				return new UserInput(CMD.ERROR,INVALID_SEARCH);
 			}
-			return callSearch(command);
+			return callSearch(words,command);
 		}
 		
 		if (key.equals("edit")){
@@ -242,7 +242,7 @@ public class Parser {
 		String[] splitted = str.split(" +");
 		String res = str;
 		for (int i = 0;i<splitted.length;i++){
-			if (splitted[i].indexOf('-')!=-1){
+			if (splitted[i].indexOf('-')!=-1&&!splitted[i].equals("-t")){
 				int startIndex = res.indexOf(splitted[i]);
 				int endIndex = startIndex + splitted[i].length();
 				if (startIndex-1>=0&&res.charAt(startIndex-1)==' '){
@@ -264,16 +264,29 @@ public class Parser {
 		input.setIndex(index);
 		
 		for (int i=0;i<words.length;i++){
-			if (words[i].equals("-t")){
-				input.setCommand(input.getCommand() + "t");
-				break;
+			
+			if (words[i].toLowerCase().equals("-impt")||words[i].toLowerCase().equals("-important")){
+				input.setPriority('A');
+			}
+			
+			if (words[i].toLowerCase().equals("-trivial")){
+				input.setPriority('C');
+			}
+
+			if (words[i].equals("-r")){
+				input.setRepeating(true);
 			}
 		}
 		
+		nlp(description,input);
 		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
 		
 		input.validifyTime();
+		
+		if (!((input.getStartTime()==null)&&(input.getEndTime()==null)&&(input.getStartDate()==null)&&(input.getEndDate()==null))){
+			input.setCommand("editt");
+		}
 
 		if (input.getStartDate()==null&&input.getEndDate()!=null&&input.getStartTime()!=null&&input.getEndTime()==null){
 			return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
@@ -285,12 +298,11 @@ public class Parser {
 		return input;
 	}
 	
-	private UserInput callSearch(String command){
+	private UserInput callSearch(String[] words,String command){
 		
 		String description = extractDesc(command); 
 		
 		UserInput input = new UserInput(CMD.SEARCH,description);
-		String[] words = command.toLowerCase().split(" +");
 		
 		for (int i=0;i<words.length;i++){
 			if (words[i].equals("-impt")||words[i].equals("-important")){
@@ -304,12 +316,14 @@ public class Parser {
 			}
 		}
 		
-		for (int i=0;i<words.length;i++){
-			if (words[i].equals("-t")){
-				getSearchTimePeriod(input,command);
-				break;
-			}	
+		nlp(description,input);
+		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
+		mergeTimeResult(result,input);
+
+		if (!((input.getStartTime()==null)&&(input.getEndTime()==null)&&(input.getStartDate()==null)&&(input.getEndDate()==null))){
+			getSearchTimePeriod(input,command);
 		}
+				
 		
 		return input;
 	}
@@ -331,8 +345,6 @@ public class Parser {
 	}
 	
 	private void getSearchTimePeriod(UserInput input, String description){
-		StartEndTimeDate result = checkDashTimeDate(description);
-		mergeTimeResult(result,input);
 	
 		if(input.getStartTime()==null){
 			input.setStartTime(new Time(0,0));
@@ -345,7 +357,7 @@ public class Parser {
 			input.setEndDate(Date.getCurrentDate());
 		}
 		else if (input.getStartDate()==null){
-			input.setStartDate(input.getEndDate());
+			input.setStartDate(Date.getCurrentDate());
 		}
 		else if (input.getEndDate()==null){
 			input.setEndDate(input.getStartDate());
@@ -371,7 +383,11 @@ public class Parser {
 	}
 	
 	private void nlp(String description,UserInput input){
-		List<java.util.Date> dates = this.ptp.parse(description);
+		
+		if (description.indexOf("-t")==-1) return;
+		
+		input.setDescription(description.substring(0,description.indexOf("-t")).trim());		
+		List<java.util.Date> dates = this.ptp.parse(description.substring(description.indexOf("-t")+2));
 		if (dates.size()==2){
 			input.setStartDate(convertDate(dates.get(0)));
 			input.setStartTime(convertTime(dates.get(0)));
@@ -489,35 +505,36 @@ public class Parser {
 	}
 	
 	
-	private static Date constructDate(String str){
+	static Date constructDate(String str){
 
 		if (str.equals("")) return null;
 		int index = str.indexOf("/");
 
 		if (index==-1) return null;
 		
-		int date = Integer.parseInt(str.substring(0,index));
-		int month=0;
+		int month = 0;
+		int date=0;
 		int year = Date.getCurrentYear();
 		
-		String monthStr;
-		
 		if (str.lastIndexOf("/")==index){
-			monthStr = str.substring(index+1);
+			
 			try {  
-				month = Integer.parseInt(monthStr);  
+				date = Integer.parseInt(str.substring(index+1)); 
+				month = Integer.parseInt(str.substring(0,index));
 			}  
 				catch(NumberFormatException nfe) {    
 			}  
 		}
 		
 		else {
-			monthStr = str.substring(index+1,str.lastIndexOf("/"));
+
 			try {
-				year = Integer.parseInt(str.substring(str.lastIndexOf("/")+1));  
+				year = Integer.parseInt(str.substring(0,index));  
 				if (year<100){
 					year += 2000;
 				}
+				month =  Integer.parseInt(str.substring(index+1,str.lastIndexOf("/")));  
+				date =  Integer.parseInt(str.substring(str.indexOf("/")+1));  
 			}	catch(NumberFormatException nfe) {    
 			}  
 		}
@@ -535,7 +552,7 @@ public class Parser {
 		final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 		if (month == 0){
 			for (int i=0;i<months.length;i++){
-				if (months[i].toLowerCase().equals(monthStr.toLowerCase())){
+				if (str.toLowerCase().indexOf(months[i].toLowerCase())!=-1){
 					month = i;
 					break;
 				}

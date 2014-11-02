@@ -21,8 +21,8 @@ public class testParser {
 	
 		//check whether time and date is parsed correctly
 		//format: startTime-endTime    startDate-endDate
-		Date date1 = new Date(2014,4,3);
-		Date date2 = new Date(2014,6,5);
+		Date date1 = new Date(2014,3,4);
+		Date date2 = new Date(2014,5,6);
 		Time time1 = new Time(1,0);
 		Time time2 = new Time(2,0);
 		UserInput ui1 = par.processInput("add \"blah blah blah\" 1-2 3/4-5/6");
@@ -55,7 +55,20 @@ public class testParser {
 	@Test
 	public void testSearch(){
 		assertEquals("search",par.processInput("search \"Lecture\"").getCommand());
-		assertEquals("Lecture",par.processInput("search \"Lecture\"").getDescription());
+		assertEquals("Lecture",par.processInput("search Lecture").getDescription());
+		UserInput searchUserIn = par.processInput("search Project 11/2-11/9");
+		assertEquals(searchUserIn.getStartDate(),new Date(2014,11,2));
+		assertEquals(searchUserIn.getEndDate(),new Date(2014,11,9));
+		assertEquals(searchUserIn.getStartTime(),new Time(0,0));
+		assertEquals(searchUserIn.getEndTime(),new Time(23,59));
+		UserInput searchUserIn2 = par.processInput("search Project -t by next friday");
+		assertEquals(searchUserIn2.getStartDate(),Date.getCurrentDate());
+		assertEquals(searchUserIn2.getEndDate(),new Date(2014,11,14));
+		UserInput searchUserIn3 = par.processInput("search cs2101 hw");
+		assertEquals(searchUserIn3.getStartDate(),null);
+		assertEquals(searchUserIn3.getEndDate(),null);
+		assertEquals(searchUserIn3.getStartTime(),null);
+		assertEquals(searchUserIn3.getEndTime(),null);
 	}
 	
 	@Test
@@ -82,9 +95,17 @@ public class testParser {
 		assertEquals("edit",par.processInput("edit 1 \"have lunch\"").getCommand());
 		assertThat(par.processInput("edit 1 \"have lunch\"").getIndex(),is(1));
 		//edit timing for a task using -t
-		assertEquals("editt",par.processInput("edit 1 -t \"have lunch\" 13-14 ").getCommand());
+		assertEquals("editt",par.processInput("edit 1 \"have lunch\" 13-14 ").getCommand());
 		assertEquals(new Time(13,0),par.processInput("edit 1 -t \"have lunch\" 13-14 ").getStartTime());
 		assertEquals(new Time(14,0),par.processInput("edit 1 -t \"have lunch\" 13-14 ").getEndTime());
-		assertEquals("have lunch",par.processInput("edit 1 \"have lunch\"").getDescription());
+		assertEquals("have lunch",par.processInput("edit 1 have lunch").getDescription());
+	}
+	
+	public void testConstructDate(){
+		Date date1 = Parser.constructDate("11/1");
+		Date date2 = Parser.constructDate("2014/1/11");
+		assertEquals(date1,new Date(2014,11,1));
+		assertEquals(date2,new Date(2014,1,11));
+		assertEquals(Parser.constructDate("Sep/11"),new Date(2014,9,11));
 	}
 }
