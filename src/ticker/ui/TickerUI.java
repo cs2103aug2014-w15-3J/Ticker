@@ -71,8 +71,14 @@ public class TickerUI extends Application {
 	Group tabs_todo, tabs_ticked, tabs_cmi;
 	ImageView imv5, imv6, imv7, imv8;
 	Image cmi_1, cmi_2, cmi_3, ticked_1, ticked_2, ticked_3, todo_1, todo_2, todo_3, bar;
-	private int currentView = 0;          //??1 for todo_time(default), 2 for todo_priority, 3 for ticked, 4 for cmi, 5 for search
-	private int nextView = 0;
+	//TODO refer to this
+	private static final int KEY_SORTED_TIME = 1;
+	private static final int KEY_SORTED_PRIORITY = 2;
+	private static final int KEY_TICKED = 3;
+	private static final int KEY_CMI = 4;
+	private static final int KEY_SEARCH = 5;
+	private int currentView = KEY_SORTED_TIME;          //1 for todo_time(default), 2 for todo_priority, 3 for ticked, 4 for cmi, 5 for search
+	private int nextView =0;
 
 	private static Logger logger = Logger.getLogger("UI");
 
@@ -133,12 +139,6 @@ public class TickerUI extends Application {
 		sp.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 		sp.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 		root.getChildren().add(sp); 
-
-
-		//add the header for the chart
-
-
-
 
 		//feedback area
 		feedback = new Text();
@@ -275,7 +275,7 @@ public class TickerUI extends Application {
 			}
 		});
 
-		
+
 		tabs_todo = new Group();
 		tabs_cmi = new Group();
 		tabs_ticked = new Group();
@@ -356,8 +356,8 @@ public class TickerUI extends Application {
 		help.setLayoutY(75);
 		help.setPrefSize(400, 500);
 		root.getChildren().add(help);
-		
-		
+
+
 		System.out.println(root.getChildren().size());
 
 		trivial = new Image("ticker/ui/pic/trivial.png", true);
@@ -393,7 +393,9 @@ public class TickerUI extends Application {
 				feedback.setText(logic.getLogic(cmd));
 				//any change in view should reflect here
 				//nextView is ready
+				System.out.println("nextView is " + nextView);
 				if(nextView != currentView) {
+					System.out.println("change view!!!");
 					buildTabs(nextView);
 				}
 
@@ -435,8 +437,8 @@ public class TickerUI extends Application {
 							});
 				} 
 				else {		
-						chart.getChildren().clear();
-						displayTasks();
+					chart.getChildren().clear();
+					displayTasks();
 				}
 
 				//feedback fades off after 5 seconds
@@ -474,7 +476,7 @@ public class TickerUI extends Application {
 	}
 
 	public void setNextView(int next) {
-		this.nextView = next-1;
+		this.nextView = next;
 	}
 	/*--------------------------------------------*/
 
@@ -627,19 +629,19 @@ public class TickerUI extends Application {
 
 
 	private void buildTabs(int view) {
-		if(view==0) {
+		if(view == KEY_SORTED_TIME) {         //1
 			root.getChildren().remove(7);
 			imv7.setImage(cmi_2);
 			imv6.setImage(ticked_2);
 			imv8.setImage(todo_1);
 			tabs_todo.getChildren().addAll(imv7, imv6, imv8);
 			root.getChildren().add(7, tabs_todo);  
-			currentView = 1;
-			
+			currentView = KEY_SORTED_TIME;
+
 			imv8.setDisable(true);
 			imv7.setDisable(false);
 			imv6.setDisable(false);
-			
+
 			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
 					imv6.setImage(ticked_3);
@@ -656,7 +658,7 @@ public class TickerUI extends Application {
 					feedback.setText(logic.getLogic(autoCommand));
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(2);
+					buildTabs(KEY_TICKED);
 				}
 			});
 
@@ -676,24 +678,24 @@ public class TickerUI extends Application {
 					feedback.setText(logic.getLogic(autoCommand));
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(3);
+					buildTabs(KEY_CMI);
 				}
 			});
-			
+
 		}
-		else if(view==1) {
+		else if(view == KEY_SORTED_PRIORITY) {            //2
 			root.getChildren().remove(7);
 			imv7.setImage(cmi_2);
 			imv6.setImage(ticked_2);
 			imv8.setImage(todo_1);
 			tabs_todo.getChildren().addAll(imv7, imv6, imv8);
 			root.getChildren().add(7, tabs_todo);  
-			currentView = 1;
-			
+			currentView = KEY_SORTED_PRIORITY;
+
 			imv8.setDisable(true);
 			imv7.setDisable(false);
 			imv6.setDisable(false);
-			
+
 			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
 					imv6.setImage(ticked_3);
@@ -710,7 +712,7 @@ public class TickerUI extends Application {
 					feedback.setText(logic.getLogic(autoCommand));
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(2);
+					buildTabs(KEY_TICKED);
 				}
 			});
 
@@ -730,26 +732,26 @@ public class TickerUI extends Application {
 					feedback.setText(logic.getLogic(autoCommand));
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(3);
+					buildTabs(KEY_CMI);
 				}
 			});
-			
+
 		}
-		
-		
-		else if(view == 2) {
+
+
+		else if(view == KEY_TICKED) {                        //3
 			root.getChildren().remove(7);
 			imv7.setImage(cmi_2);
 			imv6.setImage(ticked_1);
 			imv8.setImage(todo_2);
 			tabs_ticked.getChildren().addAll(imv7, imv8, imv6);
 			root.getChildren().add(7, tabs_ticked);  
-			currentView = 2;
-		
+			currentView = KEY_TICKED;
+
 			imv6.setDisable(true);
 			imv7.setDisable(false);
 			imv8.setDisable(false);
-			
+
 			imv8.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
 					imv8.setImage(todo_3);
@@ -766,7 +768,7 @@ public class TickerUI extends Application {
 					feedback.setText(logic.getLogic(autoCommand));
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(0);
+					buildTabs(KEY_SORTED_TIME);
 				}
 			});
 
@@ -786,25 +788,25 @@ public class TickerUI extends Application {
 					feedback.setText(logic.getLogic(autoCommand));
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(3);
+					buildTabs(KEY_CMI);
 				}
 			});
 
 		}
-		else if(view == 3) {
+		else if(view == KEY_CMI) {                                //4
 			root.getChildren().remove(7);
 			imv7.setImage(cmi_1);
 			imv6.setImage(ticked_2);
 			imv8.setImage(todo_2);
 			tabs_cmi.getChildren().addAll(imv8, imv6, imv7);
 			root.getChildren().add(7, tabs_cmi);  
-			
+
 			imv7.setDisable(true);
 			imv8.setDisable(false);
 			imv6.setDisable(false);
 
-			currentView = 3;
-			
+			currentView = KEY_CMI;
+
 			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
 					imv6.setImage(ticked_3);
@@ -821,7 +823,7 @@ public class TickerUI extends Application {
 					feedback.setText(logic.getLogic(autoCommand));
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(2);
+					buildTabs(KEY_TICKED);
 				}
 			});
 
@@ -841,24 +843,24 @@ public class TickerUI extends Application {
 					feedback.setText(logic.getLogic(autoCommand));
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(0);
+					buildTabs(KEY_SORTED_TIME);
 				}
 			});
-			
+
 		}
-		else if(view==4) {
+		else if(view == KEY_SEARCH) {
 			root.getChildren().remove(7);
 			imv7.setImage(cmi_2);
 			imv6.setImage(ticked_2);
-			imv8.setImage(todo_2);
+			imv8.setImage(todo_1);
 			tabs_todo.getChildren().addAll(imv7, imv6, imv8);
 			root.getChildren().add(7, tabs_todo);  
-			currentView = 4;
-			
+			currentView = KEY_SEARCH;
+
 			imv8.setDisable(false);
 			imv7.setDisable(false);
 			imv6.setDisable(false);
-			
+
 			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
 					imv6.setImage(ticked_3);
@@ -875,7 +877,7 @@ public class TickerUI extends Application {
 					feedback.setText(logic.getLogic(autoCommand));
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(2);
+					buildTabs(KEY_TICKED);
 				}
 			});
 
@@ -895,10 +897,10 @@ public class TickerUI extends Application {
 					feedback.setText(logic.getLogic(autoCommand));
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(3);
+					buildTabs(KEY_CMI);
 				}
 			});
-			
+
 			imv8.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
 					imv6.setImage(todo_3);
@@ -915,10 +917,10 @@ public class TickerUI extends Application {
 					feedback.setText(logic.getLogic(autoCommand));
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(0);
+					buildTabs(KEY_SORTED_TIME);
 				}
 			});
-			
+
 		}
 	}
 
