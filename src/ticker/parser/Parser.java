@@ -489,35 +489,36 @@ public class Parser {
 	}
 	
 	
-	private static Date constructDate(String str){
+	static Date constructDate(String str){
 
 		if (str.equals("")) return null;
 		int index = str.indexOf("/");
 
 		if (index==-1) return null;
 		
-		int date = Integer.parseInt(str.substring(0,index));
-		int month=0;
+		int month = 0;
+		int date=0;
 		int year = Date.getCurrentYear();
 		
-		String monthStr;
-		
 		if (str.lastIndexOf("/")==index){
-			monthStr = str.substring(index+1);
+			
 			try {  
-				month = Integer.parseInt(monthStr);  
+				date = Integer.parseInt(str.substring(index+1)); 
+				month = Integer.parseInt(str.substring(0,index));
 			}  
 				catch(NumberFormatException nfe) {    
 			}  
 		}
 		
 		else {
-			monthStr = str.substring(index+1,str.lastIndexOf("/"));
+
 			try {
-				year = Integer.parseInt(str.substring(str.lastIndexOf("/")+1));  
+				year = Integer.parseInt(str.substring(0,index));  
 				if (year<100){
 					year += 2000;
 				}
+				month =  Integer.parseInt(str.substring(index+1,str.lastIndexOf("/")));  
+				date =  Integer.parseInt(str.substring(str.indexOf("/")+1));  
 			}	catch(NumberFormatException nfe) {    
 			}  
 		}
@@ -535,7 +536,7 @@ public class Parser {
 		final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 		if (month == 0){
 			for (int i=0;i<months.length;i++){
-				if (months[i].toLowerCase().equals(monthStr.toLowerCase())){
+				if (str.toLowerCase().indexOf(months[i].toLowerCase())!=-1){
 					month = i;
 					break;
 				}
