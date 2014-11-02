@@ -52,11 +52,11 @@ public class Logic{
 	private static final int KEY_CMI = 4;
 	private static final int KEY_SEARCH = 5;
 	// String constants for type of lists used
-	private static final String TASKS_TIME = "TIME";
-	private static final String TASKS_PRIORITY = "PRIORITY";
-	private static final String TASKS_TICKED = "TICKED";
-	private static final String TASKS_CMI = "CMI";
-	private static final String TASKS_SEARCH = "SEARCH";
+	private static final String TASKS_TIME = "time";
+	private static final String TASKS_PRIORITY = "priority";
+	private static final String TASKS_TICKED = "ticked";
+	private static final String TASKS_CMI = "cmi";
+	private static final String TASKS_SEARCH = "search";
 
 	// Instances of other components
 	private Parser parser;
@@ -80,9 +80,6 @@ public class Logic{
 	private static Vector<Task> searchResults;
 	// Store existing (current) search request
 	private static UserInput searchRequest;
-
-	public Logic() {
-	}
 
 	public Logic(TickerUI UI){
 		// Creating 1-1 dependency with UI
@@ -113,16 +110,21 @@ public class Logic{
 		UI.setList(current);
 
 	}
-
 	
+	// For UI to call logic and for logic to pass the string to parser to process user input
+	// 
 	public String getLogic(String input) {
 		// Crash the program if Logic is contructed without TickerUI, missing dependency
 		assert(UI != null);
+		
+		UserInput processed = parser.processInput(input);
+		return getOutput(processed);
+	}
 
+	protected String getOutput(UserInput processed) {
+		
 		String feedback = "";
 		String command = "";
-		UserInput processed = parser.processInput(input);
-
 		logger.log(Level.INFO, "Performing an action");
 
 		try {
@@ -418,7 +420,7 @@ public class Logic{
 		Collections.sort(sortedPriority, new sortByPriority());
 	}
 
-	private String clear() {
+	protected String clear() {
 		current.removeAllElements();
 		
 		if (listTracker == KEY_SORTED_TIME || listTracker == KEY_SORTED_PRIORITY) {
@@ -432,7 +434,7 @@ public class Logic{
 		return "Spick and span!";
 	}
 
-	/*private String list() {
+	protected String list() {
 		if (current == null) {
 			return "Nothing to display.\n";
 		}
@@ -443,7 +445,7 @@ public class Logic{
 			list += ++i + ". " + task.toString() + "\n";
 		}
 		return list;
-	}*/
+	}
 
 	/*private String listSearch() {
 		if (current == null) {
@@ -459,27 +461,27 @@ public class Logic{
 		return list;
 	}*/
 
-	private String list(String listType) throws IllegalArgumentException {
+	protected String list(String listType) throws IllegalArgumentException {
 		switch (listType) {
-		case "time":
+		case TASKS_TIME:
 			current = sortedTime;
 			listTracker = KEY_SORTED_TIME;
 			currentListName = TASKS_TIME;
 			UI.setList(current);
 			return "Listing by time...";
-		case "priority":
+		case TASKS_PRIORITY:
 			current = sortedPriority;
 			listTracker = KEY_SORTED_PRIORITY;
 			currentListName = TASKS_PRIORITY;
 			UI.setList(current);
 			return "Listing by priority...";
-		case "ticked":
+		case TASKS_TICKED:
 			current = listTicked;
 			listTracker = KEY_TICKED;
 			currentListName = TASKS_TICKED;
 			UI.setList(current);
 			return "Listing ticked tasks...";
-		case COMMAND_CMI:
+		case TASKS_CMI:
 			current = listCMI;
 			listTracker = KEY_CMI;
 			currentListName = TASKS_CMI;
@@ -492,5 +494,4 @@ public class Logic{
 }
 
 //TODO: 
-//-Do exception handling for tick and cmi, cannot do certain commands
 //-refactor the code and make it neat
