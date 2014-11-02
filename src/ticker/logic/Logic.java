@@ -100,7 +100,7 @@ public class Logic{
 
 		cruMng = new CRUManager(sortedTime, sortedPriority, listTicked, listCMI);
 		tickCMIMng = new TickCMIManager(sortedTime, sortedPriority, listTicked, listCMI);
-		searchMng = new SearchManager(sortedTime, sortedPriority, listTicked, listCMI);
+		searchMng = new SearchManager(sortedTime, listTicked, listCMI);
 		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
 
 		searchResults = new Vector<Task>();

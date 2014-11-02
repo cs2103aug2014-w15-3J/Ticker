@@ -33,18 +33,16 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.Soundex;
 
 public class SearchManager {
 	Vector<StringMatch> matchList;
-	private static Vector<Task> storedTasksByTime;
-	private static Vector<Task> storedTasksByPriority;
-	private static Vector<Task> storedTasksByTicked; // not sorted
-	private static Vector<Task> storedTasksByCMI; // not sorted
+	private Vector<Task> storedTasksByTime;
+	private Vector<Task> storedTasksByTicked; // not sorted
+	private Vector<Task> storedTasksByCMI; // not sorted
 	private static Vector<Task> searchResultsTime;
 	private static Vector<Task> searchResultsTicked;
 	private static Vector<Task> searchResultsCMI;
 	private static Vector<Task> searchResults;
 	String key; 
 
-	public SearchManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
-		this.storedTasksByPriority = storedTasksByPriority;
+	public SearchManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
 		this.storedTasksByTime = storedTasksByTime;
 		this.storedTasksByTicked = storedTasksByTicked;
 		this.storedTasksByCMI = storedTasksByCMI;
