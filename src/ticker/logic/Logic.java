@@ -52,11 +52,11 @@ public class Logic{
 	private static final int KEY_CMI = 4;
 	private static final int KEY_SEARCH = 5;
 	// String constants for type of lists used
-	private static final String TASKS_TIME = "time";
-	private static final String TASKS_PRIORITY = "priority";
-	private static final String TASKS_TICKED = "ticked";
-	private static final String TASKS_CMI = "cmi";
-	private static final String TASKS_SEARCH = "search";
+	private static final String LIST_TIME = "time";
+	private static final String LIST_PRIORITY = "priority";
+	private static final String LIST_TICKED = "ticked";
+	private static final String LIST_CMI = "cmi";
+	private static final String LIST_SEARCH = "search";
 
 	// Instances of other components
 	private Parser parser;
@@ -104,7 +104,7 @@ public class Logic{
 
 		current = sortedTime;
 		listTracker = KEY_SORTED_TIME;
-		currentListName = TASKS_TIME;
+		currentListName = LIST_TIME;
 
 		checkForTaskExpiry();
 		UI.setList(current);
@@ -148,7 +148,7 @@ public class Logic{
 				
 				listTracker = KEY_SEARCH;
 				current = searchResults;
-				currentListName = TASKS_SEARCH;
+				currentListName = LIST_SEARCH;
 				
 				UI.setList(current);
 				
@@ -223,7 +223,7 @@ public class Logic{
 				if (listTracker == KEY_CMI || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
 					listTracker = KEY_SORTED_TIME;
 					current = sortedTime;
-					currentListName = TASKS_TIME;
+					currentListName = LIST_TIME;
 				}
 
 				checkForTaskExpiry();
@@ -463,30 +463,30 @@ public class Logic{
 
 	protected String list(String listType) throws IllegalArgumentException {
 		switch (listType) {
-		case TASKS_TIME:
+		case LIST_TIME:
 			current = sortedTime;
 			listTracker = KEY_SORTED_TIME;
-			currentListName = TASKS_TIME;
+			currentListName = LIST_TIME;
 			UI.setList(current);
 			return "Listing by time...";
-		case TASKS_PRIORITY:
+		case LIST_PRIORITY:
 			current = sortedPriority;
 			listTracker = KEY_SORTED_PRIORITY;
-			currentListName = TASKS_PRIORITY;
+			currentListName = LIST_PRIORITY;
 			UI.setList(current);
 			return "Listing by priority...";
-		case TASKS_TICKED:
+		case LIST_TICKED:
 			current = listTicked;
 			listTracker = KEY_TICKED;
-			currentListName = TASKS_TICKED;
+			currentListName = LIST_TICKED;
 			UI.setList(current);
 			return "Listing ticked tasks...";
-		case TASKS_CMI:
+		case COMMAND_CMI:
 			current = listCMI;
 			listTracker = KEY_CMI;
-			currentListName = TASKS_CMI;
+			currentListName = LIST_CMI;
 			UI.setList(current);
-			return "Listing tasks that cannot be done...";
+			return "Listing tasks that are kept in view...";
 		default:
 			throw new IllegalArgumentException();
 		}

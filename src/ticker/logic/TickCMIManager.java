@@ -143,7 +143,7 @@ public class TickCMIManager {
 		Event event = new Event(COMMAND_CMI, cmi, TASKS_TIME, TASKS_CMI);
 		undoMng.add(event);
 
-		return cmi.toString() + " cannot be done!\n";
+		return cmi.toString() + " will be kept in view.";
 
 	}
 
