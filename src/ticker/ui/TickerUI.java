@@ -71,7 +71,7 @@ public class TickerUI extends Application {
 	Group tabs_todo, tabs_ticked, tabs_cmi;
 	ImageView imv5, imv6, imv7, imv8;
 	Image cmi_1, cmi_2, cmi_3, ticked_1, ticked_2, ticked_3, todo_1, todo_2, todo_3, bar;
-	private int currentView = 0;          //0 for todo_time(default), 1 for todo_priority, 2 for ticked, 3 for cmi
+	private int currentView = 0;          //??1 for todo_time(default), 2 for todo_priority, 3 for ticked, 4 for cmi, 5 for search
 	private int nextView = 0;
 
 	private static Logger logger = Logger.getLogger("UI");
@@ -275,7 +275,7 @@ public class TickerUI extends Application {
 			}
 		});
 
-		//TODO finish the tab function
+		
 		tabs_todo = new Group();
 		tabs_cmi = new Group();
 		tabs_ticked = new Group();
@@ -393,7 +393,6 @@ public class TickerUI extends Application {
 				feedback.setText(logic.getLogic(cmd));
 				//any change in view should reflect here
 				//nextView is ready
-
 				if(nextView != currentView) {
 					buildTabs(nextView);
 				}
@@ -464,7 +463,7 @@ public class TickerUI extends Application {
 	}
 
 
-	//MARK helper functions start here 
+
 	/*the following methods are for Logic to call*/
 	public void setHelp() {
 		this.displayHelp = true;
@@ -475,7 +474,7 @@ public class TickerUI extends Application {
 	}
 
 	public void setNextView(int next) {
-		this.nextView = next;
+		this.nextView = next-1;
 	}
 	/*--------------------------------------------*/
 
