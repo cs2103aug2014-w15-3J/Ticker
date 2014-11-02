@@ -489,7 +489,7 @@ public class Parser {
 	}
 	
 	
-	private static Date constructDate(String str){
+	static Date constructDate(String str){
 
 		if (str.equals("")) return null;
 		int index = str.indexOf("/");
