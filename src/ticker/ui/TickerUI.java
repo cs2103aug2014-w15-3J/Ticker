@@ -59,7 +59,7 @@ public class TickerUI extends Application {
 	Scene scene;
 	Group root;
 	//basic display
-	Image background, logo, min, min_, close, close_;
+	Image background, logo, min, min_, close, close_, trivial, normal, impt;
 	ImageView imv1, imv2, imv3, imv4;
 	GridPane chart = new GridPane();
 	TextField command;
@@ -353,6 +353,13 @@ public class TickerUI extends Application {
 		help.setLayoutY(75);
 		help.setPrefSize(400, 500);
 		root.getChildren().add(help);
+		
+		
+		
+		
+		trivial = new Image("ticker/ui/pic/trivial.png", true);
+		normal = new Image("ticker/ui/pic/normal.png", true);
+		impt = new Image("ticker/ui/pic/impt.png", true);
 
 
 
@@ -491,30 +498,55 @@ public class TickerUI extends Application {
 
 	private void displayTasks() {
 		int prefHeight = 30;
-		int maxHeight = 100;
-		int widthIndex = 20;
-		int widthDes = 250;
+		int maxHeight;
+		int widthIndex = 18;
+		int widthDes = 240;
 		int widthTime = 140;
-		System.out.println(tasksToBeShown.size() + " tasks!");
+		int avgCharNum = 40;
+		int additionalHeight = 12;
+		
+		//ystem.out.println(tasksToBeShown.size() + " tasks!");
 		if(tasksToBeShown.size()==0) {
 			return;
 		} else {
 			for(int i = 0; i < tasksToBeShown.size(); i++ ) {
 
 				HBox hb = new HBox(10);
-				hb.setPadding(new Insets(15, 10, 5, 10));
+				hb.setPadding(new Insets(10, 15, 10, 5));
+				hb.setAlignment(Pos.CENTER_LEFT);
 
 				//index
 				Label index = new Label(""+(i+1)+".");
 				index.setPrefSize(widthIndex, prefHeight);
-				index.setAlignment(Pos.TOP_LEFT);
+				index.setAlignment(Pos.CENTER_RIGHT);
+				
+				//priority
+				ImageView priority = new ImageView();
+				priority.setFitWidth(8);
+				priority.setPreserveRatio(true);
+				priority.setSmooth(true);
+				priority.setCache(true);
+				
+				char p = tasksToBeShown.get(i).getPriority();
+				if(p=='A') {
+					priority.setImage(impt);
+				}
+				else if(p=='B') {
+					priority.setImage(normal);
+				}
+				else if(p=='C') {
+					priority.setImage(trivial);
+				}
 
 				//task description
-				Label description = new Label(tasksToBeShown.get(i).getDescription());
-				description.setMaxSize(widthDes, maxHeight);
-				description.setPrefSize(widthDes, prefHeight);
-				description.setAlignment(Pos.TOP_LEFT);
+				String newTask = tasksToBeShown.get(i).getDescription();
+				int length = newTask.length();
+				maxHeight = prefHeight;
+				maxHeight += (length/avgCharNum)*additionalHeight;              //adjust the maxHeight accordingly
+				Label description = new Label(newTask);
+				description.setPrefSize(widthDes, maxHeight);
 				description.setWrapText(true);
+				description.setAlignment(Pos.CENTER_LEFT);
 
 				Date sd = tasksToBeShown.get(i).getStartDate();
 				Date ed = tasksToBeShown.get(i).getEndDate();
@@ -529,34 +561,31 @@ public class TickerUI extends Application {
 				ET = (et==null)? "" : et.toString();
 
 				if(sd==null && st==null && ed==null && et==null) {
-					hb.getChildren().addAll(index, description);
+					hb.getChildren().addAll(index, priority, description);
 				}
 				else if (ed==null && et==null) {
 					Label start = new Label("Start: " + ST + " " + SD);
 					start.setMaxSize(widthTime, prefHeight);
-					start.setAlignment(Pos.TOP_LEFT);
-					hb.getChildren().addAll(index, description, start);
+					start.setAlignment(Pos.CENTER_LEFT);
+					hb.getChildren().addAll(index, priority, description, start);
 				}
 				else if (sd==null && st==null) {
-					Label end = new Label("End: " + ET + " " + ED);
+					Label end = new Label("End:  " + ET + " " + ED);
 					end.setMaxSize(widthTime, prefHeight);
-					end.setAlignment(Pos.TOP_LEFT);
-					hb.getChildren().addAll(index, description, end);
+					end.setAlignment(Pos.CENTER_LEFT);
+					hb.getChildren().addAll(index, priority, description, end);
 				}
 				else {
 					Label start = new Label("Start: " + ST + " " + SD);
-					//start.setMaxSize(widthTime, prefHeight);
-					start.setAlignment(Pos.TOP_LEFT);
 
-					Label end = new Label("End: " + ET + " " + ED);
-					//end.setMaxSize(widthTime, prefHeight);
-					end.setAlignment(Pos.TOP_LEFT);
-
+					Label end = new Label("End:  " + ET + " " + ED);
+		
 					VBox time = new VBox(5);
 					time.getChildren().add(start);
 					time.getChildren().add(end);
 					time.setPrefSize(widthTime, prefHeight);
-					hb.getChildren().addAll(index, description, time);
+					time.setAlignment(Pos.CENTER_LEFT);
+					hb.getChildren().addAll(index, priority, description, time);
 				}
 				chart.add(hb, 0, i);
 			}
