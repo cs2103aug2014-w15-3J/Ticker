@@ -100,7 +100,7 @@ public class CRUManager {
 			undoMng.add(event);
 		}
 
-		return deleted.toString() + " has been removed.";
+		return deleted.getDescription() + " has been removed.";
 
 
 	}

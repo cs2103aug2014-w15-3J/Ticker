@@ -179,7 +179,7 @@ public class TickCMIManager {
 		Event event = new Event(COMMAND_UNCMI, uncmi, TASKS_TIME, TASKS_CMI);
 		undoMng.add(event);
 
-		return uncmi.toString() + "is back to undone!";
+		return uncmi.toString() + " is back to undone.";
 
 	}
 }
