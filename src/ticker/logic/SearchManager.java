@@ -135,7 +135,7 @@ public class SearchManager {
 		
 		int i = 0;
 		for (Task task: taskList) {
-			float score = getMatchLikelyhood(key, task.toString());
+			float score = getMatchLikelyhood(key.toLowerCase(), task.toString().toLowerCase());
 			System.out.println(score);
 			matchList.add(new StringMatch(i, score));
 			i++;
@@ -144,7 +144,7 @@ public class SearchManager {
 		Collections.sort(matchList, new StringMatchComparator());
 
 		for (StringMatch sm : matchList) {
-			if (sm.getSimilarityScore() < 70.0) {
+			if (sm.getSimilarityScore() < 65.0) {
 				break;
 			}
 			temp.add(taskList.get(sm.getIndex()));
