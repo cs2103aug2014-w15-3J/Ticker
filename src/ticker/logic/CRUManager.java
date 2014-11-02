@@ -100,7 +100,7 @@ public class CRUManager {
 			undoMng.add(event);
 		}
 
-		return deleted.toString() + " has been removed.\n";
+		return deleted.toString() + " has been removed.";
 
 
 	}
@@ -149,7 +149,7 @@ public class CRUManager {
 		undoMng.add(event);
 
 
-		return description + " has been added.\n";
+		return description + " has been added.";
 	}
 
 	String edit(int index, boolean isAppending, String description,boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
@@ -232,7 +232,7 @@ public class CRUManager {
 					addBackRemovedTask(oldTask);
 					return "Invalid edit on ending date";
 				}
-				newTask.setStartDate(endDate);
+				newTask.setEndDate(endDate);
 			}
 		}
 		// Edit startDate and endDate
@@ -275,7 +275,7 @@ public class CRUManager {
 					addBackRemovedTask(oldTask);
 					return "Invalid edit on ending time";
 				}
-				newTask.setStartTime(endTime);
+				newTask.setEndTime(endTime);
 			}
 		}
 		// Edit startTime and endTime
