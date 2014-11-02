@@ -67,7 +67,7 @@ public class TickCMIManager {
 		Event event = new Event(COMMAND_TICK, ticked, TASKS_TIME, TASKS_TICKED);
 		undoMng.add(event);
 
-		return ticked.toString() + " is done!\n";
+		return ticked.toString() + " is done!";
 	}
 
 	String untick(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException{
@@ -100,7 +100,7 @@ public class TickCMIManager {
 		Event event = new Event(COMMAND_UNTICK, unticked, TASKS_TIME, TASKS_TICKED);
 		undoMng.add(event);
 
-		return unticked.toString() + " is back to undone\n";
+		return unticked.toString() + " is back to undone.";
 	}
 
 	String cmi(int index, int listTracker, Vector<Task> current, String currentListName) 
@@ -143,7 +143,7 @@ public class TickCMIManager {
 		Event event = new Event(COMMAND_CMI, cmi, TASKS_TIME, TASKS_CMI);
 		undoMng.add(event);
 
-		return cmi.toString() + " cannot be done!\n";
+		return cmi.toString() + " will be kept in view.";
 
 	}
 
@@ -179,7 +179,7 @@ public class TickCMIManager {
 		Event event = new Event(COMMAND_UNCMI, uncmi, TASKS_TIME, TASKS_CMI);
 		undoMng.add(event);
 
-		return uncmi.toString() + "is back to undone!\n";
+		return uncmi.toString() + "is back to undone!";
 
 	}
 }

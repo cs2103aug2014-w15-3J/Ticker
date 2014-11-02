@@ -52,11 +52,11 @@ public class Logic{
 	private static final int KEY_CMI = 4;
 	private static final int KEY_SEARCH = 5;
 	// String constants for type of lists used
-	private static final String TASKS_TIME = "TIME";
-	private static final String TASKS_PRIORITY = "PRIORITY";
-	private static final String TASKS_TICKED = "TICKED";
-	private static final String TASKS_CMI = "CMI";
-	private static final String TASKS_SEARCH = "SEARCH";
+	private static final String LIST_TIME = "time";
+	private static final String LIST_PRIORITY = "priority";
+	private static final String LIST_TICKED = "ticked";
+	private static final String LIST_CMI = "cmi";
+	private static final String LIST_SEARCH = "search";
 
 	// Instances of other components
 	private Parser parser;
@@ -81,9 +81,6 @@ public class Logic{
 	// Store existing (current) search request
 	private static UserInput searchRequest;
 
-	public Logic() {
-	}
-
 	public Logic(TickerUI UI){
 		// Creating 1-1 dependency with UI
 		this.UI = UI;
@@ -107,22 +104,28 @@ public class Logic{
 
 		current = sortedTime;
 		listTracker = KEY_SORTED_TIME;
-		currentListName = TASKS_TIME;
+		currentListName = LIST_TIME;
 
 		checkForTaskExpiry();
 		UI.setList(current);
+		UI.setNextView(listTracker);
 
 	}
-
 	
+	// For UI to call logic and for logic to pass the string to parser to process user input
+	// 
 	public String getLogic(String input) {
 		// Crash the program if Logic is contructed without TickerUI, missing dependency
 		assert(UI != null);
+		
+		UserInput processed = parser.processInput(input);
+		return getOutput(processed);
+	}
 
+	protected String getOutput(UserInput processed) {
+		
 		String feedback = "";
 		String command = "";
-		UserInput processed = parser.processInput(input);
-
 		logger.log(Level.INFO, "Performing an action");
 
 		try {
@@ -146,11 +149,12 @@ public class Logic{
 				
 				listTracker = KEY_SEARCH;
 				current = searchResults;
-				currentListName = TASKS_SEARCH;
+				currentListName = LIST_SEARCH;
 				
 				UI.setList(current);
+				UI.setNextView(listTracker);
 				
-				feedback = "searching for tasks...";
+				feedback = "Searching for tasks...";
 			}
 			catch (Exception e) {
 				System.out.println("error in search");
@@ -166,6 +170,7 @@ public class Logic{
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been deleted.";
@@ -204,6 +209,7 @@ public class Logic{
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been edited.";
@@ -221,13 +227,14 @@ public class Logic{
 				if (listTracker == KEY_CMI || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
 					listTracker = KEY_SORTED_TIME;
 					current = sortedTime;
-					currentListName = TASKS_TIME;
+					currentListName = LIST_TIME;
 				}
 
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (IllegalArgumentException ex) {
 				return "Error in input. Either description is missing or date is missing for repeated tasks.";
@@ -248,6 +255,7 @@ public class Logic{
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been marked as cannot do.";
@@ -271,6 +279,7 @@ public class Logic{
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been unmarked as cannot do.";
@@ -282,7 +291,7 @@ public class Logic{
 
 		case COMMAND_UNDO:
 			try {
-				undoMng.undo();
+				feedback = undoMng.undo();
 				
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -293,15 +302,16 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (NullPointerException ex) {
 				System.out.println("Error with UndoManager");
 			}
-			return "undoing action";
+			return feedback;
 
 		case COMMAND_REDO:
 			try {
-				undoMng.redo();
+				feedback = undoMng.redo();
 				
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -313,11 +323,12 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (NullPointerException ex) {
 				System.out.println("Error with UndoManager");
 			}
-			return "redoing action";
+			return feedback;
 
 		case COMMAND_TICK:
 			try {
@@ -333,6 +344,7 @@ public class Logic{
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been ticked.";
@@ -356,6 +368,7 @@ public class Logic{
 				sortLists();
 				storeLists();
 				UI.setList(current);
+				UI.setNextView(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been unticked.";
@@ -418,7 +431,7 @@ public class Logic{
 		Collections.sort(sortedPriority, new sortByPriority());
 	}
 
-	private String clear() {
+	protected String clear() {
 		current.removeAllElements();
 		
 		if (listTracker == KEY_SORTED_TIME || listTracker == KEY_SORTED_PRIORITY) {
@@ -428,11 +441,12 @@ public class Logic{
 
 		storeLists();
 		UI.setList(current);
+		UI.setNextView(listTracker);
 
 		return "Spick and span!";
 	}
 
-	/*private String list() {
+	protected String list() {
 		if (current == null) {
 			return "Nothing to display.\n";
 		}
@@ -443,7 +457,7 @@ public class Logic{
 			list += ++i + ". " + task.toString() + "\n";
 		}
 		return list;
-	}*/
+	}
 
 	/*private String listSearch() {
 		if (current == null) {
@@ -459,32 +473,36 @@ public class Logic{
 		return list;
 	}*/
 
-	private String list(String listType) throws IllegalArgumentException {
+	protected String list(String listType) throws IllegalArgumentException {
 		switch (listType) {
-		case "time":
+		case LIST_TIME:
 			current = sortedTime;
 			listTracker = KEY_SORTED_TIME;
-			currentListName = TASKS_TIME;
+			currentListName = LIST_TIME;
 			UI.setList(current);
+			UI.setNextView(listTracker);
 			return "Listing by time...";
-		case "priority":
+		case LIST_PRIORITY:
 			current = sortedPriority;
 			listTracker = KEY_SORTED_PRIORITY;
-			currentListName = TASKS_PRIORITY;
+			currentListName = LIST_PRIORITY;
 			UI.setList(current);
+			UI.setNextView(listTracker);
 			return "Listing by priority...";
-		case "ticked":
+		case LIST_TICKED:
 			current = listTicked;
 			listTracker = KEY_TICKED;
-			currentListName = TASKS_TICKED;
+			currentListName = LIST_TICKED;
 			UI.setList(current);
+			UI.setNextView(listTracker);
 			return "Listing ticked tasks...";
 		case COMMAND_CMI:
 			current = listCMI;
 			listTracker = KEY_CMI;
-			currentListName = TASKS_CMI;
+			currentListName = LIST_CMI;
 			UI.setList(current);
-			return "Listing tasks that cannot be done...";
+			UI.setNextView(listTracker);
+			return "Listing tasks that are kept in view...";
 		default:
 			throw new IllegalArgumentException();
 		}
@@ -492,5 +510,4 @@ public class Logic{
 }
 
 //TODO: 
-//-Do exception handling for tick and cmi, cannot do certain commands
 //-refactor the code and make it neat
