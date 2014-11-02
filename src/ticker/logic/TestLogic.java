@@ -321,8 +321,8 @@ public class TestLogic {
 		input.setIndex(2);
 		input.isAppending(true);*/
 		
-		// Test delete
-		input = new UserInput();
+		// TODO: Test delete in priority list
+		/*input = new UserInput();
 		input.setCommand(COMMAND_DELETE);
 		input.setIndex(2);
 		
@@ -335,8 +335,14 @@ public class TestLogic {
 		
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
-		assertEquals("Undoing action", logic.getOutput(input));
+		assertEquals("Undoing action", logic.getOutput(input));*/
 		
+		// Test edit startDate and endDate
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(2);
+		input.setStartDate(new Date(2014, 11, 1));
+		input.setEndDate(new Date(2014, 11, 10));
 		
 		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
 		assertEquals("1. Self: Get a haircut\n"
