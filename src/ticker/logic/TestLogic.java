@@ -42,8 +42,8 @@ public class TestLogic {
 		assertEquals("Spick and span!", logic.getOutput(input));
 		input = new UserInput();
 		input.setCommand(COMMAND_LIST);
-		input.setDescription(TASKS_TICKED);
-		assertEquals("Listing ticked tasks...", logic.list(LIST_TICKED));
+		input.setDescription(LIST_TICKED);
+		assertEquals("Listing ticked tasks...", logic.getOutput(input));
 		assertEquals("Spick and span!", logic.clear());
 		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_CMI));
 		assertEquals("Spick and span!", logic.clear());
@@ -59,7 +59,35 @@ public class TestLogic {
 
 		assertEquals("CompClub: Add actionables on Trello has been added.\n", logic.getOutput(input));
 		assertEquals("1. CompClub: Add actionables on Trello\n", logic.list());
+		
+		// Test undo
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		
+		assertEquals("Undoing action", logic.getOutput(input));
+		assertEquals("", logic.list());
+		
+		// Test undo again
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		
+		assertEquals("You have reached the last undo", logic.getOutput(input));
+		assertEquals("", logic.list());
+		
+		// Test redo
+		input = new UserInput();
+		input.setCommand(COMMAND_REDO);
 
+		assertEquals("Redoing action", logic.getOutput(input));
+		assertEquals("1. CompClub: Add actionables on Trello\n", logic.list());
+		
+		// Test redo again
+		input = new UserInput();
+		input.setCommand(COMMAND_REDO);
+
+		assertEquals("You have reached the last redo", logic.getOutput(input));
+		assertEquals("1. CompClub: Add actionables on Trello\n", logic.list());		
+		
 		// Add scheduled task
 		input = new UserInput();
 		input.setCommand(COMMAND_ADD);
@@ -144,7 +172,7 @@ public class TestLogic {
 		input.setCommand(COMMAND_TICK);
 		input.setIndex(4);
 		
-		assertEquals("CompClub: Add actionables on Trello is done!\n", logic.getOutput(input));
+		assertEquals("CompClub: Add actionables on Trello is done!", logic.getOutput(input));
 		assertEquals("Listing ticked tasks...", logic.list(LIST_TICKED));
 		assertEquals("1. CompClub: Add actionables on Trello\n", logic.list());
 		
@@ -175,7 +203,7 @@ public class TestLogic {
 		input.setCommand(COMMAND_SEARCH);
 		input.setDescription("CompClub");
 		
-		assertEquals("searching for tasks...", logic.getOutput(input));
+		assertEquals("Searching for tasks...", logic.getOutput(input));
 		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
 				+ "2. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "3. \\***TICKED***\\\n"
@@ -187,15 +215,75 @@ public class TestLogic {
 		input.setCommand(COMMAND_SEARCH);
 		input.setStartDate(new Date(2014, 11, 5));
 		
-		assertEquals("searching for tasks...", logic.getOutput(input));
+		assertEquals("Searching for tasks...", logic.getOutput(input));
 		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
 				+ "2. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "3. \\***TICKED***\\\n"
 				+ "4. \\***CMI***\\\n", logic.list());
 		
+		// Test tick for current Search list
+		input = new UserInput();
+		input.setCommand(COMMAND_TICK);
+		input.setIndex(2);
 		
+		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting is done!", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
+				+ "2. \\***TICKED***\\\n"
+				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "4. \\***CMI***\\\n", logic.list());
+		
+		// Test undo for current Search list
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
 
-
+		assertEquals("Undoing action", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
+				+ "2. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "3. \\***TICKED***\\\n"
+				+ "4. \\***CMI***\\\n", logic.list());
+			
+		// Test redo for current Search list
+		input = new UserInput();
+		input.setCommand(COMMAND_REDO);
+		
+		assertEquals("Redoing action", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
+				+ "2. \\***TICKED***\\\n"
+				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "4. \\***CMI***\\\n", logic.list());
+		
+		// Test untick for current Search list
+		input = new UserInput();
+		input.setCommand(COMMAND_UNTICK);
+		input.setIndex(3);
+		
+		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting is back to undone.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
+				+ "2. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "3. \\***TICKED***\\\n"
+				+ "4. \\***CMI***\\\n", logic.list());
+		
+		// Test CMI for current Search list
+		input = new UserInput();
+		input.setCommand(COMMAND_CMI);
+		input.setIndex(2);
+		
+		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting will be kept in view.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
+				+ "2. \\***TICKED***\\\n"
+				+ "3. \\***CMI***\\\n"
+				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+		
+		// Test unCMI for current Search list
+		input = new UserInput();
+		input.setCommand(COMMAND_UNCMI);
+		input.setIndex(4);
+		
+		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting is back to undone.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
+				+ "2. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "3. \\***TICKED***\\\n"
+				+ "4. \\***CMI***\\\n", logic.list());
 		/*
 		assertEquals("aaa has been added.\n", ui.getLogic().getLogic("add \"aaa\" 23/10 -et 13:00"));
 		// Adding invalid command (This is testing the position of the dash "-" in relation to the date. If "-" is after date, it's starting time, if "-" is

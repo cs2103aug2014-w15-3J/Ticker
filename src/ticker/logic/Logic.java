@@ -152,7 +152,7 @@ public class Logic{
 				
 				UI.setList(current);
 				
-				feedback = "searching for tasks...";
+				feedback = "Searching for tasks...";
 			}
 			catch (Exception e) {
 				System.out.println("error in search");
@@ -284,7 +284,7 @@ public class Logic{
 
 		case COMMAND_UNDO:
 			try {
-				undoMng.undo();
+				feedback = undoMng.undo();
 				
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -299,11 +299,11 @@ public class Logic{
 			catch (NullPointerException ex) {
 				System.out.println("Error with UndoManager");
 			}
-			return "undoing action";
+			return feedback;
 
 		case COMMAND_REDO:
 			try {
-				undoMng.redo();
+				feedback = undoMng.redo();
 				
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -319,7 +319,7 @@ public class Logic{
 			catch (NullPointerException ex) {
 				System.out.println("Error with UndoManager");
 			}
-			return "redoing action";
+			return feedback;
 
 		case COMMAND_TICK:
 			try {
