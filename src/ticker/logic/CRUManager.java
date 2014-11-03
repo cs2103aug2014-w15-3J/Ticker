@@ -151,6 +151,7 @@ public class CRUManager {
 		return description + " has been added.";
 	}
 
+	// Resetting repeated task will make it a timedTask
 	Task remakeTask(Task task) throws IllegalArgumentException {
 		String description = task.getDescription();
 		boolean isRepeating = false;
@@ -166,35 +167,7 @@ public class CRUManager {
 
 		Task newTask;
 
-		// Creation of RepeatingTask
-		if (isRepeating) {
-			if (startDate != null) {
-				newTask = new RepeatingTask(description, startDate, startTime, endTime, priority, isRepeating);
-			}
-			else if (endDate != null) {
-				newTask = new RepeatingTask(description, endDate, startTime, endTime, priority, isRepeating);
-			}
-			else {
-				throw new IllegalArgumentException();
-			}
-
-		}
-
-		else if (startDate == null && startTime == null) {
-			// Creation of floating tasks
-			if (endDate == null && endTime == null) {
-				newTask = new FloatingTask(description, priority, false);
-			}
-			// Creation of deadline tasks
-			else {
-				newTask = new DeadlineTask(description, endDate, endTime, priority, false);
-			}
-
-		}
-		// Creation of timed tasks
-		else {
-			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
-		}
+		newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
 
 		return newTask;
 	}
@@ -348,7 +321,7 @@ public class CRUManager {
 				newTask = remakeTask(newTask);
 			}
 		}	
-		
+
 		// Add newTask back
 		if (listTracker == KEY_SEARCH) {
 			addTaskIntoUndone(newTask);
