@@ -8,6 +8,8 @@ import java.util.List;
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
 
 import ticker.common.*;
+import ticker.common.Task.RepeatingInterval;
+
 
 public class Parser {
 	
@@ -110,16 +112,29 @@ public class Parser {
 		
 		for (int i=0;i<words.length;i++){
 			
-			if (words[i].toLowerCase().equals("-impt")||words[i].toLowerCase().equals("-important")){
+			String lowerCase = words[i].toLowerCase();
+			
+			if (lowerCase.equals("-impt")||lowerCase.equals("-important")){
 				input.setPriority('A');
 			}
 			
-			if (words[i].toLowerCase().equals("-trivial")){
+			else if (lowerCase.equals("-trivial")){
 				input.setPriority('C');
 			}
 
-			if (words[i].equals("-r")){
+			else if (lowerCase.equals("-r")||lowerCase.equals("-rw")){
 				input.setRepeating(true);
+				input.setRepeatingInterval(RepeatingInterval.WEEK);
+			}
+			
+			else if (lowerCase.equals("-rd")){
+				input.setRepeating(true);
+				input.setRepeatingInterval(RepeatingInterval.DAY);
+			}
+			
+			else if (lowerCase.equals("-rm")){
+				input.setRepeating(true);
+				input.setRepeatingInterval(RepeatingInterval.MONTH);
 			}
 		}
 		
