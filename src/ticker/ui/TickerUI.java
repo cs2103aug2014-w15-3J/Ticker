@@ -1,6 +1,7 @@
 package ticker.ui;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Random;
 import java.util.Vector;
@@ -62,23 +63,40 @@ public class TickerUI extends Application {
 	//basic display
 	Image background, logo, min, min_, close, close_, trivial, normal, impt;
 	ImageView imv1, imv2, imv3, imv4;
-	GridPane chart = new GridPane();
+	VBox chart = new VBox();
+	//GridPane chart = new GridPane();
 	TextField command;
 	Text feedback;
 	ScrollPane sp;
 	//tabs
 	int indexTabs = 7;       //tabs is the 7th children that root added
-	Group tabs_todo, tabs_ticked, tabs_cmi;
+	Group tabs_todo, tabs_todo_p, tabs_ticked, tabs_cmi, tabs_search;
 	ImageView imv5, imv6, imv7, imv8;
 	Image cmi_1, cmi_2, cmi_3, ticked_1, ticked_2, ticked_3, todo_1, todo_2, todo_3, bar;
-	//TODO refer to this
+
 	private static final int KEY_SORTED_TIME = 1;
 	private static final int KEY_SORTED_PRIORITY = 2;
 	private static final int KEY_TICKED = 3;
 	private static final int KEY_CMI = 4;
 	private static final int KEY_SEARCH = 5;
 	private int currentView = KEY_SORTED_TIME;          //1 for todo_time(default), 2 for todo_priority, 3 for ticked, 4 for cmi, 5 for search
-	private int nextView =0;
+	private int nextView = KEY_SORTED_TIME;
+
+int indexClock = 10;
+	Calendar c = Calendar.getInstance();
+
+	HBox clock = new HBox();
+
+
+	final Text currentHour = new Text();
+	final Text currentMin = new Text();
+	final Text currentSec = new Text();
+	final Text colon1 = new Text(":");
+	final Text colon2 = new Text(":");
+
+
+
+
 
 	private static Logger logger = Logger.getLogger("UI");
 
@@ -95,6 +113,10 @@ public class TickerUI extends Application {
 	}
 
 	public void start(Stage stage) {
+
+
+
+
 		stage.initStyle(StageStyle.UNDECORATED);
 		root = new Group();
 
@@ -148,70 +170,21 @@ public class TickerUI extends Application {
 		//feedback.setText("The command you entered is invalid");
 		root.getChildren().add(feedback);
 
-		//add the display of the current time
-		/*Calendar c = Calendar.getInstance();
-		GridPane clock = new GridPane();
-
-		final Text currentHour = new Text();
-		currentHour.setText(Integer.toString(Time.getCurrentTime().getHour()));
-		currentHour.setFill(Color.WHITE);
-
-		final Text currentMin = new Text();
-		String min = "";
-		if(c.get(Calendar.MINUTE) < 10) {
-			min = "0" + c.get(Calendar.MINUTE);
-		} else {
-			min = Integer.toString(c.get(Calendar.MINUTE));
-		}
-		currentMin.setText(min);
-		currentMin.setFill(Color.WHITE);
-
-		final Text currentSec = new Text();
-		String sec = "";
-		if(c.get(Calendar.SECOND) < 10) {
-			sec = "0" + c.get(Calendar.SECOND);
-		} else {
-			sec = Integer.toString(c.get(Calendar.SECOND));
-		}
-		currentSec.setText(sec);
-		currentSec.setFill(Color.WHITE);
-
-		final Text colon1 = new Text(":");
-		colon1.setFill(Color.WHITE);
-
-		final Text colon2 = new Text(":");
-		colon2.setFill(Color.WHITE);
-
-		clock.add(currentHour, 0, 0);
-		clock.add(colon1, 1, 0);
-		clock.add(currentMin, 2, 0);
-		clock.add(colon2, 3, 0);
-		clock.add(currentSec, 4, 0);
-		clock.setLayoutX(380);
-		clock.setLayoutY(40);
 
 
 
 		final Timeline time = new Timeline();
 		time.setCycleCount(Timeline.INDEFINITE);
+		time.getKeyFrames().add(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent evt) {
+				displayTime();
+				//System.out.println("one second passed!");
+			}
+		}));
+		time.play();
 
-		root.getChildren().add(clock);*/
-		// redo?
-		/*String dTime;
-		function updateTime(): Void {
-			var temp = DateTime{} 
-			dTime = DateFormat.getTimeInstance(DateFormat.MEDIUM).format(temp.instant);}
-		TimeLine {
-			repeatCount: Timeline.INDEFINITE
-			keyFrames: [
-			            KeyFrame {
-			            	time: 1s
-			            	canSkip: true
-			            	action: updateTime
-			            }
-		]	
-		}.play();*/
-		//String time;
+
+
 
 		//add the minimise and close button
 		min = new Image("ticker/ui/pic/minimise2.png", true);
@@ -277,8 +250,10 @@ public class TickerUI extends Application {
 
 
 		tabs_todo = new Group();
+		tabs_todo_p = new Group();
 		tabs_cmi = new Group();
 		tabs_ticked = new Group();
+		tabs_search = new Group();
 
 		DropShadow ds = new DropShadow();
 		ds.setRadius(8.0);
@@ -326,13 +301,8 @@ public class TickerUI extends Application {
 		imv8.setCache(true);
 		imv8.setEffect(ds);
 
-		//imv7.setImage(cmi_2);
-		//imv6.setImage(ticked_2);
-		//imv8.setImage(todo_1);
-		//tabs_todo.getChildren().addAll(imv7, imv6, imv8);
 		root.getChildren().add(tabs_todo);  
 		buildTabs(currentView);
-
 
 		bar = new Image("ticker/ui/pic/bar.png", true);
 		imv5 = new ImageView();
@@ -348,17 +318,17 @@ public class TickerUI extends Application {
 
 		//TODO set the content of help and design better looking help page
 		//implement the help page
-		TextArea help = new TextArea();
+		/*TextArea help = new TextArea();
 		help.setWrapText(true);
 		help.setText(commandList);
 		help.setVisible(false);
 		help.setLayoutX(45);
 		help.setLayoutY(75);
 		help.setPrefSize(400, 500);
-		root.getChildren().add(help);
+		root.getChildren().add(help);*/
 
 
-		System.out.println(root.getChildren().size());
+		//System.out.println(root.getChildren().size());
 
 		trivial = new Image("ticker/ui/pic/trivial.png", true);
 		normal = new Image("ticker/ui/pic/normal.png", true);
@@ -393,13 +363,13 @@ public class TickerUI extends Application {
 				feedback.setText(logic.getLogic(cmd));
 				//any change in view should reflect here
 				//nextView is ready
-				System.out.println("nextView is " + nextView);
+				//System.out.println("nextView is " + nextView);
 				if(nextView != currentView) {
-					System.out.println("change view!!!");
+					//System.out.println("change view!!!");
 					buildTabs(nextView);
 				}
 
-				if(displayHelp == true) {            //if command is "help"
+				/*if(displayHelp == true) {                                                             //if command is "help"
 					help.setVisible(true);
 					FadeTransition ft = new FadeTransition(Duration.millis(250), help);               //fade in
 					ft.setFromValue(0);
@@ -436,10 +406,10 @@ public class TickerUI extends Application {
 
 							});
 				} 
-				else {		
-					chart.getChildren().clear();
-					displayTasks();
-				}
+				else {		*/
+				chart.getChildren().clear();
+				displayTasks();
+				//}
 
 				//feedback fades off after 5 seconds
 				FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
@@ -448,6 +418,8 @@ public class TickerUI extends Application {
 				ft.play();
 			}
 				});
+		
+		displayTime();
 
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
@@ -480,6 +452,44 @@ public class TickerUI extends Application {
 	}
 	/*--------------------------------------------*/
 
+	private void displayTime() {
+
+
+		currentHour.setText(Integer.toString(Time.getCurrentTime().getHour()));
+		currentHour.setFill(Color.WHITE);
+
+		String minute = "";
+		if(c.get(Calendar.MINUTE) < 10) {
+			minute = "0" + c.get(Calendar.MINUTE);
+		} else {
+			minute = Integer.toString(c.get(Calendar.MINUTE));
+		}
+		currentMin.setText(minute);
+		currentMin.setFill(Color.WHITE);
+
+		String sec = "";
+		if(c.get(Calendar.SECOND) < 10) {
+			sec = "0" + c.get(Calendar.SECOND);
+		} else {
+			sec = Integer.toString(c.get(Calendar.SECOND));
+		}
+		currentSec.setText(sec);
+		currentSec.setFill(Color.WHITE);
+
+		colon1.setFill(Color.WHITE);
+
+		colon2.setFill(Color.WHITE);
+
+		clock.getChildren().add(currentHour);
+		clock.getChildren().add(colon1);
+		clock.getChildren().add(currentMin);
+		clock.getChildren().add(colon2);
+		clock.getChildren().add(currentSec);
+		clock.setLayoutX(380);
+		clock.setLayoutY(40);
+		root.getChildren().add(clock);
+	}
+
 	private String getHelp() {
 		String helpList = "";
 		helpList += "HELP FOR USING TICKER\n";
@@ -506,76 +516,111 @@ public class TickerUI extends Application {
 		int widthTime = 140;
 		int avgCharNum = 40;
 		int additionalHeight = 14;
+		int d = 0;                          //a way to correct the numbering when listing out serach results
 
-		//ystem.out.println(tasksToBeShown.size() + " tasks!");
-		if(tasksToBeShown.size()==0) {
-			return;
-		} else {
-			for(int i = 0; i < tasksToBeShown.size(); i++ ) {
 
-				HBox hb = new HBox(10);
-				hb.setPadding(new Insets(10, 15, 10, 5));
-				hb.setAlignment(Pos.CENTER_LEFT);
+		for(int i = 0; i < tasksToBeShown.size(); i++ ) {
 
-				//index
-				Label index = new Label(""+(i+1)+".");
-				index.setPrefSize(widthIndex, prefHeight);
-				index.setAlignment(Pos.CENTER_RIGHT);
+			HBox hb = new HBox(10);
+			hb.setPadding(new Insets(10, 15, 10, 5));
+			hb.setAlignment(Pos.CENTER_LEFT);
 
-				//priority
-				ImageView priority = new ImageView();
-				priority.setFitWidth(8);
-				priority.setPreserveRatio(true);
-				priority.setSmooth(true);
-				priority.setCache(true);
+			//index
+			Label index = new Label(""+(i+1-d)+".");
+			index.setPrefSize(widthIndex, prefHeight);
+			index.setAlignment(Pos.CENTER_RIGHT);
 
-				char p = tasksToBeShown.get(i).getPriority();
-				if(p=='A') {
-					priority.setImage(impt);
-				}
-				else if(p=='B') {
-					priority.setImage(normal);
-				}
-				else if(p=='C') {
-					priority.setImage(trivial);
-				}
+			//priority
+			ImageView priority = new ImageView();
+			priority.setFitWidth(8);
+			priority.setPreserveRatio(true);
+			priority.setSmooth(true);
+			priority.setCache(true);
 
-				//task description
-				String newTask = tasksToBeShown.get(i).getDescription();
-				int length = newTask.length();
-				maxHeight = prefHeight;
-				maxHeight += (length/avgCharNum)*additionalHeight;              //adjust the maxHeight accordingly
-				Label description = new Label(newTask);
-				description.setPrefSize(widthDes, maxHeight);
-				description.setWrapText(true);
-				description.setAlignment(Pos.CENTER_LEFT);
+			char p = tasksToBeShown.get(i).getPriority();
+			if(p=='A') {
+				priority.setImage(impt);
+			}
+			else if(p=='B') {
+				priority.setImage(normal);
+			}
+			else if(p=='C') {
+				priority.setImage(trivial);
+			}
 
-				Date sd = tasksToBeShown.get(i).getStartDate();
-				Date ed = tasksToBeShown.get(i).getEndDate();
-				Time st = tasksToBeShown.get(i).getStartTime();
-				Time et = tasksToBeShown.get(i).getEndTime();
+			//task description
+			String newTask = tasksToBeShown.get(i).getDescription();
 
-				String SD, ED, ST, ET;
 
-				SD = (sd==null)? "" : sd.toString();
-				ED = (ed==null)? "" : ed.toString();
-				ST = (st==null)? "" : st.toString();
-				ET = (et==null)? "" : et.toString();
+			int length = newTask.length();
+			maxHeight = prefHeight;
+			maxHeight += (length/avgCharNum)*additionalHeight;              //adjust the maxHeight accordingly
+			Label description = new Label(newTask);
+			description.setPrefSize(widthDes, maxHeight);
+			description.setWrapText(true);
+			description.setAlignment(Pos.CENTER_LEFT);
+
+			Date sd = tasksToBeShown.get(i).getStartDate();
+			Date ed = tasksToBeShown.get(i).getEndDate();
+			Time st = tasksToBeShown.get(i).getStartTime();
+			Time et = tasksToBeShown.get(i).getEndTime();
+
+			String SD, ED, ST, ET;
+
+			SD = (sd==null)? "" : sd.toString();
+			ED = (ed==null)? "" : ed.toString();
+			ST = (st==null)? "" : st.toString();
+			ET = (et==null)? "" : et.toString();
+
+
+			if((newTask.equals("\\***TICKED***\\")) ) {
+				d++;
+				Label ticked = new Label("below are search results from the Ticked section");
+				hb.getChildren().add(ticked);
+				chart.getChildren().add(hb);
+
+			}
+			else if (newTask.equals("\\***CMI***\\")) {
+				d++;
+				Label cmi = new Label("below are search results from the CMI section");
+				hb.getChildren().add(cmi);
+				chart.getChildren().add(hb);
+			}
+			else {
 
 				if(sd==null && st==null && ed==null && et==null) {
+					if(tasksToBeShown.get(i).isExpired==true) {
+						index.setTextFill(Color.RED);
+						description.setTextFill(Color.RED);
+					}
 					hb.getChildren().addAll(index, priority, description);
+					chart.getChildren().add(hb);
 				}
 				else if (ed==null && et==null) {
 					Label start = new Label("Start: " + ST + " " + SD);
 					start.setMaxSize(widthTime, prefHeight);
 					start.setAlignment(Pos.CENTER_LEFT);
+					if(tasksToBeShown.get(i).isExpired==true) {
+						index.setTextFill(Color.RED);
+						description.setTextFill(Color.RED);
+						start.setTextFill(Color.RED);
+					}
+
 					hb.getChildren().addAll(index, priority, description, start);
+					chart.getChildren().add(hb);
 				}
 				else if (sd==null && st==null) {
 					Label end = new Label("End:  " + ET + " " + ED);
 					end.setMaxSize(widthTime, prefHeight);
 					end.setAlignment(Pos.CENTER_LEFT);
+					if(tasksToBeShown.get(i).isExpired==true) {
+						index.setTextFill(Color.RED);
+						description.setTextFill(Color.RED);
+						end.setTextFill(Color.RED);
+					}
+
 					hb.getChildren().addAll(index, priority, description, end);
+					chart.getChildren().add(hb);
 				}
 				else {
 					Label start = new Label("Start: " + ST + " " + SD);
@@ -587,10 +632,29 @@ public class TickerUI extends Application {
 					time.getChildren().add(end);
 					time.setPrefSize(widthTime, prefHeight);
 					time.setAlignment(Pos.CENTER_LEFT);
+					if(tasksToBeShown.get(i).isExpired==true) {
+						index.setTextFill(Color.RED);
+						description.setTextFill(Color.RED);
+						start.setTextFill(Color.RED);
+						end.setTextFill(Color.RED);
+					}
+
 					hb.getChildren().addAll(index, priority, description, time);
+					chart.getChildren().add(hb);
 				}
-				chart.add(hb, 0, i);
+
 			}
+		}
+
+		if(currentView==KEY_SEARCH) {
+			Label result = new Label();
+			if(tasksToBeShown.size()==2) {
+				result.setText("No tasks match your search.");
+			}
+			else {
+				result.setText((tasksToBeShown.size()-2) + " tasks found.");
+			}
+			chart.getChildren().add(0, result);
 		}
 
 	}
@@ -630,12 +694,12 @@ public class TickerUI extends Application {
 
 	private void buildTabs(int view) {
 		if(view == KEY_SORTED_TIME) {         //1
-			root.getChildren().remove(7);
+			root.getChildren().remove(indexTabs);
 			imv7.setImage(cmi_2);
 			imv6.setImage(ticked_2);
 			imv8.setImage(todo_1);
 			tabs_todo.getChildren().addAll(imv7, imv6, imv8);
-			root.getChildren().add(7, tabs_todo);  
+			root.getChildren().add(indexTabs, tabs_todo);  
 			currentView = KEY_SORTED_TIME;
 
 			imv8.setDisable(true);
@@ -684,12 +748,12 @@ public class TickerUI extends Application {
 
 		}
 		else if(view == KEY_SORTED_PRIORITY) {            //2
-			root.getChildren().remove(7);
+			root.getChildren().remove(indexTabs);
 			imv7.setImage(cmi_2);
 			imv6.setImage(ticked_2);
 			imv8.setImage(todo_1);
-			tabs_todo.getChildren().addAll(imv7, imv6, imv8);
-			root.getChildren().add(7, tabs_todo);  
+			tabs_todo_p.getChildren().addAll(imv7, imv6, imv8);
+			root.getChildren().add(indexTabs, tabs_todo_p);  
 			currentView = KEY_SORTED_PRIORITY;
 
 			imv8.setDisable(true);
@@ -740,12 +804,12 @@ public class TickerUI extends Application {
 
 
 		else if(view == KEY_TICKED) {                        //3
-			root.getChildren().remove(7);
+			root.getChildren().remove(indexTabs);
 			imv7.setImage(cmi_2);
 			imv6.setImage(ticked_1);
 			imv8.setImage(todo_2);
 			tabs_ticked.getChildren().addAll(imv7, imv8, imv6);
-			root.getChildren().add(7, tabs_ticked);  
+			root.getChildren().add(indexTabs, tabs_ticked);  
 			currentView = KEY_TICKED;
 
 			imv6.setDisable(true);
@@ -794,12 +858,12 @@ public class TickerUI extends Application {
 
 		}
 		else if(view == KEY_CMI) {                                //4
-			root.getChildren().remove(7);
+			root.getChildren().remove(indexTabs);
 			imv7.setImage(cmi_1);
 			imv6.setImage(ticked_2);
 			imv8.setImage(todo_2);
 			tabs_cmi.getChildren().addAll(imv8, imv6, imv7);
-			root.getChildren().add(7, tabs_cmi);  
+			root.getChildren().add(indexTabs, tabs_cmi);  
 
 			imv7.setDisable(true);
 			imv8.setDisable(false);
@@ -849,12 +913,12 @@ public class TickerUI extends Application {
 
 		}
 		else if(view == KEY_SEARCH) {
-			root.getChildren().remove(7);
+			root.getChildren().remove(indexTabs);
 			imv7.setImage(cmi_2);
 			imv6.setImage(ticked_2);
-			imv8.setImage(todo_1);
-			tabs_todo.getChildren().addAll(imv7, imv6, imv8);
-			root.getChildren().add(7, tabs_todo);  
+			imv8.setImage(todo_2);
+			tabs_search.getChildren().addAll(imv7, imv6, imv8);
+			root.getChildren().add(indexTabs, tabs_search);  
 			currentView = KEY_SEARCH;
 
 			imv8.setDisable(false);
@@ -921,9 +985,26 @@ public class TickerUI extends Application {
 				}
 			});
 
+			//may be useful
+			/*public void checkUIState(){  
+		        start.setDisable(false);  
+		        pause.setDisable(false);  
+		        stop.setDisable(false);  
+		        switch(timeline.getStatus()){  
+		            case RUNNING:  
+		                start.setDisable(true);  
+		                break;  
+		            case PAUSED:  
+		                pause.setDisable(true);  
+		                break;  
+		            case STOPPED:  
+		                stop.setDisable(true);  
+		                break;  
+		        }  
+		    } */ 
 		}
 	}
 
 }
-
+//TODO fix the bug of help
 
