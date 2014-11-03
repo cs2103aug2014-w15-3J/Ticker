@@ -174,7 +174,7 @@ public class TestLogic {
 		input.setCommand(COMMAND_EDIT);
 		input.setIndex(1);
 		input.setPriority('C');
-		
+
 		assertEquals("Self: Get a haircut has been updated.", logic.getOutput(input));
 		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
 				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
@@ -182,17 +182,17 @@ public class TestLogic {
 				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "5. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n"
 				+ "6. Self: Get a haircut\n", logic.list());
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit description
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
 		input.setIndex(1);
 		input.setDescription("Self: Get some ice-cream");
-		
+
 		assertEquals("Self: Get a haircut has been updated.", logic.getOutput(input));
 		assertEquals("1. Self: Get some ice-cream\n"
 				+ "2. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
@@ -200,17 +200,17 @@ public class TestLogic {
 				+ "4. CompClub: Add actionables on Trello\n"
 				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "6. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n", logic.list());
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit startDate
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
 		input.setIndex(2);
 		input.setStartDate(new Date(2014, 11, 3));
-		
+
 		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
 		assertEquals("1. Self: Get a haircut\n"
 				+ "2. CompClub: Man welfare pack booth from 3 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
@@ -218,17 +218,17 @@ public class TestLogic {
 				+ "4. CompClub: Add actionables on Trello\n"
 				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "6. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n", logic.list());
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit startTime
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
 		input.setIndex(2);
 		input.setStartTime(new Time(10, 15));
-		
+
 		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
 		assertEquals("1. Self: Get a haircut\n"
 				+ "2. CompClub: Man welfare pack booth from 5 Nov, 2014, 10:15 to 5 Nov, 2014, 14:00\n"
@@ -236,17 +236,17 @@ public class TestLogic {
 				+ "4. CompClub: Add actionables on Trello\n"
 				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "6. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n", logic.list());
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit endDate
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
 		input.setIndex(2);
 		input.setEndDate(new Date(2014, 11, 8));
-		
+
 		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
 		assertEquals("1. Self: Get a haircut\n"
 				+ "2. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 8 Nov, 2014, 14:00\n"
@@ -254,17 +254,17 @@ public class TestLogic {
 				+ "4. CompClub: Add actionables on Trello\n"
 				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "6. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n", logic.list());
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit endTime
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
 		input.setIndex(2);
 		input.setEndTime(new Time(23, 59));
-		
+
 		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
 		assertEquals("1. Self: Get a haircut\n"
 				+ "2. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 23:59\n"
@@ -272,18 +272,18 @@ public class TestLogic {
 				+ "4. CompClub: Add actionables on Trello\n"
 				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "6. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n", logic.list());
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit startTime and endTime
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
 		input.setIndex(2);
 		input.setStartTime(new Time(6,0));
 		input.setEndTime(new Time(20, 0));
-		
+
 		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
 		assertEquals("1. Self: Get a haircut\n"
 				+ "2. CompClub: Man welfare pack booth from 5 Nov, 2014, 6:00 to 5 Nov, 2014, 20:00\n"
@@ -291,18 +291,18 @@ public class TestLogic {
 				+ "4. CompClub: Add actionables on Trello\n"
 				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "6. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n", logic.list());
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit startDate and endDate
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
 		input.setIndex(2);
 		input.setStartDate(new Date(2014, 11, 1));
 		input.setEndDate(new Date(2014, 11, 10));
-		
+
 		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
 		assertEquals("1. Self: Get a haircut\n"
 				+ "2. CompClub: Man welfare pack booth from 1 Nov, 2014, 11:30 to 10 Nov, 2014, 14:00\n"
@@ -310,34 +310,34 @@ public class TestLogic {
 				+ "4. CompClub: Add actionables on Trello\n"
 				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "6. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n", logic.list());
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-			
+
 		//Test delete in priority list
 		input = new UserInput();
 		input.setCommand(COMMAND_DELETE);
 		input.setIndex(2);
-		
+
 		assertEquals("CompClub: Man welfare pack booth has been removed.", logic.getOutput(input));
 		assertEquals("1. Self: Get a haircut\n"
 				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
 				+ "3. CompClub: Add actionables on Trello\n"
 				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "5. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n", logic.list());
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input)); 
-		
+
 		// Test edit startDate and endDate
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
 		input.setIndex(2);
 		input.setStartDate(new Date(2014, 11, 1));
 		input.setEndDate(new Date(2014, 11, 10));
-		
+
 		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
 		assertEquals("1. Self: Get a haircut\n"
 				+ "2. CompClub: Man welfare pack booth from 1 Nov, 2014, 11:30 to 10 Nov, 2014, 14:00\n"
@@ -345,11 +345,11 @@ public class TestLogic {
 				+ "4. CompClub: Add actionables on Trello\n"
 				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "6. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n", logic.list());
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test tick
 		input = new UserInput();
 		input.setCommand(COMMAND_TICK);
@@ -359,17 +359,39 @@ public class TestLogic {
 		assertEquals("Listing ticked tasks...", logic.list(LIST_TICKED));
 		assertEquals("1. CompClub: Add actionables on Trello\n", logic.list());
 
-		// Test CMI
+		// Test delete from time list
 		input = new UserInput();
-		input.setCommand(COMMAND_CMI);
-		input.setIndex(4);
+		input.setCommand(COMMAND_LIST);
+		input.setDescription(LIST_TIME);
 
-		assertEquals("Listing by time...", logic.list(LIST_TIME));
+		assertEquals("Listing by time...", logic.getOutput(input));
 		assertEquals("1. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n"
 				+ "2. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
 				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
 				+ "4. Self: Get a haircut\n"
 				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_DELETE);
+		input.setIndex(4);
+
+		assertEquals("Self: Get a haircut has been removed.", logic.getOutput(input));
+		assertEquals("1. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
+				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+
+		assertEquals("Undoing action", logic.getOutput(input));
+
+
+		// Test CMI
+		input = new UserInput();
+		input.setCommand(COMMAND_CMI);
+		input.setIndex(4);
+
 		assertEquals("Self: Get a haircut will be kept in view.", logic.getOutput(input));
 		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_CMI));
 		assertEquals("1. Self: Get a haircut\n", logic.list());
@@ -380,15 +402,15 @@ public class TestLogic {
 		input.setDescription("size");
 
 		assertEquals("List does not exist. Please re-enter.", logic.getOutput(input));
-		
+
 		// Test delete from CMI
 		input = new UserInput();
 		input.setCommand(COMMAND_DELETE);
 		input.setIndex(1);
-		
+
 		assertEquals("Self: Get a haircut has been removed.", logic.getOutput(input));
 		assertEquals("", logic.list());
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
@@ -557,23 +579,212 @@ public class TestLogic {
 		input = new UserInput();
 		input.setCommand(COMMAND_SEARCH);
 		input.setPriority('A');
-		
+
 		assertEquals("Searching for tasks...", logic.getOutput(input));
 		assertEquals("1. \\***TICKED***\\\n"
 				+ "2. \\***CMI***\\\n"
 				+ "3. Self: Get a haircut\n", logic.list());
-		
-		// Test delete from search
+
+		// Delete from tick list
+		input = new UserInput();
+		input.setCommand(COMMAND_LIST);
+		input.setDescription(LIST_TIME);
+
+		assertEquals("Listing by time...", logic.getOutput(input));
+		assertEquals("1. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
+				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+
+		// Clear everything and create new cases
+		assertEquals("Spick and span!", logic.clear());
+		assertEquals("Listing ticked tasks...", logic.list(LIST_TICKED));
+		assertEquals("Spick and span!", logic.clear());
+		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_CMI));
+		assertEquals("Spick and span!", logic.clear());
+
+		// Populate list with floating tasks
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: buy chocolates");
+
+		assertEquals("Self: buy chocolates has been added.", logic.getOutput(input));
+
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: play games");
+
+		assertEquals("Self: play games has been added.", logic.getOutput(input));
+
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: watch funny videos");
+
+		assertEquals("Self: watch funny videos has been added.", logic.getOutput(input));
+
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: play tchoukball");
+
+		assertEquals("Self: play tchoukball has been added.", logic.getOutput(input));
+
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: play with cats");
+
+		assertEquals("Self: play with cats has been added.", logic.getOutput(input));
+
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: go shopping");
+
+		assertEquals("Self: go shopping has been added.", logic.getOutput(input));
+
+		input = new UserInput();
+		input.setCommand(COMMAND_TICK);
+		input.setIndex(1);
+
+		assertEquals("Self: buy chocolates is done!", logic.getOutput(input));
+
+		input = new UserInput();
+		input.setCommand(COMMAND_TICK);
+		input.setIndex(1);
+
+		assertEquals("Self: go shopping is done!", logic.getOutput(input));
+
+		input = new UserInput();
+		input.setCommand(COMMAND_CMI);
+		input.setIndex(1);
+
+		assertEquals("Self: play games will be kept in view.", logic.getOutput(input));
+
+		input = new UserInput();
+		input.setCommand(COMMAND_CMI);
+		input.setIndex(1);
+
+		assertEquals("Self: play tchoukball will be kept in view.", logic.getOutput(input));
+
+		input = new UserInput();
+		input.setCommand(COMMAND_SEARCH);
+		input.setDescription("SELF");
+
+		assertEquals("Searching for tasks...", logic.getOutput(input));
+		assertEquals("1. Self: play with cats\n"
+				+ "2. Self: watch funny videos\n"
+				+ "3. \\***TICKED***\\\n"
+				+ "4. Self: go shopping\n"
+				+ "5. Self: buy chocolates\n"
+				+ "6. \\***CMI***\\\n"
+				+ "7. Self: play tchoukball\n"
+				+ "8. Self: play games\n", logic.list());
+
 		input = new UserInput();
 		input.setCommand(COMMAND_DELETE);
-		input.setIndex(3);
+		input.setIndex(2);
+
+		assertEquals("Self: watch funny videos has been removed.", logic.getOutput(input));
+		assertEquals("1. Self: play with cats\n"
+				+ "2. \\***TICKED***\\\n"
+				+ "3. Self: go shopping\n"
+				+ "4. Self: buy chocolates\n"
+				+ "5. \\***CMI***\\\n"
+				+ "6. Self: play tchoukball\n"
+				+ "7. Self: play games\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_DELETE);
+		input.setIndex(4);
+
+		assertEquals("Self: buy chocolates has been removed.", logic.getOutput(input));
+		assertEquals("1. Self: play with cats\n"
+				+ "2. \\***TICKED***\\\n"
+				+ "3. Self: go shopping\n"
+				+ "4. \\***CMI***\\\n"
+				+ "5. Self: play tchoukball\n"
+				+ "6. Self: play games\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_DELETE);
+		input.setIndex(6);
+
+		assertEquals("Self: play games has been removed.", logic.getOutput(input));
+		assertEquals("1. Self: play with cats\n"
+				+ "2. \\***TICKED***\\\n"
+				+ "3. Self: go shopping\n"
+				+ "4. \\***CMI***\\\n"
+				+ "5. Self: play tchoukball\n", logic.list());
+
+		// Set corner case for search dates without times but occur on the stated date (searched with time)
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: watch anime");
+		input.setStartDate(new Date(2014, 11, 10));
 		
-		assertEquals("Self: Get a haircut has been removed.", logic.getOutput(input));
-		assertEquals("1. \\***TICKED***\\\n"
-				+ "2. \\***CMI***\\\n", logic.list());
+		assertEquals("Self: watch anime has been added.", logic.getOutput(input));
 		
 		input = new UserInput();
-		input.setCommand(COMMAND_UNDO);
-		assertEquals("Undoing action", logic.getOutput(input));
+		input.setCommand(COMMAND_SEARCH);
+		input.setStartDate(new Date(2014, 11, 10));
+		input.setStartTime(new Time(15,0));
+		
+		assertEquals("Searching for tasks...", logic.getOutput(input));
+		assertEquals("1. Self: watch anime from 10 Nov, 2014\n"
+				+ "2. \\***TICKED***\\\n"
+				+ "3. \\***CMI***\\\n", logic.list());
+		
+		// Set corner case for search dates with endDates without timings that occur on the startDate
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: go shop for clothes");
+		input.setEndDate(new Date(2014, 11, 10));
+		
+		assertEquals("Self: go shop for clothes has been added.", logic.getOutput(input));
+		
+		input = new UserInput();
+		input.setCommand(COMMAND_SEARCH);
+		input.setStartDate(new Date(2014, 11, 10));
+		input.setStartTime(new Time(15,0));
+		
+		assertEquals("Searching for tasks...", logic.getOutput(input));
+		assertEquals("1. Self: go shop for clothes deadline 10 Nov, 2014\n"
+				+ "2. Self: watch anime from 10 Nov, 2014\n"
+				+ "3. \\***TICKED***\\\n"
+				+ "4. \\***CMI***\\\n", logic.list());
+		
+		// Set corner case for search dates with endDates without timings that occur on the endDate
+		
+		input = new UserInput();
+		input.setCommand(COMMAND_SEARCH);
+		input.setEndDate(new Date(2014, 11, 10));
+		input.setEndTime(new Time(15,0));
+		
+		assertEquals("Searching for tasks...", logic.getOutput(input));
+		assertEquals("1. Self: go shop for clothes deadline 10 Nov, 2014\n"
+				+ "2. Self: watch anime from 10 Nov, 2014\n"
+				+ "3. \\***TICKED***\\\n"
+				+ "4. \\***CMI***\\\n", logic.list());
+		
+		// Set corner case for search dates with startDates and startTime occuring with searched endDate and endTime
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: go eat desserts");
+		input.setStartDate(new Date(2014, 11, 10));
+		input.setStartTime(new Time(16,0));
+		
+		assertEquals("Self: go eat desserts has been added.", logic.getOutput(input));
+		
+		input = new UserInput();
+		input.setCommand(COMMAND_SEARCH);
+		input.setEndDate(new Date(2014, 11, 10));
+		input.setEndTime(new Time(16,0));
+		
+		assertEquals("Searching for tasks...", logic.getOutput(input));
+		assertEquals("1. Self: go eat desserts from 10 Nov, 2014, 16:00\n"
+				+ "2. Self: go shop for clothes deadline 10 Nov, 2014\n"
+				+ "3. Self: watch anime from 10 Nov, 2014\n"
+				+ "4. \\***TICKED***\\\n"
+				+ "5. \\***CMI***\\\n", logic.list());
+		
+		
 	}
 }
