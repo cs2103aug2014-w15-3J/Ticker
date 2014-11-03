@@ -35,7 +35,7 @@ public class CRUManager {
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTime = storedTasksByTime;
 		this.storedTasksByTicked = storedTasksByTicked;
-		this.storedTasksByCMI = storedTasksByTicked;
+		this.storedTasksByCMI = storedTasksByCMI;
 
 		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByCMI);
 	}
