@@ -1,18 +1,13 @@
 package ticker.ui;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Random;
 import java.util.Vector;
 import java.util.logging.*;
 
 import ticker.logic.Logic;
 import ticker.common.*;
-import javafx.animation.AnimationTimer;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -21,7 +16,6 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
@@ -33,15 +27,9 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -61,9 +49,11 @@ public class TickerUI extends Application {
 	Scene scene;
 	Group root;
 	//basic display
-	Image background, logo, min, min_, close, close_, trivial, normal, impt;
-	ImageView imv1, imv2, imv3, imv4;
+	Image background, logo, min, min_, close, close_, trivial, normal, impt, expired;
+	ImageView imv1, imv2, imv3, imv4, imv9;
 	VBox chart = new VBox();
+	TextArea help;
+	
 	//GridPane chart = new GridPane();
 	TextField command;
 	Text feedback;
@@ -83,19 +73,19 @@ public class TickerUI extends Application {
 	private int nextView = KEY_SORTED_TIME;
 
 	private static final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
-	
+
 	Calendar c;
 
-	final HBox time = new HBox(2);
+	final HBox time = new HBox(1);
 	final VBox clock = new VBox();
-	
+
 	final Label currentHour = new Label();
 	final Label currentMin = new Label();
 	final Label currentSec = new Label();
 	final Label colon1 = new Label(":");
 	final Label colon2 = new Label(":");
-	
-    final Label date_string = new Label();
+
+	final Label date_string = new Label();
 
 	private static Logger logger = Logger.getLogger("UI");
 
@@ -111,11 +101,7 @@ public class TickerUI extends Application {
 		logic = new Logic(this);
 	}
 
-	public void start(Stage stage) {
-
-
-
-
+	public void start(final Stage stage) {
 		stage.initStyle(StageStyle.UNDECORATED);
 		root = new Group();
 
@@ -303,21 +289,23 @@ public class TickerUI extends Application {
 
 		//TODO set the content of help and design better looking help page
 		//implement the help page
-		/*TextArea help = new TextArea();
+		help = new TextArea();
 		help.setWrapText(true);
 		help.setText(commandList);
 		help.setVisible(false);
 		help.setLayoutX(45);
 		help.setLayoutY(75);
 		help.setPrefSize(400, 500);
-		root.getChildren().add(help);*/
+		root.getChildren().add(help);
 
 
 		//System.out.println(root.getChildren().size());
 
+
 		trivial = new Image("ticker/ui/pic/trivial.png", true);
 		normal = new Image("ticker/ui/pic/normal.png", true);
 		impt = new Image("ticker/ui/pic/impt.png", true);
+
 
 		//can scroll up and down and minimise the window using keyboard
 		command.setOnKeyPressed(new EventHandler<KeyEvent>() 
@@ -348,13 +336,12 @@ public class TickerUI extends Application {
 				feedback.setText(logic.getLogic(cmd));
 				//any change in view should reflect here
 				//nextView is ready
-				//System.out.println("nextView is " + nextView);
+
 				if(nextView != currentView) {
-					//System.out.println("change view!!!");
 					buildTabs(nextView);
 				}
 
-				/*if(displayHelp == true) {                                                             //if command is "help"
+				if(displayHelp == true) {                                                             //if command is "help"
 					help.setVisible(true);
 					FadeTransition ft = new FadeTransition(Duration.millis(250), help);               //fade in
 					ft.setFromValue(0);
@@ -391,10 +378,10 @@ public class TickerUI extends Application {
 
 							});
 				} 
-				else {		*/
+				else {		
 				chart.getChildren().clear();
 				displayTasks();
-				//}
+				}
 
 				//feedback fades off after 5 seconds
 				FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
@@ -413,7 +400,6 @@ public class TickerUI extends Application {
 		clock.setLayoutX(380);
 		clock.setLayoutY(40);
 		root.getChildren().add(clock);
-		
 
 		displayTime();
 		final Timeline time = new Timeline();
@@ -421,7 +407,6 @@ public class TickerUI extends Application {
 		time.getKeyFrames().add(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent evt) {
 				displayTime();
-				//System.out.println("one second passed!");
 			}
 		}));
 		time.play();
@@ -481,22 +466,8 @@ public class TickerUI extends Application {
 		}
 		currentSec.setText(sec);
 		currentSec.setTextFill(Color.WHITE);
-		
-		
-		String suffix;
-		if(c.get(Calendar.DATE)%10==1 && c.get(Calendar.DATE)/10 != 1) {
-			suffix = "st ";
-		}
-		else if(c.get(Calendar.DATE)%10==2 && c.get(Calendar.DATE)/10 != 1) {
-			suffix = "nd ";
-		}
-		else if(c.get(Calendar.DATE)%10==3 && c.get(Calendar.DATE)/10 != 1) {
-			suffix = "rd ";
-		}
-		else {
-			suffix = "th ";
-		}
-		date_string.setText(c.get(Calendar.DATE) + suffix + months[c.get(Calendar.MONTH)] + ", " + c.get(Calendar.YEAR));
+
+		date_string.setText(c.get(Calendar.DATE) + " " + months[c.get(Calendar.MONTH)] + ", " + c.get(Calendar.YEAR));
 
 	}
 
@@ -526,8 +497,15 @@ public class TickerUI extends Application {
 		int widthTime = 140;
 		int avgCharNum = 40;
 		int additionalHeight = 14;
-		int d = 0;                          //a way to correct the numbering when listing out serach results
+		int d = 0;                          //a way to correct the numbering when listing out search results
 
+		Font header = new Font("Britannic Bold", 15);
+		/*if(currentView == KEY_SORTED_TIME) {
+			Label today = new Label();
+			today.setText("   Today's Todo List: ");
+			today.setFont(header);
+			chart.getChildren().add(today);
+		}*/
 
 		for(int i = 0; i < tasksToBeShown.size(); i++ ) {
 
@@ -585,24 +563,23 @@ public class TickerUI extends Application {
 
 			if((newTask.equals("\\***TICKED***\\")) ) {
 				d++;
-				Label ticked = new Label("below are search results from the Ticked section");
+				Label ticked = new Label("     search results from the Ticked section");
 				hb.getChildren().add(ticked);
 				chart.getChildren().add(hb);
 
 			}
 			else if (newTask.equals("\\***CMI***\\")) {
 				d++;
-				Label cmi = new Label("below are search results from the CMI section");
+				Label cmi = new Label("     search results from the CMI section");
 				hb.getChildren().add(cmi);
 				chart.getChildren().add(hb);
 			}
 			else {
 
 				if(sd==null && st==null && ed==null && et==null) {
-					if(tasksToBeShown.get(i).isExpired==true) {
-						index.setTextFill(Color.RED);
-						description.setTextFill(Color.RED);
-					}
+					//if(tasksToBeShown.get(i).isExpired) {
+					//	imv9.setVisible(true);
+					//}
 					hb.getChildren().addAll(index, priority, description);
 					chart.getChildren().add(hb);
 				}
@@ -610,11 +587,9 @@ public class TickerUI extends Application {
 					Label start = new Label("Start: " + ST + " " + SD);
 					start.setMaxSize(widthTime, prefHeight);
 					start.setAlignment(Pos.CENTER_LEFT);
-					if(tasksToBeShown.get(i).isExpired==true) {
-						index.setTextFill(Color.RED);
-						description.setTextFill(Color.RED);
-						start.setTextFill(Color.RED);
-					}
+					//if(tasksToBeShown.get(i).isExpired) {
+						//imv9.setVisible(true);
+					//}
 
 					hb.getChildren().addAll(index, priority, description, start);
 					chart.getChildren().add(hb);
@@ -623,12 +598,9 @@ public class TickerUI extends Application {
 					Label end = new Label("End:  " + ET + " " + ED);
 					end.setMaxSize(widthTime, prefHeight);
 					end.setAlignment(Pos.CENTER_LEFT);
-					if(tasksToBeShown.get(i).isExpired==true) {
-						index.setTextFill(Color.RED);
-						description.setTextFill(Color.RED);
-						end.setTextFill(Color.RED);
-					}
-
+					//if(tasksToBeShown.get(i).isExpired) {
+						//imv9.setVisible(true);
+					//}
 					hb.getChildren().addAll(index, priority, description, end);
 					chart.getChildren().add(hb);
 				}
@@ -642,12 +614,9 @@ public class TickerUI extends Application {
 					time.getChildren().add(end);
 					time.setPrefSize(widthTime, prefHeight);
 					time.setAlignment(Pos.CENTER_LEFT);
-					if(tasksToBeShown.get(i).isExpired==true) {
-						index.setTextFill(Color.RED);
-						description.setTextFill(Color.RED);
-						start.setTextFill(Color.RED);
-						end.setTextFill(Color.RED);
-					}
+					//if(tasksToBeShown.get(i).isExpired) {
+						//imv9.setVisible(true);
+					//}
 
 					hb.getChildren().addAll(index, priority, description, time);
 					chart.getChildren().add(hb);
@@ -656,16 +625,7 @@ public class TickerUI extends Application {
 			}
 		}
 
-		if(currentView==KEY_SEARCH) {
-			Label result = new Label();
-			if(tasksToBeShown.size()==2) {
-				result.setText("No tasks match your search.");
-			}
-			else {
-				result.setText((tasksToBeShown.size()-2) + " tasks found.");
-			}
-			chart.getChildren().add(0, result);
-		}
+
 
 	}
 
@@ -730,6 +690,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list ticked";
 					feedback.setText(logic.getLogic(autoCommand));
+					
+					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+					ft.setFromValue(1.0);
+					ft.setToValue(0);
+					ft.play();
+					
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_TICKED);
@@ -750,6 +716,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list cmi";
 					feedback.setText(logic.getLogic(autoCommand));
+					
+					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+					ft.setFromValue(1.0);
+					ft.setToValue(0);
+					ft.play();
+					
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_CMI);
@@ -784,6 +756,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list ticked";
 					feedback.setText(logic.getLogic(autoCommand));
+					
+					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+					ft.setFromValue(1.0);
+					ft.setToValue(0);
+					ft.play();
+					
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_TICKED);
@@ -804,6 +782,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list cmi";
 					feedback.setText(logic.getLogic(autoCommand));
+					
+					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+					ft.setFromValue(1.0);
+					ft.setToValue(0);
+					ft.play();
+					
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_CMI);
@@ -840,6 +824,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list time";
 					feedback.setText(logic.getLogic(autoCommand));
+					
+					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+					ft.setFromValue(1.0);
+					ft.setToValue(0);
+					ft.play();
+					
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_SORTED_TIME);
@@ -860,6 +850,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list cmi";
 					feedback.setText(logic.getLogic(autoCommand));
+					
+					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+					ft.setFromValue(1.0);
+					ft.setToValue(0);
+					ft.play();
+					
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_CMI);
@@ -895,6 +891,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list ticked";
 					feedback.setText(logic.getLogic(autoCommand));
+					
+					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+					ft.setFromValue(1.0);
+					ft.setToValue(0);
+					ft.play();
+					
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_TICKED);
@@ -915,6 +917,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list time";
 					feedback.setText(logic.getLogic(autoCommand));
+					
+					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+					ft.setFromValue(1.0);
+					ft.setToValue(0);
+					ft.play();
+					
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_SORTED_TIME);
@@ -949,6 +957,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list ticked";
 					feedback.setText(logic.getLogic(autoCommand));
+					
+					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+					ft.setFromValue(1.0);
+					ft.setToValue(0);
+					ft.play();
+					
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_TICKED);
@@ -969,6 +983,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list cmi";
 					feedback.setText(logic.getLogic(autoCommand));
+					
+					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+					ft.setFromValue(1.0);
+					ft.setToValue(0);
+					ft.play();
+					
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_CMI);
@@ -977,41 +997,29 @@ public class TickerUI extends Application {
 
 			imv8.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					imv6.setImage(todo_3);
+					imv8.setImage(todo_3);
 				}
 			});
 			imv8.setOnMouseExited(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					imv6.setImage(todo_2);
+					imv8.setImage(todo_2);
 				}
 			});
 			imv8.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list time";
 					feedback.setText(logic.getLogic(autoCommand));
+					
+					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+					ft.setFromValue(1.0);
+					ft.setToValue(0);
+					ft.play();
+					
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_SORTED_TIME);
 				}
 			});
-
-			//may be useful
-			/*public void checkUIState(){  
-		        start.setDisable(false);  
-		        pause.setDisable(false);  
-		        stop.setDisable(false);  
-		        switch(timeline.getStatus()){  
-		            case RUNNING:  
-		                start.setDisable(true);  
-		                break;  
-		            case PAUSED:  
-		                pause.setDisable(true);  
-		                break;  
-		            case STOPPED:  
-		                stop.setDisable(true);  
-		                break;  
-		        }  
-		    } */ 
 		}
 	}
 
