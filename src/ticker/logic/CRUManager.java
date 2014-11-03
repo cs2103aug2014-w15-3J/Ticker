@@ -101,9 +101,8 @@ public class CRUManager {
 		}
 
 		return deleted.getDescription() + " has been removed.";
-
-
 	}
+
 	String add(String description, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
 			char priority) throws IllegalArgumentException {
 
@@ -143,13 +142,61 @@ public class CRUManager {
 			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
 		}
 
-		addBackRemovedTask(newTask);
+		addTaskIntoUndone(newTask);
 
 		Event event = new Event(COMMAND_ADD, newTask);
 		undoMng.add(event);
 
 
 		return description + " has been added.";
+	}
+
+	Task remakeTask(Task task) throws IllegalArgumentException {
+		String description = task.getDescription();
+		boolean isRepeating = false;
+		Date startDate = task.getStartDate();
+		Date endDate = task.getEndDate();
+		Time startTime = task.getStartTime();
+		Time endTime = task.getEndTime();
+		char priority = task.getPriority();
+
+		if (description == null || description.equals("")) {
+			throw new IllegalArgumentException();
+		}
+
+		Task newTask;
+
+		// Creation of RepeatingTask
+		if (isRepeating) {
+			if (startDate != null) {
+				newTask = new RepeatingTask(description, startDate, startTime, endTime, priority, isRepeating);
+			}
+			else if (endDate != null) {
+				newTask = new RepeatingTask(description, endDate, startTime, endTime, priority, isRepeating);
+			}
+			else {
+				throw new IllegalArgumentException();
+			}
+
+		}
+
+		else if (startDate == null && startTime == null) {
+			// Creation of floating tasks
+			if (endDate == null && endTime == null) {
+				newTask = new FloatingTask(description, priority, false);
+			}
+			// Creation of deadline tasks
+			else {
+				newTask = new DeadlineTask(description, endDate, endTime, priority, false);
+			}
+
+		}
+		// Creation of timed tasks
+		else {
+			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
+		}
+
+		return newTask;
 	}
 
 	String edit(int index, String description,boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
@@ -190,7 +237,6 @@ public class CRUManager {
 			newTask.setDescription(description);
 		}
 
-		newTask.setRepeat(isRepeating);
 		// Edit startDate only
 		if (startDate != null && endDate == null) {
 			// Edited task can update startDate without worrying of endDate being earlier than startDate
@@ -200,7 +246,7 @@ public class CRUManager {
 			else {
 				// Error: Edited task will end up with earlier endDate than startDate
 				if (newTask.getEndDate().compareTo(startDate) == -1) {
-					addBackRemovedTask(oldTask);
+					addTaskIntoUndone(oldTask);
 					return "Invalid edit on starting date";
 				}
 				newTask.setStartDate(startDate);
@@ -215,7 +261,7 @@ public class CRUManager {
 			else {
 				// Error: Edited task will end up with earlier endDate than startDate
 				if (newTask.getStartDate().compareTo(endDate) == 1) {
-					addBackRemovedTask(oldTask);
+					addTaskIntoUndone(oldTask);
 					return "Invalid edit on ending date";
 				}
 				newTask.setEndDate(endDate);
@@ -225,7 +271,7 @@ public class CRUManager {
 		if (startDate != null && endDate != null) {
 			// Error: endDate is earlier than startDate
 			if (startDate.compareTo(endDate) == 1) {
-				addBackRemovedTask(oldTask);
+				addTaskIntoUndone(oldTask);
 				return "Invalid edit on dates";
 			}
 			else {
@@ -243,7 +289,7 @@ public class CRUManager {
 			else {
 				// Error: Edited task will end up with earlier endTime than startTime
 				if (newTask.getEndTime().compareTo(startTime) == -1) {
-					addBackRemovedTask(oldTask);
+					addTaskIntoUndone(oldTask);
 					return "Invalid edit on starting time";
 				}
 				newTask.setStartTime(startTime);
@@ -258,7 +304,7 @@ public class CRUManager {
 			else {
 				// Error: Edited task will end up with earlier endTime than startTime
 				if (newTask.getStartTime().compareTo(endTime) == 1) {
-					addBackRemovedTask(oldTask);
+					addTaskIntoUndone(oldTask);
 					return "Invalid edit on ending time";
 				}
 				newTask.setEndTime(endTime);
@@ -268,7 +314,7 @@ public class CRUManager {
 		if (startTime != null && endTime != null) {
 			// Error: endTime is earlier than startTime
 			if (startTime.compareTo(endTime) == 1) {
-				addBackRemovedTask(oldTask);
+				addTaskIntoUndone(oldTask);
 				return "Invalid edit on both timings";
 			}
 			else {
@@ -276,13 +322,36 @@ public class CRUManager {
 				newTask.setEndTime(endTime);
 			}
 		}
-		
+
+		// Edit priority
 		if (priority != '\u0000') {
 			newTask.setPriority(priority);
 		}
 
+		// Edit repeating
+		if (isRepeating) {
+			// Add repeat to the task
+			if (newTask.getRepeat() == false) {
+				if (newTask.getStartDate() != null) {
+					newTask = new RepeatingTask(newTask.getDescription(), newTask.getStartDate(), newTask.getStartTime(), newTask.getEndTime(), newTask.getPriority(), true);
+				}
+				else if (newTask.getEndDate() != null) {
+					newTask = new RepeatingTask(newTask.getDescription(), newTask.getEndDate(), newTask.getStartTime(), newTask.getEndTime(), newTask.getPriority(), true);
+				}
+				else {
+					addTaskIntoUndone(oldTask);
+					return "Invalid edit to repeated task. Missing date";
+				}
+			}
+			// Remove repeat from the task
+			else if (newTask.getRepeat() == true) {
+				newTask = remakeTask(newTask);
+			}
+		}	
+		
+		// Add newTask back
 		if (listTracker == KEY_SEARCH) {
-			addBackRemovedTask(newTask);
+			addTaskIntoUndone(newTask);
 		}
 		else {
 			current.add(index - 1, newTask);
@@ -301,7 +370,7 @@ public class CRUManager {
 	/**
 	 * @param oldTask
 	 */
-	private void addBackRemovedTask(Task oldTask) {
+	private void addTaskIntoUndone(Task oldTask) {
 		storedTasksByTime.add(oldTask);
 		storedTasksByPriority.add(oldTask);
 	}
