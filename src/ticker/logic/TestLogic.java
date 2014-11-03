@@ -719,72 +719,93 @@ public class TestLogic {
 		input.setCommand(COMMAND_ADD);
 		input.setDescription("Self: watch anime");
 		input.setStartDate(new Date(2014, 11, 10));
-		
+
 		assertEquals("Self: watch anime has been added.", logic.getOutput(input));
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_SEARCH);
 		input.setStartDate(new Date(2014, 11, 10));
 		input.setStartTime(new Time(15,0));
-		
+
 		assertEquals("Searching for tasks...", logic.getOutput(input));
 		assertEquals("1. Self: watch anime from 10 Nov, 2014\n"
 				+ "2. \\***TICKED***\\\n"
 				+ "3. \\***CMI***\\\n", logic.list());
-		
+
 		// Set corner case for search dates with endDates without timings that occur on the startDate
 		input = new UserInput();
 		input.setCommand(COMMAND_ADD);
 		input.setDescription("Self: go shop for clothes");
 		input.setEndDate(new Date(2014, 11, 10));
-		
+
 		assertEquals("Self: go shop for clothes has been added.", logic.getOutput(input));
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_SEARCH);
 		input.setStartDate(new Date(2014, 11, 10));
 		input.setStartTime(new Time(15,0));
-		
+
 		assertEquals("Searching for tasks...", logic.getOutput(input));
 		assertEquals("1. Self: go shop for clothes deadline 10 Nov, 2014\n"
 				+ "2. Self: watch anime from 10 Nov, 2014\n"
 				+ "3. \\***TICKED***\\\n"
 				+ "4. \\***CMI***\\\n", logic.list());
-		
+
 		// Set corner case for search dates with endDates without timings that occur on the endDate
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_SEARCH);
 		input.setEndDate(new Date(2014, 11, 10));
 		input.setEndTime(new Time(15,0));
-		
+
 		assertEquals("Searching for tasks...", logic.getOutput(input));
 		assertEquals("1. Self: go shop for clothes deadline 10 Nov, 2014\n"
 				+ "2. Self: watch anime from 10 Nov, 2014\n"
 				+ "3. \\***TICKED***\\\n"
 				+ "4. \\***CMI***\\\n", logic.list());
-		
+
 		// Set corner case for search dates with startDates and startTime occuring with searched endDate and endTime
 		input = new UserInput();
 		input.setCommand(COMMAND_ADD);
 		input.setDescription("Self: go eat desserts");
 		input.setStartDate(new Date(2014, 11, 10));
 		input.setStartTime(new Time(16,0));
-		
+
 		assertEquals("Self: go eat desserts has been added.", logic.getOutput(input));
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_SEARCH);
 		input.setEndDate(new Date(2014, 11, 10));
 		input.setEndTime(new Time(16,0));
-		
+
 		assertEquals("Searching for tasks...", logic.getOutput(input));
 		assertEquals("1. Self: go eat desserts from 10 Nov, 2014, 16:00\n"
 				+ "2. Self: go shop for clothes deadline 10 Nov, 2014\n"
 				+ "3. Self: watch anime from 10 Nov, 2014\n"
 				+ "4. \\***TICKED***\\\n"
 				+ "5. \\***CMI***\\\n", logic.list());
-		
-		
+
+		// Get error for empty string
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+
+		assertEquals("Error in input. Either description is missing or date is missing for repeated tasks.", logic.getOutput(input));
+		assertEquals("Listing by time...", logic.list(LIST_TIME));
+		assertEquals("1. Self: go eat desserts from 10 Nov, 2014, 16:00\n"
+				+ "2. Self: go shop for clothes deadline 10 Nov, 2014\n"
+				+ "3. Self: watch anime from 10 Nov, 2014\n"
+				+ "4. Self: play with cats\n", logic.list());
+
+		// Set deadlined task as repeat
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(2);
+		input.setRepeating(true);
+
+		assertEquals("Self: go shop for clothes has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: go eat desserts from 10 Nov, 2014, 16:00\n"
+				+ "2. Self: watch anime from 10 Nov, 2014\n"
+				+ "3. Self: play with cats\n"
+				+ "4. <Monday> Self: go shop for clothes\n", logic.list());
 	}
 }
