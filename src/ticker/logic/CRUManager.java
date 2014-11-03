@@ -152,7 +152,7 @@ public class CRUManager {
 		return description + " has been added.";
 	}
 
-	String edit(int index, boolean isAppending, String description,boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
+	String edit(int index, String description,boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
 			char priority, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException{
 		Task oldTask;
 		Task newTask;
@@ -185,22 +185,8 @@ public class CRUManager {
 			storedTasksByTime.remove(oldTask);
 		}
 
-		// Edits task description by adding words behind
-		if (isAppending) {
-			String taskName = oldTask.getDescription();
-			taskName += " " + description;
-			newTask.setDescription(taskName);
-
-			current.add(index - 1, newTask);
-			if (listTracker == KEY_SORTED_TIME ) {
-				storedTasksByPriority.add(newTask);
-			}
-			else if (listTracker == KEY_SORTED_PRIORITY) {
-				storedTasksByTime.add(newTask);
-			}
-		}
 		// Edit description of task
-		else if (description != null && !description.equals("")) {
+		if (description != null && !description.equals("")) {
 			newTask.setDescription(description);
 		}
 

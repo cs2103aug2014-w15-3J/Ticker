@@ -196,7 +196,7 @@ public class Logic{
 		case COMMAND_EDIT:
 			try {
 
-				feedback = cruMng.edit(processed.getIndex(), processed.getAppending(), processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
+				feedback = cruMng.edit(processed.getIndex(), processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority(), listTracker, current);
 				
 				if (listTracker == KEY_SEARCH) {

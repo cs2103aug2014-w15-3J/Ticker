@@ -314,13 +314,7 @@ public class TestLogic {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
-		// TODO: Test isAppending
-		/*input = new UserInput();
-		input.setCommand(COMMAND_EDIT);
-		input.setIndex(2);
-		input.isAppending(true);*/
-		
+			
 		//Test delete in priority list
 		input = new UserInput();
 		input.setCommand(COMMAND_DELETE);
@@ -335,7 +329,7 @@ public class TestLogic {
 		
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
-		assertEquals("Undoing action", logic.getOutput(input));
+		assertEquals("Undoing action", logic.getOutput(input)); 
 		
 		// Test edit startDate and endDate
 		input = new UserInput();
