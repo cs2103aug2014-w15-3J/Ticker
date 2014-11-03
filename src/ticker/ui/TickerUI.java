@@ -82,21 +82,20 @@ public class TickerUI extends Application {
 	private int currentView = KEY_SORTED_TIME;          //1 for todo_time(default), 2 for todo_priority, 3 for ticked, 4 for cmi, 5 for search
 	private int nextView = KEY_SORTED_TIME;
 
-int indexClock = 10;
-	Calendar c = Calendar.getInstance();
+	private static final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+	
+	Calendar c;
 
-	HBox clock = new HBox();
-
-
-	final Text currentHour = new Text();
-	final Text currentMin = new Text();
-	final Text currentSec = new Text();
-	final Text colon1 = new Text(":");
-	final Text colon2 = new Text(":");
-
-
-
-
+	final HBox time = new HBox(2);
+	final VBox clock = new VBox();
+	
+	final Label currentHour = new Label();
+	final Label currentMin = new Label();
+	final Label currentSec = new Label();
+	final Label colon1 = new Label(":");
+	final Label colon2 = new Label(":");
+	
+    final Label date_string = new Label();
 
 	private static Logger logger = Logger.getLogger("UI");
 
@@ -169,20 +168,6 @@ int indexClock = 10;
 		feedback.setFill(Color.BISQUE);
 		//feedback.setText("The command you entered is invalid");
 		root.getChildren().add(feedback);
-
-
-
-
-		final Timeline time = new Timeline();
-		time.setCycleCount(Timeline.INDEFINITE);
-		time.getKeyFrames().add(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
-			public void handle(ActionEvent evt) {
-				displayTime();
-				//System.out.println("one second passed!");
-			}
-		}));
-		time.play();
-
 
 
 
@@ -418,8 +403,29 @@ int indexClock = 10;
 				ft.play();
 			}
 				});
+
+
+		colon1.setTextFill(Color.WHITE);
+		colon2.setTextFill(Color.WHITE);
+		time.getChildren().addAll(currentHour, colon1, currentMin, colon2, currentSec);
+		date_string.setTextFill(Color.WHITE);
+		clock.getChildren().addAll(time, date_string);
+		clock.setLayoutX(380);
+		clock.setLayoutY(40);
+		root.getChildren().add(clock);
 		
+
 		displayTime();
+		final Timeline time = new Timeline();
+		time.setCycleCount(Timeline.INDEFINITE);
+		time.getKeyFrames().add(new KeyFrame(Duration.millis(1000), new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent evt) {
+				displayTime();
+				//System.out.println("one second passed!");
+			}
+		}));
+		time.play();
+
 
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
@@ -453,10 +459,10 @@ int indexClock = 10;
 	/*--------------------------------------------*/
 
 	private void displayTime() {
+		c = Calendar.getInstance();
 
-
-		currentHour.setText(Integer.toString(Time.getCurrentTime().getHour()));
-		currentHour.setFill(Color.WHITE);
+		currentHour.setText(Integer.toString(c.get(Calendar.HOUR_OF_DAY)));
+		currentHour.setTextFill(Color.WHITE);
 
 		String minute = "";
 		if(c.get(Calendar.MINUTE) < 10) {
@@ -465,7 +471,7 @@ int indexClock = 10;
 			minute = Integer.toString(c.get(Calendar.MINUTE));
 		}
 		currentMin.setText(minute);
-		currentMin.setFill(Color.WHITE);
+		currentMin.setTextFill(Color.WHITE);
 
 		String sec = "";
 		if(c.get(Calendar.SECOND) < 10) {
@@ -474,20 +480,24 @@ int indexClock = 10;
 			sec = Integer.toString(c.get(Calendar.SECOND));
 		}
 		currentSec.setText(sec);
-		currentSec.setFill(Color.WHITE);
+		currentSec.setTextFill(Color.WHITE);
+		
+		
+		String suffix;
+		if(c.get(Calendar.DATE)%10==1 && c.get(Calendar.DATE)/10 != 1) {
+			suffix = "st ";
+		}
+		else if(c.get(Calendar.DATE)%10==2 && c.get(Calendar.DATE)/10 != 1) {
+			suffix = "nd ";
+		}
+		else if(c.get(Calendar.DATE)%10==3 && c.get(Calendar.DATE)/10 != 1) {
+			suffix = "rd ";
+		}
+		else {
+			suffix = "th ";
+		}
+		date_string.setText(c.get(Calendar.DATE) + suffix + months[c.get(Calendar.MONTH)] + ", " + c.get(Calendar.YEAR));
 
-		colon1.setFill(Color.WHITE);
-
-		colon2.setFill(Color.WHITE);
-
-		clock.getChildren().add(currentHour);
-		clock.getChildren().add(colon1);
-		clock.getChildren().add(currentMin);
-		clock.getChildren().add(colon2);
-		clock.getChildren().add(currentSec);
-		clock.setLayoutX(380);
-		clock.setLayoutY(40);
-		root.getChildren().add(clock);
 	}
 
 	private String getHelp() {
