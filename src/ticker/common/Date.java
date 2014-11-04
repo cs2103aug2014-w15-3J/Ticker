@@ -22,7 +22,12 @@ public class Date {
 	}
 
 	public String toString(){
-		return date+" "+months[month]+", "+ year;
+		String showDate = date + " " + months[month];
+		if(year!=getCurrentYear()) {
+			showDate += ", ";
+			showDate += year;
+		}
+		return showDate;
 	}
 	
 	public String getMonthStr(){
