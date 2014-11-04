@@ -13,7 +13,7 @@ public class Task {
 	protected Time endTime;
 	protected char priority;
 	protected boolean isRepeating;
-	protected boolean isExpired;
+	public boolean isExpired;
 	protected RepeatingInterval repeatingInterval;
 
 	public Task(String description, Date startDate, Time startTime, Date endDate, Time endTime, 
