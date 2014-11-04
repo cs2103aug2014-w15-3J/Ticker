@@ -47,8 +47,8 @@ public class Logic{
 	private static final String COMMAND_TICK = "tick";
 	private static final String COMMAND_REDO = "redo";
 	private static final String COMMAND_UNDO = "undo";
-	private static final String COMMAND_UNKIV = "uncmi";
-	private static final String COMMAND_KIV = "cmi";
+	private static final String COMMAND_UNKIV = "unkiv";
+	private static final String COMMAND_KIV = "kiv";
 	private static final String COMMAND_ADD = "add";
 	private static final String COMMAND_EDIT = "edit";
 	private static final String COMMAND_LIST = "list";
@@ -65,7 +65,7 @@ public class Logic{
 	private static final String LIST_TIME = "time";
 	private static final String LIST_PRIORITY = "priority";
 	private static final String LIST_TICKED = "ticked";
-	private static final String LIST_KIV = "cmi";
+	private static final String LIST_KIV = "kiv";
 	private static final String LIST_SEARCH = "search";
 
 	// Instances of other components
@@ -267,7 +267,7 @@ public class Logic{
 
 		case COMMAND_KIV:
 			try {
-				feedback = tickKIVMng.cmi(processed.getIndex(), listTracker, current, currentListName);
+				feedback = tickKIVMng.kiv(processed.getIndex(), listTracker, current, currentListName);
 
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -291,7 +291,7 @@ public class Logic{
 
 		case COMMAND_UNKIV:
 			try {
-				feedback = tickKIVMng.uncmi(processed.getIndex(), listTracker, current);
+				feedback = tickKIVMng.unkiv(processed.getIndex(), listTracker, current);
 
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -427,8 +427,8 @@ public class Logic{
 		for (Task priorityTask: sortedTime) {
 			priorityTask.isExpired();
 		}
-		for (Task cmiTask: listKIV) {
-			cmiTask.isExpired();
+		for (Task kivTask: listKIV) {
+			kivTask.isExpired();
 		}
 		for (Task tickedTask: listTicked) {
 			tickedTask.isExpired();

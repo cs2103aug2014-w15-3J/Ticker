@@ -181,7 +181,7 @@ public class CRUManager {
 		
 		// Creation of timed tasks
 		else {
-			if (endDate.compareTo(startDate) == 1 || endTime.compareTo(startTime) == 1) {
+			if (endDate.compareTo(startDate) == -1 || endTime.compareTo(startTime) == -1) {
 				return "Invalid ending date or time.";
 			}
 			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);

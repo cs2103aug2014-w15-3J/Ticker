@@ -21,8 +21,8 @@ public class TickKIVManager {
 	// String constants for command types
 	private static final String COMMAND_UNTICK = "untick";
 	private static final String COMMAND_TICK = "tick";
-	private static final String COMMAND_UNKIV = "uncmi";
-	private static final String COMMAND_KIV = "cmi";
+	private static final String COMMAND_UNKIV = "unkiv";
+	private static final String COMMAND_KIV = "kiv";
 	// Integer key constants for lists used by listTracker
 	private static final int KEY_TICKED = 3;
 	private static final int KEY_KIV = 4;
@@ -30,7 +30,7 @@ public class TickKIVManager {
 	// String constants for type of lists used by UndoManager
 	private static final String LIST_TIME = "time";
 	private static final String LIST_TICKED = "ticked";
-	private static final String LIST_KIV = "cmi";
+	private static final String LIST_KIV = "kiv";
 	private static final String LIST_SEARCH = "search";
 
 	// Instances of other components
@@ -70,7 +70,7 @@ public class TickKIVManager {
 		Task ticked;
 
 		if (listTracker == KEY_KIV) {
-			System.out.println("cannot tick in cmi list");
+			System.out.println("cannot tick in kiv list");
 			throw new IllegalArgumentException();
 		}
 
@@ -155,47 +155,47 @@ public class TickKIVManager {
 	 * @return     Message from the action of the userCommand.
 	 * @throws Error  If commandType is unidentified.
 	 */
-	String cmi(int index, int listTracker, Vector<Task> current, String currentListName) 
+	String kiv(int index, int listTracker, Vector<Task> current, String currentListName) 
 			throws ArrayIndexOutOfBoundsException,IllegalArgumentException {
 		if (listTracker == KEY_TICKED) {
 			throw new IllegalArgumentException();
 		}
 
-		Task cmi;
+		Task kiv;
 
 		if (listTracker == KEY_TICKED) {
-			System.out.println("Cannot cmi in ticked list");
+			System.out.println("Cannot kiv in ticked list");
 			throw new IllegalArgumentException();
 		}
 
 		else if (listTracker == KEY_SEARCH) {
-			cmi = current.get(index-1);
-			if (storedTasksByTime.contains(cmi) || storedTasksByPriority.contains(cmi)) {
-				storedTasksByTime.remove(cmi);
-				storedTasksByPriority.remove(cmi);
+			kiv = current.get(index-1);
+			if (storedTasksByTime.contains(kiv) || storedTasksByPriority.contains(kiv)) {
+				storedTasksByTime.remove(kiv);
+				storedTasksByPriority.remove(kiv);
 			}
-			else if (storedTasksByKIV.contains(cmi)) {
+			else if (storedTasksByKIV.contains(kiv)) {
 				return "Task is already KIVed.";
 			}
-			else if (storedTasksByTicked.contains(cmi)) {
+			else if (storedTasksByTicked.contains(kiv)) {
 				return "Cannot KIV a task from ticked. Please untick task first.";
 			}
 
 		}
 
 		else {
-			cmi = current.remove(index-1);
+			kiv = current.remove(index-1);
 		}
 		
 		// Add to the front so the latest additions are on top
-		storedTasksByKIV.add(0, cmi);
-		storedTasksByTime.remove(cmi);
-		storedTasksByPriority.remove(cmi);
+		storedTasksByKIV.add(0, kiv);
+		storedTasksByTime.remove(kiv);
+		storedTasksByPriority.remove(kiv);
 
-		Event event = new Event(COMMAND_KIV, cmi, LIST_TIME, LIST_KIV);
+		Event event = new Event(COMMAND_KIV, kiv, LIST_TIME, LIST_KIV);
 		undoMng.add(event);
 
-		return cmi.toString() + " will be kept in view.";
+		return kiv.toString() + " will be kept in view.";
 
 	}
 	
@@ -209,39 +209,39 @@ public class TickKIVManager {
 	 * @return     Message from the action of the userCommand.
 	 * @throws Error  If commandType is unidentified.
 	 */
-	String uncmi(int index, int listTracker, Vector<Task> current) 
+	String unkiv(int index, int listTracker, Vector<Task> current) 
 			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
-		Task uncmi;
+		Task unkiv;
 		
 		if (listTracker != KEY_KIV && listTracker != KEY_SEARCH) {
 			throw new IllegalArgumentException();
 		}
 		
 		if (listTracker == KEY_SEARCH) {
-			uncmi = current.get(index-1);
-			if (storedTasksByTime.contains(uncmi) || storedTasksByPriority.contains(uncmi)) {
-				return "Cannot uncmi a task from undone list.";
+			unkiv = current.get(index-1);
+			if (storedTasksByTime.contains(unkiv) || storedTasksByPriority.contains(unkiv)) {
+				return "Cannot unkiv a task from undone list.";
 			}
-			else if (storedTasksByTicked.contains(uncmi)) {
-				return "Cannot uncmi a task from ticked list.";
+			else if (storedTasksByTicked.contains(unkiv)) {
+				return "Cannot unkiv a task from ticked list.";
 			}
-			else if (storedTasksByKIV.contains(uncmi)) {
-				storedTasksByKIV.remove(uncmi);
+			else if (storedTasksByKIV.contains(unkiv)) {
+				storedTasksByKIV.remove(unkiv);
 			}
 
 		}
 		else {
-				uncmi = current.remove(index-1);
+				unkiv = current.remove(index-1);
 		}
 
 		// Add to the front so the latest additions are on top
-		storedTasksByTime.add(uncmi);
-		storedTasksByPriority.add(uncmi);
+		storedTasksByTime.add(unkiv);
+		storedTasksByPriority.add(unkiv);
 
-		Event event = new Event(COMMAND_UNKIV, uncmi, LIST_TIME, LIST_KIV);
+		Event event = new Event(COMMAND_UNKIV, unkiv, LIST_TIME, LIST_KIV);
 		undoMng.add(event);
 
-		return uncmi.toString() + " is back to undone.";
+		return unkiv.toString() + " is back to undone.";
 
 	}
 }

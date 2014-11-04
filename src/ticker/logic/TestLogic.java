@@ -112,7 +112,7 @@ public class TestLogic {
 		input.setPriority('B');
 
 		assertEquals("CompClub: Man welfare pack booth has been added.", logic.getOutput(input));
-		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov 11:30 to 5 Nov, 14:00\n"
 				+ "2. CompClub: Add actionables on Trello\n", logic.list());
 
 		// Add deadlined task
