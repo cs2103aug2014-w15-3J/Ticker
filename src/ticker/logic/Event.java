@@ -7,8 +7,8 @@ public class Event {
 	private static final String COMMAND_DELETE = "delete";
 	private static final String COMMAND_EDIT = "edit";
 	private static final String COMMAND_TICK = "tick";
-	private static final String COMMAND_CMI = "cmi";
-	private static final String COMMAND_UNCMI = "uncmi";
+	private static final String COMMAND_KIV = "kiv";
+	private static final String COMMAND_UNKIV = "unkiv";
 	private static final String COMMAND_UNTICK = "untick";
 	
 	private String command;
@@ -51,12 +51,12 @@ public class Event {
 		this.taskAfterEdit = taskAfterEdit;
 	}
 	
-	//Called when the command is ticked or cmi or untick or uncmi
+	//Called when the command is ticked or kiv or untick or unkiv
 	public Event(String command, Task task, String listTypeBefore, String listTypeAfter) {
 		this.command = command;
 		
-		if(!(command.equals(COMMAND_TICK)) && !(command.equals(COMMAND_CMI)) && !(command.equals(COMMAND_UNTICK)) && !(command.equals(COMMAND_UNCMI))) {
-			throw new IllegalArgumentException("This constructor is for cmi or tick or uncmi or untick command");
+		if(!(command.equals(COMMAND_TICK)) && !(command.equals(COMMAND_KIV)) && !(command.equals(COMMAND_UNTICK)) && !(command.equals(COMMAND_UNKIV))) {
+			throw new IllegalArgumentException("This constructor is for kiv or tick or unkiv or untick command");
 		}
 		
 		taskBeforeEdit = task;
