@@ -65,16 +65,16 @@ public class Parser {
 			return callTick(words);
 		}
 		
-		if (key.equals("cmi")){
-			return callCMI(words);
+		if (key.equals("kiv")){
+			return callKIV(words);
 		}
 		
 		if (key.equals("untick")){
 			return callUntick(words);
 		}
 		
-		if (key.equals("uncmi")){
-			return callUnCMI(words);
+		if (key.equals("unkiv")){
+			return callUnKIV(words);
 		}
 		
 		if (key.equals("help")){
@@ -211,9 +211,9 @@ public class Parser {
 		return input;
 	}
 
-	private UserInput callCMI(String[] words){
+	private UserInput callKIV(String[] words){
 		UserInput input = new UserInput();
-		input.setCommand(CMD.CMI.toString());
+		input.setCommand(CMD.KIV.toString());
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
@@ -231,9 +231,9 @@ public class Parser {
 		return input;
 	}
 
-	private UserInput callUnCMI(String[] words){
+	private UserInput callUnKIV(String[] words){
 		UserInput input = new UserInput();
-		input.setCommand(CMD.UNCMI.toString());
+		input.setCommand(CMD.UNKIV.toString());
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
@@ -348,8 +348,8 @@ public class Parser {
 		if (words.length>=2){
 			if (words[1].equals("priority")||words[1].equals("p"))
 				input.setDescription("priority");
-			if (words[1].equals("c")||words[1].equals("cmi"))
-				input.setDescription("cmi");
+			if (words[1].equals("c")||words[1].equals("kiv"))
+				input.setDescription("kiv");
 			if (words[1].equals("ticked")||words[1].equals("tick"))
 				input.setDescription("ticked");
 		}
@@ -547,8 +547,8 @@ public class Parser {
 					year += 2000;
 				}
 				month =  Integer.parseInt(str.substring(index+1,str.lastIndexOf("/")));  
-				date =  Integer.parseInt(str.substring(str.indexOf("/")+1));  
-			}	catch(NumberFormatException nfe) {    
+				date =  Integer.parseInt(str.substring(str.lastIndexOf("/")+1));  
+			}	catch(NumberFormatException nfe) {
 			}  
 		}
 
