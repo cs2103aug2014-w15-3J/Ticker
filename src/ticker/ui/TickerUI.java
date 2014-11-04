@@ -594,18 +594,21 @@ public class TickerUI extends Application {
 				else if (ed==null && et==null) {
 					start.setMaxSize(widthTime, prefHeight);
 					start.setAlignment(Pos.CENTER_LEFT);
+					start.setText(ST + ", " + SD + " onwards");
 					hb.getChildren().addAll(index, priority, description, start);
 					chart.getChildren().add(hb);
 				}
 				else if (sd==null && st==null) {
 					end.setMaxSize(widthTime, prefHeight);
 					end.setAlignment(Pos.CENTER_LEFT);
-					end = new Label("By " + ET + " " + ED);
+					end.setText("By " + ET + ", " + ED);
 					hb.getChildren().addAll(index, priority, description, end);
 					chart.getChildren().add(hb);
 				}
 				else {
 					VBox time = new VBox(5);
+					start.setText("Start: " + ST + ", " + SD);
+					end.setText("End: " + ET + ", " + ED);
 					time.getChildren().add(start);
 					time.getChildren().add(end);
 					time.setPrefSize(widthTime, prefHeight);
