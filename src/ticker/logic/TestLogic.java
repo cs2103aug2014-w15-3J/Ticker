@@ -28,8 +28,8 @@ public class TestLogic {
 	private static final String COMMAND_TICK = "tick";
 	private static final String COMMAND_REDO = "redo";
 	private static final String COMMAND_UNDO = "undo";
-	private static final String COMMAND_UNCMI = "uncmi";
-	private static final String COMMAND_CMI = "cmi";
+	private static final String COMMAND_UNKIV = "unkiv";
+	private static final String COMMAND_KIV = "kiv";
 	private static final String COMMAND_ADD = "add";
 	private static final String COMMAND_EDIT = "edit";
 	private static final String COMMAND_LIST = "list";
@@ -40,7 +40,7 @@ public class TestLogic {
 	private static final String LIST_TIME = "time";
 	private static final String LIST_PRIORITY = "priority";
 	private static final String LIST_TICKED = "ticked";
-	private static final String LIST_CMI = "cmi";
+	private static final String LIST_KIV = "kiv";
 	private static final String LIST_SEARCH = "search";
 
 	TickerUI ui = new TickerUI();
@@ -58,7 +58,7 @@ public class TestLogic {
 		input.setDescription(LIST_TICKED);
 		assertEquals("Listing ticked tasks...", logic.getOutput(input));
 		assertEquals("Spick and span!", logic.clear());
-		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_CMI));
+		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_KIV));
 		assertEquals("Spick and span!", logic.clear());
 		assertEquals("Listing by time...", logic.list(LIST_TIME));
 		assertEquals("Spick and span!", logic.clear());
@@ -400,13 +400,13 @@ public class TestLogic {
 		assertEquals("Undoing action", logic.getOutput(input));
 
 
-		// Test CMI
+		// Test KIV
 		input = new UserInput();
-		input.setCommand(COMMAND_CMI);
+		input.setCommand(COMMAND_KIV);
 		input.setIndex(4);
 
 		assertEquals("Self: Get a haircut will be kept in view.", logic.getOutput(input));
-		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_CMI));
+		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_KIV));
 		assertEquals("1. Self: Get a haircut\n", logic.list());
 
 		// Test illegal list type
@@ -416,7 +416,7 @@ public class TestLogic {
 
 		assertEquals("List does not exist. Please re-enter.", logic.getOutput(input));
 
-		// Test delete from CMI
+		// Test delete from KIV
 		input = new UserInput();
 		input.setCommand(COMMAND_DELETE);
 		input.setIndex(1);
@@ -438,7 +438,7 @@ public class TestLogic {
 				+ "2. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "3. \\***TICKED***\\\n"
 				+ "4. CompClub: Add actionables on Trello\n"
-				+ "5. \\***CMI***\\\n", logic.list());
+				+ "5. \\***KIV***\\\n", logic.list());
 
 		// Test Search for startDate
 		input = new UserInput();
@@ -450,7 +450,7 @@ public class TestLogic {
 				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
 				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "4. \\***TICKED***\\\n"
-				+ "5. \\***CMI***\\\n", logic.list());
+				+ "5. \\***KIV***\\\n", logic.list());
 
 		// Test tick for current Search list
 		input = new UserInput();
@@ -462,7 +462,7 @@ public class TestLogic {
 				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
 				+ "3. \\***TICKED***\\\n"
 				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
-				+ "5. \\***CMI***\\\n", logic.list());
+				+ "5. \\***KIV***\\\n", logic.list());
 
 		// Test undo for current Search list
 		input = new UserInput();
@@ -473,7 +473,7 @@ public class TestLogic {
 				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
 				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "4. \\***TICKED***\\\n"
-				+ "5. \\***CMI***\\\n", logic.list());
+				+ "5. \\***KIV***\\\n", logic.list());
 
 		// Test redo for current Search list
 		input = new UserInput();
@@ -484,7 +484,7 @@ public class TestLogic {
 				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
 				+ "3. \\***TICKED***\\\n"
 				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
-				+ "5. \\***CMI***\\\n", logic.list());
+				+ "5. \\***KIV***\\\n", logic.list());
 
 		// Test untick for current Search list
 		input = new UserInput();
@@ -496,24 +496,24 @@ public class TestLogic {
 				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
 				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "4. \\***TICKED***\\\n"
-				+ "5. \\***CMI***\\\n", logic.list());
+				+ "5. \\***KIV***\\\n", logic.list());
 
-		// Test CMI for current Search list
+		// Test KIV for current Search list
 		input = new UserInput();
-		input.setCommand(COMMAND_CMI);
+		input.setCommand(COMMAND_KIV);
 		input.setIndex(3);
 
 		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting will be kept in view.", logic.getOutput(input));
 		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
 				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
 				+ "3. \\***TICKED***\\\n"
-				+ "4. \\***CMI***\\\n"
+				+ "4. \\***KIV***\\\n"
 				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
 
 
-		// Test unCMI for current Search list
+		// Test unKIV for current Search list
 		input = new UserInput();
-		input.setCommand(COMMAND_UNCMI);
+		input.setCommand(COMMAND_UNKIV);
 		input.setIndex(5);
 
 		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting is back to undone.", logic.getOutput(input));
@@ -521,7 +521,7 @@ public class TestLogic {
 				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
 				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "4. \\***TICKED***\\\n"
-				+ "5. \\***CMI***\\\n", logic.list());
+				+ "5. \\***KIV***\\\n", logic.list());
 
 
 		// Test search for startDate and startTime
@@ -535,7 +535,7 @@ public class TestLogic {
 				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
 				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "4. \\***TICKED***\\\n"
-				+ "5. \\***CMI***\\\n", logic.list());
+				+ "5. \\***KIV***\\\n", logic.list());
 
 		// Test search for startDate and startTime
 		input = new UserInput();
@@ -548,7 +548,7 @@ public class TestLogic {
 				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
 				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "4. \\***TICKED***\\\n"
-				+ "5. \\***CMI***\\\n", logic.list());
+				+ "5. \\***KIV***\\\n", logic.list());
 
 		// Test search for endDate
 		input = new UserInput();
@@ -560,7 +560,7 @@ public class TestLogic {
 				+ "2. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
 				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "4. \\***TICKED***\\\n"
-				+ "5. \\***CMI***\\\n", logic.list());
+				+ "5. \\***KIV***\\\n", logic.list());
 
 		// Test search for endDate and endTime
 		input = new UserInput();
@@ -572,7 +572,7 @@ public class TestLogic {
 		assertEquals("1. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n"
 				+ "2. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
 				+ "3. \\***TICKED***\\\n"
-				+ "4. \\***CMI***\\\n", logic.list());
+				+ "4. \\***KIV***\\\n", logic.list());
 
 		// Test search for startDate and endDate
 		input = new UserInput();
@@ -586,7 +586,7 @@ public class TestLogic {
 				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
 				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "5. \\***TICKED***\\\n"
-				+ "6. \\***CMI***\\\n", logic.list());
+				+ "6. \\***KIV***\\\n", logic.list());
 
 		// Test search priority
 		input = new UserInput();
@@ -595,7 +595,7 @@ public class TestLogic {
 
 		assertEquals("Searching for tasks...", logic.getOutput(input));
 		assertEquals("1. \\***TICKED***\\\n"
-				+ "2. \\***CMI***\\\n"
+				+ "2. \\***KIV***\\\n"
 				+ "3. Self: Get a haircut\n", logic.list());
 
 		// Delete from tick list
@@ -613,7 +613,7 @@ public class TestLogic {
 		assertEquals("Spick and span!", logic.clear());
 		assertEquals("Listing ticked tasks...", logic.list(LIST_TICKED));
 		assertEquals("Spick and span!", logic.clear());
-		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_CMI));
+		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_KIV));
 		assertEquals("Spick and span!", logic.clear());
 
 		// Populate list with floating tasks
@@ -666,13 +666,13 @@ public class TestLogic {
 		assertEquals("Self: go shopping is done!", logic.getOutput(input));
 
 		input = new UserInput();
-		input.setCommand(COMMAND_CMI);
+		input.setCommand(COMMAND_KIV);
 		input.setIndex(1);
 
 		assertEquals("Self: play games will be kept in view.", logic.getOutput(input));
 
 		input = new UserInput();
-		input.setCommand(COMMAND_CMI);
+		input.setCommand(COMMAND_KIV);
 		input.setIndex(1);
 
 		assertEquals("Self: play tchoukball will be kept in view.", logic.getOutput(input));
@@ -687,7 +687,7 @@ public class TestLogic {
 				+ "3. \\***TICKED***\\\n"
 				+ "4. Self: go shopping\n"
 				+ "5. Self: buy chocolates\n"
-				+ "6. \\***CMI***\\\n"
+				+ "6. \\***KIV***\\\n"
 				+ "7. Self: play tchoukball\n"
 				+ "8. Self: play games\n", logic.list());
 
@@ -700,7 +700,7 @@ public class TestLogic {
 				+ "2. \\***TICKED***\\\n"
 				+ "3. Self: go shopping\n"
 				+ "4. Self: buy chocolates\n"
-				+ "5. \\***CMI***\\\n"
+				+ "5. \\***KIV***\\\n"
 				+ "6. Self: play tchoukball\n"
 				+ "7. Self: play games\n", logic.list());
 
@@ -712,7 +712,7 @@ public class TestLogic {
 		assertEquals("1. Self: play with cats\n"
 				+ "2. \\***TICKED***\\\n"
 				+ "3. Self: go shopping\n"
-				+ "4. \\***CMI***\\\n"
+				+ "4. \\***KIV***\\\n"
 				+ "5. Self: play tchoukball\n"
 				+ "6. Self: play games\n", logic.list());
 
@@ -724,7 +724,7 @@ public class TestLogic {
 		assertEquals("1. Self: play with cats\n"
 				+ "2. \\***TICKED***\\\n"
 				+ "3. Self: go shopping\n"
-				+ "4. \\***CMI***\\\n"
+				+ "4. \\***KIV***\\\n"
 				+ "5. Self: play tchoukball\n", logic.list());
 
 		// Set corner case for search dates without times but occur on the stated date (searched with time)
@@ -743,7 +743,7 @@ public class TestLogic {
 		assertEquals("Searching for tasks...", logic.getOutput(input));
 		assertEquals("1. Self: watch anime from 10 Nov, 2014\n"
 				+ "2. \\***TICKED***\\\n"
-				+ "3. \\***CMI***\\\n", logic.list());
+				+ "3. \\***KIV***\\\n", logic.list());
 
 		// Set corner case for search dates with endDates without timings that occur on the startDate
 		input = new UserInput();
@@ -762,7 +762,7 @@ public class TestLogic {
 		assertEquals("1. Self: go shop for clothes deadline 10 Nov, 2014\n"
 				+ "2. Self: watch anime from 10 Nov, 2014\n"
 				+ "3. \\***TICKED***\\\n"
-				+ "4. \\***CMI***\\\n", logic.list());
+				+ "4. \\***KIV***\\\n", logic.list());
 
 		// Set corner case for search dates with endDates without timings that occur on the endDate
 
@@ -775,7 +775,7 @@ public class TestLogic {
 		assertEquals("1. Self: go shop for clothes deadline 10 Nov, 2014\n"
 				+ "2. Self: watch anime from 10 Nov, 2014\n"
 				+ "3. \\***TICKED***\\\n"
-				+ "4. \\***CMI***\\\n", logic.list());
+				+ "4. \\***KIV***\\\n", logic.list());
 
 		// Set corner case for search dates with startDates and startTime occuring with searched endDate and endTime
 		input = new UserInput();
@@ -796,7 +796,7 @@ public class TestLogic {
 				+ "2. Self: go shop for clothes deadline 10 Nov, 2014\n"
 				+ "3. Self: watch anime from 10 Nov, 2014\n"
 				+ "4. \\***TICKED***\\\n"
-				+ "5. \\***CMI***\\\n", logic.list());
+				+ "5. \\***KIV***\\\n", logic.list());
 
 		// Get error for empty string
 		input = new UserInput();

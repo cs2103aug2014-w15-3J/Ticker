@@ -1,14 +1,19 @@
 /* Team ID: W15-3J
  * Name: Li Jia'En, Nicholette
  * Matric Number: A0114535M
- * Project Title: CE1 TextBuddy
- * Purpose: This class receives text commands from the user and edits a textfile. 
- * The commands are for add, display, delete, clear and exit.
+ * 
+ * Project Title: Ticker
+ * Class: Logic
+ * Description: This class passes the user input from UI to the Parser to process the input. Logic class then receives the
+ * processed command and acts on it. Functions provided include adding task, deleting task, edit an existing task,
+ * listing out the tasks in different formats (e.g priority, time, done and cannot be completed), as well as
+ * searching and auto-complete.
+ * 
  * Assumptions: 
  * This program assumes that:
- * -the user knows the format for each command
- * -the user input lines in the textfile is not numbered.
- * -(option c) the file is saved to disk when the user exit the program
+ * -the Parser class will pass Logic class valid processed user input (as an UserInput object) with data at their correct
+ * positions.
+ * -the Logic class will always be used with classes CRUDManager, TickKIVManager, UndoRedoManager and SearchManager.
  */
 
 package ticker.logic;
@@ -31,17 +36,8 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-// TODO: make logic.java an interface
 // TODO: make UI an observer
 // TODO: check description by end of project
-
-/*
- * Class: Logic
- * Description: Passes the user input from UI to the Parser to process the input. Logic then receives the
- * processed command and acts on it. Functions provided include adding task, deleting task, edit an existing task,
- * listing out the tasks in different formats (e.g priority, time, done and cannot be completed), as well as
- * searching and auto-complete.
- */
 
 public class Logic{
 	// CONSTANTS
@@ -51,8 +47,8 @@ public class Logic{
 	private static final String COMMAND_TICK = "tick";
 	private static final String COMMAND_REDO = "redo";
 	private static final String COMMAND_UNDO = "undo";
-	private static final String COMMAND_UNCMI = "uncmi";
-	private static final String COMMAND_CMI = "cmi";
+	private static final String COMMAND_UNKIV = "uncmi";
+	private static final String COMMAND_KIV = "cmi";
 	private static final String COMMAND_ADD = "add";
 	private static final String COMMAND_EDIT = "edit";
 	private static final String COMMAND_LIST = "list";
@@ -63,13 +59,13 @@ public class Logic{
 	private static final int KEY_SORTED_TIME = 1;
 	private static final int KEY_SORTED_PRIORITY = 2;
 	private static final int KEY_TICKED = 3;
-	private static final int KEY_CMI = 4;
+	private static final int KEY_KIV = 4;
 	private static final int KEY_SEARCH = 5;
 	// String constants for type of lists used
 	private static final String LIST_TIME = "time";
 	private static final String LIST_PRIORITY = "priority";
 	private static final String LIST_TICKED = "ticked";
-	private static final String LIST_CMI = "cmi";
+	private static final String LIST_KIV = "cmi";
 	private static final String LIST_SEARCH = "search";
 
 	// Instances of other components
@@ -78,7 +74,7 @@ public class Logic{
 	private TickerUI UI;
 	private UndoManager undoMng;
 	private CRUManager cruMng;
-	private TickCMIManager tickCMIMng;
+	private TickKIVManager tickKIVMng;
 	private SearchManager searchMng;
 	private static Logger logger;
 	// Tracker to track which list is being displayed
@@ -90,7 +86,7 @@ public class Logic{
 	private static Vector<Task> sortedTime;
 	private static Vector<Task> sortedPriority;
 	private static Vector<Task> listTicked; // not sorted
-	private static Vector<Task> listCMI; // not sorted
+	private static Vector<Task> listKIV; // not sorted
 	private static Vector<Task> searchResults;
 	// Store existing (current) search request
 	private static UserInput searchRequest;
@@ -117,12 +113,12 @@ public class Logic{
 		sortedTime = storage.restoreDataFromFile(KEY_SORTED_TIME);
 		sortedPriority = storage.restoreDataFromFile(KEY_SORTED_PRIORITY);
 		listTicked = storage.restoreDataFromFile(KEY_TICKED);
-		listCMI = storage.restoreDataFromFile(KEY_CMI);
+		listKIV = storage.restoreDataFromFile(KEY_KIV);
 
-		cruMng = new CRUManager(sortedTime, sortedPriority, listTicked, listCMI);
-		tickCMIMng = new TickCMIManager(sortedTime, sortedPriority, listTicked, listCMI);
-		searchMng = new SearchManager(sortedTime, listTicked, listCMI);
-		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listCMI);
+		cruMng = new CRUManager(sortedTime, sortedPriority, listTicked, listKIV);
+		tickKIVMng = new TickKIVManager(sortedTime, sortedPriority, listTicked, listKIV);
+		searchMng = new SearchManager(sortedTime, listTicked, listKIV);
+		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listKIV);
 
 		searchResults = new Vector<Task>();
 
@@ -268,7 +264,7 @@ public class Logic{
 				feedback = cruMng.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
 
-				if (listTracker == KEY_CMI || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
+				if (listTracker == KEY_KIV || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
 					listTracker = KEY_SORTED_TIME;
 					current = sortedTime;
 					currentListName = LIST_TIME;
@@ -285,9 +281,9 @@ public class Logic{
 			}
 			break;
 
-		case COMMAND_CMI:
+		case COMMAND_KIV:
 			try {
-				feedback = tickCMIMng.cmi(processed.getIndex(), listTracker, current, currentListName);
+				feedback = tickKIVMng.cmi(processed.getIndex(), listTracker, current, currentListName);
 				
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -309,9 +305,9 @@ public class Logic{
 			}
 			break;
 
-		case COMMAND_UNCMI:
+		case COMMAND_UNKIV:
 			try {
-				feedback = tickCMIMng.uncmi(processed.getIndex(), listTracker, current);
+				feedback = tickKIVMng.uncmi(processed.getIndex(), listTracker, current);
 				
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -376,7 +372,7 @@ public class Logic{
 
 		case COMMAND_TICK:
 			try {
-				feedback = tickCMIMng.tick(processed.getIndex(), listTracker, current);
+				feedback = tickKIVMng.tick(processed.getIndex(), listTracker, current);
 				
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -400,7 +396,7 @@ public class Logic{
 
 		case COMMAND_UNTICK:
 			try {
-				feedback = tickCMIMng.untick(processed.getIndex(), listTracker, current);
+				feedback = tickKIVMng.untick(processed.getIndex(), listTracker, current);
 				
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -454,7 +450,7 @@ public class Logic{
 		for (Task priorityTask: sortedTime) {
 			priorityTask.isExpired();
 		}
-		for (Task cmiTask: listCMI) {
+		for (Task cmiTask: listKIV) {
 			cmiTask.isExpired();
 		}
 		for (Task tickedTask: listTicked) {
@@ -476,7 +472,7 @@ public class Logic{
 		storage.writeStorageArrayIntoFile(KEY_SORTED_TIME, sortedTime);
 		storage.writeStorageArrayIntoFile(KEY_SORTED_PRIORITY, sortedPriority);
 		storage.writeStorageArrayIntoFile(KEY_TICKED, listTicked);
-		storage.writeStorageArrayIntoFile(KEY_CMI, listCMI);
+		storage.writeStorageArrayIntoFile(KEY_KIV, listKIV);
 	}
 
 	/**
@@ -589,10 +585,10 @@ public class Logic{
 			UI.setList(current);
 			UI.setNextView(listTracker);
 			return "Listing ticked tasks...";
-		case COMMAND_CMI:
-			current = listCMI;
-			listTracker = KEY_CMI;
-			currentListName = LIST_CMI;
+		case COMMAND_KIV:
+			current = listKIV;
+			listTracker = KEY_KIV;
+			currentListName = LIST_KIV;
 			UI.setList(current);
 			UI.setNextView(listTracker);
 			return "Listing tasks that are kept in view...";

@@ -33,16 +33,16 @@ public class CRUManager {
 	private static final int KEY_SORTED_TIME = 1;
 	private static final int KEY_SORTED_PRIORITY = 2;
 	private static final int KEY_TICKED = 3;
-	private static final int KEY_CMI = 4;
+	private static final int KEY_KIV = 4;
 	private static final int KEY_SEARCH = 5;
 	// String constants for type of lists used
 	private static final String TASKS_TIME = "TIME";
 	private static final String TASKS_TICKED = "TICKED";
-	private static final String TASKS_CMI = "CMI";
+	private static final String TASKS_KIV = "KIV";
 
 	// Instances of other components
 	private UndoManager undoMng;
-	private Vector<Task> storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByCMI;
+	private Vector<Task> storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV;
 	
 	/**
 	 * This method determines the action for each user command.
@@ -54,13 +54,13 @@ public class CRUManager {
 	 * @return     Message from the action of the userCommand.
 	 * @throws Error  If commandType is unidentified.
 	 */
-	CRUManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
+	CRUManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKIV) {
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTime = storedTasksByTime;
 		this.storedTasksByTicked = storedTasksByTicked;
-		this.storedTasksByCMI = storedTasksByCMI;
+		this.storedTasksByKIV = storedTasksByKIV;
 
-		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByCMI);
+		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV);
 	}
 	
 	/**
@@ -115,16 +115,16 @@ public class CRUManager {
 				event = new Event(COMMAND_DELETE, deleted, TASKS_TICKED, indexCounter);
 				undoMng.add(event);
 			}
-			else if (storedTasksByCMI.contains(deleted)) {
+			else if (storedTasksByKIV.contains(deleted)) {
 				indexCounter = 0;
-				for (Task task: storedTasksByCMI) {
+				for (Task task: storedTasksByKIV) {
 					if (task.equals(deleted)) {
 						break;
 					}
 					indexCounter++;
 				}
-				storedTasksByCMI.remove(deleted);
-				event = new Event(COMMAND_DELETE, deleted, TASKS_CMI, indexCounter);
+				storedTasksByKIV.remove(deleted);
+				event = new Event(COMMAND_DELETE, deleted, TASKS_KIV, indexCounter);
 				undoMng.add(event);
 			}
 		}
@@ -188,7 +188,7 @@ public class CRUManager {
 		}
 		
 		// Check whether there's an exact task already inside the list
-		if (storedTasksByPriority.contains(newTask) || storedTasksByTicked.contains(newTask) || storedTasksByCMI.contains(newTask)) {
+		if (storedTasksByPriority.contains(newTask) || storedTasksByTicked.contains(newTask) || storedTasksByKIV.contains(newTask)) {
 			return "Task already exists.";
 		}
 
@@ -247,8 +247,8 @@ public class CRUManager {
 		Task oldTask;
 		Task newTask;
 
-		if (listTracker == KEY_TICKED && listTracker == KEY_CMI) {
-			return "Cannot edit from ticked and CMI list.";
+		if (listTracker == KEY_TICKED && listTracker == KEY_KIV) {
+			return "Cannot edit from ticked and KIV list.";
 		}
 
 		if (listTracker == KEY_SEARCH) {
@@ -257,8 +257,8 @@ public class CRUManager {
 				storedTasksByTime.remove(oldTask);
 				storedTasksByTime.remove(oldTask);
 			}
-			else if (storedTasksByTicked.contains(oldTask) || storedTasksByCMI.contains(oldTask)) {
-				return "Cannot edit from ticked and CMI list.";
+			else if (storedTasksByTicked.contains(oldTask) || storedTasksByKIV.contains(oldTask)) {
+				return "Cannot edit from ticked and KIV list.";
 			}
 		}
 		else {

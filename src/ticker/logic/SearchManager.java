@@ -48,10 +48,10 @@ public class SearchManager {
 	Vector<StringMatch> matchList;
 	private Vector<Task> storedTasksByTime;
 	private Vector<Task> storedTasksByTicked; // not sorted
-	private Vector<Task> storedTasksByCMI; // not sorted
+	private Vector<Task> storedTasksByKIV; // not sorted
 	private static Vector<Task> searchResultsTime;
 	private static Vector<Task> searchResultsTicked;
-	private static Vector<Task> searchResultsCMI;
+	private static Vector<Task> searchResultsKIV;
 	private static Vector<Task> searchResults;
 	String key; 
 	
@@ -65,10 +65,10 @@ public class SearchManager {
 	 * @return     Message from the action of the userCommand.
 	 * @throws Error  If commandType is unidentified.
 	 */
-	public SearchManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
+	public SearchManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKIV) {
 		this.storedTasksByTime = storedTasksByTime;
 		this.storedTasksByTicked = storedTasksByTicked;
-		this.storedTasksByCMI = storedTasksByCMI;
+		this.storedTasksByKIV = storedTasksByKIV;
 		
 		searchResults = new Vector<Task>();
 	}
@@ -90,20 +90,20 @@ public class SearchManager {
 		
 		searchResultsTime = storedTasksByTime;
 		searchResultsTicked = storedTasksByTicked;
-		searchResultsCMI = storedTasksByCMI;
+		searchResultsKIV = storedTasksByKIV;
 
 		// Search by Key only
 		if (key != null && key.length() != 0) {
 			searchResultsTime = searchByKey(key, storedTasksByTime);
 			searchResultsTicked = searchByKey(key, storedTasksByTicked);
-			searchResultsCMI = searchByKey(key, storedTasksByCMI);
+			searchResultsKIV = searchByKey(key, storedTasksByKIV);
 		}
 		//TODO: implement isRepeat Search
 		// Search by priority
 		if (priority != '\u0000' && (priority == 'A' || priority == 'B' || priority == 'C')) {
 			searchResultsTime = searchByPriority(priority, storedTasksByTime);
 			searchResultsTicked = searchByPriority(priority, storedTasksByTicked);
-			searchResultsCMI = searchByPriority(priority, storedTasksByCMI);
+			searchResultsKIV = searchByPriority(priority, storedTasksByKIV);
 		}
 		
 		// Search for date and time assumes that there will be a date that is passed with the time
@@ -112,12 +112,12 @@ public class SearchManager {
 			if (startTime != null) {
 				searchResultsTime = searchByStartDateAndTime(startDate, startTime, searchResultsTime);
 				searchResultsTicked = searchByStartDateAndTime(startDate, startTime, searchResultsTicked);
-				searchResultsCMI = searchByStartDateAndTime(startDate, startTime, searchResultsCMI);
+				searchResultsKIV = searchByStartDateAndTime(startDate, startTime, searchResultsKIV);
 			}
 			else if (startTime == null) {
 				searchResultsTime = searchByStartDate(startDate, searchResultsTime);
 				searchResultsTicked = searchByStartDate(startDate, searchResultsTicked);
-				searchResultsCMI = searchByStartDate(startDate, searchResultsCMI);
+				searchResultsKIV = searchByStartDate(startDate, searchResultsKIV);
 			}
 			
 		}
@@ -127,12 +127,12 @@ public class SearchManager {
 			if (endTime != null) {
 				searchResultsTime = searchByEndDateAndTime(endDate, endTime, searchResultsTime);
 				searchResultsTicked = searchByEndDateAndTime(endDate, endTime, searchResultsTicked);
-				searchResultsCMI = searchByEndDateAndTime(endDate, endTime, searchResultsCMI);
+				searchResultsKIV = searchByEndDateAndTime(endDate, endTime, searchResultsKIV);
 			}
 			else if (endTime == null) {
 				searchResultsTime = searchByEndDate(endDate, searchResultsTime);
 				searchResultsTicked = searchByEndDate(endDate, searchResultsTicked);
-				searchResultsCMI = searchByEndDate(endDate, searchResultsCMI);
+				searchResultsKIV = searchByEndDate(endDate, searchResultsKIV);
 			}
 		}
 
@@ -146,10 +146,10 @@ public class SearchManager {
 			searchResults.add(searchTicked);
 		}
 
-		searchResults.add(new Task("\\***CMI***\\", null, null, null, null, 'B', false));
+		searchResults.add(new Task("\\***KIV***\\", null, null, null, null, 'B', false));
 
-		for (Task searchCMI: searchResultsCMI) {
-			searchResults.add(searchCMI);
+		for (Task searchKIV: searchResultsKIV) {
+			searchResults.add(searchKIV);
 		}
 
 		return searchResults;
