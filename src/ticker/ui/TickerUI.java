@@ -43,6 +43,7 @@ public class TickerUI extends Application {
 	private Vector <Task> tasksToBeShown = new Vector<Task>();
 	//private String commandList = getHelp();
 	private boolean displayHelp = false;
+	private boolean isSearchResult = false;
 	double initialX, initialY;
 
 	Scene scene;
@@ -53,6 +54,9 @@ public class TickerUI extends Application {
 	VBox chart = new VBox();
 	ImageView help;
 	Image helpPage;
+	
+	Font content = new Font("Arial Rounded MT Bold", 13);
+	Font heading = new Font("Britannic Bold", 14);
 
 	//GridPane chart = new GridPane();
 	TextField command;
@@ -73,6 +77,7 @@ public class TickerUI extends Application {
 	private int nextView = KEY_SORTED_TIME;
 
 	private static final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+	private static final String[] daysOfWeek = {"","Mon","Tues","Wed","Thur","Fri","Sat","Sun"};
 
 	Calendar c;
 
@@ -488,19 +493,11 @@ public class TickerUI extends Application {
 		int widthIndex = 18;
 		int widthDes = 240;
 		int widthTime = 140;
-		int avgCharNum = 40;
+		int avgCharNum = 35;
 		int additionalHeight = 14;
 		int d = 0;                          //a way to correct the numbering when listing out search results
 
 		//System.out.println(Font.getFontNames().toString());
-		Font content = new Font("Arial Rounded MT Bold", 12);
-		Font header = new Font("AdobeHeitiStd-Bold", 12);
-		/*if(currentView == KEY_SORTED_TIME) {
-			Label today = new Label();
-			today.setText("   Today's Todo List: ");
-			today.setFont(header);
-			chart.getChildren().add(today);
-		}*/
 
 		for(int i = 0; i < tasksToBeShown.size(); i++ ) {
 
@@ -512,7 +509,7 @@ public class TickerUI extends Application {
 			Label index = new Label(""+(i+1-d)+".");
 			index.setPrefSize(widthIndex, prefHeight);
 			index.setAlignment(Pos.CENTER_RIGHT);
-			index.setFont(content);
+			//index.setFont(content);
 
 			//priority
 			ImageView priority = new ImageView();
@@ -535,7 +532,6 @@ public class TickerUI extends Application {
 			//task description
 			String newTask = tasksToBeShown.get(i).getDescription();
 
-
 			int length = newTask.length();
 			maxHeight = prefHeight;
 			maxHeight += (length/avgCharNum)*additionalHeight;              //adjust the maxHeight accordingly
@@ -557,13 +553,10 @@ public class TickerUI extends Application {
 			ST = (st==null)? "" : st.toString();
 			ET = (et==null)? "" : et.toString();
 
-
 			Label start = new Label();
 			Label end = new Label();
-			start.setFont(content);
-			end.setFont(content);
 
-			if(tasksToBeShown.get(i).isExpired) {                            //mark tasks as red to show expired
+			if(tasksToBeShown.get(i).isExpired) { //getIsExpired()) {                            //mark tasks as red to show expired
 				index.setTextFill(Color.RED);
 				description.setTextFill(Color.RED);
 				start.setTextFill(Color.RED);
@@ -572,19 +565,58 @@ public class TickerUI extends Application {
 
 
 			if((newTask.equals("\\***TICKED***\\")) ) {
+				isSearchResult = true;
 				d++;
-				Label ticked = new Label("     search results from the Ticked section");
-
-				//ticked.setFont(header);
-				hb.getChildren().add(ticked);
-				chart.getChildren().add(hb);
+				Label ticked = new Label("   Search results from the Ticked section:");
+				ticked.setPrefHeight(35);
+				ticked.setAlignment(Pos.BOTTOM_LEFT);
+				ticked.setFont(heading);
+				//ticked.setVisible(false);
+				chart.getChildren().add(ticked);
 
 			}
 			else if (newTask.equals("\\***CMI***\\")) {
 				d++;
-				Label cmi = new Label("     search results from the CMI section");
-				hb.getChildren().add(cmi);
-				chart.getChildren().add(hb);
+				Label cmi = new Label("   Search results from the CMI section:");
+				cmi.setPrefHeight(35);
+				cmi.setAlignment(Pos.BOTTOM_LEFT);
+				cmi.setFont(heading);
+				chart.getChildren().add(cmi);
+			}
+			else if(tasksToBeShown.get(i).getRepeat()) {
+				switch(tasksToBeShown.get(i).getRepeatingInterval()) {
+				case DAY:
+					Label daily = new Label("everyday " + ST + " to " + ET);
+					hb.getChildren().addAll(index, priority, description, daily);
+					chart.getChildren().add(hb);
+					break;
+				case WEEK:
+					String dayInWeek = (SD=="")? daysOfWeek[Date.dayOfWeek(ed)]: daysOfWeek[Date.dayOfWeek(sd)];
+					Label weekly = new Label("every " + dayInWeek + " " + ST + " to " + ET);
+					hb.getChildren().addAll(index, priority, description, weekly);
+					chart.getChildren().add(hb);
+					break;
+				case MONTH:
+					int date = (SD=="")? ed.getDate() : sd.getDate();
+					String suffix = new String();
+					if(date%10==1 && date!=11) {
+						suffix = "st";
+					}
+					else if(date%10==2 && date!=12) {
+						suffix = "nd";
+					}
+					else if(date%10==3 && date!=13) {
+						suffix = "rd";
+					}
+					else {
+						suffix = "th";
+					}
+					String dayInMonth = String.valueOf(date) + suffix;
+					Label monthly = new Label(ST + " to " + ET + ", " + dayInMonth + " day of every month");
+					hb.getChildren().addAll(index, priority, description, monthly);
+					chart.getChildren().add(hb);
+					break;
+				}
 			}
 			else {
 				if(sd==null && st==null && ed==null && et==null) {
@@ -592,20 +624,24 @@ public class TickerUI extends Application {
 					chart.getChildren().add(hb);
 				}
 				else if (ed==null && et==null) {
+					description.setFont(content);
 					start.setMaxSize(widthTime, prefHeight);
 					start.setAlignment(Pos.CENTER_LEFT);
+					start.setText(ST + ", " + SD + " onwards");
 					hb.getChildren().addAll(index, priority, description, start);
 					chart.getChildren().add(hb);
 				}
 				else if (sd==null && st==null) {
 					end.setMaxSize(widthTime, prefHeight);
 					end.setAlignment(Pos.CENTER_LEFT);
-					end = new Label("By " + ET + " " + ED);
+					end.setText("By " + ET + ", " + ED);
 					hb.getChildren().addAll(index, priority, description, end);
 					chart.getChildren().add(hb);
 				}
 				else {
 					VBox time = new VBox(5);
+					start.setText("Start: " + ST + ", " + SD);
+					end.setText("End: " + ET + ", " + ED);
 					time.getChildren().add(start);
 					time.getChildren().add(end);
 					time.setPrefSize(widthTime, prefHeight);
@@ -615,6 +651,14 @@ public class TickerUI extends Application {
 				}
 
 			}
+			if(isSearchResult == true) {
+				Label numResult = new Label("   There are "+ (tasksToBeShown.size()-2) + " result(s) found");
+				numResult.setPrefHeight(40);
+				numResult.setAlignment(Pos.BOTTOM_LEFT);
+				numResult.setFont(heading);
+				chart.getChildren().add(0, numResult);
+			}
+			isSearchResult = false;
 		}
 
 
