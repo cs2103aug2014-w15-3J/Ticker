@@ -4,9 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Calendar;
 import java.util.List;
-
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
-
 import ticker.common.*;
 import ticker.common.Task.RepeatingInterval;
 
@@ -67,16 +65,16 @@ public class Parser {
 			return callTick(words);
 		}
 		
-		if (key.equals("cmi")){
-			return callCMI(words);
+		if (key.equals("kiv")){
+			return callKIV(words);
 		}
 		
 		if (key.equals("untick")){
 			return callUntick(words);
 		}
 		
-		if (key.equals("uncmi")){
-			return callUnCMI(words);
+		if (key.equals("unkiv")){
+			return callUnKIV(words);
 		}
 		
 		if (key.equals("help")){
@@ -139,7 +137,7 @@ public class Parser {
 		}
 		
 		nlp(description,input);
-		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
+		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
 		
 		input.validifyTime();
@@ -154,9 +152,9 @@ public class Parser {
 		return input;
 	}
 	
-	private static StartEndTimeDate checkDashTimeDate(String description){
+	private static TimePeriod checkDashTimeDate(String description){
 		String[] strings = description.split(" +"); 
-		StartEndTimeDate result = new StartEndTimeDate();
+		TimePeriod result = new TimePeriod();
 		for (String s:strings){
 			if (s.indexOf("-")!=-1&&s.indexOf("-")==s.lastIndexOf("-")){
 				int index = s.indexOf("-");
@@ -213,9 +211,9 @@ public class Parser {
 		return input;
 	}
 
-	private UserInput callCMI(String[] words){
+	private UserInput callKIV(String[] words){
 		UserInput input = new UserInput();
-		input.setCommand(CMD.CMI.toString());
+		input.setCommand(CMD.KIV.toString());
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
@@ -233,9 +231,9 @@ public class Parser {
 		return input;
 	}
 
-	private UserInput callUnCMI(String[] words){
+	private UserInput callUnKIV(String[] words){
 		UserInput input = new UserInput();
-		input.setCommand(CMD.UNCMI.toString());
+		input.setCommand(CMD.UNKIV.toString());
 		if (words.length==1){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
 		}
@@ -294,7 +292,7 @@ public class Parser {
 		}
 		
 		nlp(description,input);
-		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
+		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
 		
 		input.validifyTime();
@@ -332,7 +330,7 @@ public class Parser {
 		}
 		
 		nlp(description,input);
-		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
+		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
 
 		if (!((input.getStartTime()==null)&&(input.getEndTime()==null)&&(input.getStartDate()==null)&&(input.getEndDate()==null))){
@@ -350,8 +348,8 @@ public class Parser {
 		if (words.length>=2){
 			if (words[1].equals("priority")||words[1].equals("p"))
 				input.setDescription("priority");
-			if (words[1].equals("c")||words[1].equals("cmi"))
-				input.setDescription("cmi");
+			if (words[1].equals("c")||words[1].equals("kiv"))
+				input.setDescription("kiv");
 			if (words[1].equals("ticked")||words[1].equals("tick"))
 				input.setDescription("ticked");
 		}
@@ -379,7 +377,7 @@ public class Parser {
 		}
 	}
 	
-	private void mergeTimeResult(StartEndTimeDate result,UserInput ui){
+	private void mergeTimeResult(TimePeriod result,UserInput ui){
 		if (result.getStartDate()!=null){
 			ui.setStartDate(result.getStartDate());
 		}
@@ -549,8 +547,8 @@ public class Parser {
 					year += 2000;
 				}
 				month =  Integer.parseInt(str.substring(index+1,str.lastIndexOf("/")));  
-				date =  Integer.parseInt(str.substring(str.indexOf("/")+1));  
-			}	catch(NumberFormatException nfe) {    
+				date =  Integer.parseInt(str.substring(str.lastIndexOf("/")+1));  
+			}	catch(NumberFormatException nfe) {
 			}  
 		}
 
@@ -582,21 +580,27 @@ public class Parser {
 	}
 }
 
-class StartEndTimeDate{
-	private Date sd;
-	private Date ed;
-	private Time st;
-	private Time et;
+class TimePeriod{
+	private DateTime start;
+	private DateTime end;
 	
-	public StartEndTimeDate(){
+	public TimePeriod(){
+		start = new DateTime(null,null);
+		end = new DateTime(null,null);
+	}
+	public TimePeriod(DateTime start,DateTime end){
+		this.start=start;
+		this.end=end;
 	}
 	
-	public Date getStartDate(){return sd;}
-	public Time getStartTime(){return st;}
-	public Date getEndDate(){return ed;}
-	public Time getEndTime(){return et;}
-	public void setStartDate(Date d){this.sd=d;}
-	public void setStartTime(Time t){this.st=t;}
-	public void setEndDate(Date d){this.ed=d;}
-	public void setEndTime(Time t){this.et=t;}
+	public DateTime getStart(){return start;}
+	public DateTime getEnd(){return end;}
+	public Date getStartDate(){return start.getDate();}
+	public Time getStartTime(){return start.getTime();}
+	public Date getEndDate(){return end.getDate();}
+	public Time getEndTime(){return end.getTime();}
+	public void setStartDate(Date d){this.getStart().setDate(d);}
+	public void setStartTime(Time t){this.getStart().setTime(t);}
+	public void setEndDate(Date d){this.getEnd().setDate(d);}
+	public void setEndTime(Time t){this.getEnd().setTime(t);}
 }

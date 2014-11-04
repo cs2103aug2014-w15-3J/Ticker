@@ -18,7 +18,6 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
@@ -54,7 +53,7 @@ public class TickerUI extends Application {
 	VBox chart = new VBox();
 	ImageView help;
 	Image helpPage;
-	
+
 	//GridPane chart = new GridPane();
 	TextField command;
 	Text feedback;
@@ -332,7 +331,7 @@ public class TickerUI extends Application {
 				String cmd = command.getText();
 				command.clear();
 				feedback.setText(logic.getLogic(cmd));
-				
+
 				if(nextView != currentView) {
 					buildTabs(nextView);
 				}
@@ -375,8 +374,8 @@ public class TickerUI extends Application {
 							});
 				} 
 				else {		
-				chart.getChildren().clear();
-				displayTasks();
+					chart.getChildren().clear();
+					displayTasks();
 				}
 
 				//feedback fades off after 5 seconds
@@ -422,8 +421,6 @@ public class TickerUI extends Application {
 		launch(args);
 		ticker = new TickerUI();
 	}
-
-
 
 	/*the following methods are for Logic to call*/
 	public void setHelp() {
@@ -495,7 +492,9 @@ public class TickerUI extends Application {
 		int additionalHeight = 14;
 		int d = 0;                          //a way to correct the numbering when listing out search results
 
-		Font header = new Font("Roboto-Medium", 12);
+		//System.out.println(Font.getFontNames().toString());
+		Font content = new Font("Arial Rounded MT Bold", 12);
+		Font header = new Font("AdobeHeitiStd-Bold", 12);
 		/*if(currentView == KEY_SORTED_TIME) {
 			Label today = new Label();
 			today.setText("   Today's Todo List: ");
@@ -513,6 +512,7 @@ public class TickerUI extends Application {
 			Label index = new Label(""+(i+1-d)+".");
 			index.setPrefSize(widthIndex, prefHeight);
 			index.setAlignment(Pos.CENTER_RIGHT);
+			index.setFont(content);
 
 			//priority
 			ImageView priority = new ImageView();
@@ -543,7 +543,7 @@ public class TickerUI extends Application {
 			description.setPrefSize(widthDes, maxHeight);
 			description.setWrapText(true);
 			description.setAlignment(Pos.CENTER_LEFT);
-			description.setFont(header);
+			description.setFont(content);
 
 			Date sd = tasksToBeShown.get(i).getStartDate();
 			Date ed = tasksToBeShown.get(i).getEndDate();
@@ -556,10 +556,13 @@ public class TickerUI extends Application {
 			ED = (ed==null)? "" : ed.toString();
 			ST = (st==null)? "" : st.toString();
 			ET = (et==null)? "" : et.toString();
-			
-			Label start = new Label("Start: " + ST + " " + SD);
-			Label end = new Label("End: " + ET + " " + ED);
-			
+
+
+			Label start = new Label();
+			Label end = new Label();
+			start.setFont(content);
+			end.setFont(content);
+
 			if(tasksToBeShown.get(i).isExpired) {                            //mark tasks as red to show expired
 				index.setTextFill(Color.RED);
 				description.setTextFill(Color.RED);
@@ -571,6 +574,8 @@ public class TickerUI extends Application {
 			if((newTask.equals("\\***TICKED***\\")) ) {
 				d++;
 				Label ticked = new Label("     search results from the Ticked section");
+
+				//ticked.setFont(header);
 				hb.getChildren().add(ticked);
 				chart.getChildren().add(hb);
 
@@ -582,7 +587,6 @@ public class TickerUI extends Application {
 				chart.getChildren().add(hb);
 			}
 			else {
-
 				if(sd==null && st==null && ed==null && et==null) {
 					hb.getChildren().addAll(index, priority, description);
 					chart.getChildren().add(hb);
@@ -596,6 +600,7 @@ public class TickerUI extends Application {
 				else if (sd==null && st==null) {
 					end.setMaxSize(widthTime, prefHeight);
 					end.setAlignment(Pos.CENTER_LEFT);
+					end = new Label("By " + ET + " " + ED);
 					hb.getChildren().addAll(index, priority, description, end);
 					chart.getChildren().add(hb);
 				}
@@ -677,12 +682,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list ticked";
 					feedback.setText(logic.getLogic(autoCommand));
-					
+
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
 					ft.setFromValue(1.0);
 					ft.setToValue(0);
 					ft.play();
-					
+
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_TICKED);
@@ -703,12 +708,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list cmi";
 					feedback.setText(logic.getLogic(autoCommand));
-					
+
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
 					ft.setFromValue(1.0);
 					ft.setToValue(0);
 					ft.play();
-					
+
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_CMI);
@@ -743,12 +748,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list ticked";
 					feedback.setText(logic.getLogic(autoCommand));
-					
+
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
 					ft.setFromValue(1.0);
 					ft.setToValue(0);
 					ft.play();
-					
+
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_TICKED);
@@ -769,12 +774,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list cmi";
 					feedback.setText(logic.getLogic(autoCommand));
-					
+
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
 					ft.setFromValue(1.0);
 					ft.setToValue(0);
 					ft.play();
-					
+
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_CMI);
@@ -811,12 +816,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list time";
 					feedback.setText(logic.getLogic(autoCommand));
-					
+
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
 					ft.setFromValue(1.0);
 					ft.setToValue(0);
 					ft.play();
-					
+
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_SORTED_TIME);
@@ -837,12 +842,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list cmi";
 					feedback.setText(logic.getLogic(autoCommand));
-					
+
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
 					ft.setFromValue(1.0);
 					ft.setToValue(0);
 					ft.play();
-					
+
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_CMI);
@@ -878,12 +883,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list ticked";
 					feedback.setText(logic.getLogic(autoCommand));
-					
+
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
 					ft.setFromValue(1.0);
 					ft.setToValue(0);
 					ft.play();
-					
+
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_TICKED);
@@ -904,12 +909,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list time";
 					feedback.setText(logic.getLogic(autoCommand));
-					
+
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
 					ft.setFromValue(1.0);
 					ft.setToValue(0);
 					ft.play();
-					
+
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_SORTED_TIME);
@@ -944,12 +949,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list ticked";
 					feedback.setText(logic.getLogic(autoCommand));
-					
+
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
 					ft.setFromValue(1.0);
 					ft.setToValue(0);
 					ft.play();
-					
+
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_TICKED);
@@ -970,12 +975,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list cmi";
 					feedback.setText(logic.getLogic(autoCommand));
-					
+
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
 					ft.setFromValue(1.0);
 					ft.setToValue(0);
 					ft.play();
-					
+
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_CMI);
@@ -996,12 +1001,12 @@ public class TickerUI extends Application {
 				public void handle(MouseEvent evt) {
 					String autoCommand = "list time";
 					feedback.setText(logic.getLogic(autoCommand));
-					
+
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
 					ft.setFromValue(1.0);
 					ft.setToValue(0);
 					ft.play();
-					
+
 					chart.getChildren().clear();
 					displayTasks();
 					buildTabs(KEY_SORTED_TIME);
