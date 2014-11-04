@@ -42,7 +42,7 @@ public class TickerUI extends Application {
 	private Logic logic;
 
 	private Vector <Task> tasksToBeShown = new Vector<Task>();
-	private String commandList = getHelp();
+	//private String commandList = getHelp();
 	private boolean displayHelp = false;
 	double initialX, initialY;
 
@@ -52,7 +52,8 @@ public class TickerUI extends Application {
 	Image background, logo, min, min_, close, close_, trivial, normal, impt, expired;
 	ImageView imv1, imv2, imv3, imv4, imv9;
 	VBox chart = new VBox();
-	TextArea help;
+	ImageView help;
+	Image helpPage;
 	
 	//GridPane chart = new GridPane();
 	TextField command;
@@ -154,8 +155,6 @@ public class TickerUI extends Application {
 		feedback.setFill(Color.BISQUE);
 		//feedback.setText("The command you entered is invalid");
 		root.getChildren().add(feedback);
-
-
 
 		//add the minimise and close button
 		min = new Image("ticker/ui/pic/minimise2.png", true);
@@ -289,13 +288,13 @@ public class TickerUI extends Application {
 
 		//TODO set the content of help and design better looking help page
 		//implement the help page
-		help = new TextArea();
-		help.setWrapText(true);
-		help.setText(commandList);
+		help = new ImageView();
 		help.setVisible(false);
 		help.setLayoutX(45);
 		help.setLayoutY(75);
-		help.setPrefSize(400, 500);
+		helpPage = new Image("ticker/ui/pic/help.png", true);
+		help.setImage(helpPage);
+		help.setFitWidth(400);
 		root.getChildren().add(help);
 
 
@@ -311,7 +310,6 @@ public class TickerUI extends Application {
 		command.setOnKeyPressed(new EventHandler<KeyEvent>() 
 				{
 			public void handle(KeyEvent e) {
-
 				KeyCode code = e.getCode();  
 				if(code == KeyCode.PAGE_UP){  
 					sp.setVvalue(sp.getVvalue()-0.1);
@@ -334,9 +332,7 @@ public class TickerUI extends Application {
 				String cmd = command.getText();
 				command.clear();
 				feedback.setText(logic.getLogic(cmd));
-				//any change in view should reflect here
-				//nextView is ready
-
+				
 				if(nextView != currentView) {
 					buildTabs(nextView);
 				}
@@ -345,7 +341,7 @@ public class TickerUI extends Application {
 					help.setVisible(true);
 					FadeTransition ft = new FadeTransition(Duration.millis(250), help);               //fade in
 					ft.setFromValue(0);
-					ft.setToValue(1.0);
+					ft.setToValue(0.8);
 					ft.play();
 
 					command.setOnKeyPressed(new EventHandler<KeyEvent>() 
@@ -354,10 +350,10 @@ public class TickerUI extends Application {
 							KeyCode code = e.getCode();  
 							if(code == KeyCode.ENTER){  
 								FadeTransition ft = new FadeTransition(Duration.millis(250), help);    //fade out
-								ft.setFromValue(1.0);
+								ft.setFromValue(0.8);
 								ft.setToValue(0);
 								ft.play();
-
+								help.setVisible(false);
 								displayHelp = false;
 
 							}  
@@ -471,7 +467,7 @@ public class TickerUI extends Application {
 
 	}
 
-	private String getHelp() {
+	/*private String getHelp() {
 		String helpList = "";
 		helpList += "HELP FOR USING TICKER\n";
 		helpList += "-to add a task: add \"<task name>\" -st <start time> -sd <start date in dd/mm/yy format> "
@@ -487,7 +483,7 @@ public class TickerUI extends Application {
 		helpList += "-to mark a task as done: tick <index of task>\n";
 		helpList += "-to mark a task as cannot be done: cmi <index of task>\n";
 		return helpList;
-	}
+	}*/
 
 	private void displayTasks() {
 		int prefHeight = 30;
@@ -499,7 +495,7 @@ public class TickerUI extends Application {
 		int additionalHeight = 14;
 		int d = 0;                          //a way to correct the numbering when listing out search results
 
-		Font header = new Font("Britannic Bold", 15);
+		Font header = new Font("Roboto-Medium", 12);
 		/*if(currentView == KEY_SORTED_TIME) {
 			Label today = new Label();
 			today.setText("   Today's Todo List: ");
@@ -547,6 +543,7 @@ public class TickerUI extends Application {
 			description.setPrefSize(widthDes, maxHeight);
 			description.setWrapText(true);
 			description.setAlignment(Pos.CENTER_LEFT);
+			description.setFont(header);
 
 			Date sd = tasksToBeShown.get(i).getStartDate();
 			Date ed = tasksToBeShown.get(i).getEndDate();
@@ -559,6 +556,16 @@ public class TickerUI extends Application {
 			ED = (ed==null)? "" : ed.toString();
 			ST = (st==null)? "" : st.toString();
 			ET = (et==null)? "" : et.toString();
+			
+			Label start = new Label("Start: " + ST + " " + SD);
+			Label end = new Label("End: " + ET + " " + ED);
+			
+			if(tasksToBeShown.get(i).isExpired) {                            //mark tasks as red to show expired
+				index.setTextFill(Color.RED);
+				description.setTextFill(Color.RED);
+				start.setTextFill(Color.RED);
+				end.setTextFill(Color.RED);
+			}
 
 
 			if((newTask.equals("\\***TICKED***\\")) ) {
@@ -577,47 +584,27 @@ public class TickerUI extends Application {
 			else {
 
 				if(sd==null && st==null && ed==null && et==null) {
-					//if(tasksToBeShown.get(i).isExpired) {
-					//	imv9.setVisible(true);
-					//}
 					hb.getChildren().addAll(index, priority, description);
 					chart.getChildren().add(hb);
 				}
 				else if (ed==null && et==null) {
-					Label start = new Label("Start: " + ST + " " + SD);
 					start.setMaxSize(widthTime, prefHeight);
 					start.setAlignment(Pos.CENTER_LEFT);
-					//if(tasksToBeShown.get(i).isExpired) {
-						//imv9.setVisible(true);
-					//}
-
 					hb.getChildren().addAll(index, priority, description, start);
 					chart.getChildren().add(hb);
 				}
 				else if (sd==null && st==null) {
-					Label end = new Label("End:  " + ET + " " + ED);
 					end.setMaxSize(widthTime, prefHeight);
 					end.setAlignment(Pos.CENTER_LEFT);
-					//if(tasksToBeShown.get(i).isExpired) {
-						//imv9.setVisible(true);
-					//}
 					hb.getChildren().addAll(index, priority, description, end);
 					chart.getChildren().add(hb);
 				}
 				else {
-					Label start = new Label("Start: " + ST + " " + SD);
-
-					Label end = new Label("End:  " + ET + " " + ED);
-
 					VBox time = new VBox(5);
 					time.getChildren().add(start);
 					time.getChildren().add(end);
 					time.setPrefSize(widthTime, prefHeight);
 					time.setAlignment(Pos.CENTER_LEFT);
-					//if(tasksToBeShown.get(i).isExpired) {
-						//imv9.setVisible(true);
-					//}
-
 					hb.getChildren().addAll(index, priority, description, time);
 					chart.getChildren().add(hb);
 				}
@@ -1024,5 +1011,3 @@ public class TickerUI extends Application {
 	}
 
 }
-//TODO fix the bug of help
-
