@@ -77,6 +77,7 @@ public class TickerUI extends Application {
 	private int nextView = KEY_SORTED_TIME;
 
 	private static final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+	private static final String[] daysOfWeek = {"","Mon","Tues","Wed","Thur","Fri","Sat","Sun"};
 
 	Calendar c;
 
@@ -531,7 +532,6 @@ public class TickerUI extends Application {
 			//task description
 			String newTask = tasksToBeShown.get(i).getDescription();
 
-
 			int length = newTask.length();
 			maxHeight = prefHeight;
 			maxHeight += (length/avgCharNum)*additionalHeight;              //adjust the maxHeight accordingly
@@ -553,13 +553,10 @@ public class TickerUI extends Application {
 			ST = (st==null)? "" : st.toString();
 			ET = (et==null)? "" : et.toString();
 
-
 			Label start = new Label();
 			Label end = new Label();
-			//start.setFont(content);
-			//end.setFont(content);
 
-			if(tasksToBeShown.get(i).isExpired) {                            //mark tasks as red to show expired
+			if(tasksToBeShown.get(i).isExpired) { //getIsExpired()) {                            //mark tasks as red to show expired
 				index.setTextFill(Color.RED);
 				description.setTextFill(Color.RED);
 				start.setTextFill(Color.RED);
@@ -585,6 +582,41 @@ public class TickerUI extends Application {
 				cmi.setAlignment(Pos.BOTTOM_LEFT);
 				cmi.setFont(heading);
 				chart.getChildren().add(cmi);
+			}
+			else if(tasksToBeShown.get(i).getRepeat()) {
+				switch(tasksToBeShown.get(i).getRepeatingInterval()) {
+				case DAY:
+					Label daily = new Label("everyday " + ST + " to " + ET);
+					hb.getChildren().addAll(index, priority, description, daily);
+					chart.getChildren().add(hb);
+					break;
+				case WEEK:
+					String dayInWeek = (SD=="")? daysOfWeek[Date.dayOfWeek(ed)]: daysOfWeek[Date.dayOfWeek(sd)];
+					Label weekly = new Label("every " + dayInWeek + " " + ST + " to " + ET);
+					hb.getChildren().addAll(index, priority, description, weekly);
+					chart.getChildren().add(hb);
+					break;
+				case MONTH:
+					int date = (SD=="")? ed.getDate() : sd.getDate();
+					String suffix = new String();
+					if(date%10==1 && date!=11) {
+						suffix = "st";
+					}
+					else if(date%10==2 && date!=12) {
+						suffix = "nd";
+					}
+					else if(date%10==3 && date!=13) {
+						suffix = "rd";
+					}
+					else {
+						suffix = "th";
+					}
+					String dayInMonth = String.valueOf(date) + suffix;
+					Label monthly = new Label(ST + " to " + ET + ", " + dayInMonth + " day of every month");
+					hb.getChildren().addAll(index, priority, description, monthly);
+					chart.getChildren().add(hb);
+					break;
+				}
 			}
 			else {
 				if(sd==null && st==null && ed==null && et==null) {
