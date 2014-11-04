@@ -1,6 +1,11 @@
 package ticker.common;
 
 public class Task {
+	
+	public enum RepeatingInterval {
+		DAY,WEEK,MONTH;
+	};
+	
 	protected String description;
 	protected Date startDate;
 	protected Time startTime;
@@ -9,6 +14,7 @@ public class Task {
 	protected char priority;
 	protected boolean isRepeating;
 	protected boolean isExpired;
+	protected RepeatingInterval repeatingInterval;
 
 	public Task(String description, Date startDate, Time startTime, Date endDate, Time endTime, 
 			char priority, boolean isRepeating) {
@@ -90,6 +96,14 @@ public class Task {
 	
 	public void isExpired() {
 		isExpired = false;
+	}
+	
+	public void setRepeatingInterval(RepeatingInterval ri) {
+		this.repeatingInterval = ri;
+	}
+	
+	public RepeatingInterval getRepeatingInterval() {
+		return this.repeatingInterval;
 	}
 
 	public boolean equals(Object obj) {

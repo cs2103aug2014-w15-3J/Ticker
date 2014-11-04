@@ -1,6 +1,7 @@
 package ticker.parser;
 import ticker.common.Date;
 import ticker.common.Time;
+import ticker.common.Task.RepeatingInterval;
 
 public class UserInput {
 	
@@ -13,10 +14,10 @@ public class UserInput {
 	private boolean isRepeating;
 	private int index;
 	private char priority;
+	protected RepeatingInterval repeatingInterval;
 	
 	// TODO: instantiate UserInput()
 	public UserInput(){
-		
 	}
 	
 	public UserInput(CMD cmd,String description){
@@ -135,6 +136,14 @@ public class UserInput {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public void setRepeatingInterval(RepeatingInterval ri) {
+		this.repeatingInterval = ri;
+	}
+	
+	public RepeatingInterval getRepeatingInterval() {
+		return this.repeatingInterval;
 	}
 
 }
