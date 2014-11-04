@@ -71,4 +71,7 @@ public class Time {
 		Calendar cal = Calendar.getInstance();
 		return new Time(cal.get(Calendar.HOUR_OF_DAY),cal.get(Calendar.MINUTE));
 	}
+	public boolean smallerThan(Time other) {
+		return this.compareTo(other)<0;
+	}
 }
