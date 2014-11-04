@@ -43,6 +43,7 @@ public class TickerUI extends Application {
 	private Vector <Task> tasksToBeShown = new Vector<Task>();
 	//private String commandList = getHelp();
 	private boolean displayHelp = false;
+	private boolean isSearchResult = false;
 	double initialX, initialY;
 
 	Scene scene;
@@ -53,6 +54,9 @@ public class TickerUI extends Application {
 	VBox chart = new VBox();
 	ImageView help;
 	Image helpPage;
+	
+	Font content = new Font("Arial Rounded MT Bold", 13);
+	Font heading = new Font("Britannic Bold", 14);
 
 	//GridPane chart = new GridPane();
 	TextField command;
@@ -488,19 +492,11 @@ public class TickerUI extends Application {
 		int widthIndex = 18;
 		int widthDes = 240;
 		int widthTime = 140;
-		int avgCharNum = 40;
+		int avgCharNum = 35;
 		int additionalHeight = 14;
 		int d = 0;                          //a way to correct the numbering when listing out search results
 
 		//System.out.println(Font.getFontNames().toString());
-		Font content = new Font("Arial Rounded MT Bold", 12);
-		Font header = new Font("AdobeHeitiStd-Bold", 12);
-		/*if(currentView == KEY_SORTED_TIME) {
-			Label today = new Label();
-			today.setText("   Today's Todo List: ");
-			today.setFont(header);
-			chart.getChildren().add(today);
-		}*/
 
 		for(int i = 0; i < tasksToBeShown.size(); i++ ) {
 
@@ -512,7 +508,7 @@ public class TickerUI extends Application {
 			Label index = new Label(""+(i+1-d)+".");
 			index.setPrefSize(widthIndex, prefHeight);
 			index.setAlignment(Pos.CENTER_RIGHT);
-			index.setFont(content);
+			//index.setFont(content);
 
 			//priority
 			ImageView priority = new ImageView();
@@ -560,8 +556,8 @@ public class TickerUI extends Application {
 
 			Label start = new Label();
 			Label end = new Label();
-			start.setFont(content);
-			end.setFont(content);
+			//start.setFont(content);
+			//end.setFont(content);
 
 			if(tasksToBeShown.get(i).isExpired) {                            //mark tasks as red to show expired
 				index.setTextFill(Color.RED);
@@ -572,19 +568,23 @@ public class TickerUI extends Application {
 
 
 			if((newTask.equals("\\***TICKED***\\")) ) {
+				isSearchResult = true;
 				d++;
-				Label ticked = new Label("     search results from the Ticked section");
-
-				//ticked.setFont(header);
-				hb.getChildren().add(ticked);
-				chart.getChildren().add(hb);
+				Label ticked = new Label("   Search results from the Ticked section:");
+				ticked.setPrefHeight(35);
+				ticked.setAlignment(Pos.BOTTOM_LEFT);
+				ticked.setFont(heading);
+				//ticked.setVisible(false);
+				chart.getChildren().add(ticked);
 
 			}
 			else if (newTask.equals("\\***CMI***\\")) {
 				d++;
-				Label cmi = new Label("     search results from the CMI section");
-				hb.getChildren().add(cmi);
-				chart.getChildren().add(hb);
+				Label cmi = new Label("   Search results from the CMI section:");
+				cmi.setPrefHeight(35);
+				cmi.setAlignment(Pos.BOTTOM_LEFT);
+				cmi.setFont(heading);
+				chart.getChildren().add(cmi);
 			}
 			else {
 				if(sd==null && st==null && ed==null && et==null) {
@@ -592,6 +592,7 @@ public class TickerUI extends Application {
 					chart.getChildren().add(hb);
 				}
 				else if (ed==null && et==null) {
+					description.setFont(content);
 					start.setMaxSize(widthTime, prefHeight);
 					start.setAlignment(Pos.CENTER_LEFT);
 					start.setText(ST + ", " + SD + " onwards");
@@ -618,6 +619,14 @@ public class TickerUI extends Application {
 				}
 
 			}
+			if(isSearchResult == true) {
+				Label numResult = new Label("   There are "+ (tasksToBeShown.size()-2) + " result(s) found");
+				numResult.setPrefHeight(40);
+				numResult.setAlignment(Pos.BOTTOM_LEFT);
+				numResult.setFont(heading);
+				chart.getChildren().add(0, numResult);
+			}
+			isSearchResult = false;
 		}
 
 
