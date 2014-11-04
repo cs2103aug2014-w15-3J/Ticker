@@ -10,14 +10,14 @@ public class UndoManager {
 	private static final String COMMAND_DELETE = "delete";
 	private static final String COMMAND_EDIT = "edit";
 	private static final String COMMAND_TICK = "tick";
-	private static final String COMMAND_CMI = "cmi";
-	private static final String COMMAND_UNCMI = "uncmi";
+	private static final String COMMAND_KIV = "kiv";
+	private static final String COMMAND_UNKIV = "unkiv";
 	private static final String COMMAND_UNTICK = "untick";
 	
 	private static final String LIST_TIME = "time";
 	private static final String LIST_PRIORITY = "priority";
 	private static final String LIST_TICKED = "ticked";
-	private static final String LIST_CMI = "cmi";
+	private static final String LIST_KIV = "kiv";
 	
 	private static final String FEEDBACK_SUCCESSFUL_UNDO = "Undoing action";
 	private static final String FEEDBACK_SUCCESSFUL_REDO = "Redoing action";
@@ -26,15 +26,15 @@ public class UndoManager {
 	
 	private static UndoManager theOne;
 	private Stack<Event> undoStack, redoStack;
-	private Vector<Task> storedTasksByPriority, storedTasksByDeadline, storedTasksByTicked, storedTasksByCMI;
+	private Vector<Task> storedTasksByPriority, storedTasksByDeadline, storedTasksByTicked, storedTasksByKIV;
 	
-	private UndoManager(Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByDeadline, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
+	private UndoManager(Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByDeadline, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKIV) {
 		undoStack = new Stack<Event>();
 		redoStack = new Stack<Event>();
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByDeadline = storedTasksByDeadline;
 		this.storedTasksByTicked = storedTasksByTicked;
-		this.storedTasksByCMI = storedTasksByCMI;
+		this.storedTasksByKIV = storedTasksByKIV;
 	}
 	
 	public String undo() {
@@ -65,10 +65,10 @@ public class UndoManager {
 						storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
 					} else if (previousAction.getListTypeBefore().equals(LIST_TICKED)) {
 						storedTasksByTicked.add(previousAction.getIndexBefore(), previousAction.getTaskBeforeEdit());
-					} else if (previousAction.getListTypeBefore().equals(LIST_CMI)) {
-						storedTasksByCMI.add(previousAction.getIndexBefore(), previousAction.getTaskBeforeEdit());
+					} else if (previousAction.getListTypeBefore().equals(LIST_KIV)) {
+						storedTasksByKIV.add(previousAction.getIndexBefore(), previousAction.getTaskBeforeEdit());
 					} else {
-						throw new IllegalArgumentException("The tasks must be TIME, TICKED, PRIORITY or CMI");
+						throw new IllegalArgumentException("The tasks must be TIME, TICKED, PRIORITY or KIV");
 					}
 					return FEEDBACK_SUCCESSFUL_UNDO;
 				case COMMAND_TICK:
@@ -89,21 +89,21 @@ public class UndoManager {
 						throw new IllegalArgumentException("The tasks must be TIME, PRIORITY OR TICKED");
 					}
 					return FEEDBACK_SUCCESSFUL_UNDO;
-				case COMMAND_CMI:
-				case COMMAND_UNCMI:
+				case COMMAND_KIV:
+				case COMMAND_UNKIV:
 					//TODO:refactor
 					assert previousAction.getListTypeBefore() != null && previousAction.getTaskBeforeEdit() != null;
 					
 					if(previousAction.getListTypeBefore().equals(LIST_TIME) || previousAction.getListTypeBefore().equals(LIST_PRIORITY)) {
-						storedTasksByCMI.remove(previousAction.getTaskBeforeEdit());
+						storedTasksByKIV.remove(previousAction.getTaskBeforeEdit());
 						storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
 						storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
-					} else if(previousAction.getListTypeBefore().equals(LIST_CMI)) {
-						storedTasksByCMI.add(previousAction.getTaskBeforeEdit());
+					} else if(previousAction.getListTypeBefore().equals(LIST_KIV)) {
+						storedTasksByKIV.add(previousAction.getTaskBeforeEdit());
 						storedTasksByPriority.remove(previousAction.getTaskBeforeEdit());
 						storedTasksByDeadline.remove(previousAction.getTaskBeforeEdit());
 					} else {
-						throw new IllegalArgumentException("The tasks must be TIME, PRIORITY or CMI");
+						throw new IllegalArgumentException("The tasks must be TIME, PRIORITY or KIV");
 					}
 					return FEEDBACK_SUCCESSFUL_UNDO;
 			}
@@ -140,10 +140,10 @@ public class UndoManager {
 					storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
 				} else if (nextAction.getListTypeBefore().equals(LIST_TICKED)) {
 					storedTasksByTicked.remove(nextAction.getTaskBeforeEdit());
-				} else if (nextAction.getListTypeBefore().equals(LIST_CMI)) {
-					storedTasksByCMI.remove(nextAction.getTaskBeforeEdit());
+				} else if (nextAction.getListTypeBefore().equals(LIST_KIV)) {
+					storedTasksByKIV.remove(nextAction.getTaskBeforeEdit());
 				} else {
-					throw new IllegalArgumentException("The tasks must be TIME, PRIORITY, TICKED OR CMI");
+					throw new IllegalArgumentException("The tasks must be TIME, PRIORITY, TICKED OR KIV");
 				}
 				return FEEDBACK_SUCCESSFUL_REDO;
 			case COMMAND_TICK:
@@ -163,21 +163,21 @@ public class UndoManager {
 					throw new IllegalArgumentException("The tasks must be TIME, PRIORITY or TICKED");
 				}
 				return FEEDBACK_SUCCESSFUL_REDO;
-			case COMMAND_CMI:
-			case COMMAND_UNCMI:
+			case COMMAND_KIV:
+			case COMMAND_UNKIV:
 				//TODO:refactor
 				assert nextAction.getTaskBeforeEdit() != null && nextAction.getListTypeBefore() != null;
 				
 				if(nextAction.getListTypeBefore().equals(LIST_TIME) || nextAction.getListTypeBefore().equals(LIST_PRIORITY)) {
-					storedTasksByCMI.add(nextAction.getTaskBeforeEdit());
+					storedTasksByKIV.add(nextAction.getTaskBeforeEdit());
 					storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
 					storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
-				} else if(nextAction.getListTypeBefore().equals(LIST_CMI)) {
-					storedTasksByCMI.remove(nextAction.getTaskBeforeEdit());
+				} else if(nextAction.getListTypeBefore().equals(LIST_KIV)) {
+					storedTasksByKIV.remove(nextAction.getTaskBeforeEdit());
 					storedTasksByPriority.add(nextAction.getTaskBeforeEdit());
 					storedTasksByDeadline.add(nextAction.getTaskBeforeEdit());
 				} else {
-					throw new IllegalArgumentException("The tasks must be TIME, PRIORITY or CMI");
+					throw new IllegalArgumentException("The tasks must be TIME, PRIORITY or KIV");
 				}
 				return FEEDBACK_SUCCESSFUL_REDO;
 			}
@@ -192,9 +192,9 @@ public class UndoManager {
 	}
 	
 	//Singleton
-	public static UndoManager getInstance(Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByDeadline, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
+	public static UndoManager getInstance(Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByDeadline, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKIV) {
 		if(theOne == null) {
-			theOne = new UndoManager(storedTasksByPriority, storedTasksByDeadline, storedTasksByTicked, storedTasksByCMI);
+			theOne = new UndoManager(storedTasksByPriority, storedTasksByDeadline, storedTasksByTicked, storedTasksByKIV);
 		}
 		return theOne;
 	}

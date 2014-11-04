@@ -64,6 +64,10 @@ public class Task {
 	public boolean getRepeat() {
 		return isRepeating;
 	}
+	
+	public boolean getIsExpired() {
+		return isExpired;
+	}
 
 	// Setters
 	public void setDescription(String input) {

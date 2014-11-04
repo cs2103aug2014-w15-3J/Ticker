@@ -13,7 +13,7 @@ public class TimedTask extends Task {
 	}
 	
 	public void isExpired() {
-		if (this.endDate != null && this.endTime != null && this.endDate.compareTo(Date.getCurrentDate()) == 1 && this.endTime.compareTo(Time.getCurrentTime()) == 1) {
+		if (this.endDate != null && this.endTime != null && this.endDate.compareTo(Date.getCurrentDate()) == -1 && this.endTime.compareTo(Time.getCurrentTime()) == -1) {
 			this.isExpired = true;
 			return;
 		}

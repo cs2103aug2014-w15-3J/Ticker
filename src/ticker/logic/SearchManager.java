@@ -1,3 +1,16 @@
+/* Team ID: W15-3J
+ * Name: Li Jia'En, Nicholette
+ * Matric Number: A0114535M
+ * Project Title: CE1 TextBuddy
+ * Purpose: This class receives text commands from the user and edits a textfile. 
+ * The commands are for add, display, delete, clear and exit.
+ * Assumptions: 
+ * This program assumes that:
+ * -the user knows the format for each command
+ * -the user input lines in the textfile is not numbered.
+ * -(option c) the file is saved to disk when the user exit the program
+ */
+
 package ticker.logic;
 
 // Package Common
@@ -35,21 +48,41 @@ public class SearchManager {
 	Vector<StringMatch> matchList;
 	private Vector<Task> storedTasksByTime;
 	private Vector<Task> storedTasksByTicked; // not sorted
-	private Vector<Task> storedTasksByCMI; // not sorted
+	private Vector<Task> storedTasksByKIV; // not sorted
 	private static Vector<Task> searchResultsTime;
 	private static Vector<Task> searchResultsTicked;
-	private static Vector<Task> searchResultsCMI;
+	private static Vector<Task> searchResultsKIV;
 	private static Vector<Task> searchResults;
 	String key; 
-
-	public SearchManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
+	public SearchManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKIV) {
 		this.storedTasksByTime = storedTasksByTime;
 		this.storedTasksByTicked = storedTasksByTicked;
-		this.storedTasksByCMI = storedTasksByCMI;
+		this.storedTasksByKIV = storedTasksByKIV;
 		
 		searchResults = new Vector<Task>();
 	}
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	public Vector<Task> search(String key, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
 			char priority) {
 		matchList = new Vector<StringMatch>();
@@ -57,20 +90,20 @@ public class SearchManager {
 		
 		searchResultsTime = storedTasksByTime;
 		searchResultsTicked = storedTasksByTicked;
-		searchResultsCMI = storedTasksByCMI;
+		searchResultsKIV = storedTasksByKIV;
 
 		// Search by Key only
 		if (key != null && key.length() != 0) {
 			searchResultsTime = searchByKey(key, storedTasksByTime);
 			searchResultsTicked = searchByKey(key, storedTasksByTicked);
-			searchResultsCMI = searchByKey(key, storedTasksByCMI);
+			searchResultsKIV = searchByKey(key, storedTasksByKIV);
 		}
 		//TODO: implement isRepeat Search
 		// Search by priority
 		if (priority != '\u0000' && (priority == 'A' || priority == 'B' || priority == 'C')) {
 			searchResultsTime = searchByPriority(priority, storedTasksByTime);
 			searchResultsTicked = searchByPriority(priority, storedTasksByTicked);
-			searchResultsCMI = searchByPriority(priority, storedTasksByCMI);
+			searchResultsKIV = searchByPriority(priority, storedTasksByKIV);
 		}
 		
 		// Search for date and time assumes that there will be a date that is passed with the time
@@ -79,12 +112,12 @@ public class SearchManager {
 			if (startTime != null) {
 				searchResultsTime = searchByStartDateAndTime(startDate, startTime, searchResultsTime);
 				searchResultsTicked = searchByStartDateAndTime(startDate, startTime, searchResultsTicked);
-				searchResultsCMI = searchByStartDateAndTime(startDate, startTime, searchResultsCMI);
+				searchResultsKIV = searchByStartDateAndTime(startDate, startTime, searchResultsKIV);
 			}
 			else if (startTime == null) {
 				searchResultsTime = searchByStartDate(startDate, searchResultsTime);
 				searchResultsTicked = searchByStartDate(startDate, searchResultsTicked);
-				searchResultsCMI = searchByStartDate(startDate, searchResultsCMI);
+				searchResultsKIV = searchByStartDate(startDate, searchResultsKIV);
 			}
 			
 		}
@@ -94,12 +127,12 @@ public class SearchManager {
 			if (endTime != null) {
 				searchResultsTime = searchByEndDateAndTime(endDate, endTime, searchResultsTime);
 				searchResultsTicked = searchByEndDateAndTime(endDate, endTime, searchResultsTicked);
-				searchResultsCMI = searchByEndDateAndTime(endDate, endTime, searchResultsCMI);
+				searchResultsKIV = searchByEndDateAndTime(endDate, endTime, searchResultsKIV);
 			}
 			else if (endTime == null) {
 				searchResultsTime = searchByEndDate(endDate, searchResultsTime);
 				searchResultsTicked = searchByEndDate(endDate, searchResultsTicked);
-				searchResultsCMI = searchByEndDate(endDate, searchResultsCMI);
+				searchResultsKIV = searchByEndDate(endDate, searchResultsKIV);
 			}
 		}
 
@@ -113,10 +146,10 @@ public class SearchManager {
 			searchResults.add(searchTicked);
 		}
 
-		searchResults.add(new Task("\\***CMI***\\", null, null, null, null, 'B', false));
+		searchResults.add(new Task("\\***KIV***\\", null, null, null, null, 'B', false));
 
-		for (Task searchCMI: searchResultsCMI) {
-			searchResults.add(searchCMI);
+		for (Task searchKIV: searchResultsKIV) {
+			searchResults.add(searchKIV);
 		}
 
 		return searchResults;
@@ -124,9 +157,14 @@ public class SearchManager {
 	}
 
 	/**
-	 * @param key
-	 * @param taskList
-	 * @return
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
 	 */
 	private Vector<Task> searchByKey(String key, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
@@ -150,7 +188,17 @@ public class SearchManager {
 		}
 		return temp;
 	}
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	private Vector<Task> searchByPriority(char priority, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
 
@@ -161,7 +209,17 @@ public class SearchManager {
 		}
 		return temp;
 	}
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	private Vector<Task> searchByStartDateAndTime(Date startDate, Time startTime, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
 
@@ -186,7 +244,17 @@ public class SearchManager {
 		}
 		return temp;
 	}
-	
+		
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	private Vector<Task> searchByStartDate(Date startDate, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
 
@@ -202,6 +270,16 @@ public class SearchManager {
 		return temp;
 	}
 	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	private Vector<Task> searchByEndDateAndTime(Date endDate, Time endTime, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
 
@@ -231,6 +309,16 @@ public class SearchManager {
 		return temp;
 	}
 	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	private Vector<Task> searchByEndDate(Date endDate, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
 
@@ -245,7 +333,17 @@ public class SearchManager {
 		}
 		return temp;
 	}
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	private static float getMatchLikelyhood(final String str1, final String str2) {
 		AbstractStringMetric metric;
 		float avg = 0F, result = 0F;
