@@ -16,10 +16,10 @@ public class TickCMIManager {
 	private static final int KEY_CMI = 4;
 	private static final int KEY_SEARCH = 5;
 	// String constants for type of lists used by UndoManager
-	private static final String TASKS_TIME = "TIME";
-	private static final String TASKS_TICKED = "TICKED";
-	private static final String TASKS_CMI = "CMI";
-	private static final String TASKS_SEARCH = "SEARCH";
+	private static final String LIST_TIME = "time";
+	private static final String LIST_TICKED = "ticked";
+	private static final String LIST_CMI = "cmi";
+	private static final String LIST_SEARCH = "search";
 
 	// Instances of other components
 	private UndoManager undoMng;
@@ -64,7 +64,7 @@ public class TickCMIManager {
 		storedTasksByPriority.remove(ticked);
 		storedTasksByTicked.add(0, ticked);
 
-		Event event = new Event(COMMAND_TICK, ticked, TASKS_TIME, TASKS_TICKED);
+		Event event = new Event(COMMAND_TICK, ticked, LIST_TIME, LIST_TICKED);
 		undoMng.add(event);
 
 		return ticked.toString() + " is done!";
@@ -97,7 +97,7 @@ public class TickCMIManager {
 		storedTasksByTime.add(unticked);
 		storedTasksByPriority.add(unticked);
 
-		Event event = new Event(COMMAND_UNTICK, unticked, TASKS_TIME, TASKS_TICKED);
+		Event event = new Event(COMMAND_UNTICK, unticked, LIST_TIME, LIST_TICKED);
 		undoMng.add(event);
 
 		return unticked.toString() + " is back to undone.";
@@ -140,7 +140,7 @@ public class TickCMIManager {
 		storedTasksByTime.remove(cmi);
 		storedTasksByPriority.remove(cmi);
 
-		Event event = new Event(COMMAND_CMI, cmi, TASKS_TIME, TASKS_CMI);
+		Event event = new Event(COMMAND_CMI, cmi, LIST_TIME, LIST_CMI);
 		undoMng.add(event);
 
 		return cmi.toString() + " will be kept in view.";
@@ -176,10 +176,10 @@ public class TickCMIManager {
 		storedTasksByTime.add(uncmi);
 		storedTasksByPriority.add(uncmi);
 
-		Event event = new Event(COMMAND_UNCMI, uncmi, TASKS_TIME, TASKS_CMI);
+		Event event = new Event(COMMAND_UNCMI, uncmi, LIST_TIME, LIST_CMI);
 		undoMng.add(event);
 
-		return uncmi.toString() + "is back to undone!";
+		return uncmi.toString() + " is back to undone.";
 
 	}
 }

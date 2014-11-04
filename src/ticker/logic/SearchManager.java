@@ -72,7 +72,8 @@ public class SearchManager {
 			searchResultsTicked = searchByPriority(priority, storedTasksByTicked);
 			searchResultsCMI = searchByPriority(priority, storedTasksByCMI);
 		}
-
+		
+		// Search for date and time assumes that there will be a date that is passed with the time
 		// Search by start date and start time
 		if (startDate != null) {
 			if (startTime != null) {

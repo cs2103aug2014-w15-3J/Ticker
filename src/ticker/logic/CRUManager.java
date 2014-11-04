@@ -35,7 +35,7 @@ public class CRUManager {
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTime = storedTasksByTime;
 		this.storedTasksByTicked = storedTasksByTicked;
-		this.storedTasksByCMI = storedTasksByTicked;
+		this.storedTasksByCMI = storedTasksByCMI;
 
 		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByCMI);
 	}
@@ -100,10 +100,9 @@ public class CRUManager {
 			undoMng.add(event);
 		}
 
-		return deleted.toString() + " has been removed.\n";
-
-
+		return deleted.getDescription() + " has been removed.";
 	}
+
 	String add(String description, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
 			char priority) throws IllegalArgumentException {
 
@@ -143,16 +142,37 @@ public class CRUManager {
 			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
 		}
 
-		addBackRemovedTask(newTask);
+		addTaskIntoUndone(newTask);
 
 		Event event = new Event(COMMAND_ADD, newTask);
 		undoMng.add(event);
 
 
-		return description + " has been added.\n";
+		return description + " has been added.";
 	}
 
-	String edit(int index, boolean isAppending, String description,boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
+	// Resetting repeated task will make it a timedTask
+	Task remakeTask(Task task) throws IllegalArgumentException {
+		String description = task.getDescription();
+		boolean isRepeating = false;
+		Date startDate = task.getStartDate();
+		Date endDate = task.getEndDate();
+		Time startTime = task.getStartTime();
+		Time endTime = task.getEndTime();
+		char priority = task.getPriority();
+
+		if (description == null || description.equals("")) {
+			throw new IllegalArgumentException();
+		}
+
+		Task newTask;
+
+		newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
+
+		return newTask;
+	}
+
+	String edit(int index, String description,boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
 			char priority, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException{
 		Task oldTask;
 		Task newTask;
@@ -185,26 +205,11 @@ public class CRUManager {
 			storedTasksByTime.remove(oldTask);
 		}
 
-		// Edits task description by adding words behind
-		if (isAppending) {
-			String taskName = oldTask.getDescription();
-			taskName += " " + description;
-			newTask.setDescription(taskName);
-
-			current.add(index - 1, newTask);
-			if (listTracker == KEY_SORTED_TIME ) {
-				storedTasksByPriority.add(newTask);
-			}
-			else if (listTracker == KEY_SORTED_PRIORITY) {
-				storedTasksByTime.add(newTask);
-			}
-		}
 		// Edit description of task
-		else if (description != null && !description.equals("")) {
+		if (description != null && !description.equals("")) {
 			newTask.setDescription(description);
 		}
 
-		newTask.setRepeat(isRepeating);
 		// Edit startDate only
 		if (startDate != null && endDate == null) {
 			// Edited task can update startDate without worrying of endDate being earlier than startDate
@@ -214,7 +219,7 @@ public class CRUManager {
 			else {
 				// Error: Edited task will end up with earlier endDate than startDate
 				if (newTask.getEndDate().compareTo(startDate) == -1) {
-					addBackRemovedTask(oldTask);
+					addTaskIntoUndone(oldTask);
 					return "Invalid edit on starting date";
 				}
 				newTask.setStartDate(startDate);
@@ -229,17 +234,17 @@ public class CRUManager {
 			else {
 				// Error: Edited task will end up with earlier endDate than startDate
 				if (newTask.getStartDate().compareTo(endDate) == 1) {
-					addBackRemovedTask(oldTask);
+					addTaskIntoUndone(oldTask);
 					return "Invalid edit on ending date";
 				}
-				newTask.setStartDate(endDate);
+				newTask.setEndDate(endDate);
 			}
 		}
 		// Edit startDate and endDate
 		if (startDate != null && endDate != null) {
 			// Error: endDate is earlier than startDate
 			if (startDate.compareTo(endDate) == 1) {
-				addBackRemovedTask(oldTask);
+				addTaskIntoUndone(oldTask);
 				return "Invalid edit on dates";
 			}
 			else {
@@ -257,7 +262,7 @@ public class CRUManager {
 			else {
 				// Error: Edited task will end up with earlier endTime than startTime
 				if (newTask.getEndTime().compareTo(startTime) == -1) {
-					addBackRemovedTask(oldTask);
+					addTaskIntoUndone(oldTask);
 					return "Invalid edit on starting time";
 				}
 				newTask.setStartTime(startTime);
@@ -272,17 +277,17 @@ public class CRUManager {
 			else {
 				// Error: Edited task will end up with earlier endTime than startTime
 				if (newTask.getStartTime().compareTo(endTime) == 1) {
-					addBackRemovedTask(oldTask);
+					addTaskIntoUndone(oldTask);
 					return "Invalid edit on ending time";
 				}
-				newTask.setStartTime(endTime);
+				newTask.setEndTime(endTime);
 			}
 		}
 		// Edit startTime and endTime
 		if (startTime != null && endTime != null) {
 			// Error: endTime is earlier than startTime
 			if (startTime.compareTo(endTime) == 1) {
-				addBackRemovedTask(oldTask);
+				addTaskIntoUndone(oldTask);
 				return "Invalid edit on both timings";
 			}
 			else {
@@ -290,13 +295,36 @@ public class CRUManager {
 				newTask.setEndTime(endTime);
 			}
 		}
-		
+
+		// Edit priority
 		if (priority != '\u0000') {
 			newTask.setPriority(priority);
 		}
 
+		// Edit repeating
+		if (isRepeating) {
+			// Add repeat to the task
+			if (newTask.getRepeat() == false) {
+				if (newTask.getStartDate() != null) {
+					newTask = new RepeatingTask(newTask.getDescription(), newTask.getStartDate(), newTask.getStartTime(), newTask.getEndTime(), newTask.getPriority(), true);
+				}
+				else if (newTask.getEndDate() != null) {
+					newTask = new RepeatingTask(newTask.getDescription(), newTask.getEndDate(), newTask.getStartTime(), newTask.getEndTime(), newTask.getPriority(), true);
+				}
+				else {
+					addTaskIntoUndone(oldTask);
+					return "Invalid edit to repeated task. Missing date";
+				}
+			}
+			// Remove repeat from the task
+			else if (newTask.getRepeat() == true) {
+				newTask = remakeTask(newTask);
+			}
+		}	
+
+		// Add newTask back
 		if (listTracker == KEY_SEARCH) {
-			addBackRemovedTask(newTask);
+			addTaskIntoUndone(newTask);
 		}
 		else {
 			current.add(index - 1, newTask);
@@ -315,7 +343,7 @@ public class CRUManager {
 	/**
 	 * @param oldTask
 	 */
-	private void addBackRemovedTask(Task oldTask) {
+	private void addTaskIntoUndone(Task oldTask) {
 		storedTasksByTime.add(oldTask);
 		storedTasksByPriority.add(oldTask);
 	}

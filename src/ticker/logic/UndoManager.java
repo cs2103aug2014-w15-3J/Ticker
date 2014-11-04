@@ -14,9 +14,10 @@ public class UndoManager {
 	private static final String COMMAND_UNCMI = "uncmi";
 	private static final String COMMAND_UNTICK = "untick";
 	
-	private static final String TASKS_TIME = "TIME";
-	private static final String TASKS_TICKED = "TICKED";
-	private static final String TASKS_CMI = "CMI";
+	private static final String LIST_TIME = "time";
+	private static final String LIST_PRIORITY = "priority";
+	private static final String LIST_TICKED = "ticked";
+	private static final String LIST_CMI = "cmi";
 	
 	private static final String FEEDBACK_SUCCESSFUL_UNDO = "Undoing action";
 	private static final String FEEDBACK_SUCCESSFUL_REDO = "Redoing action";
@@ -59,15 +60,15 @@ public class UndoManager {
 				case COMMAND_DELETE:
 					assert previousAction.getTaskBeforeEdit() != null && previousAction.getListTypeBefore() != null;
 					
-					if(previousAction.getListTypeBefore().equals(TASKS_TIME)) {
+					if(previousAction.getListTypeBefore().equals(LIST_TIME) || previousAction.getListTypeBefore().equals(LIST_PRIORITY)) {
 						storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
 						storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
-					} else if (previousAction.getListTypeBefore().equals(TASKS_TICKED)) {
+					} else if (previousAction.getListTypeBefore().equals(LIST_TICKED)) {
 						storedTasksByTicked.add(previousAction.getIndexBefore(), previousAction.getTaskBeforeEdit());
-					} else if (previousAction.getListTypeBefore().equals(TASKS_CMI)) {
+					} else if (previousAction.getListTypeBefore().equals(LIST_CMI)) {
 						storedTasksByCMI.add(previousAction.getIndexBefore(), previousAction.getTaskBeforeEdit());
 					} else {
-						throw new IllegalArgumentException("The tasks must be DEADLINE, TICKED OR CMI");
+						throw new IllegalArgumentException("The tasks must be TIME, TICKED, PRIORITY or CMI");
 					}
 					return FEEDBACK_SUCCESSFUL_UNDO;
 				case COMMAND_TICK:
@@ -76,16 +77,16 @@ public class UndoManager {
 					//the previous action moves task from normal to ticked, hence now moves task from ticked to normal
 					assert previousAction.getListTypeBefore() != null && previousAction.getTaskBeforeEdit() != null;
 					
-					if(previousAction.getListTypeBefore().equals(TASKS_TIME)) {
+					if(previousAction.getListTypeBefore().equals(LIST_TIME) || previousAction.getListTypeBefore().equals(LIST_PRIORITY)) {
 						storedTasksByTicked.remove(previousAction.getTaskBeforeEdit());
 						storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
 						storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
-					} else if(previousAction.getListTypeBefore().equals(TASKS_TICKED)) {
+					} else if(previousAction.getListTypeBefore().equals(LIST_TICKED)) {
 						storedTasksByTicked.add(previousAction.getTaskBeforeEdit());
 						storedTasksByPriority.remove(previousAction.getTaskBeforeEdit());
 						storedTasksByDeadline.remove(previousAction.getTaskBeforeEdit());
 					} else {
-						throw new IllegalArgumentException("The tasks must be DEADLINE or TICKED");
+						throw new IllegalArgumentException("The tasks must be TIME, PRIORITY OR TICKED");
 					}
 					return FEEDBACK_SUCCESSFUL_UNDO;
 				case COMMAND_CMI:
@@ -93,16 +94,16 @@ public class UndoManager {
 					//TODO:refactor
 					assert previousAction.getListTypeBefore() != null && previousAction.getTaskBeforeEdit() != null;
 					
-					if(previousAction.getListTypeBefore().equals(TASKS_TIME)) {
+					if(previousAction.getListTypeBefore().equals(LIST_TIME) || previousAction.getListTypeBefore().equals(LIST_PRIORITY)) {
 						storedTasksByCMI.remove(previousAction.getTaskBeforeEdit());
 						storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
 						storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
-					} else if(previousAction.getListTypeBefore().equals(TASKS_CMI)) {
+					} else if(previousAction.getListTypeBefore().equals(LIST_CMI)) {
 						storedTasksByCMI.add(previousAction.getTaskBeforeEdit());
 						storedTasksByPriority.remove(previousAction.getTaskBeforeEdit());
 						storedTasksByDeadline.remove(previousAction.getTaskBeforeEdit());
 					} else {
-						throw new IllegalArgumentException("The tasks must be DEADLINE or CMI");
+						throw new IllegalArgumentException("The tasks must be TIME, PRIORITY or CMI");
 					}
 					return FEEDBACK_SUCCESSFUL_UNDO;
 			}
@@ -134,15 +135,15 @@ public class UndoManager {
 			case COMMAND_DELETE:
 				assert nextAction.getTaskBeforeEdit() != null;
 				
-				if(nextAction.getListTypeBefore().equals(TASKS_TIME)) {
+				if(nextAction.getListTypeBefore().equals(LIST_TIME) || nextAction.getListTypeBefore().equals(LIST_PRIORITY)) {
 					storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
 					storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
-				} else if (nextAction.getListTypeBefore().equals(TASKS_TICKED)) {
+				} else if (nextAction.getListTypeBefore().equals(LIST_TICKED)) {
 					storedTasksByTicked.remove(nextAction.getTaskBeforeEdit());
-				} else if (nextAction.getListTypeBefore().equals(TASKS_CMI)) {
+				} else if (nextAction.getListTypeBefore().equals(LIST_CMI)) {
 					storedTasksByCMI.remove(nextAction.getTaskBeforeEdit());
 				} else {
-					throw new IllegalArgumentException("The tasks must be DEADLINE, TICKED OR CMI");
+					throw new IllegalArgumentException("The tasks must be TIME, PRIORITY, TICKED OR CMI");
 				}
 				return FEEDBACK_SUCCESSFUL_REDO;
 			case COMMAND_TICK:
@@ -150,16 +151,16 @@ public class UndoManager {
 				//TODO:refactor
 				assert nextAction.getTaskBeforeEdit() != null && nextAction.getListTypeBefore() != null;
 				
-				if(nextAction.getListTypeBefore().equals(TASKS_TIME)) {
+				if(nextAction.getListTypeBefore().equals(LIST_TIME) || nextAction.getListTypeBefore().equals(LIST_PRIORITY)) {
 					storedTasksByTicked.add(nextAction.getTaskBeforeEdit());
 					storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
 					storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
-				} else if(nextAction.getListTypeBefore().equals(TASKS_TICKED)) {
+				} else if(nextAction.getListTypeBefore().equals(LIST_TICKED)) {
 					storedTasksByTicked.remove(nextAction.getTaskBeforeEdit());
 					storedTasksByPriority.add(nextAction.getTaskBeforeEdit());
 					storedTasksByDeadline.add(nextAction.getTaskBeforeEdit());
 				} else {
-					throw new IllegalArgumentException("The tasks must be DEADLINE or TICKED");
+					throw new IllegalArgumentException("The tasks must be TIME, PRIORITY or TICKED");
 				}
 				return FEEDBACK_SUCCESSFUL_REDO;
 			case COMMAND_CMI:
@@ -167,16 +168,16 @@ public class UndoManager {
 				//TODO:refactor
 				assert nextAction.getTaskBeforeEdit() != null && nextAction.getListTypeBefore() != null;
 				
-				if(nextAction.getListTypeBefore().equals(TASKS_TIME)) {
+				if(nextAction.getListTypeBefore().equals(LIST_TIME) || nextAction.getListTypeBefore().equals(LIST_PRIORITY)) {
 					storedTasksByCMI.add(nextAction.getTaskBeforeEdit());
 					storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
 					storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
-				} else if(nextAction.getListTypeBefore().equals(TASKS_CMI)) {
+				} else if(nextAction.getListTypeBefore().equals(LIST_CMI)) {
 					storedTasksByCMI.remove(nextAction.getTaskBeforeEdit());
 					storedTasksByPriority.add(nextAction.getTaskBeforeEdit());
 					storedTasksByDeadline.add(nextAction.getTaskBeforeEdit());
 				} else {
-					throw new IllegalArgumentException("The tasks must be DEADLINE or CMI");
+					throw new IllegalArgumentException("The tasks must be TIME, PRIORITY or CMI");
 				}
 				return FEEDBACK_SUCCESSFUL_REDO;
 			}
