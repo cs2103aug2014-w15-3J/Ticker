@@ -7,17 +7,12 @@ import java.util.Vector;
 import org.junit.Test;
 
 import ticker.common.Date;
-<<<<<<< HEAD
-import ticker.common.Task;
-import ticker.common.Time;
-=======
 import ticker.common.DeadlineTask;
 import ticker.common.FloatingTask;
 import ticker.common.RepeatingTask;
 import ticker.common.Task;
 import ticker.common.Time;
 import ticker.common.TimedTask;
->>>>>>> origin/Logic
 
 public class UndoManagerTest {
 	private static final String TASKS_FLOATING_DESCRIPTION = "Buy milk from NTUC";
@@ -79,21 +74,9 @@ public class UndoManagerTest {
 		storedTasksByDeadline.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
 		uM.undo();
 		assertEquals(true, storedTasksByPriority.isEmpty());
-<<<<<<< HEAD
-		
-
-		uM.add(new Event("add", new Task("Deadline Task", null, null, new Date(2014,5,12), new Time(12,12), 'B', false)));
-		storedTasksByPriority.add(new Task("Deadline Task", null, null, new Date(2014,5,12), new Time(12,12), 'B', false));
-		storedTasksByDeadline.add(new Task("Deadline Task", null, null, new Date(2014,5,12), new Time(12,12), 'B', false));
-		assertEquals(false, storedTasksByPriority.isEmpty());
-		
-		uM.undo();
-		assertEquals(true, storedTasksByPriority.isEmpty());
-=======
 		assertEquals(true, storedTasksByDeadline.isEmpty());
 		
 		//test undo-ing the latest event with multiple items in the Event stack
->>>>>>> origin/Logic
 		
 		uM.clearStateForTesting(); //need to remove the instance from singleton
 	}
@@ -140,11 +123,6 @@ public class UndoManagerTest {
 		uM.undo();
 		assertEquals(true, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
 		
-<<<<<<< HEAD
-		uM.add(new Event("delete", new Task("Kappa", null, null, null, null, 'B', false), "TIME", 0));
-		storedTasksByPriority.remove(new Task("Kappa", null, null, null, null, 'B', false));
-		storedTasksByDeadline.remove(new Task("Kappa", null, null, null, null, 'B', false));
-=======
 		//test undo-ing removal of repeating task
 		uM.add(new Event(COMMAND_ADD, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
 		storedTasksByPriority.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
@@ -155,7 +133,6 @@ public class UndoManagerTest {
 		assertEquals(false, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
 		uM.undo();
 		assertEquals(true, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
->>>>>>> origin/Logic
 		
 		uM.clearStateForTesting();
 	}
@@ -188,37 +165,6 @@ public class UndoManagerTest {
 	}
 	
 	@Test
-	public void testUndoAfterEditOperation() {
-		Vector<Task> storedTasksByPriority = new Vector<Task>();
-		Vector<Task> storedTasksByDeadline = new Vector<Task>();
-		Vector<Task> storedTasksByTicked = new Vector<Task>();
-		Vector<Task> storedTasksByCMI = new Vector<Task>();
-		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
-				storedTasksByDeadline, storedTasksByTicked, storedTasksByCMI);
-		
-		//just added an Event into the stack
-		uM.add(new Event("add", new Task("Kappa", null, null, null, null, 'B', false)));
-		
-		//add the Task into the list
-		storedTasksByPriority.add(new Task("Kappa", null, null, null, null, 'B', false));
-		storedTasksByDeadline.add(new Task("Kappa", null, null, null, null, 'B', false));
-		assertEquals(false, storedTasksByPriority.isEmpty());
-		
-		uM.add(new Event("edit", new Task("Kappa", null, null, null, null, 'B', false), new Task("Keepo", null, null, null, null, 'B', false)));
-		storedTasksByPriority.remove(new Task("Kappa", null, null, null, null, 'B', false));
-		storedTasksByDeadline.remove(new Task("Kappa", null, null, null, null, 'B', false));
-		storedTasksByPriority.add(new Task("Keepo", null, null, null, null, 'B', false));
-		storedTasksByDeadline.add(new Task("Keepo", null, null, null, null, 'B', false));
-		
-		uM.undo();
-		//check if the Task is being removed from the list
-		assertEquals(1, storedTasksByDeadline.size());
-		assertEquals(true, storedTasksByDeadline.contains(new Task("Kappa", null, null, null, null, 'B', false)));
-		assertEquals(false, storedTasksByDeadline.contains(new Task("Keepo", null, null, null, null, 'B', false)));
-		uM.clearStateForTesting(); //need to remove the instance from singleton
-	}
-	
-	@Test
 	public void testUndoAfterTickOperation() {
 		Vector<Task> storedTasksByPriority = new Vector<Task>();
 		Vector<Task> storedTasksByDeadline = new Vector<Task>();
@@ -227,13 +173,22 @@ public class UndoManagerTest {
 		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
 				storedTasksByDeadline, storedTasksByTicked, storedTasksByCMI);
 		
-		//just added an Event into the stack
-		uM.add(new Event("add", new Task("Kappa", null, null, null, null, 'B', false)));
-
-		//add the Task into the list
-		storedTasksByPriority.add(new Task("Kappa", null, null, null, null, 'B', false));
-		storedTasksByDeadline.add(new Task("Kappa", null, null, null, null, 'B', false));
+		//test undo-ing tick of floating task
+		uM.add(new Event(COMMAND_ADD, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		storedTasksByPriority.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		uM.add(new Event(COMMAND_TICK, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false), LIST_TIME, LIST_TICKED));
+		storedTasksByPriority.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByTicked.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+			
 		
-		
+		uM.clearStateForTesting();
 	}
 }
