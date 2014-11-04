@@ -1,3 +1,16 @@
+/* Team ID: W15-3J
+ * Name: Li Jia'En, Nicholette
+ * Matric Number: A0114535M
+ * Project Title: CE1 TextBuddy
+ * Purpose: This class receives text commands from the user and edits a textfile. 
+ * The commands are for add, display, delete, clear and exit.
+ * Assumptions: 
+ * This program assumes that:
+ * -the user knows the format for each command
+ * -the user input lines in the textfile is not numbered.
+ * -(option c) the file is saved to disk when the user exit the program
+ */
+
 package ticker.logic;
 
 // Package Common
@@ -41,7 +54,17 @@ public class SearchManager {
 	private static Vector<Task> searchResultsCMI;
 	private static Vector<Task> searchResults;
 	String key; 
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	public SearchManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
 		this.storedTasksByTime = storedTasksByTime;
 		this.storedTasksByTicked = storedTasksByTicked;
@@ -49,7 +72,17 @@ public class SearchManager {
 		
 		searchResults = new Vector<Task>();
 	}
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	public Vector<Task> search(String key, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
 			char priority) {
 		matchList = new Vector<StringMatch>();
@@ -124,9 +157,14 @@ public class SearchManager {
 	}
 
 	/**
-	 * @param key
-	 * @param taskList
-	 * @return
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
 	 */
 	private Vector<Task> searchByKey(String key, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
@@ -150,7 +188,17 @@ public class SearchManager {
 		}
 		return temp;
 	}
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	private Vector<Task> searchByPriority(char priority, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
 
@@ -161,7 +209,17 @@ public class SearchManager {
 		}
 		return temp;
 	}
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	private Vector<Task> searchByStartDateAndTime(Date startDate, Time startTime, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
 
@@ -186,7 +244,17 @@ public class SearchManager {
 		}
 		return temp;
 	}
-	
+		
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	private Vector<Task> searchByStartDate(Date startDate, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
 
@@ -202,6 +270,16 @@ public class SearchManager {
 		return temp;
 	}
 	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	private Vector<Task> searchByEndDateAndTime(Date endDate, Time endTime, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
 
@@ -231,6 +309,16 @@ public class SearchManager {
 		return temp;
 	}
 	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	private Vector<Task> searchByEndDate(Date endDate, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
 
@@ -245,7 +333,17 @@ public class SearchManager {
 		}
 		return temp;
 	}
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	private static float getMatchLikelyhood(final String str1, final String str2) {
 		AbstractStringMetric metric;
 		float avg = 0F, result = 0F;

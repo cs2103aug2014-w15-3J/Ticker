@@ -1,3 +1,16 @@
+/* Team ID: W15-3J
+ * Name: Li Jia'En, Nicholette
+ * Matric Number: A0114535M
+ * Project Title: CE1 TextBuddy
+ * Purpose: This class receives text commands from the user and edits a textfile. 
+ * The commands are for add, display, delete, clear and exit.
+ * Assumptions: 
+ * This program assumes that:
+ * -the user knows the format for each command
+ * -the user input lines in the textfile is not numbered.
+ * -(option c) the file is saved to disk when the user exit the program
+ */
+
 package ticker.logic;
 
 import java.util.Vector;
@@ -30,7 +43,17 @@ public class CRUManager {
 	// Instances of other components
 	private UndoManager undoMng;
 	private Vector<Task> storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByCMI;
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	CRUManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByCMI) {
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTime = storedTasksByTime;
@@ -39,7 +62,17 @@ public class CRUManager {
 
 		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByCMI);
 	}
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	String delete(int index, int listTracker, Vector<Task> current, String currentListName) 
 			throws ArrayIndexOutOfBoundsException {
 		Event event;
@@ -102,7 +135,17 @@ public class CRUManager {
 
 		return deleted.getDescription() + " has been removed.";
 	}
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	String add(String description, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
 			char priority) throws IllegalArgumentException {
 
@@ -159,6 +202,16 @@ public class CRUManager {
 	}
 
 	// Resetting repeated task will make it a timedTask
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	Task remakeTask(Task task) throws IllegalArgumentException {
 		String description = task.getDescription();
 		boolean isRepeating = false;
@@ -178,7 +231,17 @@ public class CRUManager {
 
 		return newTask;
 	}
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	String edit(int index, String description,boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
 			char priority, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException{
 		Task oldTask;
@@ -348,7 +411,14 @@ public class CRUManager {
 	}
 
 	/**
-	 * @param oldTask
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
 	 */
 	private void addTaskIntoUndone(Task oldTask) {
 		storedTasksByTime.add(oldTask);

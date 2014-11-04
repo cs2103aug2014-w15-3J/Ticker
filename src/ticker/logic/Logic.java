@@ -1,3 +1,16 @@
+/* Team ID: W15-3J
+ * Name: Li Jia'En, Nicholette
+ * Matric Number: A0114535M
+ * Project Title: CE1 TextBuddy
+ * Purpose: This class receives text commands from the user and edits a textfile. 
+ * The commands are for add, display, delete, clear and exit.
+ * Assumptions: 
+ * This program assumes that:
+ * -the user knows the format for each command
+ * -the user input lines in the textfile is not numbered.
+ * -(option c) the file is saved to disk when the user exit the program
+ */
+
 package ticker.logic;
 
 // Package Parser
@@ -11,6 +24,7 @@ import ticker.ui.TickerUI;
 import ticker.common.Task;
 import ticker.common.sortByTime;
 import ticker.common.sortByPriority;
+
 // Package Java util
 import java.util.Collections;
 import java.util.Vector;
@@ -80,7 +94,17 @@ public class Logic{
 	private static Vector<Task> searchResults;
 	// Store existing (current) search request
 	private static UserInput searchRequest;
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	public Logic(TickerUI UI){
 		// Creating 1-1 dependency with UI
 		this.UI = UI;
@@ -114,6 +138,16 @@ public class Logic{
 	
 	// For UI to call logic and for logic to pass the string to parser to process user input
 	// 
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	public String getLogic(String input) {
 		// Crash the program if Logic is contructed without TickerUI, missing dependency
 		assert(UI != null);
@@ -121,7 +155,17 @@ public class Logic{
 		UserInput processed = parser.processInput(input);
 		return getOutput(processed);
 	}
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	protected String getOutput(UserInput processed) {
 		
 		String feedback = "";
@@ -394,7 +438,14 @@ public class Logic{
 	}
 	
 	/**
-	 * 
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
 	 */
 	private void checkForTaskExpiry() {
 		for (Task timeTask: sortedTime) {
@@ -411,10 +462,15 @@ public class Logic{
 		}
 	}
 
-
-
 	/**
-	 * 
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
 	 */
 	private void storeLists() {
 		storage.writeStorageArrayIntoFile(KEY_SORTED_TIME, sortedTime);
@@ -424,13 +480,30 @@ public class Logic{
 	}
 
 	/**
-	 * 
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
 	 */
 	private void sortLists() {
 		Collections.sort(sortedTime, new sortByTime());
 		Collections.sort(sortedPriority, new sortByPriority());
 	}
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	protected String clear() {
 		current.removeAllElements();
 		
@@ -446,6 +519,16 @@ public class Logic{
 		return "Spick and span!";
 	}
 
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	protected String list() {
 		if (current == null) {
 			return "Nothing to display.\n";
@@ -472,7 +555,17 @@ public class Logic{
 		}
 		return list;
 	}*/
-
+	
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
 	protected String list(String listType) throws IllegalArgumentException {
 		switch (listType) {
 		case LIST_TIME:
