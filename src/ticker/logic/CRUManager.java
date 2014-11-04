@@ -123,7 +123,6 @@ public class CRUManager {
 			else {
 				throw new IllegalArgumentException();
 			}
-
 		}
 
 		else if (startDate == null && startTime == null) {
@@ -135,11 +134,19 @@ public class CRUManager {
 			else {
 				newTask = new DeadlineTask(description, endDate, endTime, priority, false);
 			}
-
 		}
+		
 		// Creation of timed tasks
 		else {
+			if (endDate.compareTo(startDate) == 1 || endTime.compareTo(startTime) == 1) {
+				return "Invalid ending date or time.";
+			}
 			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
+		}
+		
+		// Check whether there's an exact task already inside the list
+		if (storedTasksByPriority.contains(newTask) || storedTasksByTicked.contains(newTask) || storedTasksByCMI.contains(newTask)) {
+			return "Task already exists.";
 		}
 
 		addTaskIntoUndone(newTask);
