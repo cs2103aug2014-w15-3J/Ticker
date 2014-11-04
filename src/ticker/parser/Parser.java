@@ -4,9 +4,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Calendar;
 import java.util.List;
-
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
-
 import ticker.common.*;
 import ticker.common.Task.RepeatingInterval;
 
@@ -139,7 +137,7 @@ public class Parser {
 		}
 		
 		nlp(description,input);
-		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
+		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
 		
 		input.validifyTime();
@@ -154,9 +152,9 @@ public class Parser {
 		return input;
 	}
 	
-	private static StartEndTimeDate checkDashTimeDate(String description){
+	private static TimePeriod checkDashTimeDate(String description){
 		String[] strings = description.split(" +"); 
-		StartEndTimeDate result = new StartEndTimeDate();
+		TimePeriod result = new TimePeriod();
 		for (String s:strings){
 			if (s.indexOf("-")!=-1&&s.indexOf("-")==s.lastIndexOf("-")){
 				int index = s.indexOf("-");
@@ -294,7 +292,7 @@ public class Parser {
 		}
 		
 		nlp(description,input);
-		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
+		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
 		
 		input.validifyTime();
@@ -332,7 +330,7 @@ public class Parser {
 		}
 		
 		nlp(description,input);
-		StartEndTimeDate result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
+		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
 
 		if (!((input.getStartTime()==null)&&(input.getEndTime()==null)&&(input.getStartDate()==null)&&(input.getEndDate()==null))){
@@ -379,7 +377,7 @@ public class Parser {
 		}
 	}
 	
-	private void mergeTimeResult(StartEndTimeDate result,UserInput ui){
+	private void mergeTimeResult(TimePeriod result,UserInput ui){
 		if (result.getStartDate()!=null){
 			ui.setStartDate(result.getStartDate());
 		}
@@ -582,21 +580,27 @@ public class Parser {
 	}
 }
 
-class StartEndTimeDate{
-	private Date sd;
-	private Date ed;
-	private Time st;
-	private Time et;
+class TimePeriod{
+	private DateTime start;
+	private DateTime end;
 	
-	public StartEndTimeDate(){
+	public TimePeriod(){
+		start = new DateTime(null,null);
+		end = new DateTime(null,null);
+	}
+	public TimePeriod(DateTime start,DateTime end){
+		this.start=start;
+		this.end=end;
 	}
 	
-	public Date getStartDate(){return sd;}
-	public Time getStartTime(){return st;}
-	public Date getEndDate(){return ed;}
-	public Time getEndTime(){return et;}
-	public void setStartDate(Date d){this.sd=d;}
-	public void setStartTime(Time t){this.st=t;}
-	public void setEndDate(Date d){this.ed=d;}
-	public void setEndTime(Time t){this.et=t;}
+	public DateTime getStart(){return start;}
+	public DateTime getEnd(){return end;}
+	public Date getStartDate(){return start.getDate();}
+	public Time getStartTime(){return start.getTime();}
+	public Date getEndDate(){return end.getDate();}
+	public Time getEndTime(){return end.getTime();}
+	public void setStartDate(Date d){this.getStart().setDate(d);}
+	public void setStartTime(Time t){this.getStart().setTime(t);}
+	public void setEndDate(Date d){this.getEnd().setDate(d);}
+	public void setEndTime(Time t){this.getEnd().setTime(t);}
 }

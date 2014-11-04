@@ -135,4 +135,8 @@ public class Date {
 		
 		return numDays%7;
 	}
+
+	public boolean smallerThan(Date other) {
+		return this.compareTo(other)<0;
+	}
 }
