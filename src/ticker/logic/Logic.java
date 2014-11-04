@@ -286,9 +286,9 @@ public class Logic{
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been marked as cannot do.";
 			}
-			catch (IllegalArgumentException ex) {
+			/*catch (IllegalArgumentException ex) {
 				return "Current list: " + currentListName + "Cannot perform command on this list";
-			}
+			}*/
 			break;
 
 		case COMMAND_UNKIV:
@@ -310,9 +310,9 @@ public class Logic{
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been unmarked as cannot do.";
 			}
-			catch (IllegalArgumentException ex) {
+			/*catch (IllegalArgumentException ex) {
 				return "Current list: " + currentListName + "Cannot perform command on this list";
-			}
+			}*/
 			break;
 
 		case COMMAND_UNDO:

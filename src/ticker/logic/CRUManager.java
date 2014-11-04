@@ -78,20 +78,37 @@ public class CRUManager {
 	String delete(int index, int listTracker, Vector<Task> current, String currentListName) 
 			throws ArrayIndexOutOfBoundsException {
 		Event event;
-		Task deleted = current.remove(index-1);
+		Task deleted;
 
 		if (listTracker == KEY_SORTED_TIME) {
+			deleted = current.remove(index - 1);
 			storedTasksByPriority.remove(deleted);
 			event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
 			undoMng.add(event);
 		}
 		else if (listTracker == KEY_SORTED_PRIORITY) {
+			deleted = current.remove(index - 1);
 			storedTasksByTime.remove(deleted);
 			event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
 			undoMng.add(event);
 		}
 		else if (listTracker == KEY_SEARCH) {
 			int indexCounter;
+			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
+			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
+			int tickedPartitionIndex = current.indexOf(tickedPartition);
+			int kivPartitionIndex = current.indexOf(kivPartition);
+			
+			if ((index - 1) < tickedPartitionIndex) {
+				deleted = current.remove(index - 1);
+			}
+			else if ((index - 1) >= tickedPartitionIndex && (index - 1) <= (kivPartitionIndex - 2)) {
+				deleted = current.remove(index);
+			}
+			else {
+				deleted = current.remove(index + 1);
+			}
+
 			if (storedTasksByTime.contains(deleted) || storedTasksByPriority.contains(deleted)) {
 				indexCounter = 0;
 				for (Task task: storedTasksByTime) {
@@ -131,6 +148,7 @@ public class CRUManager {
 			}
 		}
 		else {
+			deleted = current.remove(index - 1);
 			event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
 			undoMng.add(event);
 		}
