@@ -90,19 +90,13 @@ public class Logic{
 	private static Vector<Task> searchResults;
 	// Store existing (current) search request
 	private static UserInput searchRequest;
-	
+
 	/**
-	 * This method determines the action for each user command.
+	 * This method instantiate a Logic object while creating dependency with TickerUI
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param UI	Name of TickerUI.
 	 */
 	public Logic(TickerUI UI){
-		// Creating 1-1 dependency with UI
 		this.UI = UI;
 
 		// Instantiating sub-components
@@ -131,39 +125,29 @@ public class Logic{
 		UI.setNextView(listTracker);
 
 	}
-	
-	// For UI to call logic and for logic to pass the string to parser to process user input
-	// 
+
 	/**
-	 * This method determines the action for each user command.
+	 * This method is for UI to call logic and for logic to pass the string to parser to process user input
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param input		Name of user input string
+	 * @return    		Message from the command operation.
 	 */
 	public String getLogic(String input) {
 		// Crash the program if Logic is contructed without TickerUI, missing dependency
 		assert(UI != null);
-		
+
 		UserInput processed = parser.processInput(input);
 		return getOutput(processed);
 	}
-	
+
 	/**
-	 * This method determines the action for each user command.
+	 * This method gets the feedback from the command operation and updates the UI display if applicable
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param processed 	Name of UserInput object with processed user input returned by Parser object.
+	 * @return    			Message from the command operation.
 	 */
 	protected String getOutput(UserInput processed) {
-		
+
 		String feedback = "";
 		String command = "";
 		logger.log(Level.INFO, "Performing an action");
@@ -184,22 +168,22 @@ public class Logic{
 				searchResults.removeAllElements();
 				searchResults = searchMng.search(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
-				
+
 				checkForTaskExpiry();
-				
+
 				listTracker = KEY_SEARCH;
 				current = searchResults;
 				currentListName = LIST_SEARCH;
-				
+
 				UI.setList(current);
 				UI.setNextView(listTracker);
-				
+
 				feedback = "Searching for tasks...";
 			}
 			catch (Exception e) {
 				System.out.println("error in search");
 			}
-			
+
 			break;
 
 		case COMMAND_DELETE: 
@@ -238,13 +222,13 @@ public class Logic{
 
 				feedback = cruMng.edit(processed.getIndex(), processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority(), listTracker, current);
-				
+
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
-				
+
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
@@ -284,7 +268,7 @@ public class Logic{
 		case COMMAND_KIV:
 			try {
 				feedback = tickKIVMng.cmi(processed.getIndex(), listTracker, current, currentListName);
-				
+
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
@@ -308,7 +292,7 @@ public class Logic{
 		case COMMAND_UNKIV:
 			try {
 				feedback = tickKIVMng.uncmi(processed.getIndex(), listTracker, current);
-				
+
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
@@ -332,7 +316,7 @@ public class Logic{
 		case COMMAND_UNDO:
 			try {
 				feedback = undoMng.undo();
-				
+
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
@@ -352,12 +336,12 @@ public class Logic{
 		case COMMAND_REDO:
 			try {
 				feedback = undoMng.redo();
-				
+
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
-					
+
 				}
 
 				checkForTaskExpiry();
@@ -373,7 +357,7 @@ public class Logic{
 		case COMMAND_TICK:
 			try {
 				feedback = tickKIVMng.tick(processed.getIndex(), listTracker, current);
-				
+
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
@@ -397,13 +381,13 @@ public class Logic{
 		case COMMAND_UNTICK:
 			try {
 				feedback = tickKIVMng.untick(processed.getIndex(), listTracker, current);
-				
+
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
-				
+
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
@@ -414,7 +398,7 @@ public class Logic{
 				return "Index out of bounds. Nothing has been unticked.";
 			}
 			//catch (IllegalArgumentException ex) {
-				//return "Current list: " + currentListName + "Cannot perform command on this list";
+			//return "Current list: " + currentListName + "Cannot perform command on this list";
 			//}
 			break;
 
@@ -432,16 +416,9 @@ public class Logic{
 		logger.log(Level.INFO, "Action proceeded successfully");
 		return feedback;
 	}
-	
+
 	/**
-	 * This method determines the action for each user command.
-	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * This method checks for expired tasks and updates their attribute isExpired.
 	 */
 	private void checkForTaskExpiry() {
 		for (Task timeTask: sortedTime) {
@@ -459,14 +436,7 @@ public class Logic{
 	}
 
 	/**
-	 * This method determines the action for each user command.
-	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * This method writes the lists into storage.
 	 */
 	private void storeLists() {
 		storage.writeStorageArrayIntoFile(KEY_SORTED_TIME, sortedTime);
@@ -476,33 +446,21 @@ public class Logic{
 	}
 
 	/**
-	 * This method determines the action for each user command.
-	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * This method sorts the time and priority lists.
 	 */
 	private void sortLists() {
 		Collections.sort(sortedTime, new sortByTime());
 		Collections.sort(sortedPriority, new sortByPriority());
 	}
-	
+
 	/**
-	 * This method determines the action for each user command.
-	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * This method clears the current list.
+	 * 
+	 * @return     Message from the operation clear().
 	 */
 	protected String clear() {
 		current.removeAllElements();
-		
+
 		if (listTracker == KEY_SORTED_TIME || listTracker == KEY_SORTED_PRIORITY) {
 			sortedTime.removeAllElements();
 			sortedPriority.removeAllElements();
@@ -516,14 +474,10 @@ public class Logic{
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method lists the current task list in string form. This
+	 * This is used by TestLogic class for testing without TickerUI.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @return     List of tasks in string format.
 	 */
 	protected String list() {
 		if (current == null) {
@@ -538,29 +492,12 @@ public class Logic{
 		return list;
 	}
 
-	/*private String listSearch() {
-		if (current == null) {
-			return "Nothing to display.\n";
-		}
-		// int i = 0;
-		String list = "";
-		for (Task task: searchResults) {
-
-			// list += ++i + ". " + task.toString() + "\n";
-			list += task.toString() + "\n";
-		}
-		return list;
-	}*/
-	
 	/**
-	 * This method determines the action for each user command.
+	 * This method displays the list requested by the user
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param listType		Name of list that the user wants displayed
+	 * @return     			Feedback message for listing a list type
+	 * @throws IllegalArgumentException  If list name is unidentifiable.
 	 */
 	protected String list(String listType) throws IllegalArgumentException {
 		switch (listType) {
