@@ -64,14 +64,14 @@ public class TickerUI extends Application {
 	ScrollPane sp;
 	//tabs
 	int indexTabs = 7;       //tabs is the 7th children that root added
-	Group tabs_todo, tabs_todo_p, tabs_ticked, tabs_cmi, tabs_search;
+	Group tabs_todo, tabs_todo_p, tabs_ticked, tabs_kiv, tabs_search;
 	ImageView imv5, imv6, imv7, imv8;
-	Image cmi_1, cmi_2, cmi_3, ticked_1, ticked_2, ticked_3, todo_1, todo_2, todo_3, bar;
+	Image kiv_1, kiv_2, kiv_3, ticked_1, ticked_2, ticked_3, todo_1, todo_2, todo_3, bar;
 
 	private static final int KEY_SORTED_TIME = 1;
 	private static final int KEY_SORTED_PRIORITY = 2;
 	private static final int KEY_TICKED = 3;
-	private static final int KEY_CMI = 4;
+	private static final int KEY_KIV = 4;
 	private static final int KEY_SEARCH = 5;
 	private int currentView = KEY_SORTED_TIME;          //1 for todo_time(default), 2 for todo_priority, 3 for ticked, 4 for cmi, 5 for search
 	private int nextView = KEY_SORTED_TIME;
@@ -225,7 +225,7 @@ public class TickerUI extends Application {
 
 		tabs_todo = new Group();
 		tabs_todo_p = new Group();
-		tabs_cmi = new Group();
+		tabs_kiv = new Group();
 		tabs_ticked = new Group();
 		tabs_search = new Group();
 
@@ -236,9 +236,9 @@ public class TickerUI extends Application {
 		ds.setColor(Color.rgb(0, 0, 0, 0.6));
 
 		//tab3 cmi
-		cmi_1 = new Image("ticker/ui/pic/CMI_1.png", true);
-		cmi_2 = new Image("ticker/ui/pic/CMI_2.png", true);
-		cmi_3 = new Image("ticker/ui/pic/CMI_3.png", true);
+		kiv_1 = new Image("ticker/ui/pic/KIV_1.png", true);
+		kiv_2 = new Image("ticker/ui/pic/KIV_2.png", true);
+		kiv_3 = new Image("ticker/ui/pic/KIV_3.png", true);
 		imv7 = new ImageView();
 		imv7.setFitWidth(80);
 		imv7.setPreserveRatio(true);
@@ -556,13 +556,12 @@ public class TickerUI extends Application {
 			Label start = new Label();
 			Label end = new Label();
 
-			if(tasksToBeShown.get(i).isExpired) { //getIsExpired()) {                            //mark tasks as red to show expired
+			if(tasksToBeShown.get(i).getIsExpired()) {                            //mark tasks as red to show expired
 				index.setTextFill(Color.RED);
 				description.setTextFill(Color.RED);
 				start.setTextFill(Color.RED);
 				end.setTextFill(Color.RED);
 			}
-
 
 			if((newTask.equals("\\***TICKED***\\")) ) {
 				isSearchResult = true;
@@ -575,15 +574,15 @@ public class TickerUI extends Application {
 				chart.getChildren().add(ticked);
 
 			}
-			else if (newTask.equals("\\***CMI***\\")) {
+			else if (newTask.equals("\\***KIV***\\")) {
 				d++;
-				Label cmi = new Label("   Search results from the CMI section:");
+				Label cmi = new Label("   Search results from the KIV section:");
 				cmi.setPrefHeight(35);
 				cmi.setAlignment(Pos.BOTTOM_LEFT);
 				cmi.setFont(heading);
 				chart.getChildren().add(cmi);
 			}
-			else if(tasksToBeShown.get(i).getRepeat()) {
+			/*else if(tasksToBeShown.get(i).getRepeat()) {                         //if repeated task
 				switch(tasksToBeShown.get(i).getRepeatingInterval()) {
 				case DAY:
 					Label daily = new Label("everyday " + ST + " to " + ET);
@@ -617,7 +616,7 @@ public class TickerUI extends Application {
 					chart.getChildren().add(hb);
 					break;
 				}
-			}
+			}*/
 			else {
 				if(sd==null && st==null && ed==null && et==null) {
 					hb.getChildren().addAll(index, priority, description);
@@ -660,9 +659,6 @@ public class TickerUI extends Application {
 			}
 			isSearchResult = false;
 		}
-
-
-
 	}
 
 
@@ -701,7 +697,7 @@ public class TickerUI extends Application {
 	private void buildTabs(int view) {
 		if(view == KEY_SORTED_TIME) {         //1
 			root.getChildren().remove(indexTabs);
-			imv7.setImage(cmi_2);
+			imv7.setImage(kiv_2);
 			imv6.setImage(ticked_2);
 			imv8.setImage(todo_1);
 			tabs_todo.getChildren().addAll(imv7, imv6, imv8);
@@ -740,17 +736,17 @@ public class TickerUI extends Application {
 
 			imv7.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					imv7.setImage(cmi_3);
+					imv7.setImage(kiv_3);
 				}
 			});
 			imv7.setOnMouseExited(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					imv7.setImage(cmi_2);
+					imv7.setImage(kiv_2);
 				}
 			});
 			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					String autoCommand = "list cmi";
+					String autoCommand = "list kiv";
 					feedback.setText(logic.getLogic(autoCommand));
 
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
@@ -760,14 +756,14 @@ public class TickerUI extends Application {
 
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(KEY_CMI);
+					buildTabs(KEY_KIV);
 				}
 			});
 
 		}
 		else if(view == KEY_SORTED_PRIORITY) {            //2
 			root.getChildren().remove(indexTabs);
-			imv7.setImage(cmi_2);
+			imv7.setImage(kiv_2);
 			imv6.setImage(ticked_2);
 			imv8.setImage(todo_1);
 			tabs_todo_p.getChildren().addAll(imv7, imv6, imv8);
@@ -806,17 +802,17 @@ public class TickerUI extends Application {
 
 			imv7.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					imv7.setImage(cmi_3);
+					imv7.setImage(kiv_3);
 				}
 			});
 			imv7.setOnMouseExited(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					imv7.setImage(cmi_2);
+					imv7.setImage(kiv_2);
 				}
 			});
 			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					String autoCommand = "list cmi";
+					String autoCommand = "list kiv";
 					feedback.setText(logic.getLogic(autoCommand));
 
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
@@ -826,7 +822,7 @@ public class TickerUI extends Application {
 
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(KEY_CMI);
+					buildTabs(KEY_KIV);
 				}
 			});
 
@@ -835,7 +831,7 @@ public class TickerUI extends Application {
 
 		else if(view == KEY_TICKED) {                        //3
 			root.getChildren().remove(indexTabs);
-			imv7.setImage(cmi_2);
+			imv7.setImage(kiv_2);
 			imv6.setImage(ticked_1);
 			imv8.setImage(todo_2);
 			tabs_ticked.getChildren().addAll(imv7, imv8, imv6);
@@ -874,17 +870,17 @@ public class TickerUI extends Application {
 
 			imv7.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					imv7.setImage(cmi_3);
+					imv7.setImage(kiv_3);
 				}
 			});
 			imv7.setOnMouseExited(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					imv7.setImage(cmi_2);
+					imv7.setImage(kiv_2);
 				}
 			});
 			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					String autoCommand = "list cmi";
+					String autoCommand = "list kiv";
 					feedback.setText(logic.getLogic(autoCommand));
 
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
@@ -894,24 +890,24 @@ public class TickerUI extends Application {
 
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(KEY_CMI);
+					buildTabs(KEY_KIV);
 				}
 			});
 
 		}
-		else if(view == KEY_CMI) {                                //4
+		else if(view == KEY_KIV) {                                //4
 			root.getChildren().remove(indexTabs);
-			imv7.setImage(cmi_1);
+			imv7.setImage(kiv_1);
 			imv6.setImage(ticked_2);
 			imv8.setImage(todo_2);
-			tabs_cmi.getChildren().addAll(imv8, imv6, imv7);
-			root.getChildren().add(indexTabs, tabs_cmi);  
+			tabs_kiv.getChildren().addAll(imv8, imv6, imv7);
+			root.getChildren().add(indexTabs, tabs_kiv);  
 
 			imv7.setDisable(true);
 			imv8.setDisable(false);
 			imv6.setDisable(false);
 
-			currentView = KEY_CMI;
+			currentView = KEY_KIV;
 
 			imv6.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
@@ -968,7 +964,7 @@ public class TickerUI extends Application {
 		}
 		else if(view == KEY_SEARCH) {
 			root.getChildren().remove(indexTabs);
-			imv7.setImage(cmi_2);
+			imv7.setImage(kiv_2);
 			imv6.setImage(ticked_2);
 			imv8.setImage(todo_2);
 			tabs_search.getChildren().addAll(imv7, imv6, imv8);
@@ -1007,17 +1003,17 @@ public class TickerUI extends Application {
 
 			imv7.setOnMouseEntered(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					imv7.setImage(cmi_3);
+					imv7.setImage(kiv_3);
 				}
 			});
 			imv7.setOnMouseExited(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					imv7.setImage(cmi_2);
+					imv7.setImage(kiv_2);
 				}
 			});
 			imv7.setOnMouseClicked(new EventHandler<MouseEvent>() {
 				public void handle(MouseEvent evt) {
-					String autoCommand = "list cmi";
+					String autoCommand = "list kiv";
 					feedback.setText(logic.getLogic(autoCommand));
 
 					FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
@@ -1027,7 +1023,7 @@ public class TickerUI extends Application {
 
 					chart.getChildren().clear();
 					displayTasks();
-					buildTabs(KEY_CMI);
+					buildTabs(KEY_KIV);
 				}
 			});
 
