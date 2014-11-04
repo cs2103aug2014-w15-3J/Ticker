@@ -25,8 +25,8 @@ public class Storage {
 	private Vector<Task> storedTasksByPriority = new Vector<Task>();
 	private Vector<Task> storedTasksByDeadline = new Vector<Task>();
 	private Vector<Task> storedTasksByTicked = new Vector<Task>();
-	private Vector<Task> storedTasksByCMI = new Vector<Task>();
-	private File fileSortedByPriority, fileSortedByDeadline, fileSortedByTicked, fileSortedByCMI;
+	private Vector<Task> storedTasksByKIV = new Vector<Task>();
+	private File fileSortedByPriority, fileSortedByDeadline, fileSortedByTicked, fileSortedByKIV;
 	private Scanner fileReader;
 	private BufferedWriter fileWriter;
 	private boolean isCorrupt = false, isMissing = false;
@@ -40,11 +40,11 @@ public class Storage {
 	private static final int TASKS_DEADLINE_INDEX = 1;
 	private static final int TASKS_PRIORITY_INDEX = 2;
 	private static final int TASKS_TICKED_INDEX = 3;
-	private static final int TASKS_CMI_INDEX = 4;
+	private static final int TASKS_KIV_INDEX = 4;
 	private static final String TASKS_PRIORITY_FILENAME = "priority.json";
 	private static final String TASKS_DEADLINE_FILENAME = "deadline.json"; 
 	private static final String TASKS_TICKED_FILENAME = "ticked.json";
-	private static final String TASKS_CMI_FILENAME = "cmi.json";
+	private static final String TASKS_KIV_FILENAME = "kiv.json";
 
 	public Storage() {
 		 initFile();
@@ -59,12 +59,12 @@ public class Storage {
 		fileSortedByDeadline = new File(TASKS_DEADLINE_FILENAME);
 		fileSortedByPriority = new File(TASKS_PRIORITY_FILENAME);
 		fileSortedByTicked = new File(TASKS_TICKED_FILENAME);
-		fileSortedByCMI = new File(TASKS_CMI_FILENAME);
+		fileSortedByKIV = new File(TASKS_KIV_FILENAME);
 		
 		checkFileExist(fileSortedByDeadline);
 		checkFileExist(fileSortedByPriority);
 		checkFileExist(fileSortedByTicked);
-		checkFileExist(fileSortedByCMI);
+		checkFileExist(fileSortedByKIV);
 		
 		//if one or more of the file is being altered, reset all files
 		if(isMissing) {
@@ -123,10 +123,10 @@ public class Storage {
 				setStoredTaskByDeadline(tasks);
 				String result = convertToJSON(storedTasksByTicked);
 				fileWriter.write(result);
-			} else if (key == TASKS_CMI_INDEX) {
-				fileWriter = new BufferedWriter(new FileWriter(fileSortedByCMI));
+			} else if (key == TASKS_KIV_INDEX) {
+				fileWriter = new BufferedWriter(new FileWriter(fileSortedByKIV));
 				setStoredTaskByDeadline(tasks);
-				String result = convertToJSON(storedTasksByCMI);
+				String result = convertToJSON(storedTasksByKIV);
 				fileWriter.write(result);
 			} else {
 				throw new IllegalArgumentException("illegal key " + key);
@@ -157,8 +157,8 @@ public class Storage {
 				setStoredTaskByDeadline(tasks);			
 			} else if(jsonFile.getName().equals(TASKS_PRIORITY_FILENAME)){
 				setStoredTaskByPriority(tasks);
-			} else if(jsonFile.getName().equals(TASKS_CMI_FILENAME)) {
-				setStoredTaskByCMI(tasks);
+			} else if(jsonFile.getName().equals(TASKS_KIV_FILENAME)) {
+				setStoredTaskByKIV(tasks);
 			} else if(jsonFile.getName().equals(TASKS_TICKED_FILENAME)) {
 				setStoredTaskByTicked(tasks);
 			} else {
@@ -187,9 +187,9 @@ public class Storage {
 		} else if (key == TASKS_TICKED_INDEX) {
 			readFileContentIntoStorageArray(fileSortedByTicked);
 			return storedTasksByTicked;
-		} else if (key == TASKS_CMI_INDEX) {
-			readFileContentIntoStorageArray(fileSortedByCMI);
-			return storedTasksByCMI;
+		} else if (key == TASKS_KIV_INDEX) {
+			readFileContentIntoStorageArray(fileSortedByKIV);
+			return storedTasksByKIV;
 		} else {
 			throw new IllegalArgumentException("illegal key " + key);
 		}
@@ -205,8 +205,8 @@ public class Storage {
 				fileReader = new Scanner(fileSortedByDeadline);
 			} else if(jsonFile.getName() == TASKS_PRIORITY_FILENAME){
 				fileReader = new Scanner(fileSortedByPriority);
-			} else if(jsonFile.getName() == TASKS_CMI_FILENAME){
-				fileReader = new Scanner(fileSortedByCMI);
+			} else if(jsonFile.getName() == TASKS_KIV_FILENAME){
+				fileReader = new Scanner(fileSortedByKIV);
 			} else if(jsonFile.getName() == TASKS_TICKED_FILENAME){
 				fileReader = new Scanner(fileSortedByTicked);
 			} else {
@@ -243,7 +243,7 @@ public class Storage {
 			fileWriter.write(new String("[]"));
 			fileWriter.flush();
 			
-			fileWriter = new BufferedWriter(new FileWriter(fileSortedByCMI));
+			fileWriter = new BufferedWriter(new FileWriter(fileSortedByKIV));
 			fileWriter.write(new String("[]"));
 			fileWriter.flush();
 
@@ -306,8 +306,8 @@ public class Storage {
 		storedTasksByDeadline = tasks;
 	}
 	
-	public void setStoredTaskByCMI(Vector<Task> tasks) {
-		storedTasksByCMI = tasks;
+	public void setStoredTaskByKIV(Vector<Task> tasks) {
+		storedTasksByKIV = tasks;
 	}
 	
 	public void setStoredTaskByTicked(Vector<Task> tasks) {
