@@ -584,6 +584,14 @@ public class TickerUI extends Application {
 				cmi.setFont(heading);
 				chart.getChildren().add(cmi);
 			}
+			
+			
+			//repeating task repeat weekly
+			//take the start day 
+			//two time e.g. 2:00-3:00, every Wednesday 
+			//one time e.g. 3:00, every Wednesday
+			
+			
 			/*else if(tasksToBeShown.get(i).getRepeat()) {                         //if repeated task
 				switch(tasksToBeShown.get(i).getRepeatingInterval()) {
 				case DAY:
