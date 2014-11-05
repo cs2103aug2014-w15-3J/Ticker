@@ -272,7 +272,21 @@ public class CRUManager {
 		}
 
 		if (listTracker == KEY_SEARCH) {
-			oldTask = current.get(index - 1);
+			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
+			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
+			int tickedPartitionIndex = current.indexOf(tickedPartition);
+			int kivPartitionIndex = current.indexOf(kivPartition);
+			
+			if ((index - 1) < tickedPartitionIndex) {
+				oldTask = current.get(index - 1);
+			}
+			else if ((index - 1) >= tickedPartitionIndex && (index - 1) <= (kivPartitionIndex - 2)) {
+				oldTask = current.get(index);
+			}
+			else {
+				oldTask = current.get(index + 1);
+			}
+			
 			if (storedTasksByTime.contains(oldTask) || storedTasksByPriority.contains(oldTask)) {
 				storedTasksByTime.remove(oldTask);
 				storedTasksByTime.remove(oldTask);
@@ -412,7 +426,7 @@ public class CRUManager {
 			}
 		}	
 
-		// Add newTask back
+		// Add newTask into undone list
 		if (listTracker == KEY_SEARCH) {
 			addTaskIntoUndone(newTask);
 		}
