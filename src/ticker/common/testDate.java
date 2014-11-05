@@ -1,5 +1,4 @@
 //@author A0115288B
-//TODO recover other test cases
 
 package ticker.common;
 
