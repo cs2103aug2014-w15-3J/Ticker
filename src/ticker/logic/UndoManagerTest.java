@@ -181,13 +181,38 @@ public class UndoManagerTest {
 		storedTasksByPriority.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
 		storedTasksByDeadline.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
 		storedTasksByTicked.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
-		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
 		assertEquals(true, storedTasksByPriority.isEmpty());
 		assertEquals(true, storedTasksByTicked.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
 		uM.undo();
 		assertEquals(true, storedTasksByTicked.isEmpty());
 		assertEquals(true, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
-			
+		
+		uM.clearStateForTesting();
+	}
+	
+	@Test
+	public void testUndoAfterCMIOperation() {
+		Vector<Task> storedTasksByPriority = new Vector<Task>();
+		Vector<Task> storedTasksByDeadline = new Vector<Task>();
+		Vector<Task> storedTasksByTicked = new Vector<Task>();
+		Vector<Task> storedTasksByCMI = new Vector<Task>();
+		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
+				storedTasksByDeadline, storedTasksByTicked, storedTasksByCMI);
+		
+		//test undo-ing tick of floating task
+		uM.add(new Event(COMMAND_ADD, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		storedTasksByPriority.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		uM.add(new Event(COMMAND_CMI, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false), LIST_TIME, LIST_CMI));
+		storedTasksByPriority.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByCMI.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByCMI.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByCMI.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		
 		
 		uM.clearStateForTesting();
 	}
