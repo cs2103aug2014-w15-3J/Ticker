@@ -1,3 +1,5 @@
+//@author A0114535M
+
 package ticker.common;
 
 import java.util.Comparator;

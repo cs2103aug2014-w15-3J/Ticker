@@ -1,3 +1,5 @@
+//@author A0114535M
+
 /* Team ID: W15-3J
  * Name: Li Jia'En, Nicholette
  * Matric Number: A0114535M
@@ -76,20 +78,37 @@ public class CRUManager {
 	String delete(int index, int listTracker, Vector<Task> current, String currentListName) 
 			throws ArrayIndexOutOfBoundsException {
 		Event event;
-		Task deleted = current.remove(index-1);
+		Task deleted;
 
 		if (listTracker == KEY_SORTED_TIME) {
+			deleted = current.remove(index - 1);
 			storedTasksByPriority.remove(deleted);
 			event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
 			undoMng.add(event);
 		}
 		else if (listTracker == KEY_SORTED_PRIORITY) {
+			deleted = current.remove(index - 1);
 			storedTasksByTime.remove(deleted);
 			event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
 			undoMng.add(event);
 		}
 		else if (listTracker == KEY_SEARCH) {
 			int indexCounter;
+			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
+			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
+			int tickedPartitionIndex = current.indexOf(tickedPartition);
+			int kivPartitionIndex = current.indexOf(kivPartition);
+			
+			if ((index - 1) < tickedPartitionIndex) {
+				deleted = current.remove(index - 1);
+			}
+			else if ((index - 1) >= tickedPartitionIndex && (index - 1) <= (kivPartitionIndex - 2)) {
+				deleted = current.remove(index);
+			}
+			else {
+				deleted = current.remove(index + 1);
+			}
+
 			if (storedTasksByTime.contains(deleted) || storedTasksByPriority.contains(deleted)) {
 				indexCounter = 0;
 				for (Task task: storedTasksByTime) {
@@ -129,6 +148,7 @@ public class CRUManager {
 			}
 		}
 		else {
+			deleted = current.remove(index - 1);
 			event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
 			undoMng.add(event);
 		}
@@ -252,7 +272,21 @@ public class CRUManager {
 		}
 
 		if (listTracker == KEY_SEARCH) {
-			oldTask = current.get(index - 1);
+			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
+			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
+			int tickedPartitionIndex = current.indexOf(tickedPartition);
+			int kivPartitionIndex = current.indexOf(kivPartition);
+			
+			if ((index - 1) < tickedPartitionIndex) {
+				oldTask = current.get(index - 1);
+			}
+			else if ((index - 1) >= tickedPartitionIndex && (index - 1) <= (kivPartitionIndex - 2)) {
+				oldTask = current.get(index);
+			}
+			else {
+				oldTask = current.get(index + 1);
+			}
+			
 			if (storedTasksByTime.contains(oldTask) || storedTasksByPriority.contains(oldTask)) {
 				storedTasksByTime.remove(oldTask);
 				storedTasksByTime.remove(oldTask);
@@ -392,7 +426,7 @@ public class CRUManager {
 			}
 		}	
 
-		// Add newTask back
+		// Add newTask into undone list
 		if (listTracker == KEY_SEARCH) {
 			addTaskIntoUndone(newTask);
 		}
