@@ -14,12 +14,10 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 
-
+//@author A0116673A
 /**
 *  Storage is the storage component for Ticker. 
 * 
-*  @author Choo Jia Le
-*  @version 0.1
 */
 public class Storage {
 	private Vector<Task> storedTasksByPriority = new Vector<Task>();
@@ -29,7 +27,7 @@ public class Storage {
 	private File fileSortedByPriority, fileSortedByDeadline, fileSortedByTicked, fileSortedByKIV;
 	private Scanner fileReader;
 	private BufferedWriter fileWriter;
-	private boolean isCorrupt = false, isMissing = false;
+	private boolean isMissing = false;
 	
 	// These messages are used when IO errors occur
 	private static final String MESSAGE_FILE_LOAD_ERROR = "Could not load from %1$s properly: %2$s";
@@ -169,7 +167,7 @@ public class Storage {
 		}
 		fileReader.close();
 	}
-	
+
 	/**
 	*  Restore the data from the file that stores the data in JSON format
 	*	

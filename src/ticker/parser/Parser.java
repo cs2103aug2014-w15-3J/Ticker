@@ -1,5 +1,6 @@
 // TODO: add priority to task
 package ticker.parser;
+//@author  A0115369B
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Calendar;
@@ -139,6 +140,7 @@ public class Parser {
 		nlp(description,input);
 		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
+		extractSingleDate(input);
 		
 		input.validifyTime();
 
@@ -268,6 +270,26 @@ public class Parser {
 		return res.trim();
 	}
 	
+	private void extractSingleDate(UserInput input){
+		if (input.getStartDate()==null&&input.getEndDate()==null){
+			String res = input.getDescription();
+			String[] splitted = res.split(" +");
+			for (int i = 0;i<splitted.length;i++){
+				if (constructDate(splitted[i])!=null){
+					int startIndex = res.indexOf(splitted[i]);
+					int endIndex = startIndex + splitted[i].length();
+					if (startIndex-1>=0&&res.charAt(startIndex-1)==' '){
+						startIndex--;
+					}
+					res=res.substring(0,startIndex)+res.substring(endIndex);
+					input.setStartDate(constructDate(splitted[i]));
+					input.setEndDate(constructDate(splitted[i]));
+				}
+			}
+			input.setDescription(res);
+		}
+	}
+	
 	private UserInput callEdit(String[] words,String command){
 		String description = extractDesc(command);
 			
@@ -332,11 +354,11 @@ public class Parser {
 		nlp(description,input);
 		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
-
+		
+		
 		if (!((input.getStartTime()==null)&&(input.getEndTime()==null)&&(input.getStartDate()==null)&&(input.getEndDate()==null))){
 			getSearchTimePeriod(input,command);
 		}
-				
 		
 		return input;
 	}
