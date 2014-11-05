@@ -1,5 +1,5 @@
 package ticker.common;
-
+//@author A0115369B
 public class DateTime{
 	private Date date;
 	private Time time;

@@ -2,12 +2,7 @@ package ticker.common;
 
 import java.util.Calendar;
 
-/*
- * 
- *  This class represents a time
- * 
- *  Coded by Liu Kexin, 26 Sep 2014
- */ 
+//@author A0115369B
  
 public class Time {
 	private int hour;
