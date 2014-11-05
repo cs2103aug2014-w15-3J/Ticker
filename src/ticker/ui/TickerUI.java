@@ -79,7 +79,7 @@ public class TickerUI extends Application {
 	private int nextView = KEY_SORTED_TIME;
 
 	private static final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
-	private static final String[] daysOfWeek = {"","Mon","Tues","Wed","Thur","Fri","Sat","Sun"};
+	private static final String[] dayOfWeek = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
 
 	Calendar c;
 
@@ -592,8 +592,31 @@ public class TickerUI extends Application {
 			//one time e.g. 3:00, every Wednesday
 			
 			
-			/*else if(tasksToBeShown.get(i).getRepeat()) {                         //if repeated task
-				switch(tasksToBeShown.get(i).getRepeatingInterval()) {
+			else if(tasksToBeShown.get(i).getRepeat()) {                         //if repeated task
+				VBox repeat = new VBox();
+				Label day = new Label();
+				Label time = new Label();
+				
+				if(ED=="") {
+					day.setText("every " + dayOfWeek[Date.dayOfWeek(sd)]);
+				}
+				else {
+					day.setText("every " + dayOfWeek[Date.dayOfWeek(ed)]);
+				}
+				if(ST=="") {
+					time.setText(ET);
+				}
+				else if(ET=="") {
+					time.setText(ST);
+				}
+				else {
+					time.setText(ST + " to " + ET);
+				}
+				repeat.getChildren().addAll(day, time);
+				hb.getChildren().addAll(index, priority, description, repeat);
+				chart.getChildren().add(hb);
+
+				/*switch(tasksToBeShown.get(i).getRepeatingInterval()) {
 				case DAY:
 					Label daily = new Label("everyday " + ST + " to " + ET);
 					hb.getChildren().addAll(index, priority, description, daily);
@@ -625,8 +648,8 @@ public class TickerUI extends Application {
 					hb.getChildren().addAll(index, priority, description, monthly);
 					chart.getChildren().add(hb);
 					break;
-				}
-			}*/
+				}*/
+			}
 			else {
 				if(sd==null && st==null && ed==null && et==null) {
 					hb.getChildren().addAll(index, priority, description);
