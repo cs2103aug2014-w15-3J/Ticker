@@ -5,6 +5,8 @@ import java.util.Vector;
 
 import ticker.common.Task;
 
+//@author A0116673A
+
 public class UndoManager {
 	private static final String COMMAND_ADD = "add";
 	private static final String COMMAND_DELETE = "delete";
