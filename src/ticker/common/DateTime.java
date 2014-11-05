@@ -16,10 +16,20 @@ public class DateTime{
 	public void setDate(Date date){this.date = date;}
 	
 	public boolean equalsTo(DateTime other){
-		return this.getTime().equals(other.getTime())&&this.getDate().equals(other.getDate());
+		return this.compareTo(other)==0;
 	}
 
 	public boolean smallerThan(DateTime other){
-		return this.getDate().smallerThan(other.getDate())||(this.getDate().equals(other.getDate())&&this.getTime().smallerThan(other.getTime()));
+		return this.compareTo(other)<0;
+	}
+	
+	public int compareTo(DateTime other){
+		if (this.getDate().smallerThan(other.getDate())||(this.getDate().equals(other.getDate())&&this.getTime().smallerThan(other.getTime()))){
+			return -1;
+		}
+		else if(this.getTime().equals(other.getTime())&&this.getDate().equals(other.getDate())){
+			return 0;
+		}
+		else return 1;
 	}
 }
