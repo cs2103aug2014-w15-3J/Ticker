@@ -30,6 +30,7 @@ public class testDate {
 		assertEquals(date2.toString(), "20 Sep 2013");
 		
 		//test CompareTo
+		assertEquals(date2.compareTo(date1), -1);
 		
 		
 		
