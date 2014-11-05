@@ -1,5 +1,5 @@
 package ticker.parser;
-
+//@author A0115369B
 public enum CMD{
 	ERROR("error"),DEL("delete"),EDIT("edit"),EDITT("editt"),
 	SEARCH("search"),ADD("add"),TICK("tick"),UNTICK("untick"),

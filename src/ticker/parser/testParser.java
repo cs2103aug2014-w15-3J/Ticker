@@ -1,5 +1,5 @@
 package ticker.parser;
-
+//@author A0115369B
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
