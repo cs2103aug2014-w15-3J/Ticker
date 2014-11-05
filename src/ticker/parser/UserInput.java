@@ -2,7 +2,7 @@ package ticker.parser;
 import ticker.common.Date;
 import ticker.common.Time;
 import ticker.common.Task.RepeatingInterval;
-
+//@author  A0115369B
 public class UserInput {
 	
 	private String command;
@@ -103,6 +103,7 @@ public class UserInput {
 			}
 		}
 		
+		//endTime == null
 		else {
 			if (endDate == null&&startTime!=null&&startDate==null){
 				startDate=Date.getCurrentDate();
@@ -110,6 +111,25 @@ public class UserInput {
 			else if (endDate != null&&startTime!=null&&startDate!=null){
 				endTime = new Time(23,59);
 			}
+			else if (startTime==null&&startDate!=null&&endDate!=null){
+				startTime = new Time(0,0);
+				endTime = new Time(23,59);
+			}
+			else if (startTime==null&&startDate!=null&&endDate==null){
+				startTime = new Time(0,0);
+			}
+			else if (startDate==null&&endDate!=null){
+				if (startTime==null){
+					endTime = new Time (23,59);
+				}
+				else {
+					startDate=endDate;
+				}
+			}
+			
+			
+			
+			
 		}
 		
 	}
