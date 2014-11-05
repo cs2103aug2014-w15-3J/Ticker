@@ -2,12 +2,7 @@ package ticker.common;
 
 import java.util.Calendar;
 
-/*
- *  
- *  this class represents a Date
- * 
- *  Coded by Liu Kexin, 26 Sep 2014
- */
+//@author A0115369B
 
 public class Date {
 	private int year;
@@ -24,7 +19,7 @@ public class Date {
 	public String toString(){
 		String showDate = date + " " + months[month];
 		if(year!=getCurrentYear()) {
-			showDate += ", ";
+			showDate += " ";
 			showDate += year;
 		}
 		return showDate;

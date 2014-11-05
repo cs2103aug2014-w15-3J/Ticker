@@ -1,3 +1,5 @@
+//@author A0115288B
+
 package ticker.ui;
 
 import java.util.Calendar;
@@ -54,7 +56,7 @@ public class TickerUI extends Application {
 	VBox chart = new VBox();
 	ImageView help;
 	Image helpPage;
-	
+
 	Font content = new Font("Arial Rounded MT Bold", 13);
 	Font heading = new Font("Britannic Bold", 14);
 
@@ -77,7 +79,7 @@ public class TickerUI extends Application {
 	private int nextView = KEY_SORTED_TIME;
 
 	private static final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
-	private static final String[] daysOfWeek = {"","Mon","Tues","Wed","Thur","Fri","Sat","Sun"};
+	private static final String[] dayOfWeek = {"Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"};
 
 	Calendar c;
 
@@ -563,27 +565,58 @@ public class TickerUI extends Application {
 				end.setTextFill(Color.RED);
 			}
 
-			if((newTask.equals("\\***TICKED***\\")) ) {
+			if((newTask.equals("\\***TICKED***\\")) ) {                            //this list is search result
 				isSearchResult = true;
+
+				Label todo = new Label("   Search results from the To-do section:");
+				todo.setPrefHeight(35);
+				todo.setAlignment(Pos.BOTTOM_LEFT);
+				todo.setFont(heading);
+				chart.getChildren().add(0, todo);
+
 				d++;
+
 				Label ticked = new Label("   Search results from the Ticked section:");
 				ticked.setPrefHeight(35);
 				ticked.setAlignment(Pos.BOTTOM_LEFT);
 				ticked.setFont(heading);
-				//ticked.setVisible(false);
 				chart.getChildren().add(ticked);
 
 			}
 			else if (newTask.equals("\\***KIV***\\")) {
 				d++;
-				Label cmi = new Label("   Search results from the KIV section:");
-				cmi.setPrefHeight(35);
-				cmi.setAlignment(Pos.BOTTOM_LEFT);
-				cmi.setFont(heading);
-				chart.getChildren().add(cmi);
+				Label kiv = new Label("   Search results from the KIV section:");
+				kiv.setPrefHeight(35);
+				kiv.setAlignment(Pos.BOTTOM_LEFT);
+				kiv.setFont(heading);
+				chart.getChildren().add(kiv);
 			}
-			/*else if(tasksToBeShown.get(i).getRepeat()) {                         //if repeated task
-				switch(tasksToBeShown.get(i).getRepeatingInterval()) {
+
+			else if(tasksToBeShown.get(i).getRepeat()) {                         //if repeated task
+				VBox repeat = new VBox();
+				Label day = new Label();
+				Label time = new Label();
+
+				if(ED=="") {
+					day.setText("every " + dayOfWeek[Date.dayOfWeek(sd)]);
+				}
+				else {
+					day.setText("every " + dayOfWeek[Date.dayOfWeek(ed)]);
+				}
+				if(ST=="") {
+					time.setText(ET);
+				}
+				else if(ET=="") {
+					time.setText(ST);
+				}
+				else {
+					time.setText(ST + " to " + ET);
+				}
+				repeat.getChildren().addAll(day, time);
+				hb.getChildren().addAll(index, priority, description, repeat);
+				chart.getChildren().add(hb);
+
+				/*switch(tasksToBeShown.get(i).getRepeatingInterval()) {
 				case DAY:
 					Label daily = new Label("everyday " + ST + " to " + ET);
 					hb.getChildren().addAll(index, priority, description, daily);
@@ -615,8 +648,8 @@ public class TickerUI extends Application {
 					hb.getChildren().addAll(index, priority, description, monthly);
 					chart.getChildren().add(hb);
 					break;
-				}
-			}*/
+				}*/
+			}
 			else {
 				if(sd==null && st==null && ed==null && et==null) {
 					hb.getChildren().addAll(index, priority, description);
@@ -671,8 +704,7 @@ public class TickerUI extends Application {
 					initialX = me.getSceneX();
 					initialY = me.getSceneY();
 				}
-				else
-				{
+				else {
 					node.getScene().getWindow().centerOnScreen();
 					initialX = node.getScene().getWindow().getX();
 					initialY = node.getScene().getWindow().getY();

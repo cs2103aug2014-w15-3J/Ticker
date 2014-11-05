@@ -126,12 +126,7 @@ public class UserInput {
 					startDate=endDate;
 				}
 			}
-			
-			
-			
-			
 		}
-		
 	}
 
 	public void setPriority(char priority) {
