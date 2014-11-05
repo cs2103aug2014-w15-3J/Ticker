@@ -1,3 +1,5 @@
+//@author A0115288B
+
 package ticker.ui;
 
 import java.util.Calendar;

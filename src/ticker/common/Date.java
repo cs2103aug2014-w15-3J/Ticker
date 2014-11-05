@@ -24,7 +24,7 @@ public class Date {
 	public String toString(){
 		String showDate = date + " " + months[month];
 		if(year!=getCurrentYear()) {
-			showDate += ", ";
+			showDate += " ";
 			showDate += year;
 		}
 		return showDate;
