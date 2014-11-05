@@ -77,7 +77,21 @@ public class TickKIVManager {
 		}
 
 		else if (listTracker == KEY_SEARCH) {
-			ticked = current.get(index-1);
+			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
+			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
+			int tickedPartitionIndex = current.indexOf(tickedPartition);
+			int kivPartitionIndex = current.indexOf(kivPartition);
+			
+			if ((index - 1) < tickedPartitionIndex) {
+				ticked = current.remove(index - 1);
+			}
+			else if ((index - 1) >= tickedPartitionIndex && (index - 1) <= (kivPartitionIndex - 2)) {
+				ticked = current.remove(index);
+			}
+			else {
+				ticked = current.remove(index + 1);
+			}
+
 			if (storedTasksByTime.contains(ticked) || storedTasksByPriority.contains(ticked)) {
 				storedTasksByTime.remove(ticked);
 				storedTasksByPriority.remove(ticked);
@@ -122,7 +136,21 @@ public class TickKIVManager {
 		}
 		
 		if (listTracker == KEY_SEARCH) {
-			unticked = current.get(index-1);
+			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
+			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
+			int tickedPartitionIndex = current.indexOf(tickedPartition);
+			int kivPartitionIndex = current.indexOf(kivPartition);
+			
+			if ((index - 1) < tickedPartitionIndex) {
+				unticked = current.remove(index - 1);
+			}
+			else if ((index - 1) >= tickedPartitionIndex && (index - 1) <= (kivPartitionIndex - 2)) {
+				unticked = current.remove(index);
+			}
+			else {
+				unticked = current.remove(index + 1);
+			}
+			
 			if (storedTasksByTime.contains(unticked) || storedTasksByPriority.contains(unticked)) {
 				return "Cannot untick a task from undone list.";
 			}
