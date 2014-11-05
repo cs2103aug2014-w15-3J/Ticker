@@ -56,7 +56,7 @@ public class TickerUI extends Application {
 	VBox chart = new VBox();
 	ImageView help;
 	Image helpPage;
-	
+
 	Font content = new Font("Arial Rounded MT Bold", 13);
 	Font heading = new Font("Britannic Bold", 14);
 
@@ -565,38 +565,38 @@ public class TickerUI extends Application {
 				end.setTextFill(Color.RED);
 			}
 
-			if((newTask.equals("\\***TICKED***\\")) ) {
+			if((newTask.equals("\\***TICKED***\\")) ) {                            //this list is search result
 				isSearchResult = true;
+
+				Label todo = new Label("   Search results from the To-do section:");
+				todo.setPrefHeight(35);
+				todo.setAlignment(Pos.BOTTOM_LEFT);
+				todo.setFont(heading);
+				chart.getChildren().add(0, todo);
+
 				d++;
+
 				Label ticked = new Label("   Search results from the Ticked section:");
 				ticked.setPrefHeight(35);
 				ticked.setAlignment(Pos.BOTTOM_LEFT);
 				ticked.setFont(heading);
-				//ticked.setVisible(false);
 				chart.getChildren().add(ticked);
 
 			}
 			else if (newTask.equals("\\***KIV***\\")) {
 				d++;
-				Label cmi = new Label("   Search results from the KIV section:");
-				cmi.setPrefHeight(35);
-				cmi.setAlignment(Pos.BOTTOM_LEFT);
-				cmi.setFont(heading);
-				chart.getChildren().add(cmi);
+				Label kiv = new Label("   Search results from the KIV section:");
+				kiv.setPrefHeight(35);
+				kiv.setAlignment(Pos.BOTTOM_LEFT);
+				kiv.setFont(heading);
+				chart.getChildren().add(kiv);
 			}
-			
-			
-			//repeating task repeat weekly
-			//take the start day 
-			//two time e.g. 2:00-3:00, every Wednesday 
-			//one time e.g. 3:00, every Wednesday
-			
-			
+
 			else if(tasksToBeShown.get(i).getRepeat()) {                         //if repeated task
 				VBox repeat = new VBox();
 				Label day = new Label();
 				Label time = new Label();
-				
+
 				if(ED=="") {
 					day.setText("every " + dayOfWeek[Date.dayOfWeek(sd)]);
 				}
@@ -704,8 +704,7 @@ public class TickerUI extends Application {
 					initialX = me.getSceneX();
 					initialY = me.getSceneY();
 				}
-				else
-				{
+				else {
 					node.getScene().getWindow().centerOnScreen();
 					initialX = node.getScene().getWindow().getX();
 					initialY = node.getScene().getWindow().getY();
