@@ -1,5 +1,7 @@
 //@author A0115288B
-
+/*
+ *  
+ */
 package ticker.ui;
 
 import java.util.Calendar;
@@ -12,6 +14,8 @@ import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -62,7 +66,7 @@ public class TickerUI extends Application {
 
 	//GridPane chart = new GridPane();
 	TextField command;
-	Text feedback;
+	Label feedback, prompt;
 	ScrollPane sp;
 	//tabs
 	int indexTabs = 7;       //tabs is the 7th children that root added
@@ -92,6 +96,8 @@ public class TickerUI extends Application {
 	final Label colon1 = new Label(":");
 	final Label colon2 = new Label(":");
 
+	FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+	
 	final Label date_string = new Label();
 
 	private static Logger logger = Logger.getLogger("UI");
@@ -155,11 +161,11 @@ public class TickerUI extends Application {
 		root.getChildren().add(sp); 
 
 		//feedback area
-		feedback = new Text();
+		feedback = new Label();
 		feedback.setLayoutX(22);
-		feedback.setLayoutY(628);
-		feedback.setFill(Color.BISQUE);
-		//feedback.setText("The command you entered is invalid");
+		feedback.setLayoutY(617);
+		feedback.setPrefWidth(450);
+		feedback.setTextFill(Color.BISQUE);
 		root.getChildren().add(feedback);
 
 		//add the minimise and close button
@@ -311,7 +317,26 @@ public class TickerUI extends Application {
 		normal = new Image("ticker/ui/pic/normal.png", true);
 		impt = new Image("ticker/ui/pic/impt.png", true);
 
+		prompt = new Label();
+		prompt.setLayoutX(22);
+		prompt.setLayoutY(620);
+		prompt.setPrefWidth(450);
+		prompt.setTextFill(Color.BISQUE);
+		root.getChildren().add(prompt);
 
+		command.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue observable, String oldValue, String newValue) {
+				System.out.println(command.getText());
+				ft.stop();
+				//feedback.setOpacity(1);
+				feedback.setText("hmmmm");
+				//feedback.setVisible(false);
+				//prompt.setText("another one!");
+				//System.out.println("something changed!");
+			}
+		});
+		
 		//can scroll up and down and minimise the window using keyboard
 		command.setOnKeyPressed(new EventHandler<KeyEvent>() 
 				{
@@ -335,6 +360,8 @@ public class TickerUI extends Application {
 		command.setOnAction(new EventHandler<ActionEvent>() 
 				{
 			public void handle(ActionEvent event) {
+				prompt.setVisible(false);
+				feedback.setVisible(true);
 				String cmd = command.getText();
 				command.clear();
 				feedback.setText(logic.getLogic(cmd));
@@ -386,10 +413,11 @@ public class TickerUI extends Application {
 				}
 
 				//feedback fades off after 5 seconds
-				FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+				ft = new FadeTransition(Duration.millis(5000), feedback);
 				ft.setFromValue(1.0);
 				ft.setToValue(0);
 				ft.play();
+				
 			}
 				});
 
