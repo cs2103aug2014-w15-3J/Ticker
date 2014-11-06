@@ -39,6 +39,7 @@ import javafx.util.Duration;
 import ticker.common.Date;
 import ticker.common.Task;
 import ticker.common.Time;
+import ticker.logic.HelpManager;
 import ticker.logic.Logic;
 
 public class TickerUI extends Application {
@@ -324,14 +325,15 @@ public class TickerUI extends Application {
 		normal = new Image("ticker/ui/pic/normal.png", true);
 		impt = new Image("ticker/ui/pic/impt.png", true);
 
+		HelpManager helpManager = new HelpManager();
 		command.textProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue observable, String oldValue,
 					String newValue) {
-				System.out.println(command.getText());
+				//System.out.println(command.getText());
 				ft.stop();
 				feedback.setOpacity(1);
-				feedback.setText("hmmmm");
+				feedback.setText(helpManager.getHelp(newValue));
 
 				// System.out.println("something changed!");
 			}
