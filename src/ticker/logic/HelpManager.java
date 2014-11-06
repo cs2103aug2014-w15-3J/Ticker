@@ -29,6 +29,7 @@ public class HelpManager {
 	private static final String COMMAND_CLEAR = "clear";
 	private static final String COMMAND_DELETE = "delete";
 	private static final String COMMAND_SEARCH = "search";
+	private static final String COMMAND_SHOW = "show";
 
 	private static final String MESSAGE_HELP = "help";
 	private static final String MESSAGE_UNTICK = "untick <index>";
@@ -38,11 +39,14 @@ public class HelpManager {
 	private static final String MESSAGE_UNKIV = "unkiv <index>";
 	private static final String MESSAGE_KIV = "kiv <index>";
 	private static final String MESSAGE_ADD = "add <description> <startDate>-<endDate> <startTime>-<endTime>";
-	private static final String MESSAGE_EDIT = "edit <index>";
-	private static final String MESSAGE_LIST = "list <listName>";
+	private static final String MESSAGE_EDIT = "edit <index> <description>";
+	private static final String MESSAGE_LIST = "list <listType>";
 	private static final String MESSAGE_CLEAR = "clear";
 	private static final String MESSAGE_DELETE = "delete <index>";
-	private static final String MESSAGE_SEARCH = "search <words>";
+	private static final String MESSAGE_SEARCH = "search <description> <time> -<priority>";
+	private static final String MESSAGE_SHOW = "show <listType>";
+	
+	private static final String EMPTY_STRING = "";
 
 	//@author A0116673A
 
@@ -71,6 +75,7 @@ public class HelpManager {
 		helpList.put(COMMAND_CLEAR, MESSAGE_CLEAR);
 		helpList.put(COMMAND_DELETE, MESSAGE_DELETE);
 		helpList.put(COMMAND_SEARCH, MESSAGE_SEARCH);
+		helpList.put(COMMAND_SHOW, MESSAGE_SHOW);
 	}
 
 	/**
@@ -90,8 +95,9 @@ public class HelpManager {
 	public String getHelp(String key){
 		Vector<String> temp = new Vector<String>();
 		matchList.removeAllElements();
+		
 		if (key.length() < 2) {
-			return "";
+			return EMPTY_STRING;
 		} else {
 			String firstWordKey = key.split(" ")[0];
 
@@ -112,7 +118,7 @@ public class HelpManager {
 			}
 
 			if (temp.isEmpty()) {
-				return "";
+				return EMPTY_STRING;
 			} else {
 				return helpList.get(temp.get(0));
 			}
