@@ -90,26 +90,29 @@ public class HelpManager {
 	public String getHelp(String key){
 		Vector<String> temp = new Vector<String>();
 		matchList.removeAllElements();
+		if (key.length() < 2) {
+			return "";
+		} else {
+			String firstWordKey = key.split(" ")[0];
 
-		String firstWordKey = key.split(" ")[0];
-
-		int i = 0;	
-		for (String command: commandListSet) {
-			float score = getMatchLikelyhood(firstWordKey.toLowerCase(), command);
-			matchList.add(new StringMatch(i, score));
-			i++;
-		}
-		
-		Collections.sort(matchList, new StringMatchComparator());
-
-		for (StringMatch sm : matchList) {
-			if (sm.getSimilarityScore() < 65.0) {
-				break;
+			int i = 0;	
+			for (String command: commandListSet) {
+				float score = getMatchLikelyhood(firstWordKey.toLowerCase(), command);
+				matchList.add(new StringMatch(i, score));
+				i++;
 			}
-			temp.add(commandListSet[sm.getIndex()]);
+
+			Collections.sort(matchList, new StringMatchComparator());
+
+			for (StringMatch sm : matchList) {
+				if (sm.getSimilarityScore() < 65.0) {
+					break;
+				}
+				temp.add(commandListSet[sm.getIndex()]);
+			}
+
+			return helpList.get(temp.get(0));
 		}
-		
-		return helpList.get(temp.get(0));
 	}
 
 	/**
