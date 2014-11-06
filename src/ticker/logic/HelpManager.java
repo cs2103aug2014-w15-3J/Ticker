@@ -110,8 +110,13 @@ public class HelpManager {
 				}
 				temp.add(commandListSet[sm.getIndex()]);
 			}
-
-			return helpList.get(temp.get(0));
+			
+			if (temp.isEmpty()) {
+				return "";
+			} else {
+				return helpList.get(temp.get(0));
+			}
+			
 		}
 	}
 
