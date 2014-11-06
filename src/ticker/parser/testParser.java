@@ -85,8 +85,8 @@ public class testParser {
 		assertThat(par.processInput("done 1").getIndex(),is(1));
 		assertEquals("untick",par.processInput("untick 1").getCommand());
 		//test for CMI (Cannot Make It)
-		assertEquals("cmi",par.processInput("cmi 1").getCommand());
-		assertEquals("uncmi",par.processInput("uncmi 1").getCommand());
+		assertEquals("kiv",par.processInput("kiv 1").getCommand());
+		assertEquals("unkiv",par.processInput("unkiv 1").getCommand());
 	}
 	
 	@Test
