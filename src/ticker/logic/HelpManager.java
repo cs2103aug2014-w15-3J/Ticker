@@ -12,7 +12,6 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.SmithWatermanGotohWindowedAff
 
 public class HelpManager {
 	private Vector<StringMatch> matchList;
-	private String key;
 	private HashMap<String, String> helpList;
 	private String[] commandListSet;
 
@@ -96,7 +95,7 @@ public class HelpManager {
 
 		int i = 0;	
 		for (String command: commandListSet) {
-			float score = getMatchLikelyhood(key.toLowerCase(), command);
+			float score = getMatchLikelyhood(firstWordKey.toLowerCase(), command);
 			matchList.add(new StringMatch(i, score));
 			i++;
 		}
