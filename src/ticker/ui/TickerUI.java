@@ -61,8 +61,7 @@ public class TickerUI extends Application {
 	ImageView imv1, imv2, imv3, imv4, imv9;
 	VBox chart = new VBox();
 	ImageView help;
-	Group helpPage;
-	Image helpBackground;
+	Image helpPage;
 	TextArea helpContent;
 
 	Font content = new Font("Arial Rounded MT Bold", 13);
@@ -308,15 +307,14 @@ public class TickerUI extends Application {
 
 		// TODO set the content of help and design better looking help page
 		// implement the help page
-		helpPage = new Group();
 		help = new ImageView();
 		help.setVisible(false);
 		help.setLayoutX(45);
 		help.setLayoutY(75);
-		helpBackground = new Image("ticker/ui/pic/help.png", true);
-		help.setImage(helpBackground);
+		helpPage = new Image("ticker/ui/pic/help_content.png", true);
+		help.setImage(helpPage);
 		help.setFitWidth(400);
-		helpContent = new TextArea();
+		help.setPreserveRatio(true);
 		root.getChildren().add(help);
 
 		// System.out.println(root.getChildren().size());
