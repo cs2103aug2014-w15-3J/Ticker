@@ -26,6 +26,8 @@ public class Parser {
 		ptp = new PrettyTimeParser();
 	}
 
+	//This method takes in a string from Logic and returns a UserInput object to Logic
+	//indicating what the user want to do
 	public UserInput processInput(String command){
 		logger.log(Level.INFO,"processInput");
 		String[] words = command.toLowerCase().split(" +");
@@ -98,6 +100,10 @@ public class Parser {
 			System.exit(0);
 		}
 		
+		if (key.equals("searchf")||key.equals("searchfree")){
+			return callSearchFree(command);
+		}
+		
 		return null;
 		
 	}
@@ -138,10 +144,9 @@ public class Parser {
 		}
 		
 		nlp(description,input);
-		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
+		TimePeriod result = checkDashTimeDate(command);
 		mergeTimeResult(result,input);
 		extractSingleDate(input);
-		
 		input.validifyTime();
 
 		if (input.getStartDate()==null&&input.getEndDate()!=null&&input.getStartTime()!=null&&input.getEndTime()==null){
@@ -243,6 +248,7 @@ public class Parser {
 		return input;
 	}
 	
+	//This method extracts the description part from the String entered by user
 	private String extractDesc(String str){
 		if ((str.length()>4&&str.substring(0,4).equalsIgnoreCase("add "))
 				||(str.length()>6&&str.substring(0, 7).equalsIgnoreCase("search "))){
@@ -316,7 +322,7 @@ public class Parser {
 		nlp(description,input);
 		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
-		
+		extractSingleDate(input);
 		input.validifyTime();
 		
 		if (!((input.getStartTime()==null)&&(input.getEndTime()==null)&&(input.getStartDate()==null)&&(input.getEndDate()==null))){
@@ -358,11 +364,28 @@ public class Parser {
 		nlp(description,input);
 		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
-		
+		extractSingleDate(input);
 		
 		if (!((input.getStartTime()==null)&&(input.getEndTime()==null)&&(input.getStartDate()==null)&&(input.getEndDate()==null))){
 			getSearchTimePeriod(input,command);
 		}
+		
+		return input;
+	}
+	
+	private UserInput callSearchFree(String command){
+
+		UserInput input = new UserInput(CMD.SEARCHFREE,command);
+		
+		nlp(command,input);
+		TimePeriod result = checkDashTimeDate(command);
+		mergeTimeResult(result,input);
+		extractSingleDate(input);
+		
+		if (!((input.getStartTime()==null)&&(input.getEndTime()==null)&&(input.getStartDate()==null)&&(input.getEndDate()==null))){
+			getSearchTimePeriod(input,command);
+		}
+		input.setDescription(null);
 		
 		return input;
 	}
