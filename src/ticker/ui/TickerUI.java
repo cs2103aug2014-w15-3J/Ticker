@@ -593,6 +593,19 @@ public class TickerUI extends Application {
 				end.setTextFill(Color.RED);
 			}
 
+			if(newTask.equals("\\***EMPTY***\\")) {     // if this list is for search empty slot
+				description.setText("empty slot");
+				description.setTextFill(Color.DARKGREEN);
+				VBox time = new VBox(5);
+				start.setText("Start: " + ST + ", " + SD);
+				end.setText("End: " + ET + ", " + ED);
+				time.getChildren().add(start);
+				time.getChildren().add(end);
+				time.setPrefSize(widthTime, prefHeight);
+				time.setAlignment(Pos.CENTER_LEFT);
+				hb.getChildren().addAll(index, priority, description, time);
+				chart.getChildren().add(hb);		
+			}
 			if ((newTask.equals("\\***TICKED***\\"))) { // this list is search
 														// result
 				isSearchResult = true;
