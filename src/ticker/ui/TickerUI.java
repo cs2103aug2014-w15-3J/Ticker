@@ -88,7 +88,7 @@ public class TickerUI extends Application {
 	private static int currentView = KEY_SORTED_TIME;
 	private int nextView = KEY_SORTED_TIME;
 
-	private static final String[] months = { "", "Jan", "Feb", "Mar", "Apr",
+	private static final String[] months = { "Jan", "Feb", "Mar", "Apr",
 			"May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 	private static final String[] dayOfWeek = { "Sunday", "Monday", "Tuesday",
 			"Wednesday", "Thursday", "Friday", "Saturday" };
