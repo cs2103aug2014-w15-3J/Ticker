@@ -64,7 +64,9 @@ public class TickerUI extends Application {
 	Image helpPage;
 	TextArea helpContent;
 
-	Font content = new Font("Arial Rounded MT Bold", 13);
+	Font content = Font.loadFont(getClass()
+            .getResourceAsStream("/ticker/ui/fonts/ARLRDBD_0.TTF"), 13);
+	//new Font("Arial Rounded MT Bold", 13);
 	Font heading = new Font("Britannic Bold", 14);
 
 	// GridPane chart = new GridPane();
@@ -127,7 +129,6 @@ public class TickerUI extends Application {
 	public void start(final Stage stage) {
 		stage.initStyle(StageStyle.UNDECORATED);
 		root = new Group();
-
 		// background pic
 		background = new Image("ticker/ui/pic/background.png", true);
 		imv1 = new ImageView();
@@ -496,25 +497,6 @@ public class TickerUI extends Application {
 
 	}
 
-	/*
-	 * private String getHelp() { String helpList = ""; helpList +=
-	 * "HELP FOR USING TICKER\n"; helpList +=
-	 * "-to add a task: add \"<task name>\" -st <start time> -sd <start date in dd/mm/yy format> "
-	 * + "-et <end time> -ed <end date in dd/mm/yy format.\n"; helpList +=
-	 * "-to set a task to repeat, add the flag: -r\n"; helpList +=
-	 * "-to set a priority for a task, add the flag: to be continued\n";
-	 * helpList += "-to delete a task: delete <index of task>\n"; helpList +=
-	 * "-to edit a task: to be continued\n"; helpList +=
-	 * "-to sort the tasks according to time and date: list to be continued\n";
-	 * helpList +=
-	 * "-to sort the tasks according to priority: list to be continued\n";
-	 * helpList += "-to undo the last command: undo\n"; helpList +=
-	 * "-to redo the last undo: redo\n"; helpList +=
-	 * "-to mark a task as done: tick <index of task>\n"; helpList +=
-	 * "-to mark a task as cannot be done: cmi <index of task>\n"; return
-	 * helpList; }
-	 */
-
 	private void displayTasks() {
 		int prefHeight = 30;
 		int maxHeight;
@@ -606,7 +588,8 @@ public class TickerUI extends Application {
 				hb.getChildren().addAll(index, priority, description, time);
 				chart.getChildren().add(hb);		
 			}
-			if ((newTask.equals("\\***TICKED***\\"))) { // this list is search
+			
+			else if ((newTask.equals("\\***TICKED***\\"))) { // this list is search
 														// result
 				isSearchResult = true;
 
