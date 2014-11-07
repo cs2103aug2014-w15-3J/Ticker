@@ -57,18 +57,22 @@ public class Logic{
 	private static final String COMMAND_CLEAR = "clear";
 	private static final String COMMAND_DELETE = "delete";
 	private static final String COMMAND_SEARCH = "search";
+	private static final String COMMAND_SEARCH_FREESLOTS = "searchfree";
+	private static final String COMMAND_TAKE = "take";
 	// Integer key constants for lists used by listTracker
 	private static final int KEY_SORTED_TIME = 1;
 	private static final int KEY_SORTED_PRIORITY = 2;
 	private static final int KEY_TICKED = 3;
 	private static final int KEY_KIV = 4;
 	private static final int KEY_SEARCH = 5;
+	private static final int KEY_FREESLOTS = 6;
 	// String constants for type of lists used
 	private static final String LIST_TIME = "time";
 	private static final String LIST_PRIORITY = "priority";
 	private static final String LIST_TICKED = "ticked";
 	private static final String LIST_KIV = "kiv";
 	private static final String LIST_SEARCH = "search";
+	private static final String LIST_FREESLOTS = "free";
 
 	// Instances of other components
 	private Parser parser;
@@ -113,7 +117,7 @@ public class Logic{
 
 		cruMng = new CRUManager(sortedTime, sortedPriority, listTicked, listKIV);
 		tickKIVMng = new TickKIVManager(sortedTime, sortedPriority, listTicked, listKIV);
-		searchMng = new SearchManager(sortedTime, listTicked, listKIV);
+		searchMng = new SearchManager(sortedTime, sortedPriority, listTicked, listKIV);
 		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listKIV);
 
 		searchResults = new Vector<Task>();
@@ -164,13 +168,49 @@ public class Logic{
 		}
 
 		switch(command){
+		case COMMAND_TAKE:
+			try {
+				if (listTracker != KEY_FREESLOTS) {
+					return "Invalid use of take. Please use it only with searching for freeslots.";
+				}
+				feedback = searchMng.take(processed.getIndex(), processed.getDescription());
+			}
+			catch (Exception e) {
+				
+			}
+			break;
+			
+		case COMMAND_SEARCH_FREESLOTS:
+			//try {
+				searchRequest = processed;
+				searchResults.removeAllElements();
+				
+				searchResults = searchMng.searchForFreeSlots(processed.getStartDate(), processed.getStartTime(), 
+						processed.getEndDate(), processed.getEndTime());
+				
+				listTracker = KEY_FREESLOTS;
+				current = searchResults;
+				currentListName = LIST_FREESLOTS;
+				
+				UI.setList(current);
+				UI.setNextView(listTracker);
+				
+				feedback = "Searching for free slots....";
+			
+			//}
+			/*catch (Exception e) {
+				System.out.println("error in search for free timeslots");
+			}*/
+			break;
+			
 		case COMMAND_SEARCH: 
 			try {
 				searchRequest = processed;
 				searchResults.removeAllElements();
+				
 				searchResults = searchMng.search(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
-
+				
 				checkForTaskExpiry();
 
 				listTracker = KEY_SEARCH;
@@ -179,8 +219,9 @@ public class Logic{
 
 				UI.setList(current);
 				UI.setNextView(listTracker);
-
+				
 				feedback = "Searching for tasks...";
+								
 			}
 			catch (Exception e) {
 				System.out.println("error in search");
@@ -250,7 +291,7 @@ public class Logic{
 				feedback = cruMng.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
 
-				if (listTracker == KEY_KIV || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
+				if (listTracker == KEY_KIV || listTracker == KEY_TICKED || listTracker == KEY_SEARCH || listTracker == KEY_FREESLOTS) {
 					listTracker = KEY_SORTED_TIME;
 					current = sortedTime;
 					currentListName = LIST_TIME;

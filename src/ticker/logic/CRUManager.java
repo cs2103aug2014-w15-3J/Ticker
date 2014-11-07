@@ -27,6 +27,9 @@ import ticker.common.TimedTask;
 
 public class CRUManager {
 	// CONSTANTS
+
+	// String constant for freeslots
+	private static final String FREESLOT_STAMP = "\\***FREE***\\";
 	// String constants for command types
 	private static final String COMMAND_ADD = "add";
 	private static final String COMMAND_DELETE = "delete";
@@ -37,15 +40,17 @@ public class CRUManager {
 	private static final int KEY_TICKED = 3;
 	private static final int KEY_KIV = 4;
 	private static final int KEY_SEARCH = 5;
+	private static final int KEY_FREESLOTS = 6;
 	// String constants for type of lists used
 	private static final String TASKS_TIME = "TIME";
 	private static final String TASKS_TICKED = "TICKED";
 	private static final String TASKS_KIV = "KIV";
 
+
 	// Instances of other components
 	private UndoManager undoMng;
 	private Vector<Task> storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV;
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -64,7 +69,7 @@ public class CRUManager {
 
 		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV);
 	}
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -79,6 +84,10 @@ public class CRUManager {
 			throws ArrayIndexOutOfBoundsException {
 		Event event;
 		Task deleted;
+
+		if (listTracker == KEY_FREESLOTS) {
+			return "Cannot delete in freeslots.";
+		}
 
 		if (listTracker == KEY_SORTED_TIME) {
 			deleted = current.remove(index - 1);
@@ -98,7 +107,7 @@ public class CRUManager {
 			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
-			
+
 			if ((index - 1) < tickedPartitionIndex) {
 				deleted = current.remove(index - 1);
 			}
@@ -147,6 +156,20 @@ public class CRUManager {
 				undoMng.add(event);
 			}
 		}
+		/*		else if (listTracker == KEY_FREESLOTS) {
+			deleted = current.remove(index - 1);
+			if (deleted.getDescription() == FREESLOT_STAMP) {
+				return "Cannot delete freeslot.";
+			}
+			else {
+				int actualIndex = storedTasksByTime.indexOf(deleted);
+				storedTasksByTime.remove(deleted);
+				storedTasksByPriority.remove(deleted);
+				event = new Event(COMMAND_DELETE, deleted, TASKS_TIME, actualIndex);
+				undoMng.add(event);
+			}
+		} */
+		// For ticked list and KIV list
 		else {
 			deleted = current.remove(index - 1);
 			event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
@@ -155,7 +178,7 @@ public class CRUManager {
 
 		return deleted.getDescription() + " has been removed.";
 	}
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -198,21 +221,21 @@ public class CRUManager {
 				newTask = new DeadlineTask(description, endDate, endTime, priority, false);
 			}
 		}
-		
+
 		// Creation of timed tasks
 		else {
 			if (startDate != null && endDate != null && startTime != null && endTime != null && 
 					(endDate.compareTo(startDate) == -1 || endTime.compareTo(startTime) == -1)) {
 				return "Invalid ending date or time.";
 			}
-			
+
 			if (startDate != null && endDate != null && startTime == null && endTime == null && 
 					(endDate.compareTo(startDate) == -1)) {
 				return "Invalid ending date.";
 			}
 			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
 		}
-		
+
 		// Check whether there's an exact task already inside the list
 		if (storedTasksByPriority.contains(newTask) || storedTasksByTicked.contains(newTask) || storedTasksByKIV.contains(newTask)) {
 			return "Task already exists.";
@@ -257,7 +280,7 @@ public class CRUManager {
 
 		return newTask;
 	}
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -273,8 +296,14 @@ public class CRUManager {
 		Task oldTask;
 		Task newTask;
 
-		if (listTracker == KEY_TICKED && listTracker == KEY_KIV) {
-			return "Cannot edit from ticked and KIV list.";
+		if (listTracker == KEY_FREESLOTS) {
+			return "Cannot edit from freeslots.";
+		}
+		else if (listTracker == KEY_TICKED) {
+			return "Cannot edit from ticked list.";
+		}
+		else if (listTracker == KEY_KIV) { 
+			return "Cannot edit from KIV list.";
 		}
 
 		if (listTracker == KEY_SEARCH) {
@@ -282,7 +311,7 @@ public class CRUManager {
 			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
-			
+
 			if ((index - 1) < tickedPartitionIndex) {
 				oldTask = current.get(index - 1);
 			}
@@ -292,7 +321,7 @@ public class CRUManager {
 			else {
 				oldTask = current.get(index + 1);
 			}
-			
+
 			if (storedTasksByTime.contains(oldTask) || storedTasksByPriority.contains(oldTask)) {
 				storedTasksByTime.remove(oldTask);
 				storedTasksByTime.remove(oldTask);

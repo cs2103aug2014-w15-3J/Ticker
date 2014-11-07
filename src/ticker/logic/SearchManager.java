@@ -17,9 +17,15 @@ package ticker.logic;
 
 // Package Common
 import ticker.common.Date;
+import ticker.common.DateTime;
 import ticker.common.Task;
 import ticker.common.Time;
+import ticker.common.TimedTask;
 import ticker.common.sortByTime;
+import ticker.parser.TimePeriod;
+
+
+
 
 // Package Java util
 import java.util.Collections;
@@ -47,16 +53,19 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.Soundex;
  */
 
 public class SearchManager {
+	private static final String FREESLOT_STAMP = "\\***FREE***\\";
 	Vector<StringMatch> matchList;
 	private Vector<Task> storedTasksByTime;
+	private Vector<Task> storedTasksByPriority;
 	private Vector<Task> storedTasksByTicked; // not sorted
 	private Vector<Task> storedTasksByKIV; // not sorted
 	private static Vector<Task> searchResultsTime;
 	private static Vector<Task> searchResultsTicked;
 	private static Vector<Task> searchResultsKIV;
 	private static Vector<Task> searchResults;
-	String key; 
-	
+	private static Vector<Task> freeslotList;
+	private String key; 
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -67,14 +76,17 @@ public class SearchManager {
 	 * @return     Message from the action of the userCommand.
 	 * @throws Error  If commandType is unidentified.
 	 */
-	public SearchManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKIV) {
+	public SearchManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKIV) {
 		this.storedTasksByTime = storedTasksByTime;
+		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTicked = storedTasksByTicked;
 		this.storedTasksByKIV = storedTasksByKIV;
 		
+		freeslotList = new Vector<Task>();
+
 		searchResults = new Vector<Task>();
 	}
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -89,7 +101,7 @@ public class SearchManager {
 			char priority) {
 		matchList = new Vector<StringMatch>();
 		this.key = key;
-		
+
 		searchResultsTime = storedTasksByTime;
 		searchResultsTicked = storedTasksByTicked;
 		searchResultsKIV = storedTasksByKIV;
@@ -107,7 +119,7 @@ public class SearchManager {
 			searchResultsTicked = searchByPriority(priority, storedTasksByTicked);
 			searchResultsKIV = searchByPriority(priority, storedTasksByKIV);
 		}
-		
+
 		// Search for date and time assumes that there will be a date that is passed with the time
 		// Search by start date and start time
 		if (startDate != null) {
@@ -121,7 +133,7 @@ public class SearchManager {
 				searchResultsTicked = searchByStartDate(startDate, searchResultsTicked);
 				searchResultsKIV = searchByStartDate(startDate, searchResultsKIV);
 			}
-			
+
 		}
 
 		// Search by end date and end time
@@ -171,7 +183,7 @@ public class SearchManager {
 	private Vector<Task> searchByKey(String key, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
 		matchList.removeAllElements();
-		
+
 		int i = 0;
 		for (Task task: taskList) {
 			float score = getMatchLikelyhood(key.toLowerCase(), task.toString().toLowerCase());
@@ -190,7 +202,7 @@ public class SearchManager {
 		}
 		return temp;
 	}
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -211,7 +223,7 @@ public class SearchManager {
 		}
 		return temp;
 	}
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -246,7 +258,7 @@ public class SearchManager {
 		}
 		return temp;
 	}
-		
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -261,17 +273,24 @@ public class SearchManager {
 		Vector<Task> temp = new Vector<Task>();
 
 		for (Task task: taskList) {
+			// Add tasks that have starting date before queried startDate
 			if (task.getStartDate() != null && task.getStartDate().compareTo(startDate) >= 0) {
 				temp.add(task);
 				continue;
 			}
+			// Add tasks that have deadline after startDate
 			if (task.getEndDate() != null && task.getEndDate().compareTo(startDate) >= 0) {
+				temp.add(task);
+				continue;
+			}
+			// Add tasks that started before startDate and is still spanning across queried time period
+			if (task.getStartDate() != null && task.getEndDate()  == null && task.getStartDate().compareTo(startDate) < 0) {
 				temp.add(task);
 			}
 		}
 		return temp;
 	}
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -310,7 +329,7 @@ public class SearchManager {
 		}
 		return temp;
 	}
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -325,17 +344,113 @@ public class SearchManager {
 		Vector<Task> temp = new Vector<Task>();
 
 		for (Task task: taskList) {
+			// Deadline tasks and scheduled tasks that end before endDate are added
 			if (task.getEndDate() != null && task.getEndDate().compareTo(endDate) <= 0) {
 				temp.add(task);
 				continue;
 			}
+			// Scheduled tasks that start before endDate are added
 			if (task.getStartDate() != null && task.getStartDate().compareTo(endDate) <= 0) {
 				temp.add(task);
+				continue;
 			}
 		}
 		return temp;
 	}
-	
+
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
+	public Vector<Task> searchForFreeSlots(Date startDate, Time startTime, Date endDate, Time endTime) {
+		DateTime start = new DateTime(startDate, startTime);
+		DateTime end = new DateTime(endDate, endTime);
+		TimePeriod timePeriod = new TimePeriod(start, end);
+		
+		freeslotList = new Vector<Task>();
+
+		Vector<TimePeriod> result = new Vector<TimePeriod>();
+		result.add(timePeriod);
+
+		for (Task task: storedTasksByTime) {
+			if (task.getStartDate() != null && task.getStartTime() != null && task.getEndDate() != null && task.getEndTime() != null) {
+				freeslotList.add(task);
+			}
+		}
+
+		for (Task task: freeslotList) {
+			TimePeriod  taskPeriod = new TimePeriod(new DateTime(task.getStartDate(), task.getStartTime()),new DateTime(task.getEndDate(),task.getEndTime()));
+
+			for (int i = result.size() - 1; i >= 0; i--) {  // must check from the back
+				TimePeriod resultPeriod = result.get(i);
+
+
+				// If potential free slot is within or equals the timings of a scheduled task
+				if (resultPeriod.getStart().compareTo(taskPeriod.getStart()) >= 0 && resultPeriod.getEnd().compareTo(taskPeriod.getEnd()) <= 0) {
+					result.remove(i);
+				}
+
+				// If potential free slot has larger period then the timings of a scheduled task on both tail ends
+				else if (resultPeriod.getStart().compareTo(taskPeriod.getStart()) < 0 && resultPeriod.getEnd().compareTo(taskPeriod.getEnd()) > 0) {
+					result.remove(i);
+					result.add(new TimePeriod(resultPeriod.getStart(), taskPeriod.getStart()));
+					result.add(new TimePeriod(taskPeriod.getEnd(), resultPeriod.getEnd()));
+				}
+
+				// If potential free slot has no overlap with scheduled task on the left tail end
+				else if (resultPeriod.getStart().compareTo(taskPeriod.getStart()) < 0 && resultPeriod.getEnd().compareTo(taskPeriod.getEnd()) <= 0) {
+					result.remove(i);
+					result.add(new TimePeriod(resultPeriod.getStart(), taskPeriod.getStart()));
+				}
+
+				// If potential free slot has no overlap with scheduled task on the right tail end
+				else if (resultPeriod.getStart().compareTo(resultPeriod.getStart()) >= 0 && resultPeriod.getEnd().compareTo(taskPeriod.getEnd()) > 0){
+					result.remove(i);
+					result.add(new TimePeriod(taskPeriod.getEnd(), resultPeriod.getEnd()));
+				}
+			}	
+		}
+
+		// Add free timeslots as tasks for the person to add the task in
+		for (TimePeriod freePeriod: result) {
+			TimedTask freeslot = new TimedTask(FREESLOT_STAMP, freePeriod.getStartDate(), freePeriod.getStartTime(), freePeriod.getEndDate(),
+					freePeriod.getEndTime(), 'B', false);
+			freeslotList.add(freeslot);
+		}
+
+		Collections.sort(freeslotList, new sortByTime());
+
+		return freeslotList;
+	}
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
+	public String take(int index, String description) {
+		TimedTask chosenSlot = (TimedTask) freeslotList.get(index - 1);
+		if (chosenSlot.getDescription() != "\\***FREE***\\") {
+			storedTasksByTime.remove(chosenSlot);
+			storedTasksByPriority.remove(chosenSlot);
+		}
+		chosenSlot.setDescription(description);
+		storedTasksByTime.add(chosenSlot);
+		storedTasksByPriority.add(chosenSlot);
+
+		return description + " has been added.";
+	}
+
 	/**
 	 * This method determines the action for each user command.
 	 *

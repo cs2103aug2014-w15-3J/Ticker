@@ -26,9 +26,12 @@ public class TickKIVManager {
 	private static final String COMMAND_UNKIV = "unkiv";
 	private static final String COMMAND_KIV = "kiv";
 	// Integer key constants for lists used by listTracker
+	private static final int KEY_SORTED_TIME = 1;
+	private static final int KEY_SORTED_PRIORITY = 2;
 	private static final int KEY_TICKED = 3;
 	private static final int KEY_KIV = 4;
 	private static final int KEY_SEARCH = 5;
+	private static final int KEY_FREESLOTS = 6;
 	// String constants for type of lists used by UndoManager
 	private static final String LIST_TIME = "time";
 	private static final String LIST_TICKED = "ticked";
@@ -38,7 +41,7 @@ public class TickKIVManager {
 	// Instances of other components
 	private UndoManager undoMng;
 	private Vector<Task> storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV;
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -57,7 +60,7 @@ public class TickKIVManager {
 
 		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV);
 	}
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -68,12 +71,11 @@ public class TickKIVManager {
 	 * @return     Message from the action of the userCommand.
 	 * @throws Error  If commandType is unidentified.
 	 */
-	String tick(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+	String tick(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException {
 		Task ticked;
 
-		if (listTracker == KEY_KIV) {
-			System.out.println("cannot tick in kiv list");
-			throw new IllegalArgumentException();
+		if (listTracker == KEY_KIV || listTracker == KEY_TICKED || listTracker == KEY_FREESLOTS) {
+			return "Can only tick from undone list and search list.";
 		}
 
 		else if (listTracker == KEY_SEARCH) {
@@ -81,7 +83,7 @@ public class TickKIVManager {
 			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
-			
+
 			if ((index - 1) < tickedPartitionIndex) {
 				ticked = current.remove(index - 1);
 			}
@@ -117,7 +119,7 @@ public class TickKIVManager {
 
 		return ticked.toString() + " is done!";
 	}
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -128,19 +130,18 @@ public class TickKIVManager {
 	 * @return     Message from the action of the userCommand.
 	 * @throws Error  If commandType is unidentified.
 	 */
-	String untick(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException{
+	String untick(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException{
 		Task unticked;
 
-		if (listTracker != KEY_TICKED && listTracker != KEY_SEARCH) {
-			throw new IllegalArgumentException();
+		if (listTracker != KEY_TICKED || listTracker != KEY_SEARCH) {
+			return "Can only untick from ticked list and search list.";
 		}
-		
 		if (listTracker == KEY_SEARCH) {
 			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
 			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
-			
+
 			if ((index - 1) < tickedPartitionIndex) {
 				unticked = current.remove(index - 1);
 			}
@@ -150,7 +151,7 @@ public class TickKIVManager {
 			else {
 				unticked = current.remove(index + 1);
 			}
-			
+
 			if (storedTasksByTime.contains(unticked) || storedTasksByPriority.contains(unticked)) {
 				return "Cannot untick a task from undone list.";
 			}
@@ -163,9 +164,9 @@ public class TickKIVManager {
 
 		}
 		else {
-				unticked = current.remove(index-1);
+			unticked = current.remove(index-1);
 		}
-		
+
 		storedTasksByTime.add(unticked);
 		storedTasksByPriority.add(unticked);
 
@@ -174,7 +175,7 @@ public class TickKIVManager {
 
 		return unticked.toString() + " is back to undone.";
 	}
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -187,15 +188,11 @@ public class TickKIVManager {
 	 */
 	String kiv(int index, int listTracker, Vector<Task> current, String currentListName) 
 			throws ArrayIndexOutOfBoundsException,IllegalArgumentException {
-		if (listTracker == KEY_TICKED) {
-			throw new IllegalArgumentException();
-		}
 
 		Task kiv;
 
-		if (listTracker == KEY_TICKED) {
-			System.out.println("Cannot kiv in ticked list");
-			throw new IllegalArgumentException();
+		if (listTracker == KEY_TICKED || listTracker == KEY_KIV || listTracker == KEY_FREESLOTS) {
+			return "Can only kiv in undone list and search list.";
 		}
 
 		else if (listTracker == KEY_SEARCH) {
@@ -203,7 +200,7 @@ public class TickKIVManager {
 			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
-			
+
 			if ((index - 1) < tickedPartitionIndex) {
 				kiv = current.remove(index - 1);
 			}
@@ -213,7 +210,7 @@ public class TickKIVManager {
 			else {
 				kiv = current.remove(index + 1);
 			}
-			
+
 			if (storedTasksByTime.contains(kiv) || storedTasksByPriority.contains(kiv)) {
 				storedTasksByTime.remove(kiv);
 				storedTasksByPriority.remove(kiv);
@@ -230,7 +227,7 @@ public class TickKIVManager {
 		else {
 			kiv = current.remove(index-1);
 		}
-		
+
 		// Add to the front so the latest additions are on top
 		storedTasksByKIV.add(0, kiv);
 		storedTasksByTime.remove(kiv);
@@ -242,7 +239,7 @@ public class TickKIVManager {
 		return kiv.toString() + " will be kept in view.";
 
 	}
-	
+
 	/**
 	 * This method determines the action for each user command.
 	 *
@@ -253,20 +250,19 @@ public class TickKIVManager {
 	 * @return     Message from the action of the userCommand.
 	 * @throws Error  If commandType is unidentified.
 	 */
-	String unkiv(int index, int listTracker, Vector<Task> current) 
-			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+	String unkiv(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException {
 		Task unkiv;
 		
-		if (listTracker != KEY_KIV && listTracker != KEY_SEARCH) {
-			throw new IllegalArgumentException();
+		if (listTracker != KEY_KIV || listTracker != KEY_SEARCH) {
+			return "Can only kiv in kiv list and search list.";
 		}
-		
+
 		if (listTracker == KEY_SEARCH) {
 			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
 			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
-			
+
 			if ((index - 1) < tickedPartitionIndex) {
 				unkiv = current.remove(index - 1);
 			}
@@ -276,7 +272,7 @@ public class TickKIVManager {
 			else {
 				unkiv = current.remove(index + 1);
 			}
-			
+
 			if (storedTasksByTime.contains(unkiv) || storedTasksByPriority.contains(unkiv)) {
 				return "Cannot unkiv a task from undone list.";
 			}
@@ -289,7 +285,7 @@ public class TickKIVManager {
 
 		}
 		else {
-				unkiv = current.remove(index-1);
+			unkiv = current.remove(index-1);
 		}
 
 		// Add to the front so the latest additions are on top
