@@ -27,6 +27,7 @@ import ticker.parser.TimePeriod;
 
 
 
+
 // Package Java util
 import java.util.Collections;
 import java.util.Vector;
@@ -54,6 +55,9 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.Soundex;
 
 public class SearchManager {
 	private static final String FREESLOT_STAMP = "\\***FREE***\\";
+	// String constants for command types
+	private static final String COMMAND_TAKE = "take";
+	
 	Vector<StringMatch> matchList;
 	private Vector<Task> storedTasksByTime;
 	private Vector<Task> storedTasksByPriority;
@@ -65,6 +69,9 @@ public class SearchManager {
 	private static Vector<Task> searchResults;
 	private static Vector<Task> freeslotList;
 	private String key; 
+	
+	// Instances of other components
+	private UndoManager undoMng;
 
 	/**
 	 * This method determines the action for each user command.
@@ -81,6 +88,8 @@ public class SearchManager {
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTicked = storedTasksByTicked;
 		this.storedTasksByKIV = storedTasksByKIV;
+		
+		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV);
 		
 		freeslotList = new Vector<Task>();
 
@@ -458,6 +467,9 @@ public class SearchManager {
 		chosenSlot.setDescription(description);
 		storedTasksByTime.add(chosenSlot);
 		storedTasksByPriority.add(chosenSlot);
+		
+		Event event = new Event(COMMAND_TAKE, chosenSlot);
+		undoMng.add(event);
 
 		return description + " has been added.";
 	}

@@ -94,8 +94,10 @@ public class Logic{
 	private static Vector<Task> listTicked; // not sorted
 	private static Vector<Task> listKIV; // not sorted
 	private static Vector<Task> searchResults;
+	private static Vector<Task> freeslotsResults;
 	// Store existing (current) search request
 	private static UserInput searchRequest;
+	private static UserInput freeslotsRequest;
 
 	/**
 	 * This method instantiate a Logic object while creating dependency with TickerUI
@@ -121,6 +123,7 @@ public class Logic{
 		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listKIV);
 
 		searchResults = new Vector<Task>();
+		freeslotsResults = new Vector<Task>();
 
 		current = sortedTime;
 		listTracker = KEY_SORTED_TIME;
@@ -169,59 +172,72 @@ public class Logic{
 
 		switch(command){
 		case COMMAND_TAKE:
-			try {
+			//try {
 				if (listTracker != KEY_FREESLOTS) {
 					return "Invalid use of take. Please use it only with searching for freeslots.";
 				}
 				feedback = searchMng.take(processed.getIndex(), processed.getDescription());
-			}
-			catch (Exception e) {
-				
-			}
+			//}
+			//catch (Exception e) {
+
+			//}
 			break;
-			
+
 		case COMMAND_SEARCH_FREESLOTS:
 			//try {
-				searchRequest = processed;
-				searchResults.removeAllElements();
-				
-				searchResults = searchMng.searchForFreeSlots(processed.getStartDate(), processed.getStartTime(), 
-						processed.getEndDate(), processed.getEndTime());
-				
-				listTracker = KEY_FREESLOTS;
-				current = searchResults;
-				currentListName = LIST_FREESLOTS;
-				
-				UI.setList(current);
-				UI.setNextView(listTracker);
-				
-				feedback = "Searching for free slots....";
-			
+			freeslotsRequest = new UserInput();
+			freeslotsRequest.setStartDate(processed.getStartDate());
+			freeslotsRequest.setStartTime(processed.getStartTime());
+			freeslotsRequest.setEndDate(processed.getEndDate());
+			freeslotsRequest.setEndTime(processed.getEndTime());
+
+			freeslotsResults.removeAllElements();
+
+			freeslotsResults = searchMng.searchForFreeSlots(processed.getStartDate(), processed.getStartTime(), 
+					processed.getEndDate(), processed.getEndTime());
+
+			listTracker = KEY_FREESLOTS;
+			current = freeslotsResults;
+			currentListName = LIST_FREESLOTS;
+
+			checkForTaskExpiry(current);
+			UI.setList(current);
+			UI.setNextView(listTracker);
+
+			feedback = "Searching for free slots....";
+
 			//}
 			/*catch (Exception e) {
 				System.out.println("error in search for free timeslots");
 			}*/
 			break;
-			
+
 		case COMMAND_SEARCH: 
 			try {
-				searchRequest = processed;
+				searchRequest = new UserInput();
+				searchRequest.setDescription(processed.getDescription());
+				searchRequest.setRepeating(processed.getRepeating());
+				searchRequest.setStartDate(processed.getStartDate());
+				searchRequest.setStartTime(processed.getStartTime());
+				searchRequest.setEndDate(processed.getEndDate());
+				searchRequest.setEndTime(processed.getEndTime());
+				searchRequest.setPriority(processed.getPriority());
+
 				searchResults.removeAllElements();
-				
+
 				searchResults = searchMng.search(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
-				
-				checkForTaskExpiry();
 
 				listTracker = KEY_SEARCH;
 				current = searchResults;
 				currentListName = LIST_SEARCH;
 
+				checkForTaskExpiry();
 				UI.setList(current);
 				UI.setNextView(listTracker);
-				
+
 				feedback = "Searching for tasks...";
-								
+
 			}
 			catch (Exception e) {
 				System.out.println("error in search");
@@ -232,6 +248,14 @@ public class Logic{
 		case COMMAND_DELETE: 
 			try {
 				feedback = cruMng.delete(processed.getIndex(), listTracker, current, currentListName);
+
+				if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
+				}
 
 				checkForTaskExpiry();
 				sortLists();
@@ -272,6 +296,14 @@ public class Logic{
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
 
+				else if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
+				}
+
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
@@ -291,10 +323,18 @@ public class Logic{
 				feedback = cruMng.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
 
-				if (listTracker == KEY_KIV || listTracker == KEY_TICKED || listTracker == KEY_SEARCH || listTracker == KEY_FREESLOTS) {
+				if (listTracker == KEY_KIV || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
 					listTracker = KEY_SORTED_TIME;
 					current = sortedTime;
 					currentListName = LIST_TIME;
+				}
+
+				else if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
 				}
 
 				checkForTaskExpiry();
@@ -316,6 +356,13 @@ public class Logic{
 					searchResults.removeAllElements();
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+				}
+				else if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
 				}
 
 				checkForTaskExpiry();
@@ -359,6 +406,7 @@ public class Logic{
 		case COMMAND_UNDO:
 			try {
 				feedback = undoMng.undo();
+				sortLists();
 
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -366,8 +414,16 @@ public class Logic{
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
 
+				else if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
+				}
+				
 				checkForTaskExpiry();
-				sortLists();
+
 				UI.setList(current);
 				UI.setNextView(listTracker);
 			}
@@ -385,6 +441,14 @@ public class Logic{
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 
+				}
+
+				else if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
 				}
 
 				checkForTaskExpiry();
@@ -405,6 +469,14 @@ public class Logic{
 					searchResults.removeAllElements();
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+				}
+
+				else if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
 				}
 
 				checkForTaskExpiry();
@@ -475,6 +547,16 @@ public class Logic{
 		}
 		for (Task tickedTask: listTicked) {
 			tickedTask.isExpired();
+		}
+	}
+
+	/**
+	 * This is an overloaded method that checks for expired tasks in only one task list and updates their attribute isExpired.
+	 * @param taskList 		Task list to be checked for expired task.
+	 */
+	private void checkForTaskExpiry(Vector<Task> taskList) {
+		for (Task task: taskList) {
+			task.isExpired();
 		}
 	}
 

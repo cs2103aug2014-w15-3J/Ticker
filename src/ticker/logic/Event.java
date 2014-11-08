@@ -10,19 +10,20 @@ public class Event {
 	private static final String COMMAND_KIV = "kiv";
 	private static final String COMMAND_UNKIV = "unkiv";
 	private static final String COMMAND_UNTICK = "untick";
+	private static final String COMMAND_TAKE = "take";
 	
 	private String command;
 	private Task taskBeforeEdit, taskAfterEdit;
 	private String listTypeBefore, listTypeAfter;
 	private int indexBefore;
 	
-	//Called when the command is add
+	//Called when the command is add and take
 	public Event(String command, Task task) {
 		taskBeforeEdit = task;
 		this.command = command;
 		
-		if(!(command.equals(COMMAND_ADD))) {
-			throw new IllegalArgumentException("This constructor is for add or delete command");
+		if(!(command.equals(COMMAND_ADD)) && !(command.equals(COMMAND_TAKE))) {
+			throw new IllegalArgumentException("This constructor is for add or take command");
 		}
 	}
 	
