@@ -58,17 +58,19 @@ public class CRUManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method adds a task.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param description		Task description to be set.
+	 * @param isRepeating	    Set a task as repeating.
+	 * @param startDate			Start date to be set.
+	 * @param endDate			End date to be set.
+	 * @param startTime			Start time to be set.
+	 * @param endTime 			End time to be set.			
+	 * @param priority 			Level of priority to be set.
+	 * @return     Feedback after adding.
+	 * @throws IllegalArgumentException  If description is empty.
 	 */
-	String add(String description, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
-			char priority) throws IllegalArgumentException {
+	String add(String description, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,	char priority) throws IllegalArgumentException {
 
 		if (description == null || description.equals("")) {
 			throw new IllegalArgumentException();
@@ -129,14 +131,14 @@ public class CRUManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method deletes a task from a tasklist.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param index			 	Index of the specified task displayed in UI.
+	 * @param listTracker    	List key of the current task list being displayed.
+	 * @param current		 	Current task list being displayed.
+	 * @param currentListName	Name of current list being displayed.
+	 * @return     Feedback after a task is deleted.
+	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
 	 */
 	String delete(int index, int listTracker, Vector<Task> current, String currentListName) 
 			throws ArrayIndexOutOfBoundsException {
@@ -234,48 +236,20 @@ public class CRUManager {
 		return deleted.getDescription() + " has been removed.";
 	}
 
-
-
-	// Resetting repeated task will make it a timedTask
 	/**
-	 * This method determines the action for each user command.
+	 * This method edits a task.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
-	 */
-	Task remakeTask(Task task) throws IllegalArgumentException {
-		String description = task.getDescription();
-		boolean isRepeating = false;
-		Date startDate = task.getStartDate();
-		Date endDate = task.getEndDate();
-		Time startTime = task.getStartTime();
-		Time endTime = task.getEndTime();
-		char priority = task.getPriority();
-
-		if (description == null || description.equals("")) {
-			throw new IllegalArgumentException();
-		}
-
-		Task newTask;
-
-		newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
-
-		return newTask;
-	}
-
-	/**
-	 * This method determines the action for each user command.
-	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param description		Task description to be set.
+	 * @param isRepeating	    Set a task as repeating.
+	 * @param startDate			Start date to be set.
+	 * @param endDate			End date to be set.
+	 * @param startTime			Start time to be set.
+	 * @param endTime 			End time to be set.			
+	 * @param priority 			Level of priority to be set.
+	 * @param listTracker    	List key of the current task list being displayed.
+	 * @param current		 	Current task list being displayed.
+	 * @return     Feedback after editing.
+	 * @throws ArrayIndexOutOfBoundsException  If index exceeds boundaries of current list.
 	 */
 	String edit(int index, String description,boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
 			char priority, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException{
@@ -525,19 +499,41 @@ public class CRUManager {
 		undoMng.add(event);
 		return oldTask.getDescription() + " has been updated.";
 	}
+	
+	/**
+	 * This method resets a task into a TimedTask.
+	 *
+	 * @param task 		Task to be remade.
+	 * @return     TimedTask
+	 * @throws IllegalArgumentException  If description is empty.
+	 */
+	private TimedTask remakeTask(Task task) throws IllegalArgumentException {
+		String description = task.getDescription();
+		boolean isRepeating = false;
+		Date startDate = task.getStartDate();
+		Date endDate = task.getEndDate();
+		Time startTime = task.getStartTime();
+		Time endTime = task.getEndTime();
+		char priority = task.getPriority();
+
+		if (description == null || description.equals("")) {
+			throw new IllegalArgumentException();
+		}
+
+		TimedTask newTask;
+
+		newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
+
+		return newTask;
+	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method adds task into undone lists (time list and priority list).
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param Task		Task to be added.
 	 */
-	private void addTaskIntoUndone(Task oldTask) {
-		storedTasksByTime.add(oldTask);
-		storedTasksByPriority.add(oldTask);
+	private void addTaskIntoUndone(Task task) {
+		storedTasksByTime.add(task);
+		storedTasksByPriority.add(task);
 	}
 }
