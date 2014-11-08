@@ -47,8 +47,13 @@ public interface ParserString {
 	public static final String AM = "am";
 	public static final String PM = "pm";
 
+	public static final String ADD_WITH_SPACE = "add ";
+	public static final String EDIT_WITH_SPACE = "edit ";
+	public static final String SEARCH_WITH_SPACE = "search ";
+	
 	public static final char HIGH_PRIORITY_CHAR = 'A';
 	public static final char NORMAL_PRIORITY_CHAR = 'B';
 	public static final char LOW_PRIORITY_CHAR = 'C';
+	public static final char SPACE = ' ';
 	
 }

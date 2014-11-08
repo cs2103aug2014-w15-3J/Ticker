@@ -119,7 +119,7 @@ public class Parser {
 		}
 		String description = command.substring(CMD.TAKE.toString().length()+1);
 		description = description.trim();
-		description = description.substring(description.indexOf(" "));
+		description = description.substring(description.indexOf(ParserString.SPACE));
 		description = description.trim();
 		
 		UserInput input = new UserInput(CMD.TAKE,description);
@@ -261,14 +261,14 @@ public class Parser {
 	
 	//This method extracts the description part from the String entered by user
 	private String extractDesc(String str){
-		if ((str.length()>4&&str.substring(0,4).equalsIgnoreCase("add "))
-				||(str.length()>6&&str.substring(0, 7).equalsIgnoreCase("search "))){
-			str=str.substring(str.indexOf(" ")+1);
+		if ((str.length()>4&&str.substring(0,4).equalsIgnoreCase(ParserString.ADD_WITH_SPACE))
+				||(str.length()>6&&str.substring(0, 7).equalsIgnoreCase(ParserString.SEARCH_WITH_SPACE))){
+			str=str.substring(str.indexOf(ParserString.SPACE)+1);
 		}
 		
-		else if (str.length()>5&&str.substring(0,5).equalsIgnoreCase("edit ")){
-			str=str.substring(str.indexOf(" ")+1);
-			str=str.substring(str.indexOf(" ")+1);
+		else if (str.length()>5&&str.substring(0,5).equalsIgnoreCase(ParserString.EDIT_WITH_SPACE)){
+			str=str.substring(str.indexOf(ParserString.SPACE)+1);
+			str=str.substring(str.indexOf(ParserString.SPACE)+1);
 		}
 		
 		String[] splitted = str.split(" +");
@@ -277,7 +277,7 @@ public class Parser {
 			if (splitted[i].indexOf(ParserString.DASH_STRING)!=-1&&!splitted[i].equals(ParserString.NLP_FLAG)){
 				int startIndex = res.indexOf(splitted[i]);
 				int endIndex = startIndex + splitted[i].length();
-				if (startIndex-1>=0&&res.charAt(startIndex-1)==' '){
+				if (startIndex-1>=0&&res.charAt(startIndex-1)==ParserString.SPACE){
 					startIndex--;
 				}
 				res=res.substring(0,startIndex)+res.substring(endIndex);
@@ -299,7 +299,7 @@ public class Parser {
 				if (constructDate(splitted[i])!=null){
 					int startIndex = res.indexOf(splitted[i]);
 					int endIndex = startIndex + splitted[i].length();
-					if (startIndex-1>=0&&res.charAt(startIndex-1)==' '){
+					if (startIndex-1>=0&&res.charAt(startIndex-1)==ParserString.SPACE){
 						startIndex--;
 					}
 					res=res.substring(0,startIndex)+res.substring(endIndex);
@@ -371,7 +371,7 @@ public class Parser {
 		}
 		
 		nlp(description,input);
-		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
+		TimePeriod result = checkDashTimeDate(command);
 		mergeTimeResult(result,input);
 		extractSingleDate(input);
 		
@@ -526,7 +526,7 @@ public class Parser {
 	private static String removeBlank(String str){
 		str=str.trim();
 		for (int i=0;i<str.length();i++){
-			while (str.charAt(i)==' ')
+			while (str.charAt(i)==ParserString.SPACE)
 				str = str.substring(0,i)+str.substring(i+1);
 			if (i==str.length()) return str;
 		}
