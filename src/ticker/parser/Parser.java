@@ -351,10 +351,6 @@ public class Parser {
 		extractSingleDate(input);
 		input.validifyTime();
 		
-		if (!((input.getStartTime()==null)&&(input.getEndTime()==null)&&(input.getStartDate()==null)&&(input.getEndDate()==null))){
-			input.setCommand("editt");
-		}
-
 		if (input.getStartDate()==null&&input.getEndDate()!=null&&input.getStartTime()!=null&&input.getEndTime()==null){
 			return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
 		}
