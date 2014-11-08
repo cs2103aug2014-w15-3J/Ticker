@@ -61,6 +61,7 @@ public class TickerUI extends Application {
 
 	private boolean displayHelp = false;
 	private boolean isSearchResult = false;
+	private boolean isFileCorrupted = false;
 	private double initialX, initialY;
 
 	// for basic display
@@ -69,7 +70,7 @@ public class TickerUI extends Application {
 	private Image min, min_, close, close_, trivial, normal, impt;
 	private ImageView background, logo, min_button, close_button;
 	private VBox chart = new VBox();
-	private ImageView help;
+	private ImageView help, warning_isCorrupted;
 
 	private Font content = Font.loadFont(getClass().getResourceAsStream("/ticker/ui/fonts/ARLRDBD_0.TTF"), 13);
 	private Font heading = new Font("Britannic Bold", 14);
@@ -299,6 +300,22 @@ public class TickerUI extends Application {
 		help.setFitWidth(400);
 		help.setPreserveRatio(true);
 		root.getChildren().add(help);
+		
+		//warning for file corruption
+		warning_isCorrupted = new ImageView();
+		warning_isCorrupted.setImage(new Image("ticker/ui/pic/warning.png", true));
+		if(isFileCorrupted) {
+			warning_isCorrupted.setVisible(true);
+		} else {
+			warning_isCorrupted.setVisible(false);
+		}
+		
+		warning_isCorrupted.setLayoutX(95);
+		warning_isCorrupted.setLayoutY(150);
+		warning_isCorrupted.setFitWidth(300);
+		warning_isCorrupted.setOpacity(0.9);
+		warning_isCorrupted.setPreserveRatio(true);
+		root.getChildren().add(warning_isCorrupted);
 
 		clock = buildClock();
 		clock.setLayoutX(380);
@@ -356,6 +373,10 @@ public class TickerUI extends Application {
 
 	public void setNextView(int next) {
 		this.nextView = next;
+	}
+	
+	public void isFileCorruputed(boolean isCorrupted) {
+		this.isFileCorrupted = isCorrupted;
 	}
 
 	/*--------------------------------------------*/
@@ -418,6 +439,7 @@ public class TickerUI extends Application {
 			@Override
 			public void changed(ObservableValue observable, String oldValue,
 					String newValue) {
+
 				fadeOut.stop();
 				feedback.setOpacity(1);
 				feedback.setText(helpManager.getHelp(newValue));
@@ -470,6 +492,7 @@ public class TickerUI extends Application {
 
 		command.setOnAction(new EventHandler<ActionEvent>() {      // press Enter
 			public void handle(ActionEvent event) {
+				warning_isCorrupted.setVisible(false);
 				String cmd = command.getText();
 				command.clear();
 				feedback.setText(logic.getLogic(cmd));
@@ -566,6 +589,9 @@ public class TickerUI extends Application {
 		trivial = new Image("ticker/ui/pic/trivial.png", true);
 		normal = new Image("ticker/ui/pic/normal.png", true);
 		impt = new Image("ticker/ui/pic/impt.png", true);
+		if (isFileCorrupted) {
+			
+		}
 
 		for (int i = 0; i < tasksToBeShown.size(); i++) {
 
