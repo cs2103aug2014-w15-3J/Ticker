@@ -110,11 +110,11 @@ public class Logic{
 
 		// Instantiating sub-components
 		parser = new Parser();
-		storage = new Storage();
 		logger = Logger.getLogger("Logic");
 
 		// Retrieve last saved tasks
 		try{
+			storage = new Storage();
 			storedTasksByTime = storage.restoreDataFromFile(KEY_SORTED_TIME);
 			storedTasksByPriority = storage.restoreDataFromFile(KEY_SORTED_PRIORITY);
 			storedTasksByTicked = storage.restoreDataFromFile(KEY_TICKED);
