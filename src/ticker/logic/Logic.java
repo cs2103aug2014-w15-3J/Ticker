@@ -94,8 +94,10 @@ public class Logic{
 	private static Vector<Task> listTicked; // not sorted
 	private static Vector<Task> listKIV; // not sorted
 	private static Vector<Task> searchResults;
+	private static Vector<Task> freeslotsResults;
 	// Store existing (current) search request
 	private static UserInput searchRequest;
+	private static UserInput freeslotsRequest;
 
 	/**
 	 * This method instantiate a Logic object while creating dependency with TickerUI
@@ -121,6 +123,7 @@ public class Logic{
 		undoMng = UndoManager.getInstance(sortedTime, sortedPriority, listTicked, listKIV);
 
 		searchResults = new Vector<Task>();
+		freeslotsResults = new Vector<Task>();
 
 		current = sortedTime;
 		listTracker = KEY_SORTED_TIME;
@@ -182,14 +185,14 @@ public class Logic{
 			
 		case COMMAND_SEARCH_FREESLOTS:
 			//try {
-				searchRequest = processed;
-				searchResults.removeAllElements();
+				freeslotsRequest = processed;
+				freeslotsResults.removeAllElements();
 				
-				searchResults = searchMng.searchForFreeSlots(processed.getStartDate(), processed.getStartTime(), 
+				freeslotsResults = searchMng.searchForFreeSlots(processed.getStartDate(), processed.getStartTime(), 
 						processed.getEndDate(), processed.getEndTime());
 				
 				listTracker = KEY_FREESLOTS;
-				current = searchResults;
+				current = freeslotsResults;
 				currentListName = LIST_FREESLOTS;
 				
 				UI.setList(current);
@@ -271,6 +274,12 @@ public class Logic{
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
+				
+				else if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+				}
 
 				checkForTaskExpiry();
 				sortLists();
@@ -291,10 +300,16 @@ public class Logic{
 				feedback = cruMng.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
 
-				if (listTracker == KEY_KIV || listTracker == KEY_TICKED || listTracker == KEY_SEARCH || listTracker == KEY_FREESLOTS) {
+				if (listTracker == KEY_KIV || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
 					listTracker = KEY_SORTED_TIME;
 					current = sortedTime;
 					currentListName = LIST_TIME;
+				}
+				
+				else if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
 				}
 
 				checkForTaskExpiry();

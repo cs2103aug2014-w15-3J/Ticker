@@ -24,9 +24,6 @@ import ticker.common.TimedTask;
 import ticker.common.sortByTime;
 import ticker.parser.TimePeriod;
 
-
-
-
 // Package Java util
 import java.util.Collections;
 import java.util.Vector;

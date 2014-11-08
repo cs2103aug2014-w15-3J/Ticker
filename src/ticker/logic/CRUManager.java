@@ -85,10 +85,6 @@ public class CRUManager {
 		Event event;
 		Task deleted;
 
-		if (listTracker == KEY_FREESLOTS) {
-			return "Cannot delete in freeslots.";
-		}
-
 		if (listTracker == KEY_SORTED_TIME) {
 			deleted = current.remove(index - 1);
 			storedTasksByPriority.remove(deleted);
@@ -156,7 +152,7 @@ public class CRUManager {
 				undoMng.add(event);
 			}
 		}
-		/*		else if (listTracker == KEY_FREESLOTS) {
+		else if (listTracker == KEY_FREESLOTS) {
 			deleted = current.remove(index - 1);
 			if (deleted.getDescription() == FREESLOT_STAMP) {
 				return "Cannot delete freeslot.";
@@ -168,7 +164,7 @@ public class CRUManager {
 				event = new Event(COMMAND_DELETE, deleted, TASKS_TIME, actualIndex);
 				undoMng.add(event);
 			}
-		} */
+		}
 		// For ticked list and KIV list
 		else {
 			deleted = current.remove(index - 1);
@@ -296,17 +292,14 @@ public class CRUManager {
 		Task oldTask;
 		Task newTask;
 
-		if (listTracker == KEY_FREESLOTS) {
-			return "Cannot edit from freeslots.";
-		}
-		else if (listTracker == KEY_TICKED) {
+		if (listTracker == KEY_TICKED) {
 			return "Cannot edit from ticked list.";
 		}
 		else if (listTracker == KEY_KIV) { 
 			return "Cannot edit from KIV list.";
 		}
 
-		if (listTracker == KEY_SEARCH) {
+		else if (listTracker == KEY_SEARCH) {
 			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
 			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
@@ -330,19 +323,26 @@ public class CRUManager {
 				return "Cannot edit from ticked and KIV list.";
 			}
 		}
-		else {
-			oldTask = current.remove(index-1);
-		}
 
-		newTask = oldTask.copy();
-
-		// Edit the other Vector<Task>
-		if (listTracker == KEY_SORTED_TIME ) {
-			storedTasksByPriority.remove(oldTask);
-		}
-		else if (listTracker == KEY_SORTED_PRIORITY) {
+		else if (listTracker == KEY_FREESLOTS) {
+			oldTask = current.remove(index - 1);
+			storedTasksByTime.remove(oldTask);
 			storedTasksByTime.remove(oldTask);
 		}
+
+		// in undone lists
+		else {
+			oldTask = current.remove(index-1);
+			// Edit the other Vector<Task>
+			if (listTracker == KEY_SORTED_TIME ) {
+				storedTasksByPriority.remove(oldTask);
+			}
+			else if (listTracker == KEY_SORTED_PRIORITY) {
+				storedTasksByTime.remove(oldTask);
+			}
+		}
+		
+		newTask = oldTask.copy();
 
 		// Edit description of task
 		if (description != null && !description.equals("")) {
@@ -364,6 +364,7 @@ public class CRUManager {
 				newTask.setStartDate(startDate);
 			}
 		}
+		
 		// Edit endDate only
 		if (endDate != null && startDate == null) {
 			// Edited task can update endDate without worrying of endDate being earlier than startDate
@@ -462,7 +463,7 @@ public class CRUManager {
 		}	
 
 		// Add newTask into undone list
-		if (listTracker == KEY_SEARCH) {
+		if (listTracker == KEY_SEARCH || listTracker == KEY_FREESLOTS) {
 			addTaskIntoUndone(newTask);
 		}
 		else {
