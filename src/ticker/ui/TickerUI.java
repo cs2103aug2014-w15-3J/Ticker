@@ -10,13 +10,18 @@ import java.util.logging.Logger;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+
 import javafx.application.Application;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -34,12 +39,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+
 import javafx.util.Duration;
+
 import ticker.common.Date;
 import ticker.common.Task;
 import ticker.common.Time;
+
 import ticker.logic.HelpManager;
 import ticker.logic.Logic;
 
@@ -52,30 +61,28 @@ public class TickerUI extends Application {
 
 	private boolean displayHelp = false;
 	private boolean isSearchResult = false;
-	double initialX, initialY;
+	private double initialX, initialY;
 
-	Scene scene;
-	Group root;
-	Image min, min_, close, close_, trivial, normal, impt,
-	expired;
-	ImageView background, logo, min_button, close_button, imv9;
-	VBox chart = new VBox();
-	ImageView help;
-	Image helpPage;
-	TextArea helpContent;
+	// for basic display
+	private Scene scene;
+	private Group root;
+	private Image min, min_, close, close_, trivial, normal, impt;
+	private ImageView background, logo, min_button, close_button;
+	private VBox chart = new VBox();
+	private ImageView help;
 
-	Font content = Font.loadFont(getClass().getResourceAsStream("/ticker/ui/fonts/ARLRDBD_0.TTF"), 13);
-	Font heading = new Font("Britannic Bold", 14);
+	private Font content = Font.loadFont(getClass().getResourceAsStream("/ticker/ui/fonts/ARLRDBD_0.TTF"), 13);
+	private Font heading = new Font("Britannic Bold", 14);
 
 	private TextField command;
-	Label feedback;
-	ScrollPane sp;
-	
+	private Label feedback;
+	private ScrollPane sp;
+
+	// for tab building
 	private static final int INDEX_TABS = 7;                 // tabs is the 7th children that root added
-	Group tabs_todo, tabs_todo_p, tabs_ticked, tabs_kiv, tabs_search;
-	ImageView bar, tickedTab, kivTab, todoTab;
-	Image kiv_1, kiv_2, kiv_3, ticked_1, ticked_2, ticked_3, todo_1, todo_2,
-	todo_3;
+	private Group tabs_todo, tabs_todo_p, tabs_ticked, tabs_kiv, tabs_search, tabs_search_free;
+	private ImageView bar, tickedTab, kivTab, todoTab;
+	private Image kiv_1, kiv_2, kiv_3, ticked_1, ticked_2, ticked_3, todo_1, todo_2, todo_3;
 
 	private static final int KEY_SORTED_TIME = 1;
 	private static final int KEY_SORTED_PRIORITY = 2;
@@ -83,7 +90,7 @@ public class TickerUI extends Application {
 	private static final int KEY_KIV = 4;
 	private static final int KEY_SEARCH = 5;
 	private static final int KEY_SEARCH_FREE = 6;
-	
+
 	private static final String MESSAGE_SEARCH_RESULT = "   There are  %1$s result(s) found";
 	private static final String MESSAGE_SEARCH_TODO = "   Search results from the To-do section:";
 	private static final String MESSAGE_SEARCH_TICKED = "   Search results from the Ticked section:";
@@ -101,22 +108,22 @@ public class TickerUI extends Application {
 	private static final String[] dayOfWeek = { "Sunday", "Monday", "Tuesday",
 		"Wednesday", "Thursday", "Friday", "Saturday" };
 
-	Calendar c;
+	private Calendar c;
 
-	final HBox time = new HBox(1);
-	VBox clock = new VBox();
+	private HBox time = new HBox(1);
+	private VBox clock = new VBox();
 
-	final Label currentHour = new Label();
-	final Label currentMin = new Label();
-	final Label currentSec = new Label();
-	final Label colon1 = new Label(":");
-	final Label colon2 = new Label(":");
+	private final Label currentHour = new Label();
+	private final Label currentMin = new Label();
+	private final Label currentSec = new Label();
+	private final Label colon1 = new Label(":");
+	private final Label colon2 = new Label(":");
 
 	private FadeTransition fadeOut, helpFadeIn, helpFadeOut; 
 
-	final Label date_string = new Label();
+	private final Label date_string = new Label();
 
-	final HelpManager helpManager = new HelpManager();
+	private final HelpManager helpManager = new HelpManager();
 
 	private static Logger logger = Logger.getLogger("UI");
 
@@ -223,6 +230,7 @@ public class TickerUI extends Application {
 		tabs_kiv = new Group();
 		tabs_ticked = new Group();
 		tabs_search = new Group();
+		tabs_search_free = new Group();
 
 		DropShadow ds = new DropShadow();
 		ds.setRadius(8.0);
@@ -725,6 +733,11 @@ public class TickerUI extends Application {
 		}
 	}
 
+	/**
+	 * This method enables the window to be able to be dragged around the desktop
+	 *
+	 * @param node     which is set to be the background imageView
+	 */
 	private void addDragListeners(final ImageView node) {
 
 		node.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -755,7 +768,7 @@ public class TickerUI extends Application {
 		});
 	}
 
-
+	// set the action of the todo tab
 	private void setTodoTab() {
 		todoTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent evt) {
@@ -778,6 +791,7 @@ public class TickerUI extends Application {
 			}
 		});
 	}
+	// set the action of the ticked tab
 	private void setTickedTab() {
 		tickedTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent evt) {
@@ -800,6 +814,7 @@ public class TickerUI extends Application {
 			}
 		});
 	}
+	// set the action of the kiv tab
 	private void setKivTab() {
 		kivTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent evt) {
@@ -822,8 +837,14 @@ public class TickerUI extends Application {
 			}
 		});
 	}
+
+	/**
+	 * This method arranges the tabs and their statuses according to the currentView received
+	 *
+	 * @param view      the view mode that it is supposed to be shown
+	 */
 	private void buildTabs(int view) {
-		if (view == KEY_SORTED_TIME || view == KEY_SORTED_PRIORITY) { // 1 OR 2
+		if (view == KEY_SORTED_TIME) { // 1
 			currentView = view;
 			root.getChildren().remove(INDEX_TABS);
 			kivTab.setImage(kiv_2);
@@ -840,6 +861,22 @@ public class TickerUI extends Application {
 			setTickedTab();
 			setKivTab();
 
+		} else if (view == KEY_SORTED_PRIORITY) { //  2
+			currentView = view;
+			root.getChildren().remove(INDEX_TABS);
+			kivTab.setImage(kiv_2);
+			tickedTab.setImage(ticked_2);
+			todoTab.setImage(todo_1);
+			tabs_todo_p.getChildren().addAll(kivTab, tickedTab, todoTab);
+			root.getChildren().add(INDEX_TABS, tabs_todo_p);
+
+			todoTab.setDisable(true);
+			kivTab.setDisable(false);
+			tickedTab.setDisable(false);
+
+			setTickedTab();
+			setKivTab();
+			
 		} else if (view == KEY_TICKED) { // 3
 			currentView = KEY_TICKED;
 			root.getChildren().remove(INDEX_TABS);
@@ -872,7 +909,7 @@ public class TickerUI extends Application {
 			setTodoTab();
 			setTickedTab();
 
-		} else if (view == KEY_SEARCH || view == KEY_SEARCH_FREE) {    // 5 or 6
+		} else if (view == KEY_SEARCH) {    // 5 or 6
 			currentView = view;
 			root.getChildren().remove(INDEX_TABS);
 			kivTab.setImage(kiv_2);
@@ -880,6 +917,22 @@ public class TickerUI extends Application {
 			todoTab.setImage(todo_2);
 			tabs_search.getChildren().addAll(kivTab, tickedTab, todoTab);
 			root.getChildren().add(INDEX_TABS, tabs_search);
+
+			todoTab.setDisable(false);
+			kivTab.setDisable(false);
+			tickedTab.setDisable(false);
+
+			setTodoTab();
+			setTickedTab();
+			setKivTab();
+		} else if (view == KEY_SEARCH_FREE) {    // 6
+			currentView = view;
+			root.getChildren().remove(INDEX_TABS);
+			kivTab.setImage(kiv_2);
+			tickedTab.setImage(ticked_2);
+			todoTab.setImage(todo_2);
+			tabs_search_free.getChildren().addAll(kivTab, tickedTab, todoTab);
+			root.getChildren().add(INDEX_TABS, tabs_search_free);
 
 			todoTab.setDisable(false);
 			kivTab.setDisable(false);
