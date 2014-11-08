@@ -95,7 +95,6 @@ public class testParser {
 		assertEquals("edit",par.processInput("edit 1 \"have lunch\"").getCommand());
 		assertThat(par.processInput("edit 1 \"have lunch\"").getIndex(),is(1));
 		//edit timing for a task using -t
-		assertEquals("editt",par.processInput("edit 1 \"have lunch\" 13-14 ").getCommand());
 		assertEquals(new Time(13,0),par.processInput("edit 1 -t \"have lunch\" 13-14 ").getStartTime());
 		assertEquals(new Time(14,0),par.processInput("edit 1 -t \"have lunch\" 13-14 ").getEndTime());
 		assertEquals("have lunch",par.processInput("edit 1 have lunch").getDescription());
