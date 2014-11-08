@@ -18,6 +18,7 @@ public class Parser {
 	public static final String INVALID_SEARCH = "Invalid search";
 	public static final String INVALID_EDIT = "Invalid edit";
 	public static final String EMPTY_ADD = "Cannot add a task with empty description";
+	private static final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 	
 	private static Logger logger = Logger.getLogger("parser");
 	private PrettyTimeParser ptp;
@@ -635,7 +636,7 @@ public class Parser {
 		if (Date.isLeapYear(year)){
 			numOfDays[2]=29;
 		}
-		final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+		
 		if (month == 0){
 			for (int i=0;i<months.length;i++){
 				if (str.toLowerCase().indexOf(months[i].toLowerCase())!=-1){
