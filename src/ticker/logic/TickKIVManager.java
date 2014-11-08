@@ -37,7 +37,7 @@ public class TickKIVManager {
 	private static final String LIST_TICKED = "ticked";
 	private static final String LIST_KIV = "kiv";
 	private static final String LIST_SEARCH = "search";
-	// String constant
+	// String constant for stamps
 	private static final String FREESLOT_STAMP = "\\***FREE***\\";
 
 	// Instances of other components
@@ -144,7 +144,7 @@ public class TickKIVManager {
 	String untick(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException{
 		Task unticked;
 
-		if (listTracker != KEY_TICKED || listTracker != KEY_SEARCH) {
+		if (listTracker != KEY_TICKED && listTracker != KEY_SEARCH) {
 			return "Can only untick from ticked list and search list.";
 		}
 		if (listTracker == KEY_SEARCH) {
@@ -275,8 +275,8 @@ public class TickKIVManager {
 	String unkiv(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException {
 		Task unkiv;
 		
-		if (listTracker != KEY_KIV || listTracker != KEY_SEARCH) {
-			return "Can only kiv in kiv list and search list.";
+		if (listTracker != KEY_KIV && listTracker != KEY_SEARCH) {
+			return "Can only unkiv in kiv list and search list.";
 		}
 
 		if (listTracker == KEY_SEARCH) {
