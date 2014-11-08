@@ -385,7 +385,7 @@ public class TickerUI extends Application {
 	 *
 	 * @param stage      the current stage that is being shown
 	 */
-	private void setActionMinButton(Stage stage) {
+	private void setActionMinButton(final Stage stage) {
 		min_button.setOnMouseEntered(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent evt) {
 				min_button.setY(13);
@@ -410,7 +410,7 @@ public class TickerUI extends Application {
 	 *
 	 * @param stage      the current stage that is being shown
 	 */
-	private void setActionCloseButton(Stage stage) {
+	private void setActionCloseButton(final Stage stage) {
 		close_button.setOnMouseEntered(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent evt) {
 				close_button.setImage(close_);
@@ -433,7 +433,7 @@ public class TickerUI extends Application {
 	 *
 	 * @param stage      the current stage that is being shown
 	 */
-	private void setCommandBoxActions(Stage stage) {
+	private void setCommandBoxActions(final Stage stage) {
 		//listen to the content of the command box and show suggested format of input
 		command.textProperty().addListener(new ChangeListener<String>() {
 			@Override
