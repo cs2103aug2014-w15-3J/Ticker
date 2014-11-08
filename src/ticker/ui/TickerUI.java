@@ -375,8 +375,8 @@ public class TickerUI extends Application {
 		this.nextView = next;
 	}
 	
-	public void isFileCorruputed() {
-		this.isFileCorrupted = true;
+	public void isFileCorruputed(boolean isCorrupted) {
+		this.isFileCorrupted = isCorrupted;
 	}
 
 	/*--------------------------------------------*/
@@ -439,7 +439,7 @@ public class TickerUI extends Application {
 			@Override
 			public void changed(ObservableValue observable, String oldValue,
 					String newValue) {
-				warning_isCorrupted.setVisible(false);
+
 				fadeOut.stop();
 				feedback.setOpacity(1);
 				feedback.setText(helpManager.getHelp(newValue));
@@ -492,6 +492,7 @@ public class TickerUI extends Application {
 
 		command.setOnAction(new EventHandler<ActionEvent>() {      // press Enter
 			public void handle(ActionEvent event) {
+				warning_isCorrupted.setVisible(false);
 				String cmd = command.getText();
 				command.clear();
 				feedback.setText(logic.getLogic(cmd));
