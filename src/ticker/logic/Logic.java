@@ -32,11 +32,16 @@ import ticker.common.Task;
 import ticker.common.sortByTime;
 import ticker.common.sortByPriority;
 
+
+
 // Package Java util
 import java.util.Collections;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
 
 // TODO: make UI an observer
 // TODO: check description by end of project
@@ -129,7 +134,7 @@ public class Logic{
 			storedTasksByKIV = storage.restoreDataFromFile(KEY_KIV);
 		}
 
-		catch  (IllegalStateException ise){
+		catch  (IllegalStateException ise2){
 			UI.isFileCorrupted(true);
 		}
 
