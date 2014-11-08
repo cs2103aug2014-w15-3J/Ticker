@@ -375,7 +375,7 @@ public class TickerUI extends Application {
 		this.nextView = next;
 	}
 	
-	public void isFileCorruputed(boolean isCorrupted) {
+	public void isFileCorrupted(boolean isCorrupted) {
 		this.isFileCorrupted = isCorrupted;
 	}
 
