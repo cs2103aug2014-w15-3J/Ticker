@@ -5,7 +5,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Calendar;
 import java.util.List;
+
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
+
 import ticker.common.*;
 import ticker.common.Task.RepeatingInterval;
 
@@ -100,6 +102,10 @@ public class Parser {
 			System.exit(0);
 		}
 		
+		if (key.equals("take")){
+			return callTake(command, words);
+		}
+		
 		if (key.equals("searchf")||key.equals("searchfree")){
 			return callSearchFree(command);
 		}
@@ -108,6 +114,26 @@ public class Parser {
 		
 	}
 	
+	private UserInput callTake(String command,String[] words) {
+		if (words.length<3)
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		
+		String description = command.substring(CMD.TAKE.toString().length()+1);
+		description = description.trim();
+		description = description.substring(description.indexOf(" "));
+		description = description.trim();
+		
+		UserInput input = new UserInput(CMD.TAKE,description);
+		
+		try{
+			input.setIndex(Integer.parseInt(words[1]));
+		} catch(NumberFormatException nfe) { 
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		}
+		
+		return input;
+	}
+
 	private UserInput callAdd(String[] words,String command){
 		logger.log(Level.INFO,"callAdd");
 		String description = extractDesc(command);
