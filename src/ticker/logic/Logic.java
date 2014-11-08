@@ -179,52 +179,65 @@ public class Logic{
 				feedback = searchMng.take(processed.getIndex(), processed.getDescription());
 			}
 			catch (Exception e) {
-				
+
 			}
 			break;
-			
+
 		case COMMAND_SEARCH_FREESLOTS:
 			//try {
-				freeslotsRequest = processed;
-				freeslotsResults.removeAllElements();
-				
-				freeslotsResults = searchMng.searchForFreeSlots(processed.getStartDate(), processed.getStartTime(), 
-						processed.getEndDate(), processed.getEndTime());
-				
-				listTracker = KEY_FREESLOTS;
-				current = freeslotsResults;
-				currentListName = LIST_FREESLOTS;
-				
-				UI.setList(current);
-				UI.setNextView(listTracker);
-				
-				feedback = "Searching for free slots....";
-			
+			freeslotsRequest = new UserInput();
+			freeslotsRequest.setStartDate(processed.getStartDate());
+			freeslotsRequest.setStartTime(processed.getStartTime());
+			freeslotsRequest.setEndDate(processed.getEndDate());
+			freeslotsRequest.setEndTime(processed.getEndTime());
+
+			freeslotsResults.removeAllElements();
+
+			freeslotsResults = searchMng.searchForFreeSlots(processed.getStartDate(), processed.getStartTime(), 
+					processed.getEndDate(), processed.getEndTime());
+
+			listTracker = KEY_FREESLOTS;
+			current = freeslotsResults;
+			currentListName = LIST_FREESLOTS;
+
+			checkForTaskExpiry(current);
+			UI.setList(current);
+			UI.setNextView(listTracker);
+
+			feedback = "Searching for free slots....";
+
 			//}
 			/*catch (Exception e) {
 				System.out.println("error in search for free timeslots");
 			}*/
 			break;
-			
+
 		case COMMAND_SEARCH: 
 			try {
-				searchRequest = processed;
+				searchRequest = new UserInput();
+				searchRequest.setDescription(processed.getDescription());
+				searchRequest.setRepeating(processed.getRepeating());
+				searchRequest.setStartDate(processed.getStartDate());
+				searchRequest.setStartTime(processed.getStartTime());
+				searchRequest.setEndDate(processed.getEndDate());
+				searchRequest.setEndTime(processed.getEndTime());
+				searchRequest.setPriority(processed.getPriority());
+
 				searchResults.removeAllElements();
-				
+
 				searchResults = searchMng.search(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
-				
-				checkForTaskExpiry();
 
 				listTracker = KEY_SEARCH;
 				current = searchResults;
 				currentListName = LIST_SEARCH;
 
+				checkForTaskExpiry();
 				UI.setList(current);
 				UI.setNextView(listTracker);
-				
+
 				feedback = "Searching for tasks...";
-								
+
 			}
 			catch (Exception e) {
 				System.out.println("error in search");
@@ -235,6 +248,14 @@ public class Logic{
 		case COMMAND_DELETE: 
 			try {
 				feedback = cruMng.delete(processed.getIndex(), listTracker, current, currentListName);
+
+				if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
+				}
 
 				checkForTaskExpiry();
 				sortLists();
@@ -274,11 +295,13 @@ public class Logic{
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
-				
+
 				else if (listTracker == KEY_FREESLOTS) {
 					freeslotsResults.removeAllElements();
 					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
 							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
 				}
 
 				checkForTaskExpiry();
@@ -305,11 +328,13 @@ public class Logic{
 					current = sortedTime;
 					currentListName = LIST_TIME;
 				}
-				
+
 				else if (listTracker == KEY_FREESLOTS) {
 					freeslotsResults.removeAllElements();
 					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
 							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
 				}
 
 				checkForTaskExpiry();
@@ -331,6 +356,13 @@ public class Logic{
 					searchResults.removeAllElements();
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+				}
+				else if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
 				}
 
 				checkForTaskExpiry();
@@ -374,6 +406,7 @@ public class Logic{
 		case COMMAND_UNDO:
 			try {
 				feedback = undoMng.undo();
+				sortLists();
 
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -381,8 +414,16 @@ public class Logic{
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
 
+				else if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
+				}
+				
 				checkForTaskExpiry();
-				sortLists();
+
 				UI.setList(current);
 				UI.setNextView(listTracker);
 			}
@@ -400,6 +441,14 @@ public class Logic{
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 
+				}
+
+				else if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
 				}
 
 				checkForTaskExpiry();
@@ -420,6 +469,14 @@ public class Logic{
 					searchResults.removeAllElements();
 					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+				}
+
+				else if (listTracker == KEY_FREESLOTS) {
+					freeslotsResults.removeAllElements();
+					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+					current = freeslotsResults;
 				}
 
 				checkForTaskExpiry();
@@ -490,6 +547,16 @@ public class Logic{
 		}
 		for (Task tickedTask: listTicked) {
 			tickedTask.isExpired();
+		}
+	}
+
+	/**
+	 * This is an overloaded method that checks for expired tasks in only one task list and updates their attribute isExpired.
+	 * @param taskList 		Task list to be checked for expired task.
+	 */
+	private void checkForTaskExpiry(Vector<Task> taskList) {
+		for (Task task: taskList) {
+			task.isExpired();
 		}
 	}
 

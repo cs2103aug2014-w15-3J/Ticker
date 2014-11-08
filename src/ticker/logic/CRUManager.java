@@ -42,9 +42,9 @@ public class CRUManager {
 	private static final int KEY_SEARCH = 5;
 	private static final int KEY_FREESLOTS = 6;
 	// String constants for type of lists used
-	private static final String TASKS_TIME = "TIME";
-	private static final String TASKS_TICKED = "TICKED";
-	private static final String TASKS_KIV = "KIV";
+	private static final String TASKS_TIME = "time";
+	private static final String TASKS_TICKED = "ticked";
+	private static final String TASKS_KIV = "kiv";
 
 
 	// Instances of other components
@@ -153,11 +153,12 @@ public class CRUManager {
 			}
 		}
 		else if (listTracker == KEY_FREESLOTS) {
-			deleted = current.remove(index - 1);
+			deleted = current.get(index - 1);
 			if (deleted.getDescription() == FREESLOT_STAMP) {
 				return "Cannot delete freeslot.";
 			}
 			else {
+				current.remove(index - 1);
 				int actualIndex = storedTasksByTime.indexOf(deleted);
 				storedTasksByTime.remove(deleted);
 				storedTasksByPriority.remove(deleted);

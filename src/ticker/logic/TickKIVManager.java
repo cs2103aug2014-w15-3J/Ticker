@@ -37,6 +37,8 @@ public class TickKIVManager {
 	private static final String LIST_TICKED = "ticked";
 	private static final String LIST_KIV = "kiv";
 	private static final String LIST_SEARCH = "search";
+	// String constant
+	private static final String FREESLOT_STAMP = "\\***FREE***\\";
 
 	// Instances of other components
 	private UndoManager undoMng;
@@ -74,8 +76,8 @@ public class TickKIVManager {
 	String tick(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException {
 		Task ticked;
 
-		if (listTracker == KEY_KIV || listTracker == KEY_TICKED || listTracker == KEY_FREESLOTS) {
-			return "Can only tick from undone list and search list.";
+		if (listTracker == KEY_KIV || listTracker == KEY_TICKED) {
+			return "Can only tick from undone list, search list and search freeslots list.";
 		}
 
 		else if (listTracker == KEY_SEARCH) {
@@ -106,9 +108,18 @@ public class TickKIVManager {
 			}
 
 		}
+		else if (listTracker == KEY_FREESLOTS) {
+			ticked = current.get(index - 1);
+			if (ticked.getDescription() == FREESLOT_STAMP) {
+				return "Cannot tick freeslot.";
+			}
+			else {
+				current.remove(index - 1);
+			}
+		}
 
 		else {
-			ticked = current.remove(index-1);
+			ticked = current.remove(index - 1);
 		}
 		storedTasksByTime.remove(ticked);
 		storedTasksByPriority.remove(ticked);
@@ -191,8 +202,8 @@ public class TickKIVManager {
 
 		Task kiv;
 
-		if (listTracker == KEY_TICKED || listTracker == KEY_KIV || listTracker == KEY_FREESLOTS) {
-			return "Can only kiv in undone list and search list.";
+		if (listTracker == KEY_TICKED || listTracker == KEY_KIV) {
+			return "Can only kiv in undone list, search list and search for freeslots list.";
 		}
 
 		else if (listTracker == KEY_SEARCH) {
@@ -223,15 +234,26 @@ public class TickKIVManager {
 			}
 
 		}
+		
+		else if (listTracker == KEY_FREESLOTS) {
+			kiv = current.get(index - 1);
+			if (kiv.getDescription() == FREESLOT_STAMP) {
+				return "Cannot kiv freeslot.";
+			}
+			else {
+				current.remove(index - 1);
+			}
+		}
 
 		else {
 			kiv = current.remove(index-1);
 		}
 
-		// Add to the front so the latest additions are on top
-		storedTasksByKIV.add(0, kiv);
+		// Add to the front so the latest additions are on top	
 		storedTasksByTime.remove(kiv);
 		storedTasksByPriority.remove(kiv);
+		storedTasksByKIV.add(0, kiv);
+
 
 		Event event = new Event(COMMAND_KIV, kiv, LIST_TIME, LIST_KIV);
 		undoMng.add(event);
