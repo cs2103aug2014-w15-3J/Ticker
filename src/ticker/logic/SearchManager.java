@@ -3,14 +3,17 @@
 /* Team ID: W15-3J
  * Name: Li Jia'En, Nicholette
  * Matric Number: A0114535M
- * Project Title: CE1 TextBuddy
- * Purpose: This class receives text commands from the user and edits a textfile. 
- * The commands are for add, display, delete, clear and exit.
+ * Project Title: Ticker
+ * Class: SearchManager
+ * Description: This class has 3 main functions:
+ * 1. Search: Searches for tasks based on any task property.
+ * 2. Near-match: Finds similar tasks by alculates the level of similarity between the search key and the existing tasks in
+ * the task list. Returns only the tasks with appointed level of similarity.
+ * 3. Search for free slots: Shows free slots
  * Assumptions: 
  * This program assumes that:
- * -the user knows the format for each command
- * -the user input lines in the textfile is not numbered.
- * -(option c) the file is saved to disk when the user exit the program
+ * -this class will be called by Logic class.
+ * -the Logic class will always be used with classes CRUDManager, TickKIVManager, UndoRedoManager and SearchManager.
  */
 
 package ticker.logic;
@@ -24,92 +27,68 @@ import ticker.common.TimedTask;
 import ticker.common.sortByTime;
 import ticker.parser.TimePeriod;
 
-
-
-
-
 // Package Java util
 import java.util.Collections;
 import java.util.Vector;
 
+// Simmetrics library
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.ChapmanLengthDeviation;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.ChapmanMatchingSoundex;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.ChapmanMeanLength;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.EuclideanDistance;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.Levenshtein;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.MongeElkan;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.NeedlemanWunch;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.SmithWaterman;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.SmithWatermanGotoh;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.SmithWatermanGotohWindowedAffine;
-import uk.ac.shef.wit.simmetrics.similaritymetrics.Soundex;
-
-// TODO: check description by end of project
-/*
- * Class: SearchManager
- * Description: Calculates the level of similarity between the search key and the existing tasks in
- * the task list. Returns only the tasks with appointed level of similarity.
- */
 
 public class SearchManager {
-	private static final String FREESLOT_STAMP = "\\***FREE***\\";
+
+	// CONSTANTS
 	// String constants for command types
 	private static final String COMMAND_TAKE = "take";
-	
-	Vector<StringMatch> matchList;
+	// String constants for stamps
+	private static final String FREESLOT_STAMP = "\\***FREE***\\";
+
+	// Temporary sorted storages
 	private Vector<Task> storedTasksByTime;
 	private Vector<Task> storedTasksByPriority;
 	private Vector<Task> storedTasksByTicked; // not sorted
 	private Vector<Task> storedTasksByKIV; // not sorted
+	// Temporary storage for searchResults
 	private static Vector<Task> searchResultsTime;
 	private static Vector<Task> searchResultsTicked;
 	private static Vector<Task> searchResultsKIV;
 	private static Vector<Task> searchResults;
 	private static Vector<Task> freeslotList;
-	private String key; 
+	private static Vector<StringMatch> matchList;
 	
 	// Instances of other components
 	private UndoManager undoMng;
 
-	/**
-	 * This method determines the action for each user command.
-	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
-	 */
 	public SearchManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKIV) {
 		this.storedTasksByTime = storedTasksByTime;
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTicked = storedTasksByTicked;
 		this.storedTasksByKIV = storedTasksByKIV;
-		
+
 		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV);
-		
+
 		freeslotList = new Vector<Task>();
 
 		searchResults = new Vector<Task>();
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method searches for tasks with the specified task property. Searching through description is based on the level of similarity between specified key and task description.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param key		 	 Search description key.
+	 * @param isRepeating    Query for repeating tasks.
+	 * @param startDate		 Starting date query.
+	 * @param startTime		 Starting time query.
+	 * @param endDate		 Ending date query.
+	 * @param endTime		 Ending time query.
+	 * @param priority       Query for tasks with a specified level of priority
+	 * @return     Vector of tasks that fits the query
 	 */
-	public Vector<Task> search(String key, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
-			char priority) {
+	public Vector<Task> search(String key, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,	char priority) {
 		matchList = new Vector<StringMatch>();
-		this.key = key;
 
 		searchResultsTime = storedTasksByTime;
 		searchResultsTicked = storedTasksByTicked;
@@ -117,16 +96,21 @@ public class SearchManager {
 
 		// Search by Key only
 		if (key != null && key.length() != 0) {
-			searchResultsTime = searchByKey(key, storedTasksByTime);
-			searchResultsTicked = searchByKey(key, storedTasksByTicked);
-			searchResultsKIV = searchByKey(key, storedTasksByKIV);
+			searchResultsTime = searchByKey(key, searchResultsTime);
+			searchResultsTicked = searchByKey(key, searchResultsTicked);
+			searchResultsKIV = searchByKey(key, searchResultsKIV);
 		}
-		//TODO: implement isRepeat Search
+		if (isRepeating) {
+			searchResultsTime = searchRepeating(searchResultsTime);
+			searchResultsTicked = searchRepeating(searchResultsTicked);
+			searchResultsKIV = searchRepeating(searchResultsKIV);
+		}
+		
 		// Search by priority
 		if (priority != '\u0000' && (priority == 'A' || priority == 'B' || priority == 'C')) {
-			searchResultsTime = searchByPriority(priority, storedTasksByTime);
-			searchResultsTicked = searchByPriority(priority, storedTasksByTicked);
-			searchResultsKIV = searchByPriority(priority, storedTasksByKIV);
+			searchResultsTime = searchByPriority(priority, searchResultsTime);
+			searchResultsTicked = searchByPriority(priority, searchResultsTicked);
+			searchResultsKIV = searchByPriority(priority, searchResultsKIV);
 		}
 
 		// Search for date and time assumes that there will be a date that is passed with the time
@@ -177,6 +161,127 @@ public class SearchManager {
 
 		return searchResults;
 
+	}
+	
+	/**
+	 * This method searches for tasks with the specified task property. Searching through description is based on the level of similarity between specified key and task description.
+	 *
+	 * @param key		 	 Search description key.
+	 * @param isRepeating    Query for repeating tasks.
+	 * @param startDate		 Starting date query.
+	 * @param startTime		 Starting time query.
+	 * @param endDate		 Ending date query.
+	 * @param endTime		 Ending time query.
+	 * @param priority       Query for tasks with a specified level of priority
+	 * @return     Vector of tasks that fits the query
+	 */
+	public Vector<Task> searchExpired(String key, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,	char priority) {
+		matchList = new Vector<StringMatch>();
+
+		searchResultsTime = searchExpired(storedTasksByTime);
+		searchResultsTicked = searchExpired(storedTasksByTicked);
+		searchResultsKIV = searchExpired(storedTasksByKIV);
+
+		// Search by Key only
+		if (key != null && key.length() != 0) {
+			searchResultsTime = searchByKey(key, searchResultsTime);
+			searchResultsTicked = searchByKey(key, searchResultsTicked);
+			searchResultsKIV = searchByKey(key, searchResultsKIV);
+		}
+		if (isRepeating) {
+			searchResultsTime = searchRepeating(searchResultsTime);
+			searchResultsTicked = searchRepeating(searchResultsTicked);
+			searchResultsKIV = searchRepeating(searchResultsKIV);
+		}
+		
+		// Search by priority
+		if (priority != '\u0000' && (priority == 'A' || priority == 'B' || priority == 'C')) {
+			searchResultsTime = searchByPriority(priority, searchResultsTime);
+			searchResultsTicked = searchByPriority(priority, searchResultsTicked);
+			searchResultsKIV = searchByPriority(priority, searchResultsKIV);
+		}
+
+		// Search for date and time assumes that there will be a date that is passed with the time
+		// Search by start date and start time
+		if (startDate != null) {
+			if (startTime != null) {
+				searchResultsTime = searchByStartDateAndTime(startDate, startTime, searchResultsTime);
+				searchResultsTicked = searchByStartDateAndTime(startDate, startTime, searchResultsTicked);
+				searchResultsKIV = searchByStartDateAndTime(startDate, startTime, searchResultsKIV);
+			}
+			else if (startTime == null) {
+				searchResultsTime = searchByStartDate(startDate, searchResultsTime);
+				searchResultsTicked = searchByStartDate(startDate, searchResultsTicked);
+				searchResultsKIV = searchByStartDate(startDate, searchResultsKIV);
+			}
+
+		}
+
+		// Search by end date and end time
+		if (endDate != null) {
+			if (endTime != null) {
+				searchResultsTime = searchByEndDateAndTime(endDate, endTime, searchResultsTime);
+				searchResultsTicked = searchByEndDateAndTime(endDate, endTime, searchResultsTicked);
+				searchResultsKIV = searchByEndDateAndTime(endDate, endTime, searchResultsKIV);
+			}
+			else if (endTime == null) {
+				searchResultsTime = searchByEndDate(endDate, searchResultsTime);
+				searchResultsTicked = searchByEndDate(endDate, searchResultsTicked);
+				searchResultsKIV = searchByEndDate(endDate, searchResultsKIV);
+			}
+		}
+
+		for (Task searchTime: searchResultsTime) {
+			searchResults.add(searchTime);
+		}
+
+		searchResults.add(new Task("\\***TICKED***\\", null, null, null, null, 'B', false));
+
+		for (Task searchTicked: searchResultsTicked) {
+			searchResults.add(searchTicked);
+		}
+
+		searchResults.add(new Task("\\***KIV***\\", null, null, null, null, 'B', false));
+
+		for (Task searchKIV: searchResultsKIV) {
+			searchResults.add(searchKIV);
+		}
+
+		return searchResults;
+
+	}
+	
+	private Vector<Task> searchExpired(Vector<Task> taskList) {
+		Vector<Task> searchResult = new Vector<Task>();
+		
+		for (Task task: taskList) {
+			if (task.getIsExpired()) {
+				searchResult.add(task);
+			}
+		}
+		
+		return searchResult;
+	}
+
+	/**
+	 * This method determines the action for each user command.
+	 *
+	 * @param userCommand Command from the user.
+	 * @param fileName    Name of textfile.
+	 * @param commandType Type of command from the user.
+	 * @param input       Name of temporary data structure containing the contents.
+	 * @return     Message from the action of the userCommand.
+	 * @throws Error  If commandType is unidentified.
+	 */
+	private Vector<Task> searchRepeating(Vector<Task> taskList) {
+		Vector<Task> searchResult = new Vector<Task>();
+		
+		for (Task task: taskList) {
+			if (task.getRepeat()) {
+				searchResult.add(task);
+			}
+		}
+		return searchResult;
 	}
 
 	/**
@@ -381,7 +486,7 @@ public class SearchManager {
 		DateTime start = new DateTime(startDate, startTime);
 		DateTime end = new DateTime(endDate, endTime);
 		TimePeriod timePeriod = new TimePeriod(start, end);
-		
+
 		freeslotList = new Vector<Task>();
 
 		Vector<TimePeriod> result = new Vector<TimePeriod>();
@@ -394,7 +499,7 @@ public class SearchManager {
 				freeslotList.add(task);
 			}
 		}
-		
+
 		// Sort the tasks beforehand so the earliest task in the period will be considered first
 		// This allows us to do comparison only once
 		Collections.sort(freeslotList, new sortByTime());
@@ -429,7 +534,7 @@ public class SearchManager {
 					result.remove(i);
 					result.add(new TimePeriod(taskPeriod.getEnd(), resultPeriod.getEnd()));
 				}
-				
+
 				// If free slots has no overlap with tasks
 				else {
 					continue;
@@ -467,7 +572,7 @@ public class SearchManager {
 		chosenSlot.setDescription(description);
 		storedTasksByTime.add(chosenSlot);
 		storedTasksByPriority.add(chosenSlot);
-		
+
 		Event event = new Event(COMMAND_TAKE, chosenSlot);
 		undoMng.add(event);
 
