@@ -163,7 +163,8 @@ public class Storage {
 				throw new IllegalArgumentException("Invalid filename"); //TODO: magic number
 			}
 		} catch (IllegalStateException ise) {
-			System.out.println(); //TODO: decision to be made. if system is being tampered with, delete the whole database? To be completed
+			initFile();
+			throw new IllegalStateException("Detected modification of datafile. Reinitialising now."); //TODO: refactor, magic string
 		}
 		fileReader.close();
 	}
