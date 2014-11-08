@@ -593,6 +593,7 @@ public class TickerUI extends Application {
 		
 		if (isFileCorrupted) {
 			warning_isCorrupted.setVisible(true);
+			isFileCorrupted = false;
 		}
 		else{
 			for (int i = 0; i < tasksToBeShown.size(); i++) {
