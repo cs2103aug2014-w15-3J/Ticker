@@ -7,7 +7,7 @@
  * Class: SearchManager
  * Description: This class has 3 main functions:
  * 1. Search: Searches for tasks based on any task property.
- * 2. Near-match: Finds similar tasks by alculates the level of similarity between the search key and the existing tasks in
+ * 2. Near-match: Finds similar tasks by calculating the level of similarity between the search key and the existing tasks in.
  * the task list. Returns only the tasks with appointed level of similarity.
  * 3. Search for free slots: Shows free slots
  * Assumptions: 
@@ -76,7 +76,7 @@ public class SearchManager {
 	}
 
 	/**
-	 * This method searches for tasks with the specified task property. Searching through description is based on the level of similarity between specified key and task description.
+	 * This method searches for all tasks with the specified task property. Searching through description is based on the level of similarity between specified key and task description.
 	 *
 	 * @param key		 	 Search description key.
 	 * @param isRepeating    Query for repeating tasks.
@@ -126,7 +126,6 @@ public class SearchManager {
 				searchResultsTicked = searchByStartDate(startDate, searchResultsTicked);
 				searchResultsKIV = searchByStartDate(startDate, searchResultsKIV);
 			}
-
 		}
 
 		// Search by end date and end time
@@ -164,7 +163,7 @@ public class SearchManager {
 	}
 	
 	/**
-	 * This method searches for tasks with the specified task property. Searching through description is based on the level of similarity between specified key and task description.
+	 * This method searches for expired tasks with the specified task property. Searching through description is based on the level of similarity between specified key and task description.
 	 *
 	 * @param key		 	 Search description key.
 	 * @param isRepeating    Query for repeating tasks.
@@ -251,6 +250,12 @@ public class SearchManager {
 
 	}
 	
+	/**
+	 * This method searches for expired task within a tasklist.
+	 *
+	 * @param taskList		List of tasks to be searched from.
+	 * @return      Vector of expired tasks.
+	 */
 	private Vector<Task> searchExpired(Vector<Task> taskList) {
 		Vector<Task> searchResult = new Vector<Task>();
 		
@@ -264,14 +269,10 @@ public class SearchManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method searches for repeating task within a tasklist.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param taskList		List of tasks to be searched from.
+	 * @return      Vector of repeating tasks.
 	 */
 	private Vector<Task> searchRepeating(Vector<Task> taskList) {
 		Vector<Task> searchResult = new Vector<Task>();
@@ -285,14 +286,10 @@ public class SearchManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method searches for tasks through a word in the task description (exact or with errors) within a tasklist.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param taskList		List of tasks to be searched from.
+	 * @return      Vector of tasks that passes the specified SimMetrics similarity points.
 	 */
 	private Vector<Task> searchByKey(String key, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
@@ -318,14 +315,10 @@ public class SearchManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method searches for tasks of a certain level of priority within a tasklist.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param taskList		List of tasks to be searched from.
+	 * @return      Vector of tasks with the specified level of priority.
 	 */
 	private Vector<Task> searchByPriority(char priority, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
@@ -339,14 +332,12 @@ public class SearchManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method searches for all tasks starting from from the start date and start time. 
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param taskList    	 List of tasks to be searched from.
+	 * @param startDate		 Starting date query.
+	 * @param startTime		 Starting time query.
+	 * @return     Vector of tasks that fits the query
 	 */
 	private Vector<Task> searchByStartDateAndTime(Date startDate, Time startTime, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
@@ -374,14 +365,11 @@ public class SearchManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method searches for all tasks starting from from the start date without start time. 
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param taskList    	 List of tasks to be searched from.
+	 * @param startDate		 Starting date query.
+	 * @return     Vector of tasks that fits the query
 	 */
 	private Vector<Task> searchByStartDate(Date startDate, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
@@ -406,14 +394,12 @@ public class SearchManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method searches for all tasks till the end date and end time. 
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param taskList    	 List of tasks to be searched from.
+	 * @param endDate		 Ending date query.
+	 * @param endTime		 Ending time query.
+	 * @return     Vector of tasks that fits the query
 	 */
 	private Vector<Task> searchByEndDateAndTime(Date endDate, Time endTime, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
@@ -445,14 +431,11 @@ public class SearchManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method searches for all tasks till the end date without end time. 
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param taskList    	 List of tasks to be searched from.
+	 * @param endDate		 Ending date query.
+	 * @return     Vector of tasks that fits the query
 	 */
 	private Vector<Task> searchByEndDate(Date endDate, Vector<Task> taskList) {
 		Vector<Task> temp = new Vector<Task>();
@@ -473,14 +456,13 @@ public class SearchManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method searches for freeslots within a certain time period.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param startDate		 Starting date query.
+	 * @param startTime		 Starting time query.
+	 * @param endDate		 Ending date query.
+	 * @param endTime		 Ending time query.
+	 * @return     Vector of tasks and freeslots within the period queried.
 	 */
 	public Vector<Task> searchForFreeSlots(Date startDate, Time startTime, Date endDate, Time endTime) {
 		DateTime start = new DateTime(startDate, startTime);
@@ -553,19 +535,17 @@ public class SearchManager {
 
 		return freeslotList;
 	}
+	
 	/**
-	 * This method determines the action for each user command.
+	 * This method takes the freeslot.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param index		 	Index of freeslot to be taken.
+	 * @param description   Name of task description that fills in the freeslot.
+	 * @return     Message from the action of taking a freeslot.
 	 */
 	public String take(int index, String description) {
 		TimedTask chosenSlot = (TimedTask) freeslotList.get(index - 1);
-		if (chosenSlot.getDescription() != "\\***FREE***\\") {
+		if (chosenSlot.getDescription() != FREESLOT_STAMP) {
 			storedTasksByTime.remove(chosenSlot);
 			storedTasksByPriority.remove(chosenSlot);
 		}
@@ -580,29 +560,26 @@ public class SearchManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method determines the level of similarity between the task description and the given key (used library from SimMetrics)
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param key				Key to be searched for.
+	 * @param taskDescription   Description of the task
+	 * @return     Similarity points between the key and task description.
 	 */
-	private static float getMatchLikelyhood(final String str1, final String str2) {
+	private static float getMatchLikelyhood(String key, final String taskDescription) {
 		AbstractStringMetric metric;
 		float avg = 0F, result = 0F;
 		metric = new SmithWaterman();
-		result = metric.getSimilarity(str1, str2);
+		result = metric.getSimilarity(key, taskDescription);
 		avg += result;
 		metric = new SmithWatermanGotoh();
-		result = metric.getSimilarity(str1, str2);
+		result = metric.getSimilarity(key, taskDescription);
 		avg += result;
 		metric = new SmithWatermanGotohWindowedAffine();
-		result = metric.getSimilarity(str1, str2);
+		result = metric.getSimilarity(key, taskDescription);
 		avg += result;
 		metric = new MongeElkan();
-		result = metric.getSimilarity(str1, str2);
+		result = metric.getSimilarity(key, taskDescription);
 		avg += result;
 		return (avg / 4.0F) * 100.0F;
 	}
