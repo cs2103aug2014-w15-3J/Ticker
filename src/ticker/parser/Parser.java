@@ -5,7 +5,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Calendar;
 import java.util.List;
+
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
+
 import ticker.common.*;
 import ticker.common.Task.RepeatingInterval;
 
@@ -26,6 +28,8 @@ public class Parser {
 		ptp = new PrettyTimeParser();
 	}
 
+	//This method takes in a string from Logic and returns a UserInput object to Logic
+	//indicating what the user want to do
 	public UserInput processInput(String command){
 		logger.log(Level.INFO,"processInput");
 		String[] words = command.toLowerCase().split(" +");
@@ -98,10 +102,38 @@ public class Parser {
 			System.exit(0);
 		}
 		
+		if (key.equals("take")){
+			return callTake(command, words);
+		}
+		
+		if (key.equals("searchf")||key.equals("searchfree")){
+			return callSearchFree(command);
+		}
+		
 		return null;
 		
 	}
 	
+	private UserInput callTake(String command,String[] words) {
+		if (words.length<3)
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		
+		String description = command.substring(CMD.TAKE.toString().length()+1);
+		description = description.trim();
+		description = description.substring(description.indexOf(" "));
+		description = description.trim();
+		
+		UserInput input = new UserInput(CMD.TAKE,description);
+		
+		try{
+			input.setIndex(Integer.parseInt(words[1]));
+		} catch(NumberFormatException nfe) { 
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		}
+		
+		return input;
+	}
+
 	private UserInput callAdd(String[] words,String command){
 		logger.log(Level.INFO,"callAdd");
 		String description = extractDesc(command);
@@ -138,10 +170,9 @@ public class Parser {
 		}
 		
 		nlp(description,input);
-		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
+		TimePeriod result = checkDashTimeDate(command);
 		mergeTimeResult(result,input);
 		extractSingleDate(input);
-		
 		input.validifyTime();
 
 		if (input.getStartDate()==null&&input.getEndDate()!=null&&input.getStartTime()!=null&&input.getEndTime()==null){
@@ -243,6 +274,7 @@ public class Parser {
 		return input;
 	}
 	
+	//This method extracts the description part from the String entered by user
 	private String extractDesc(String str){
 		if ((str.length()>4&&str.substring(0,4).equalsIgnoreCase("add "))
 				||(str.length()>6&&str.substring(0, 7).equalsIgnoreCase("search "))){
@@ -316,13 +348,9 @@ public class Parser {
 		nlp(description,input);
 		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
-		
+		extractSingleDate(input);
 		input.validifyTime();
 		
-		if (!((input.getStartTime()==null)&&(input.getEndTime()==null)&&(input.getStartDate()==null)&&(input.getEndDate()==null))){
-			input.setCommand("editt");
-		}
-
 		if (input.getStartDate()==null&&input.getEndDate()!=null&&input.getStartTime()!=null&&input.getEndTime()==null){
 			return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
 		}
@@ -349,16 +377,37 @@ public class Parser {
 			if (words[i].equals("-normal")){
 				input.setPriority('B');
 			}
+			if (words[i].equals("-e")||words[i].equals("-exp")){
+				input.setCommand("searche");
+			}
+				
 		}
 		
 		nlp(description,input);
 		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
 		mergeTimeResult(result,input);
-		
+		extractSingleDate(input);
 		
 		if (!((input.getStartTime()==null)&&(input.getEndTime()==null)&&(input.getStartDate()==null)&&(input.getEndDate()==null))){
 			getSearchTimePeriod(input,command);
 		}
+		
+		return input;
+	}
+	
+	private UserInput callSearchFree(String command){
+
+		UserInput input = new UserInput(CMD.SEARCHFREE,command);
+		
+		nlp(command,input);
+		TimePeriod result = checkDashTimeDate(command);
+		mergeTimeResult(result,input);
+		extractSingleDate(input);
+		
+		if (!((input.getStartTime()==null)&&(input.getEndTime()==null)&&(input.getStartDate()==null)&&(input.getEndDate()==null))){
+			getSearchTimePeriod(input,command);
+		}
+		input.setDescription(null);
 		
 		return input;
 	}
@@ -600,29 +649,4 @@ public class Parser {
 		}
 		return null;
 	}
-}
-
-class TimePeriod{
-	private DateTime start;
-	private DateTime end;
-	
-	public TimePeriod(){
-		start = new DateTime(null,null);
-		end = new DateTime(null,null);
-	}
-	public TimePeriod(DateTime start,DateTime end){
-		this.start=start;
-		this.end=end;
-	}
-	
-	public DateTime getStart(){return start;}
-	public DateTime getEnd(){return end;}
-	public Date getStartDate(){return start.getDate();}
-	public Time getStartTime(){return start.getTime();}
-	public Date getEndDate(){return end.getDate();}
-	public Time getEndTime(){return end.getTime();}
-	public void setStartDate(Date d){this.getStart().setDate(d);}
-	public void setStartTime(Time t){this.getStart().setTime(t);}
-	public void setEndDate(Date d){this.getEnd().setDate(d);}
-	public void setEndTime(Time t){this.getEnd().setTime(t);}
 }

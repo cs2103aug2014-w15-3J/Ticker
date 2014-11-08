@@ -39,6 +39,7 @@ import javafx.util.Duration;
 import ticker.common.Date;
 import ticker.common.Task;
 import ticker.common.Time;
+import ticker.logic.HelpManager;
 import ticker.logic.Logic;
 
 public class TickerUI extends Application {
@@ -60,11 +61,12 @@ public class TickerUI extends Application {
 	ImageView imv1, imv2, imv3, imv4, imv9;
 	VBox chart = new VBox();
 	ImageView help;
-	Group helpPage;
-	Image helpBackground;
+	Image helpPage;
 	TextArea helpContent;
 
-	Font content = new Font("Arial Rounded MT Bold", 13);
+	Font content = Font.loadFont(getClass()
+            .getResourceAsStream("/ticker/ui/fonts/ARLRDBD_0.TTF"), 13);
+	//new Font("Arial Rounded MT Bold", 13);
 	Font heading = new Font("Britannic Bold", 14);
 
 	// GridPane chart = new GridPane();
@@ -88,7 +90,7 @@ public class TickerUI extends Application {
 	private static int currentView = KEY_SORTED_TIME;
 	private int nextView = KEY_SORTED_TIME;
 
-	private static final String[] months = { "", "Jan", "Feb", "Mar", "Apr",
+	private static final String[] months = { "Jan", "Feb", "Mar", "Apr",
 			"May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 	private static final String[] dayOfWeek = { "Sunday", "Monday", "Tuesday",
 			"Wednesday", "Thursday", "Friday", "Saturday" };
@@ -127,7 +129,6 @@ public class TickerUI extends Application {
 	public void start(final Stage stage) {
 		stage.initStyle(StageStyle.UNDECORATED);
 		root = new Group();
-
 		// background pic
 		background = new Image("ticker/ui/pic/background.png", true);
 		imv1 = new ImageView();
@@ -137,8 +138,9 @@ public class TickerUI extends Application {
 		imv1.setX(0);
 		imv1.setY(0);
 		imv1.setSmooth(true);
-		root.getChildren().add(imv1);
 		addDragListeners(imv1);
+		root.getChildren().add(imv1);
+		
 
 		// logo
 		logo = new Image("ticker/ui/pic/logo2.png", true);
@@ -305,17 +307,15 @@ public class TickerUI extends Application {
 		imv5.setCache(true);
 		root.getChildren().add(imv5);
 
-		// TODO set the content of help and design better looking help page
 		// implement the help page
-		helpPage = new Group();
 		help = new ImageView();
 		help.setVisible(false);
 		help.setLayoutX(45);
 		help.setLayoutY(75);
-		helpBackground = new Image("ticker/ui/pic/help.png", true);
-		help.setImage(helpBackground);
+		helpPage = new Image("ticker/ui/pic/help_content.png", true);
+		help.setImage(helpPage);
 		help.setFitWidth(400);
-		helpContent = new TextArea();
+		help.setPreserveRatio(true);
 		root.getChildren().add(help);
 
 		// System.out.println(root.getChildren().size());
@@ -324,14 +324,15 @@ public class TickerUI extends Application {
 		normal = new Image("ticker/ui/pic/normal.png", true);
 		impt = new Image("ticker/ui/pic/impt.png", true);
 
+		final HelpManager helpManager = new HelpManager();
 		command.textProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue observable, String oldValue,
 					String newValue) {
-				System.out.println(command.getText());
+				//System.out.println(command.getText());
 				ft.stop();
 				feedback.setOpacity(1);
-				feedback.setText("hmmmm");
+				feedback.setText(helpManager.getHelp(newValue));
 
 				// System.out.println("something changed!");
 			}
@@ -496,25 +497,6 @@ public class TickerUI extends Application {
 
 	}
 
-	/*
-	 * private String getHelp() { String helpList = ""; helpList +=
-	 * "HELP FOR USING TICKER\n"; helpList +=
-	 * "-to add a task: add \"<task name>\" -st <start time> -sd <start date in dd/mm/yy format> "
-	 * + "-et <end time> -ed <end date in dd/mm/yy format.\n"; helpList +=
-	 * "-to set a task to repeat, add the flag: -r\n"; helpList +=
-	 * "-to set a priority for a task, add the flag: to be continued\n";
-	 * helpList += "-to delete a task: delete <index of task>\n"; helpList +=
-	 * "-to edit a task: to be continued\n"; helpList +=
-	 * "-to sort the tasks according to time and date: list to be continued\n";
-	 * helpList +=
-	 * "-to sort the tasks according to priority: list to be continued\n";
-	 * helpList += "-to undo the last command: undo\n"; helpList +=
-	 * "-to redo the last undo: redo\n"; helpList +=
-	 * "-to mark a task as done: tick <index of task>\n"; helpList +=
-	 * "-to mark a task as cannot be done: cmi <index of task>\n"; return
-	 * helpList; }
-	 */
-
 	private void displayTasks() {
 		int prefHeight = 30;
 		int maxHeight;
@@ -593,7 +575,21 @@ public class TickerUI extends Application {
 				end.setTextFill(Color.RED);
 			}
 
-			if ((newTask.equals("\\***TICKED***\\"))) { // this list is search
+			if(newTask.equals("\\***EMPTY***\\")) {     // if this list is for search empty slot
+				description.setText("empty slot");
+				description.setTextFill(Color.DARKGREEN);
+				VBox time = new VBox(5);
+				start.setText("Start: " + ST + ", " + SD);
+				end.setText("End: " + ET + ", " + ED);
+				time.getChildren().add(start);
+				time.getChildren().add(end);
+				time.setPrefSize(widthTime, prefHeight);
+				time.setAlignment(Pos.CENTER_LEFT);
+				hb.getChildren().addAll(index, priority, description, time);
+				chart.getChildren().add(hb);		
+			}
+			
+			else if ((newTask.equals("\\***TICKED***\\"))) { // this list is search
 														// result
 				isSearchResult = true;
 
