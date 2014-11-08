@@ -256,37 +256,37 @@ public class Logic{
 
 		case COMMAND_SEARCH_EXPIRED:
 			try {
-					searchRequest = new UserInput();
-					searchRequest.setCommand(processed.getCommand());
-					searchRequest.setDescription(processed.getDescription());
-					searchRequest.setRepeating(processed.getRepeating());
-					searchRequest.setStartDate(processed.getStartDate());
-					searchRequest.setStartTime(processed.getStartTime());
-					searchRequest.setEndDate(processed.getEndDate());
-					searchRequest.setEndTime(processed.getEndTime());
-					searchRequest.setPriority(processed.getPriority());
+				searchRequest = new UserInput();
+				searchRequest.setCommand(processed.getCommand());
+				searchRequest.setDescription(processed.getDescription());
+				searchRequest.setRepeating(processed.getRepeating());
+				searchRequest.setStartDate(processed.getStartDate());
+				searchRequest.setStartTime(processed.getStartTime());
+				searchRequest.setEndDate(processed.getEndDate());
+				searchRequest.setEndTime(processed.getEndTime());
+				searchRequest.setPriority(processed.getPriority());
 
-					searchResults.removeAllElements();
+				searchResults.removeAllElements();
 
-					searchResults = searchMng.searchExpired(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
-							processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
+				searchResults = searchMng.searchExpired(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
+						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
 
-					listTracker = KEY_SEARCH;
-					current = searchResults;
-					currentListName = LIST_SEARCH;
+				listTracker = KEY_SEARCH;
+				current = searchResults;
+				currentListName = LIST_SEARCH;
 
-					checkForTaskExpiry();
-					UI.setList(current);
-					UI.setNextView(listTracker);
+				checkForTaskExpiry();
+				UI.setList(current);
+				UI.setNextView(listTracker);
 
-					feedback = "Searching for tasks...";
+				feedback = "Searching for tasks...";
 
-				}
-				catch (Exception e) {
-					return "error in search";
-				}
-			
-				break;
+			}
+			catch (Exception e) {
+				return "error in search";
+			}
+
+			break;
 
 		case COMMAND_DELETE: 
 			try {
@@ -579,17 +579,25 @@ public class Logic{
 	 * This method checks for expired tasks and updates their attribute isExpired.
 	 */
 	private void checkForTaskExpiry() {
-		for (Task timeTask: storedTasksByTime) {
-			timeTask.isExpired();
+		if (!storedTasksByTime.isEmpty()) {
+			for (Task timeTask: storedTasksByTime) {
+				timeTask.isExpired();
+			}
 		}
-		for (Task priorityTask: storedTasksByTime) {
-			priorityTask.isExpired();
+		if (!storedTasksByPriority.isEmpty()) {
+			for (Task priorityTask: storedTasksByPriority) {
+				priorityTask.isExpired();
+			}
 		}
-		for (Task kivTask: storedTasksByKIV) {
-			kivTask.isExpired();
+		if (!storedTasksByKIV.isEmpty()) {
+			for (Task kivTask: storedTasksByKIV) {
+				kivTask.isExpired();
+			}
 		}
-		for (Task tickedTask: storedTasksByTicked) {
-			tickedTask.isExpired();
+		if (!storedTasksByTicked.isEmpty()) {
+			for (Task tickedTask: storedTasksByTicked) {
+				tickedTask.isExpired();
+			}
 		}
 	}
 
