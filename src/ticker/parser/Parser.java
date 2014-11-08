@@ -18,6 +18,7 @@ public class Parser {
 	public static final String INVALID_SEARCH = "Invalid search";
 	public static final String INVALID_EDIT = "Invalid edit";
 	public static final String EMPTY_ADD = "Cannot add a task with empty description";
+	private static final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 	
 	private static Logger logger = Logger.getLogger("parser");
 	private PrettyTimeParser ptp;
@@ -80,31 +81,31 @@ public class Parser {
 			return callUnKIV(words);
 		}
 		
-		else if (key.equals("help")){
+		else if (key.equals(ParserString.HELP)){
 			return callHelp(words);
 		}
 		
-		else if (key.equals("clear")){
+		else if (key.equals(ParserString.CLEAR)){
 			return callClear(words);
 		}
 		
-		else if (key.equals("undo")){
+		else if (key.equals(ParserString.UNDO)){
 			return new UserInput(CMD.UNDO,null);
 		}
 		
-		else if (key.equals("redo")){
+		else if (key.equals(ParserString.REDO)){
 			return new UserInput(CMD.REDO,null);
 		}
 		
-		else if (key.equals("exit")){
+		else if (key.equals(ParserString.EXIT)){
 			System.exit(0);
 		}
 		
-		else if (key.equals("take")){
+		else if (key.equals(ParserString.TAKE)){
 			return callTake(command, words);
 		}
 		
-		else if (key.equals("searchf")||key.equals("searchfree")){
+		else if (key.equals(ParserString.SEARCH_FREE_SHORT)||key.equals(ParserString.SEARCH_FREE)){
 			return callSearchFree(command);
 		}
 		
@@ -136,21 +137,21 @@ public class Parser {
 		logger.log(Level.INFO,"callAdd");
 		String description = extractDesc(command);
 		UserInput input = new UserInput(CMD.ADD,description);
-		input.setPriority('B');
+		input.setPriority(ParserString.NORMAL_PRIORITY_CHAR);
 		
 		for (int i=0;i<words.length;i++){
 			
 			String lowerCase = words[i].toLowerCase();
 			
 			if (lowerCase.equals(ParserString.HIGH_PRIORITY_SHORT)||lowerCase.equals(ParserString.HIGH_PRIORITY)){
-				input.setPriority('A');
+				input.setPriority(ParserString.HIGH_PRIORITY_CHAR);
 			}
 			
 			else if (lowerCase.equals(ParserString.LOW_PRIORITY)){
-				input.setPriority('C');
+				input.setPriority(ParserString.LOW_PRIORITY_CHAR);
 			}
 
-			else if (lowerCase.equals("-r")||lowerCase.equals("-rw")){
+			else if (lowerCase.equals(ParserString.REPEATING)||lowerCase.equals("-rw")){
 				input.setRepeating(true);
 				input.setRepeatingInterval(RepeatingInterval.WEEK);
 			}
@@ -273,7 +274,7 @@ public class Parser {
 		String[] splitted = str.split(" +");
 		String res = str;
 		for (int i = 0;i<splitted.length;i++){
-			if (splitted[i].indexOf(ParserString.DASH_STRING)!=-1&&!splitted[i].equals("-t")){
+			if (splitted[i].indexOf(ParserString.DASH_STRING)!=-1&&!splitted[i].equals(ParserString.NLP_FLAG)){
 				int startIndex = res.indexOf(splitted[i]);
 				int endIndex = startIndex + splitted[i].length();
 				if (startIndex-1>=0&&res.charAt(startIndex-1)==' '){
@@ -320,20 +321,20 @@ public class Parser {
 		for (int i=0;i<words.length;i++){
 			
 			if (words[i].toLowerCase().equals(ParserString.HIGH_PRIORITY_SHORT)||words[i].toLowerCase().equals(ParserString.HIGH_PRIORITY)){
-				input.setPriority('A');
+				input.setPriority(ParserString.HIGH_PRIORITY_CHAR);
 			}
 			
 			if (words[i].toLowerCase().equals(ParserString.LOW_PRIORITY)){
-				input.setPriority('C');
+				input.setPriority(ParserString.LOW_PRIORITY_CHAR);
 			}
 
-			if (words[i].equals("-r")){
+			if (words[i].equals(ParserString.REPEATING)){
 				input.setRepeating(true);
 			}
 		}
 		
 		nlp(description,input);
-		TimePeriod result = checkDashTimeDate(command.substring(command.lastIndexOf("\"")+1));
+		TimePeriod result = checkDashTimeDate(command);
 		mergeTimeResult(result,input);
 		extractSingleDate(input);
 		input.validifyTime();
@@ -355,16 +356,16 @@ public class Parser {
 		
 		for (int i=0;i<words.length;i++){
 			if (words[i].equals(ParserString.HIGH_PRIORITY_SHORT)||words[i].equals(ParserString.HIGH_PRIORITY)){
-				input.setPriority('A');
+				input.setPriority(ParserString.HIGH_PRIORITY_CHAR);
 			}
 			if (words[i].equals(ParserString.LOW_PRIORITY)){
-				input.setPriority('C');
+				input.setPriority(ParserString.LOW_PRIORITY_CHAR);
 			}
 			if (words[i].equals(ParserString.NORMAL_PRIORITY)){
-				input.setPriority('B');
+				input.setPriority(ParserString.NORMAL_PRIORITY_CHAR);
 			}
-			if (words[i].equals("-e")||words[i].equals("-exp")){
-				input.setCommand("searchExpired");
+			if (words[i].equals(ParserString.EXPIRED_SHORT)||words[i].equals(ParserString.EXPIRED)){
+				input.setCommand(ParserString.SEARCH_EXPIRED);
 			}
 				
 		}
@@ -400,15 +401,15 @@ public class Parser {
 	
 	private UserInput callList (String[] words){
 		
-		UserInput input = new UserInput(CMD.LIST,"time");
+		UserInput input = new UserInput(CMD.LIST,ParserString.TIME);
 			
 		if (words.length>=2){
 			if (words[1].equals(ParserString.PRIORITY)||words[1].equals(ParserString.PRIORITY_SHORT))
 				input.setDescription(ParserString.PRIORITY);
-			if (words[1].equals("k")||words[1].equals(ParserString.KIV))
+			if (words[1].equals(ParserString.KIV_SHORT)||words[1].equals(ParserString.KIV))
 				input.setDescription(ParserString.KIV);
-			if (words[1].equals("ticked")||words[1].equals("tick"))
-				input.setDescription("ticked");
+			if (words[1].equals(ParserString.TICKED)||words[1].equals(ParserString.TICK))
+				input.setDescription(ParserString.TICKED);
 		}
 		return input;
 		
@@ -454,10 +455,10 @@ public class Parser {
 	
 	private void nlp(String description,UserInput input){
 		
-		if (description.indexOf("-t")==-1) return;
+		if (description.indexOf(ParserString.NLP_FLAG)==-1) return;
 		
-		input.setDescription(description.substring(0,description.indexOf("-t")).trim());		
-		List<java.util.Date> dates = this.ptp.parse(description.substring(description.indexOf("-t")+2));
+		input.setDescription(description.substring(0,description.indexOf(ParserString.NLP_FLAG)).trim());		
+		List<java.util.Date> dates = this.ptp.parse(description.substring(description.indexOf(ParserString.NLP_FLAG)+2));
 		if (dates.size()==2){
 			input.setStartDate(convertDate(dates.get(0)));
 			input.setStartTime(convertTime(dates.get(0)));
@@ -467,7 +468,14 @@ public class Parser {
 		else if (dates.size()==1){
 			if (isDeadLine(description)){
 				input.setEndDate(convertDate(dates.get(0)));
-				input.setEndTime(convertTime(dates.get(0)));
+				
+				if (convertTime(dates.get(0)).equals(Time.getCurrentTime())){
+					input.setEndTime(new Time(23,59));
+				}
+				else {
+					input.setEndTime(convertTime(dates.get(0)));
+				}
+			
 			}
 			
 			else {
@@ -538,11 +546,11 @@ public class Parser {
 		boolean isPM = false;
 		if (str.length()>2){
 			String lastTwoChars = str.substring(str.length()-2);
-			if (lastTwoChars.equalsIgnoreCase("pm")){
+			if (lastTwoChars.equalsIgnoreCase(ParserString.PM)){
 				isPM = true;
 				str=str.substring(0,str.length()-2);
 			}
-			else if(lastTwoChars.equalsIgnoreCase("am")){
+			else if(lastTwoChars.equalsIgnoreCase(ParserString.AM)){
 				str=str.substring(0,str.length()-2);
 			}
 		}
@@ -595,14 +603,14 @@ public class Parser {
 	static Date constructDate(String str){
 
 		if (str.equals("")) return null;
-		int index = str.indexOf("/");
+		int index = str.indexOf(ParserString.SLASH);
 		if (index==-1) return null;
 		
 		int month = 0;
 		int date=0;
 		int year = Date.getCurrentYear();
 		
-		if (str.lastIndexOf("/")==index){
+		if (str.lastIndexOf(ParserString.SLASH)==index){
 			
 			try {  
 				date = Integer.parseInt(str.substring(index+1)); 
@@ -619,14 +627,14 @@ public class Parser {
 				if (year<100){
 					year += 2000;
 				}
-				month =  Integer.parseInt(str.substring(index+1,str.lastIndexOf("/")));  
-				date =  Integer.parseInt(str.substring(str.lastIndexOf("/")+1));  
+				month =  Integer.parseInt(str.substring(index+1,str.lastIndexOf(ParserString.SLASH)));  
+				date =  Integer.parseInt(str.substring(str.lastIndexOf(ParserString.SLASH)+1));  
 			}	catch(NumberFormatException nfe) {
 			}  
 		}
 
 		try {  
-			month = Integer.parseInt(str.substring(index+1,str.lastIndexOf("/")));  
+			month = Integer.parseInt(str.substring(index+1,str.lastIndexOf(ParserString.SLASH)));  
 		}	catch(NumberFormatException nfe) {    
 		}	catch(IndexOutOfBoundsException ioobe){
 		} 
@@ -635,7 +643,7 @@ public class Parser {
 		if (Date.isLeapYear(year)){
 			numOfDays[2]=29;
 		}
-		final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+		
 		if (month == 0){
 			for (int i=0;i<months.length;i++){
 				if (str.toLowerCase().indexOf(months[i].toLowerCase())!=-1){
