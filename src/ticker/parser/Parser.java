@@ -468,7 +468,14 @@ public class Parser {
 		else if (dates.size()==1){
 			if (isDeadLine(description)){
 				input.setEndDate(convertDate(dates.get(0)));
-				input.setEndTime(convertTime(dates.get(0)));
+				
+				if (convertTime(dates.get(0)).equals(Time.getCurrentTime())){
+					input.setEndTime(new Time(23,59));
+				}
+				else {
+					input.setEndTime(convertTime(dates.get(0)));
+				}
+			
 			}
 			
 			else {
