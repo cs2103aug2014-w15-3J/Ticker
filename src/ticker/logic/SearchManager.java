@@ -537,18 +537,15 @@ public class SearchManager {
 	}
 	
 	/**
-	 * This method takes the freeslot 
+	 * This method takes the freeslot.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param index		 	Index of freeslot to be taken.
+	 * @param description   Name of task description that fills in the freeslot.
+	 * @return     Message from the action of taking a freeslot.
 	 */
 	public String take(int index, String description) {
 		TimedTask chosenSlot = (TimedTask) freeslotList.get(index - 1);
-		if (chosenSlot.getDescription() != "\\***FREE***\\") {
+		if (chosenSlot.getDescription() != FREESLOT_STAMP) {
 			storedTasksByTime.remove(chosenSlot);
 			storedTasksByPriority.remove(chosenSlot);
 		}
@@ -563,29 +560,26 @@ public class SearchManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method determines the level of similarity between the task description and the given key (used library from SimMetrics)
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param key				Key to be searched for.
+	 * @param taskDescription   Description of the task
+	 * @return     Similarity points between the key and task description.
 	 */
-	private static float getMatchLikelyhood(final String str1, final String str2) {
+	private static float getMatchLikelyhood(String key, final String taskDescription) {
 		AbstractStringMetric metric;
 		float avg = 0F, result = 0F;
 		metric = new SmithWaterman();
-		result = metric.getSimilarity(str1, str2);
+		result = metric.getSimilarity(key, taskDescription);
 		avg += result;
 		metric = new SmithWatermanGotoh();
-		result = metric.getSimilarity(str1, str2);
+		result = metric.getSimilarity(key, taskDescription);
 		avg += result;
 		metric = new SmithWatermanGotohWindowedAffine();
-		result = metric.getSimilarity(str1, str2);
+		result = metric.getSimilarity(key, taskDescription);
 		avg += result;
 		metric = new MongeElkan();
-		result = metric.getSimilarity(str1, str2);
+		result = metric.getSimilarity(key, taskDescription);
 		avg += result;
 		return (avg / 4.0F) * 100.0F;
 	}
