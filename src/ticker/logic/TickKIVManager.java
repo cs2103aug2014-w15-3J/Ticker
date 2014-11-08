@@ -3,15 +3,15 @@
 /* Team ID: W15-3J
  * Name: Li Jia'En, Nicholette
  * Matric Number: A0114535M
- * Project Title: CE1 TextBuddy
- * Purpose: This class receives text commands from the user and edits a textfile. 
- * The commands are for add, display, delete, clear and exit.
+ * Project Title: Ticker
+ * Class: TickKIVManager
+ * Description: This class performs tick, untick, kiv and unkiv commands.
  * Assumptions: 
  * This program assumes that:
- * -the user knows the format for each command
- * -the user input lines in the textfile is not numbered.
- * -(option c) the file is saved to disk when the user exit the program
+ * -this class will be called by Logic class.
+ * -the Logic class will always be used with classes CRUDManager, TickKIVManager, UndoRedoManager and SearchManager.
  */
+
 package ticker.logic;
 
 import java.util.Vector;
@@ -19,6 +19,7 @@ import java.util.Vector;
 import ticker.common.Task;
 
 public class TickKIVManager {
+
 	// CONSTANTS
 	// String constants for command types
 	private static final String COMMAND_UNTICK = "untick";
@@ -39,21 +40,12 @@ public class TickKIVManager {
 	private static final String LIST_SEARCH = "search";
 	// String constant for stamps
 	private static final String FREESLOT_STAMP = "\\***FREE***\\";
-
+	private static final String KIV_LIST_STAMP = "\\***KIV***\\";
+	private static final String TICKED_LIST_STAMP = "\\***TICKED***\\";
 	// Instances of other components
 	private UndoManager undoMng;
 	private Vector<Task> storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV;
 
-	/**
-	 * This method determines the action for each user command.
-	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
-	 */
 	TickKIVManager(Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKIV) {
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTime = storedTasksByTime;
@@ -64,14 +56,13 @@ public class TickKIVManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method marks the specified task as ticked.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param index			 Index of the specified task displayed in UI.
+	 * @param listTracker    List key of the current task list being displayed.
+	 * @param current		 Current task list being displayed.
+	 * @return     Feedback after a task is ticked.
+	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
 	 */
 	String tick(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException {
 		Task ticked;
@@ -81,8 +72,8 @@ public class TickKIVManager {
 		}
 
 		else if (listTracker == KEY_SEARCH) {
-			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
-			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
+			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null, null, null, 'B', false);
+			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null, null, 'B', false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
 
@@ -132,14 +123,13 @@ public class TickKIVManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method marks the specified task as unticked.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param index			 Index of the specified task displayed in UI.
+	 * @param listTracker    List key of the current task list being displayed.
+	 * @param current		 Current task list being displayed.
+	 * @return     Feedback after a task is unticked.
+	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
 	 */
 	String untick(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException{
 		Task unticked;
@@ -148,8 +138,8 @@ public class TickKIVManager {
 			return "Can only untick from ticked list and search list.";
 		}
 		if (listTracker == KEY_SEARCH) {
-			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
-			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
+			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null, null, null, 'B', false);
+			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null, null, 'B', false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
 
@@ -188,14 +178,13 @@ public class TickKIVManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method marks the specified task as kiv-ed.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param index			 Index of the specified task displayed in UI.
+	 * @param listTracker    List key of the current task list being displayed.
+	 * @param current		 Current task list being displayed.
+	 * @return     Feedback after a task is kiv-ed.
+	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
 	 */
 	String kiv(int index, int listTracker, Vector<Task> current, String currentListName) 
 			throws ArrayIndexOutOfBoundsException,IllegalArgumentException {
@@ -207,8 +196,8 @@ public class TickKIVManager {
 		}
 
 		else if (listTracker == KEY_SEARCH) {
-			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
-			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
+			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null, null, null, 'B', false);
+			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null, null, 'B', false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
 
@@ -263,14 +252,13 @@ public class TickKIVManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method marks the specified task as unkiv-ed.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param index			 Index of the specified task displayed in UI.
+	 * @param listTracker    List key of the current task list being displayed.
+	 * @param current		 Current task list being displayed.
+	 * @return     Feedback after a task is unkiv-ed.
+	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
 	 */
 	String unkiv(int index, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException {
 		Task unkiv;
@@ -280,8 +268,8 @@ public class TickKIVManager {
 		}
 
 		if (listTracker == KEY_SEARCH) {
-			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
-			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
+			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null, null, null, 'B', false);
+			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null, null, 'B', false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
 
