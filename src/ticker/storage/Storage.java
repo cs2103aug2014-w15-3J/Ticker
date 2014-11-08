@@ -45,7 +45,7 @@ public class Storage {
 	private static final String TASKS_KIV_FILENAME = "kiv.json";
 
 	public Storage() {
-		 initFile();
+		
 	}
 	
 	/**
@@ -53,7 +53,7 @@ public class Storage {
 	 * If the file exists, read the content into the program.
 	 * If the file doesn't exist, create the file.
 	 */
-	private void initFile() {
+	public void initFile() throws IllegalStateException{
 		fileSortedByDeadline = new File(TASKS_DEADLINE_FILENAME);
 		fileSortedByPriority = new File(TASKS_PRIORITY_FILENAME);
 		fileSortedByTicked = new File(TASKS_TICKED_FILENAME);
@@ -67,6 +67,11 @@ public class Storage {
 		//if one or more of the file is being altered, reset all files
 		if(isMissing) {
 			clearFile();
+			restoreDataFromFile(TASKS_PRIORITY_INDEX);
+			restoreDataFromFile(TASKS_DEADLINE_INDEX);
+			restoreDataFromFile(TASKS_TICKED_INDEX);
+			restoreDataFromFile(TASKS_KIV_INDEX);
+			throw new IllegalStateException();
 		}
 	}
 	

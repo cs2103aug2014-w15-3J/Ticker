@@ -111,10 +111,18 @@ public class Logic{
 		// Instantiating sub-components
 		parser = new Parser();
 		logger = Logger.getLogger("Logic");
+		storage = new Storage();
 
 		// Retrieve last saved tasks
 		try{
-			storage = new Storage();
+			storage.initFile();
+		}
+
+		catch  (IllegalStateException ise){
+			UI.isFileCorrupted(true);
+		}
+		
+		try{
 			storedTasksByTime = storage.restoreDataFromFile(KEY_SORTED_TIME);
 			storedTasksByPriority = storage.restoreDataFromFile(KEY_SORTED_PRIORITY);
 			storedTasksByTicked = storage.restoreDataFromFile(KEY_TICKED);
