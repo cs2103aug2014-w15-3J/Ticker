@@ -138,8 +138,9 @@ public class TickerUI extends Application {
 		imv1.setX(0);
 		imv1.setY(0);
 		imv1.setSmooth(true);
-		root.getChildren().add(imv1);
 		addDragListeners(imv1);
+		root.getChildren().add(imv1);
+		
 
 		// logo
 		logo = new Image("ticker/ui/pic/logo2.png", true);
@@ -306,7 +307,6 @@ public class TickerUI extends Application {
 		imv5.setCache(true);
 		root.getChildren().add(imv5);
 
-		// TODO set the content of help and design better looking help page
 		// implement the help page
 		help = new ImageView();
 		help.setVisible(false);
@@ -324,7 +324,7 @@ public class TickerUI extends Application {
 		normal = new Image("ticker/ui/pic/normal.png", true);
 		impt = new Image("ticker/ui/pic/impt.png", true);
 
-		HelpManager helpManager = new HelpManager();
+		final HelpManager helpManager = new HelpManager();
 		command.textProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue observable, String oldValue,
