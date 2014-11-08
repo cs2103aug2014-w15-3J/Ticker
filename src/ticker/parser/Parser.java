@@ -35,48 +35,48 @@ public class Parser {
 		
 		String key = words[0].toLowerCase();
 		
-		if (key.equals("add")){
+		if (key.equals(ParserString.ADD)){
 			if (words.length==1){
 				return new UserInput(CMD.ERROR,EMPTY_ADD);
 			}
 			return callAdd(words,command);
 		}
 		
-		if (key.equals("delete")||key.equals("del")||key.equals("remove")){
+		if (key.equals(ParserString.DELETE)||key.equals(ParserString.DEL)||key.equals(ParserString.REMOVE)){
 			return callDelete(words);
 		}
 		
-		if (key.equals("search")){
+		if (key.equals(ParserString.SEARCH)){
 			if(words.length==1){
 				return new UserInput(CMD.ERROR,INVALID_SEARCH);
 			}
 			return callSearch(words,command);
 		}
 		
-		if (key.equals("edit")){
+		if (key.equals(ParserString.EDIT)){
 			if (words.length<=2){
 				return new UserInput(CMD.ERROR,INVALID_EDIT);
 			}
 			return callEdit(words,command);
 		}
 		
-		if (key.equals("list")||key.equals("show")){
+		if (key.equals(ParserString.LIST)||key.equals(ParserString.SHOW)){
 			return callList(words);
 		}
 		
-		if (key.equals("tick")||key.equals("done")){
+		if (key.equals(ParserString.TICK)||key.equals(ParserString.DONE)){
 			return callTick(words);
 		}
 		
-		if (key.equals("kiv")){
+		if (key.equals(ParserString.KIV)){
 			return callKIV(words);
 		}
 		
-		if (key.equals("untick")){
+		if (key.equals(ParserString.UNTICK)){
 			return callUntick(words);
 		}
 		
-		if (key.equals("unkiv")){
+		if (key.equals(ParserString.UNKIV)){
 			return callUnKIV(words);
 		}
 		
@@ -143,11 +143,11 @@ public class Parser {
 			
 			String lowerCase = words[i].toLowerCase();
 			
-			if (lowerCase.equals("-impt")||lowerCase.equals("-important")){
+			if (lowerCase.equals(ParserString.HIGH_PRIORITY_SHORT)||lowerCase.equals(ParserString.HIGH_PRIORITY)){
 				input.setPriority('A');
 			}
 			
-			else if (lowerCase.equals("-trivial")){
+			else if (lowerCase.equals(ParserString.LOW_PRIORITY)){
 				input.setPriority('C');
 			}
 
@@ -187,8 +187,8 @@ public class Parser {
 		String[] strings = description.split(" +"); 
 		TimePeriod result = new TimePeriod();
 		for (String s:strings){
-			if (s.indexOf("-")!=-1&&s.indexOf("-")==s.lastIndexOf("-")){
-				int index = s.indexOf("-");
+			if (s.indexOf(ParserString.DASH_STRING)!=-1&&s.indexOf(ParserString.DASH_STRING)==s.lastIndexOf(ParserString.DASH_STRING)){
+				int index = s.indexOf(ParserString.DASH_STRING);
 				if (constructTime(s.substring(0,index))!=null){
 					result.setStartTime(constructTime(s.substring(0,index)));
 				}
@@ -287,7 +287,7 @@ public class Parser {
 		String[] splitted = str.split(" +");
 		String res = str;
 		for (int i = 0;i<splitted.length;i++){
-			if (splitted[i].indexOf('-')!=-1&&!splitted[i].equals("-t")){
+			if (splitted[i].indexOf(ParserString.DASH_STRING)!=-1&&!splitted[i].equals("-t")){
 				int startIndex = res.indexOf(splitted[i]);
 				int endIndex = startIndex + splitted[i].length();
 				if (startIndex-1>=0&&res.charAt(startIndex-1)==' '){
@@ -333,11 +333,11 @@ public class Parser {
 		
 		for (int i=0;i<words.length;i++){
 			
-			if (words[i].toLowerCase().equals("-impt")||words[i].toLowerCase().equals("-important")){
+			if (words[i].toLowerCase().equals(ParserString.HIGH_PRIORITY_SHORT)||words[i].toLowerCase().equals(ParserString.HIGH_PRIORITY)){
 				input.setPriority('A');
 			}
 			
-			if (words[i].toLowerCase().equals("-trivial")){
+			if (words[i].toLowerCase().equals(ParserString.LOW_PRIORITY)){
 				input.setPriority('C');
 			}
 
@@ -368,17 +368,17 @@ public class Parser {
 		UserInput input = new UserInput(CMD.SEARCH,description);
 		
 		for (int i=0;i<words.length;i++){
-			if (words[i].equals("-impt")||words[i].equals("-important")){
+			if (words[i].equals(ParserString.HIGH_PRIORITY_SHORT)||words[i].equals(ParserString.HIGH_PRIORITY)){
 				input.setPriority('A');
 			}
-			if (words[i].equals("-trivial")){
+			if (words[i].equals(ParserString.LOW_PRIORITY)){
 				input.setPriority('C');
 			}
-			if (words[i].equals("-normal")){
+			if (words[i].equals(ParserString.NORMAL_PRIORITY)){
 				input.setPriority('B');
 			}
 			if (words[i].equals("-e")||words[i].equals("-exp")){
-				input.setCommand("searche");
+				input.setCommand("searchExpired");
 			}
 				
 		}
@@ -417,10 +417,10 @@ public class Parser {
 		UserInput input = new UserInput(CMD.LIST,"time");
 			
 		if (words.length>=2){
-			if (words[1].equals("priority")||words[1].equals("p"))
-				input.setDescription("priority");
-			if (words[1].equals("c")||words[1].equals("kiv"))
-				input.setDescription("kiv");
+			if (words[1].equals(ParserString.PRIORITY)||words[1].equals(ParserString.PRIORITY_SHORT))
+				input.setDescription(ParserString.PRIORITY);
+			if (words[1].equals("k")||words[1].equals(ParserString.KIV))
+				input.setDescription(ParserString.KIV);
 			if (words[1].equals("ticked")||words[1].equals("tick"))
 				input.setDescription("ticked");
 		}

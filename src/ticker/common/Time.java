@@ -11,22 +11,10 @@ public class Time {
 		this.hour = hour;
 		this.minute =  minute;
 	}
-/*
-	public static void main(String[] args){
-		
-		Time tm1 = new Time(9,5);
-		Time tm2 = new Time(14,30);
-		
-		System.out.println(tm1);
-		System.out.println(tm2);
-		
-		System.out.println(tm1.compareTo(tm2));
-	
-	}
-*/
+
 	public String toString(){
-		String foobar = (minute<10) ? "0" : "" ;
-		return hour + ":" +  foobar  + minute;
+		String minutePrefix = (minute<10) ? "0" : "" ;
+		return hour + ":" +  minutePrefix  + minute;
 	}
 	
 	public int getHour(){
