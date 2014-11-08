@@ -22,7 +22,7 @@ public class Event {
 		taskBeforeEdit = task;
 		this.command = command;
 		
-		if(!(command.equals(COMMAND_ADD) && !(command.equals(COMMAND_TAKE)))) {
+		if(!(command.equals(COMMAND_ADD)) && !(command.equals(COMMAND_TAKE))) {
 			throw new IllegalArgumentException("This constructor is for add or take command");
 		}
 	}

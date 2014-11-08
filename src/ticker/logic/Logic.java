@@ -172,15 +172,15 @@ public class Logic{
 
 		switch(command){
 		case COMMAND_TAKE:
-			try {
+			//try {
 				if (listTracker != KEY_FREESLOTS) {
 					return "Invalid use of take. Please use it only with searching for freeslots.";
 				}
 				feedback = searchMng.take(processed.getIndex(), processed.getDescription());
-			}
-			catch (Exception e) {
+			//}
+			//catch (Exception e) {
 
-			}
+			//}
 			break;
 
 		case COMMAND_SEARCH_FREESLOTS:
