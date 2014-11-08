@@ -56,7 +56,6 @@ public class TickerUI extends Application {
 
 	Scene scene;
 	Group root;
-	// basic display
 	Image min, min_, close, close_, trivial, normal, impt,
 	expired;
 	ImageView background, logo, min_button, close_button, imv9;
@@ -65,14 +64,13 @@ public class TickerUI extends Application {
 	Image helpPage;
 	TextArea helpContent;
 
-	Font content = Font.loadFont(getClass()
-			.getResourceAsStream("/ticker/ui/fonts/ARLRDBD_0.TTF"), 13);
+	Font content = Font.loadFont(getClass().getResourceAsStream("/ticker/ui/fonts/ARLRDBD_0.TTF"), 13);
 	Font heading = new Font("Britannic Bold", 14);
 
 	private TextField command;
 	Label feedback;
 	ScrollPane sp;
-	// tabs
+	
 	private static final int INDEX_TABS = 7;                 // tabs is the 7th children that root added
 	Group tabs_todo, tabs_todo_p, tabs_ticked, tabs_kiv, tabs_search;
 	ImageView bar, tickedTab, kivTab, todoTab;
@@ -85,6 +83,15 @@ public class TickerUI extends Application {
 	private static final int KEY_KIV = 4;
 	private static final int KEY_SEARCH = 5;
 	private static final int KEY_SEARCH_FREE = 6;
+	
+	private static final String MESSAGE_SEARCH_RESULT = "   There are  %1$s result(s) found";
+	private static final String MESSAGE_SEARCH_TODO = "   Search results from the To-do section:";
+	private static final String MESSAGE_SEARCH_TICKED = "   Search results from the Ticked section:";
+	private static final String MESSAGE_SEARCH_KIV = "   Search results from the KIV section:";
+
+	private static final String COMMAND_LIST = "list time";
+	private static final String COMMAND_LIST_TICKED = "list ticked";
+	private static final String COMMAND_LIST_KIV = "list kiv";
 
 	private static int currentView = KEY_SORTED_TIME;
 	private int nextView = KEY_SORTED_TIME;
@@ -105,7 +112,7 @@ public class TickerUI extends Application {
 	final Label colon1 = new Label(":");
 	final Label colon2 = new Label(":");
 
-	private FadeTransition fadeOut; // = new FadeTransition(Duration.millis(5000), feedback);
+	private FadeTransition fadeOut, helpFadeIn, helpFadeOut; 
 
 	final Label date_string = new Label();
 
@@ -161,7 +168,6 @@ public class TickerUI extends Application {
 		root.getChildren().add(command);
 		setCommandBoxActions(stage);
 
-		// TODO check this part
 		// display console
 		sp = new ScrollPane();
 		sp.setPrefSize(450, 450);
@@ -302,10 +308,18 @@ public class TickerUI extends Application {
 					}
 				}));
 		time.play();
-		
+
 		fadeOut = new FadeTransition(Duration.millis(5000), feedback);
 		fadeOut.setFromValue(1.0);
 		fadeOut.setToValue(0);
+
+		helpFadeIn = new FadeTransition(Duration.millis(250), help); // help page fade in
+		helpFadeIn.setFromValue(0);
+		helpFadeIn.setToValue(0.8);
+
+		helpFadeOut = new FadeTransition(Duration.millis(250), help); // help page fade out
+		helpFadeOut.setFromValue(0.8);
+		helpFadeOut.setToValue(0);
 
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
@@ -417,8 +431,7 @@ public class TickerUI extends Application {
 					stage.setIconified(true);
 				} else if (code == KeyCode.TAB) {
 					if(currentView==KEY_SORTED_TIME || currentView == KEY_SORTED_PRIORITY) {
-						String autoCommand = "list ticked";
-						feedback.setText(logic.getLogic(autoCommand));
+						feedback.setText(logic.getLogic(COMMAND_LIST_TICKED));
 						fadeOut.play();
 
 						chart.getChildren().clear();
@@ -426,8 +439,7 @@ public class TickerUI extends Application {
 						buildTabs(KEY_TICKED);
 						currentView = KEY_TICKED; 
 					} else if(currentView == KEY_TICKED) {
-						String autoCommand = "list kiv";
-						feedback.setText(logic.getLogic(autoCommand));
+						feedback.setText(logic.getLogic(COMMAND_LIST_KIV));
 						fadeOut.play();
 
 						chart.getChildren().clear();
@@ -435,8 +447,7 @@ public class TickerUI extends Application {
 						buildTabs(KEY_KIV);
 						currentView = KEY_KIV; 
 					} else if(currentView == KEY_KIV) {
-						String autoCommand = "list time";
-						feedback.setText(logic.getLogic(autoCommand));
+						feedback.setText(logic.getLogic(COMMAND_LIST));
 						fadeOut.play();
 
 						chart.getChildren().clear();
@@ -461,48 +472,30 @@ public class TickerUI extends Application {
 
 				if (displayHelp == true) { // if command is "help"
 					help.setVisible(true);
-					FadeTransition ft = new FadeTransition(
-							Duration.millis(250), help); // fade in
-					ft.setFromValue(0);
-					ft.setToValue(0.8);
-					ft.play();
+					helpFadeIn.play();
 
 					command.setOnKeyPressed(new EventHandler<KeyEvent>() {
 						public void handle(KeyEvent e) {
 							KeyCode code = e.getCode();
 							if (code == KeyCode.ENTER) {
-								FadeTransition ft = new FadeTransition(Duration
-										.millis(250), help); // fade out
-								ft.setFromValue(0.8);
-								ft.setToValue(0);
-								ft.play();
+								helpFadeOut.play();
 								help.setVisible(false);
 								displayHelp = false;
-
-							} else if (code == KeyCode.PAGE_UP) {
-								sp.setVvalue(sp.getVvalue() - 0.1);
-								e.consume();
-							} else if (code == KeyCode.PAGE_DOWN) {
-								sp.setVvalue(sp.getVvalue() + 0.1);
-								e.consume();
-							} else if (code == KeyCode.ESCAPE) {
-								stage.setIconified(true);
 							}
-
+							setCommandBoxActions(stage);
 						}
-
 					});
+
 				} else {
 					chart.getChildren().clear();
 					displayTasks();
 				}
-
-				// feedback fades off after 5 seconds
 				fadeOut.play();
 
 			}
 		});
 	}
+
 	/**
 	 * This method builds the structure of the current tie and date display
 	 *
@@ -548,6 +541,9 @@ public class TickerUI extends Application {
 
 	}
 
+	/**
+	 * This method displays the task list according to user command
+	 */
 	private void displayTasks() {
 		int prefHeight = 30;
 		int maxHeight;
@@ -556,8 +552,7 @@ public class TickerUI extends Application {
 		int widthTime = 140;
 		int avgCharNum = 35;
 		int additionalHeight = 14;
-		int d = 0; // a way to correct the numbering when listing out search
-		// results
+		int d = 0;                      // a way to correct the numbering when listing out search results
 
 		trivial = new Image("ticker/ui/pic/trivial.png", true);
 		normal = new Image("ticker/ui/pic/normal.png", true);
@@ -596,9 +591,7 @@ public class TickerUI extends Application {
 
 			int length = newTask.length();
 			maxHeight = prefHeight;
-			maxHeight += (length / avgCharNum) * additionalHeight; // adjust the
-			// maxHeight
-			// accordingly
+			maxHeight += (length / avgCharNum) * additionalHeight; // adjust the maxHeight accordingly
 			Label description = new Label(newTask);
 			description.setPrefSize(widthDes, maxHeight);
 			description.setWrapText(true);
@@ -620,8 +613,7 @@ public class TickerUI extends Application {
 			Label start = new Label();
 			Label end = new Label();
 
-			if (tasksToBeShown.get(i).getIsExpired()) { // mark tasks as red to
-				// show expired
+			if (tasksToBeShown.get(i).getIsExpired()) { // mark tasks as red to show expired
 				index.setTextFill(Color.RED);
 				description.setTextFill(Color.RED);
 				start.setTextFill(Color.RED);
@@ -646,8 +638,7 @@ public class TickerUI extends Application {
 				// result
 				isSearchResult = true;
 
-				Label todo = new Label(
-						"   Search results from the To-do section:");
+				Label todo = new Label(MESSAGE_SEARCH_TODO);
 				todo.setPrefHeight(35);
 				todo.setAlignment(Pos.BOTTOM_LEFT);
 				todo.setFont(heading);
@@ -655,8 +646,7 @@ public class TickerUI extends Application {
 
 				d++;
 
-				Label ticked = new Label(
-						"   Search results from the Ticked section:");
+				Label ticked = new Label(MESSAGE_SEARCH_TICKED);
 				ticked.setPrefHeight(35);
 				ticked.setAlignment(Pos.BOTTOM_LEFT);
 				ticked.setFont(heading);
@@ -664,7 +654,7 @@ public class TickerUI extends Application {
 
 			} else if (newTask.equals("\\***KIV***\\")) {
 				d++;
-				Label kiv = new Label("   Search results from the KIV section:");
+				Label kiv = new Label(MESSAGE_SEARCH_KIV);
 				kiv.setPrefHeight(35);
 				kiv.setAlignment(Pos.BOTTOM_LEFT);
 				kiv.setFont(heading);
@@ -724,8 +714,8 @@ public class TickerUI extends Application {
 
 			}
 			if (isSearchResult == true) {
-				Label numResult = new Label("   There are "
-						+ (tasksToBeShown.size() - 2) + " result(s) found");
+				String searchResult = String.format(MESSAGE_SEARCH_RESULT, tasksToBeShown.size()-2);
+				Label numResult = new Label(searchResult);
 				numResult.setPrefHeight(40);
 				numResult.setAlignment(Pos.BOTTOM_LEFT);
 				numResult.setFont(heading);
@@ -765,7 +755,7 @@ public class TickerUI extends Application {
 		});
 	}
 
-	
+
 	private void setTodoTab() {
 		todoTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent evt) {
@@ -779,8 +769,7 @@ public class TickerUI extends Application {
 		});
 		todoTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent evt) {
-				String autoCommand = "list time";
-				feedback.setText(logic.getLogic(autoCommand));
+				feedback.setText(logic.getLogic(COMMAND_LIST));
 				fadeOut.play();
 
 				chart.getChildren().clear();
@@ -802,8 +791,7 @@ public class TickerUI extends Application {
 		});
 		tickedTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent evt) {
-				String autoCommand = "list ticked";
-				feedback.setText(logic.getLogic(autoCommand));
+				feedback.setText(logic.getLogic(COMMAND_LIST_TICKED));
 				fadeOut.play();
 
 				chart.getChildren().clear();
@@ -825,8 +813,7 @@ public class TickerUI extends Application {
 		});
 		kivTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent evt) {
-				String autoCommand = "list kiv";
-				feedback.setText(logic.getLogic(autoCommand));
+				feedback.setText(logic.getLogic(COMMAND_LIST_KIV));
 				fadeOut.play();
 
 				chart.getChildren().clear();
@@ -844,7 +831,7 @@ public class TickerUI extends Application {
 			todoTab.setImage(todo_1);
 			tabs_todo.getChildren().addAll(kivTab, tickedTab, todoTab);
 			root.getChildren().add(INDEX_TABS, tabs_todo);
-			
+
 
 			todoTab.setDisable(true);
 			kivTab.setDisable(false);
@@ -861,7 +848,7 @@ public class TickerUI extends Application {
 			todoTab.setImage(todo_2);
 			tabs_ticked.getChildren().addAll(kivTab, todoTab, tickedTab);
 			root.getChildren().add(INDEX_TABS, tabs_ticked);
-			
+
 			tickedTab.setDisable(true);
 			kivTab.setDisable(false);
 			todoTab.setDisable(false);
@@ -884,7 +871,7 @@ public class TickerUI extends Application {
 
 			setTodoTab();
 			setTickedTab();
-			
+
 		} else if (view == KEY_SEARCH || view == KEY_SEARCH_FREE) {    // 5 or 6
 			currentView = view;
 			root.getChildren().remove(INDEX_TABS);
@@ -893,7 +880,7 @@ public class TickerUI extends Application {
 			todoTab.setImage(todo_2);
 			tabs_search.getChildren().addAll(kivTab, tickedTab, todoTab);
 			root.getChildren().add(INDEX_TABS, tabs_search);
-			
+
 			todoTab.setDisable(false);
 			kivTab.setDisable(false);
 			tickedTab.setDisable(false);
