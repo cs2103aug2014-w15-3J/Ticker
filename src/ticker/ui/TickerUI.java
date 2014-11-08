@@ -416,9 +416,35 @@ public class TickerUI extends Application {
 				} else if (code == KeyCode.ESCAPE) {
 					stage.setIconified(true);
 				} else if (code == KeyCode.TAB) {
-					//TODO to be implemented
-					currentView++;
-					buildTabs(currentView);
+					if(currentView==KEY_SORTED_TIME || currentView == KEY_SORTED_PRIORITY) {
+						String autoCommand = "list ticked";
+						feedback.setText(logic.getLogic(autoCommand));
+						fadeOut.play();
+
+						chart.getChildren().clear();
+						displayTasks();
+						buildTabs(KEY_TICKED);
+						currentView = KEY_TICKED; 
+					} else if(currentView == KEY_TICKED) {
+						String autoCommand = "list kiv";
+						feedback.setText(logic.getLogic(autoCommand));
+						fadeOut.play();
+
+						chart.getChildren().clear();
+						displayTasks();
+						buildTabs(KEY_KIV);
+						currentView = KEY_KIV; 
+					} else if(currentView == KEY_KIV) {
+						String autoCommand = "list time";
+						feedback.setText(logic.getLogic(autoCommand));
+						fadeOut.play();
+
+						chart.getChildren().clear();
+						displayTasks();
+						buildTabs(KEY_SORTED_TIME);
+						currentView = KEY_SORTED_TIME;
+					}
+
 				}
 			}
 		});
