@@ -4,6 +4,7 @@ package ticker.ui;
 
 import java.util.Calendar;
 import java.util.Vector;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.animation.FadeTransition;
@@ -104,7 +105,7 @@ public class TickerUI extends Application {
 	final Label colon1 = new Label(":");
 	final Label colon2 = new Label(":");
 
-	private FadeTransition ft = new FadeTransition(Duration.millis(5000), feedback);
+	private FadeTransition fadeOut; // = new FadeTransition(Duration.millis(5000), feedback);
 
 	final Label date_string = new Label();
 
@@ -210,7 +211,7 @@ public class TickerUI extends Application {
 		root.getChildren().add(close_button);
 		setActionCloseButton(stage);
 
-		
+
 		tabs_todo = new Group();
 		tabs_todo_p = new Group();
 		tabs_kiv = new Group();
@@ -224,43 +225,43 @@ public class TickerUI extends Application {
 		ds.setColor(Color.rgb(0, 0, 0, 0.6));
 
 		// tab3 cmi
-				kiv_1 = new Image("ticker/ui/pic/KIV_1.png", true);
-				kiv_2 = new Image("ticker/ui/pic/KIV_2.png", true);
-				kiv_3 = new Image("ticker/ui/pic/KIV_3.png", true);
-				kivTab = new ImageView();
-				kivTab.setFitWidth(80);
-				kivTab.setPreserveRatio(true);
-				kivTab.setX(380);
-				kivTab.setY(95);
-				kivTab.setSmooth(true);
-				kivTab.setCache(true);
-				kivTab.setEffect(ds);
+		kiv_1 = new Image("ticker/ui/pic/KIV_1.png", true);
+		kiv_2 = new Image("ticker/ui/pic/KIV_2.png", true);
+		kiv_3 = new Image("ticker/ui/pic/KIV_3.png", true);
+		kivTab = new ImageView();
+		kivTab.setFitWidth(80);
+		kivTab.setPreserveRatio(true);
+		kivTab.setX(380);
+		kivTab.setY(95);
+		kivTab.setSmooth(true);
+		kivTab.setCache(true);
+		kivTab.setEffect(ds);
 
-				// tab2 ticked
-				ticked_1 = new Image("ticker/ui/pic/Ticked_1.png", true);
-				ticked_2 = new Image("ticker/ui/pic/Ticked_2.png", true);
-				ticked_3 = new Image("ticker/ui/pic/Ticked_3.png", true);
-				tickedTab = new ImageView();
-				tickedTab.setFitWidth(80);
-				tickedTab.setPreserveRatio(true);
-				tickedTab.setX(310);
-				tickedTab.setY(95);
-				tickedTab.setSmooth(true);
-				tickedTab.setCache(true);
-				tickedTab.setEffect(ds);
+		// tab2 ticked
+		ticked_1 = new Image("ticker/ui/pic/Ticked_1.png", true);
+		ticked_2 = new Image("ticker/ui/pic/Ticked_2.png", true);
+		ticked_3 = new Image("ticker/ui/pic/Ticked_3.png", true);
+		tickedTab = new ImageView();
+		tickedTab.setFitWidth(80);
+		tickedTab.setPreserveRatio(true);
+		tickedTab.setX(310);
+		tickedTab.setY(95);
+		tickedTab.setSmooth(true);
+		tickedTab.setCache(true);
+		tickedTab.setEffect(ds);
 
-				// tab1 To-do
-				todo_1 = new Image("ticker/ui/pic/todo_1.png", true);
-				todo_2 = new Image("ticker/ui/pic/todo_2.png", true);
-				todo_3 = new Image("ticker/ui/pic/todo_3.png", true);
-				todoTab = new ImageView();
-				todoTab.setFitWidth(80);
-				todoTab.setPreserveRatio(true);
-				todoTab.setX(240);
-				todoTab.setY(95);
-				todoTab.setSmooth(true);
-				todoTab.setCache(true);
-				todoTab.setEffect(ds);
+		// tab1 To-do
+		todo_1 = new Image("ticker/ui/pic/todo_1.png", true);
+		todo_2 = new Image("ticker/ui/pic/todo_2.png", true);
+		todo_3 = new Image("ticker/ui/pic/todo_3.png", true);
+		todoTab = new ImageView();
+		todoTab.setFitWidth(80);
+		todoTab.setPreserveRatio(true);
+		todoTab.setX(240);
+		todoTab.setY(95);
+		todoTab.setSmooth(true);
+		todoTab.setCache(true);
+		todoTab.setEffect(ds);
 
 		root.getChildren().add(tabs_todo);
 		buildTabs(currentView);
@@ -276,20 +277,14 @@ public class TickerUI extends Application {
 		root.getChildren().add(bar);
 
 		// implement the help page
-				help = new ImageView();
-				help.setImage(new Image("ticker/ui/pic/help_content.png", true));
-				help.setVisible(false);
-				help.setLayoutX(45);
-				help.setLayoutY(75);
-				help.setFitWidth(400);
-				help.setPreserveRatio(true);
-				root.getChildren().add(help);
-
-
-		trivial = new Image("ticker/ui/pic/trivial.png", true);
-		normal = new Image("ticker/ui/pic/normal.png", true);
-		impt = new Image("ticker/ui/pic/impt.png", true);
-
+		help = new ImageView();
+		help.setImage(new Image("ticker/ui/pic/help_content.png", true));
+		help.setVisible(false);
+		help.setLayoutX(45);
+		help.setLayoutY(75);
+		help.setFitWidth(400);
+		help.setPreserveRatio(true);
+		root.getChildren().add(help);
 
 		clock = buildClock();
 		clock.setLayoutX(380);
@@ -307,6 +302,10 @@ public class TickerUI extends Application {
 					}
 				}));
 		time.play();
+		
+		fadeOut = new FadeTransition(Duration.millis(5000), feedback);
+		fadeOut.setFromValue(1.0);
+		fadeOut.setToValue(0);
 
 		Scene scene = new Scene(root);
 		stage.setScene(scene);
@@ -397,7 +396,7 @@ public class TickerUI extends Application {
 			@Override
 			public void changed(ObservableValue observable, String oldValue,
 					String newValue) {
-				ft.stop();
+				fadeOut.stop();
 				feedback.setOpacity(1);
 				feedback.setText(helpManager.getHelp(newValue));
 
@@ -424,7 +423,7 @@ public class TickerUI extends Application {
 			}
 		});
 
-		command.setOnAction(new EventHandler<ActionEvent>() {
+		command.setOnAction(new EventHandler<ActionEvent>() {      // press Enter
 			public void handle(ActionEvent event) {
 				String cmd = command.getText();
 				command.clear();
@@ -473,10 +472,7 @@ public class TickerUI extends Application {
 				}
 
 				// feedback fades off after 5 seconds
-				ft = new FadeTransition(Duration.millis(5000), feedback);
-				ft.setFromValue(1.0);
-				ft.setToValue(0);
-				ft.play();
+				fadeOut.play();
 
 			}
 		});
@@ -537,7 +533,9 @@ public class TickerUI extends Application {
 		int d = 0; // a way to correct the numbering when listing out search
 		// results
 
-		// System.out.println(Font.getFontNames().toString());
+		trivial = new Image("ticker/ui/pic/trivial.png", true);
+		normal = new Image("ticker/ui/pic/normal.png", true);
+		impt = new Image("ticker/ui/pic/impt.png", true);
 
 		for (int i = 0; i < tasksToBeShown.size(); i++) {
 
@@ -741,211 +739,112 @@ public class TickerUI extends Application {
 		});
 	}
 
+	
+	private void setTodoTab() {
+		todoTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
+			public void handle(MouseEvent evt) {
+				todoTab.setImage(todo_3);
+			}
+		});
+		todoTab.setOnMouseExited(new EventHandler<MouseEvent>() {
+			public void handle(MouseEvent evt) {
+				todoTab.setImage(todo_2);
+			}
+		});
+		todoTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			public void handle(MouseEvent evt) {
+				String autoCommand = "list time";
+				feedback.setText(logic.getLogic(autoCommand));
+				fadeOut.play();
+
+				chart.getChildren().clear();
+				displayTasks();
+				buildTabs(KEY_SORTED_TIME);
+			}
+		});
+	}
+	private void setTickedTab() {
+		tickedTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
+			public void handle(MouseEvent evt) {
+				tickedTab.setImage(ticked_3);
+			}
+		});
+		tickedTab.setOnMouseExited(new EventHandler<MouseEvent>() {
+			public void handle(MouseEvent evt) {
+				tickedTab.setImage(ticked_2);
+			}
+		});
+		tickedTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			public void handle(MouseEvent evt) {
+				String autoCommand = "list ticked";
+				feedback.setText(logic.getLogic(autoCommand));
+				fadeOut.play();
+
+				chart.getChildren().clear();
+				displayTasks();
+				buildTabs(KEY_TICKED);
+			}
+		});
+	}
+	private void setKivTab() {
+		kivTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
+			public void handle(MouseEvent evt) {
+				kivTab.setImage(kiv_3);
+			}
+		});
+		kivTab.setOnMouseExited(new EventHandler<MouseEvent>() {
+			public void handle(MouseEvent evt) {
+				kivTab.setImage(kiv_2);
+			}
+		});
+		kivTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			public void handle(MouseEvent evt) {
+				String autoCommand = "list kiv";
+				feedback.setText(logic.getLogic(autoCommand));
+				fadeOut.play();
+
+				chart.getChildren().clear();
+				displayTasks();
+				buildTabs(KEY_KIV);
+			}
+		});
+	}
 	private void buildTabs(int view) {
-		if (view == KEY_SORTED_TIME) { // 1
+		if (view == KEY_SORTED_TIME || view == KEY_SORTED_PRIORITY) { // 1 OR 2
+			currentView = view;
 			root.getChildren().remove(INDEX_TABS);
 			kivTab.setImage(kiv_2);
 			tickedTab.setImage(ticked_2);
 			todoTab.setImage(todo_1);
 			tabs_todo.getChildren().addAll(kivTab, tickedTab, todoTab);
 			root.getChildren().add(INDEX_TABS, tabs_todo);
-			currentView = KEY_SORTED_TIME;
+			
 
 			todoTab.setDisable(true);
 			kivTab.setDisable(false);
 			tickedTab.setDisable(false);
 
-			tickedTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					tickedTab.setImage(ticked_3);
-				}
-			});
-			tickedTab.setOnMouseExited(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					tickedTab.setImage(ticked_2);
-				}
-			});
-			tickedTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					String autoCommand = "list ticked";
-					feedback.setText(logic.getLogic(autoCommand));
+			setTickedTab();
+			setKivTab();
 
-					FadeTransition ft = new FadeTransition(Duration
-							.millis(5000), feedback);
-					ft.setFromValue(1.0);
-					ft.setToValue(0);
-					ft.play();
-
-					chart.getChildren().clear();
-					displayTasks();
-					buildTabs(KEY_TICKED);
-				}
-			});
-
-			kivTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					kivTab.setImage(kiv_3);
-				}
-			});
-			kivTab.setOnMouseExited(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					kivTab.setImage(kiv_2);
-				}
-			});
-			kivTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					String autoCommand = "list kiv";
-					feedback.setText(logic.getLogic(autoCommand));
-
-					FadeTransition ft = new FadeTransition(Duration
-							.millis(5000), feedback);
-					ft.setFromValue(1.0);
-					ft.setToValue(0);
-					ft.play();
-
-					chart.getChildren().clear();
-					displayTasks();
-					buildTabs(KEY_KIV);
-				}
-			});
-
-		} else if (view == KEY_SORTED_PRIORITY) { // 2
-			root.getChildren().remove(INDEX_TABS);
-			kivTab.setImage(kiv_2);
-			tickedTab.setImage(ticked_2);
-			todoTab.setImage(todo_1);
-			tabs_todo_p.getChildren().addAll(kivTab, tickedTab, todoTab);
-			root.getChildren().add(INDEX_TABS, tabs_todo_p);
-			currentView = KEY_SORTED_PRIORITY;
-
-			todoTab.setDisable(true);
-			kivTab.setDisable(false);
-			tickedTab.setDisable(false);
-
-			tickedTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					tickedTab.setImage(ticked_3);
-				}
-			});
-			tickedTab.setOnMouseExited(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					tickedTab.setImage(ticked_2);
-				}
-			});
-			tickedTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					String autoCommand = "list ticked";
-					feedback.setText(logic.getLogic(autoCommand));
-
-					FadeTransition ft = new FadeTransition(Duration
-							.millis(5000), feedback);
-					ft.setFromValue(1.0);
-					ft.setToValue(0);
-					ft.play();
-
-					chart.getChildren().clear();
-					displayTasks();
-					buildTabs(KEY_TICKED);
-				}
-			});
-
-			kivTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					kivTab.setImage(kiv_3);
-				}
-			});
-			kivTab.setOnMouseExited(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					kivTab.setImage(kiv_2);
-				}
-			});
-			kivTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					String autoCommand = "list kiv";
-					feedback.setText(logic.getLogic(autoCommand));
-
-					FadeTransition ft = new FadeTransition(Duration
-							.millis(5000), feedback);
-					ft.setFromValue(1.0);
-					ft.setToValue(0);
-					ft.play();
-
-					chart.getChildren().clear();
-					displayTasks();
-					buildTabs(KEY_KIV);
-				}
-			});
-
-		}
-
-		else if (view == KEY_TICKED) { // 3
+		} else if (view == KEY_TICKED) { // 3
+			currentView = KEY_TICKED;
 			root.getChildren().remove(INDEX_TABS);
 			kivTab.setImage(kiv_2);
 			tickedTab.setImage(ticked_1);
 			todoTab.setImage(todo_2);
 			tabs_ticked.getChildren().addAll(kivTab, todoTab, tickedTab);
 			root.getChildren().add(INDEX_TABS, tabs_ticked);
-			currentView = KEY_TICKED;
-
+			
 			tickedTab.setDisable(true);
 			kivTab.setDisable(false);
 			todoTab.setDisable(false);
 
-			todoTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					todoTab.setImage(todo_3);
-				}
-			});
-			todoTab.setOnMouseExited(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					todoTab.setImage(todo_2);
-				}
-			});
-			todoTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					String autoCommand = "list time";
-					feedback.setText(logic.getLogic(autoCommand));
-
-					FadeTransition ft = new FadeTransition(Duration
-							.millis(5000), feedback);
-					ft.setFromValue(1.0);
-					ft.setToValue(0);
-					ft.play();
-
-					chart.getChildren().clear();
-					displayTasks();
-					buildTabs(KEY_SORTED_TIME);
-				}
-			});
-
-			kivTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					kivTab.setImage(kiv_3);
-				}
-			});
-			kivTab.setOnMouseExited(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					kivTab.setImage(kiv_2);
-				}
-			});
-			kivTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					String autoCommand = "list kiv";
-					feedback.setText(logic.getLogic(autoCommand));
-
-					FadeTransition ft = new FadeTransition(Duration
-							.millis(5000), feedback);
-					ft.setFromValue(1.0);
-					ft.setToValue(0);
-					ft.play();
-
-					chart.getChildren().clear();
-					displayTasks();
-					buildTabs(KEY_KIV);
-				}
-			});
+			setTodoTab();
+			setKivTab();
 
 		} else if (view == KEY_KIV) { // 4
+			currentView = KEY_KIV;
 			root.getChildren().remove(INDEX_TABS);
 			kivTab.setImage(kiv_1);
 			tickedTab.setImage(ticked_2);
@@ -957,155 +856,27 @@ public class TickerUI extends Application {
 			todoTab.setDisable(false);
 			tickedTab.setDisable(false);
 
-			currentView = KEY_KIV;
-
-			tickedTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					tickedTab.setImage(ticked_3);
-				}
-			});
-			tickedTab.setOnMouseExited(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					tickedTab.setImage(ticked_2);
-				}
-			});
-			tickedTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					String autoCommand = "list ticked";
-					feedback.setText(logic.getLogic(autoCommand));
-
-					FadeTransition ft = new FadeTransition(Duration
-							.millis(5000), feedback);
-					ft.setFromValue(1.0);
-					ft.setToValue(0);
-					ft.play();
-
-					chart.getChildren().clear();
-					displayTasks();
-					buildTabs(KEY_TICKED);
-				}
-			});
-
-			todoTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					todoTab.setImage(todo_3);
-				}
-			});
-			todoTab.setOnMouseExited(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					todoTab.setImage(todo_2);
-				}
-			});
-			todoTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					String autoCommand = "list time";
-					feedback.setText(logic.getLogic(autoCommand));
-
-					FadeTransition ft = new FadeTransition(Duration
-							.millis(5000), feedback);
-					ft.setFromValue(1.0);
-					ft.setToValue(0);
-					ft.play();
-
-					chart.getChildren().clear();
-					displayTasks();
-					buildTabs(KEY_SORTED_TIME);
-				}
-			});
-
-		} else if (view == KEY_SEARCH) {
+			setTodoTab();
+			setTickedTab();
+			
+		} else if (view == KEY_SEARCH || view == KEY_SEARCH_FREE) {    // 5 or 6
+			currentView = view;
 			root.getChildren().remove(INDEX_TABS);
 			kivTab.setImage(kiv_2);
 			tickedTab.setImage(ticked_2);
 			todoTab.setImage(todo_2);
 			tabs_search.getChildren().addAll(kivTab, tickedTab, todoTab);
 			root.getChildren().add(INDEX_TABS, tabs_search);
-			currentView = KEY_SEARCH;
-
+			
 			todoTab.setDisable(false);
 			kivTab.setDisable(false);
 			tickedTab.setDisable(false);
 
-			tickedTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					tickedTab.setImage(ticked_3);
-				}
-			});
-			tickedTab.setOnMouseExited(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					tickedTab.setImage(ticked_2);
-				}
-			});
-			tickedTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					String autoCommand = "list ticked";
-					feedback.setText(logic.getLogic(autoCommand));
-
-					FadeTransition ft = new FadeTransition(Duration
-							.millis(5000), feedback);
-					ft.setFromValue(1.0);
-					ft.setToValue(0);
-					ft.play();
-
-					chart.getChildren().clear();
-					displayTasks();
-					buildTabs(KEY_TICKED);
-				}
-			});
-
-			kivTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					kivTab.setImage(kiv_3);
-				}
-			});
-			kivTab.setOnMouseExited(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					kivTab.setImage(kiv_2);
-				}
-			});
-			kivTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					String autoCommand = "list kiv";
-					feedback.setText(logic.getLogic(autoCommand));
-
-					FadeTransition ft = new FadeTransition(Duration
-							.millis(5000), feedback);
-					ft.setFromValue(1.0);
-					ft.setToValue(0);
-					ft.play();
-
-					chart.getChildren().clear();
-					displayTasks();
-					buildTabs(KEY_KIV);
-				}
-			});
-
-			todoTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					todoTab.setImage(todo_3);
-				}
-			});
-			todoTab.setOnMouseExited(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					todoTab.setImage(todo_2);
-				}
-			});
-			todoTab.setOnMouseClicked(new EventHandler<MouseEvent>() {
-				public void handle(MouseEvent evt) {
-					String autoCommand = "list time";
-					feedback.setText(logic.getLogic(autoCommand));
-
-					FadeTransition ft = new FadeTransition(Duration
-							.millis(5000), feedback);
-					ft.setFromValue(1.0);
-					ft.setToValue(0);
-					ft.play();
-
-					chart.getChildren().clear();
-					displayTasks();
-					buildTabs(KEY_SORTED_TIME);
-				}
-			});
+			setTodoTab();
+			setTickedTab();
+			setKivTab();
+		} else {
+			logger.log(Level.WARNING, "No such view mode!");
 		}
 	}
 
