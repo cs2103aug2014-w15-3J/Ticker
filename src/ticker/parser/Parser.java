@@ -1,5 +1,5 @@
-// TODO: add priority to task
 package ticker.parser;
+
 //@author  A0115369B
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,69 +42,69 @@ public class Parser {
 			return callAdd(words,command);
 		}
 		
-		if (key.equals(ParserString.DELETE)||key.equals(ParserString.DEL)||key.equals(ParserString.REMOVE)){
+		else if (key.equals(ParserString.DELETE)||key.equals(ParserString.DEL)||key.equals(ParserString.REMOVE)){
 			return callDelete(words);
 		}
 		
-		if (key.equals(ParserString.SEARCH)){
+		else if (key.equals(ParserString.SEARCH)){
 			if(words.length==1){
 				return new UserInput(CMD.ERROR,INVALID_SEARCH);
 			}
 			return callSearch(words,command);
 		}
 		
-		if (key.equals(ParserString.EDIT)){
+		else if (key.equals(ParserString.EDIT)){
 			if (words.length<=2){
 				return new UserInput(CMD.ERROR,INVALID_EDIT);
 			}
 			return callEdit(words,command);
 		}
 		
-		if (key.equals(ParserString.LIST)||key.equals(ParserString.SHOW)){
+		else if (key.equals(ParserString.LIST)||key.equals(ParserString.SHOW)){
 			return callList(words);
 		}
 		
-		if (key.equals(ParserString.TICK)||key.equals(ParserString.DONE)){
+		else if (key.equals(ParserString.TICK)||key.equals(ParserString.DONE)){
 			return callTick(words);
 		}
 		
-		if (key.equals(ParserString.KIV)){
+		else if (key.equals(ParserString.KIV)){
 			return callKIV(words);
 		}
 		
-		if (key.equals(ParserString.UNTICK)){
+		else if (key.equals(ParserString.UNTICK)){
 			return callUntick(words);
 		}
 		
-		if (key.equals(ParserString.UNKIV)){
+		else if (key.equals(ParserString.UNKIV)){
 			return callUnKIV(words);
 		}
 		
-		if (key.equals("help")){
+		else if (key.equals("help")){
 			return callHelp(words);
 		}
 		
-		if (key.equals("clear")){
+		else if (key.equals("clear")){
 			return callClear(words);
 		}
 		
-		if (key.equals("undo")){
+		else if (key.equals("undo")){
 			return new UserInput(CMD.UNDO,null);
 		}
 		
-		if (key.equals("redo")){
+		else if (key.equals("redo")){
 			return new UserInput(CMD.REDO,null);
 		}
 		
-		if (key.equals("exit")){
+		else if (key.equals("exit")){
 			System.exit(0);
 		}
 		
-		if (key.equals("take")){
+		else if (key.equals("take")){
 			return callTake(command, words);
 		}
 		
-		if (key.equals("searchf")||key.equals("searchfree")){
+		else if (key.equals("searchf")||key.equals("searchfree")){
 			return callSearchFree(command);
 		}
 		
@@ -113,9 +113,9 @@ public class Parser {
 	}
 	
 	private UserInput callTake(String command,String[] words) {
-		if (words.length<3)
+		if (words.length<3){
 			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
-		
+		}
 		String description = command.substring(CMD.TAKE.toString().length()+1);
 		description = description.trim();
 		description = description.substring(description.indexOf(" "));
@@ -136,7 +136,6 @@ public class Parser {
 		logger.log(Level.INFO,"callAdd");
 		String description = extractDesc(command);
 		UserInput input = new UserInput(CMD.ADD,description);
-		
 		input.setPriority('B');
 		
 		for (int i=0;i<words.length;i++){
@@ -207,17 +206,8 @@ public class Parser {
 	}
 	
 	private UserInput callDelete(String[] words){
-		UserInput input = new UserInput();
-		input.setCommand("delete");
-		if (words.length==1){
-			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
-		}
-		try{
-			input.setIndex(Integer.parseInt(words[1]));
-		} catch(NumberFormatException nfe) { 
-			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
-		}
-		return input;
+		UserInput input = new UserInput(CMD.DEL,null);
+		return extractIndex(words,input);
 	}
 	
 	private UserInput callHelp(String[] words){
@@ -227,49 +217,45 @@ public class Parser {
 	}
 	
 	private UserInput callClear(String[] words){
-		UserInput input = new UserInput();
-		input.setCommand(CMD.CLEAR.toString());
+		if (words.length>1){
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		}
+		UserInput input = new UserInput(CMD.CLEAR,null);
+		return input;
+	}
+	
+	//This method extracts the index from user's input, assign it to the UserInput object
+	//and returns the modified UserInput object. It is used for delete tick untick kiv unkiv commands.
+	private UserInput extractIndex(String[] words,UserInput input){
+		if (words.length<2)
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		
+		try {
+			input.setIndex(Integer.parseInt(words[1]));
+		} catch (NumberFormatException nfe){
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		} 
 		return input;
 	}
 
 	private UserInput callTick(String[] words){
-		UserInput input = new UserInput();
-		input.setCommand(CMD.TICK.toString());
-		if (words.length==1){
-			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
-		}
-		input.setIndex(Integer.parseInt(words[1]));
-		return input;
+		UserInput input = new UserInput(CMD.TICK,null);
+		return extractIndex(words,input);
 	}
 
 	private UserInput callKIV(String[] words){
-		UserInput input = new UserInput();
-		input.setCommand(CMD.KIV.toString());
-		if (words.length==1){
-			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
-		}
-		input.setIndex(Integer.parseInt(words[1]));
-		return input;
+		UserInput input = new UserInput(CMD.KIV,null);
+		return extractIndex(words,input);
 	}
 
 	private UserInput callUntick(String[] words){
-		UserInput input = new UserInput();
-		input.setCommand(CMD.UNTICK.toString());
-		if (words.length==1){
-			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
-		}
-		input.setIndex(Integer.parseInt(words[1]));
-		return input;
+		UserInput input = new UserInput(CMD.UNTICK,null);
+		return extractIndex(words,input);
 	}
 
 	private UserInput callUnKIV(String[] words){
-		UserInput input = new UserInput();
-		input.setCommand(CMD.UNKIV.toString());
-		if (words.length==1){
-			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
-		}
-		input.setIndex(Integer.parseInt(words[1]));
-		return input;
+		UserInput input = new UserInput(CMD.UNKIV,null);
+		return extractIndex(words,input);
 	}
 	
 	//This method extracts the description part from the String entered by user
@@ -303,6 +289,7 @@ public class Parser {
 	//This method analyses the UserInput object. If input.description contains date 
 	//in the format mm/dd or yy/mm/dd (without any dash), this part of description 
 	//will be extracted and the date parsed will be assigned to input.startDate and input.endDate
+	
 	private void extractSingleDate(UserInput input){
 		if (input.getStartDate()==null&&input.getEndDate()==null){
 			String res = input.getDescription();
@@ -324,8 +311,7 @@ public class Parser {
 	}
 	
 	private UserInput callEdit(String[] words,String command){
-		String description = extractDesc(command);
-			
+		String description = extractDesc(command);		
 		int index = Integer.parseInt(words[1]); 
 		
 		UserInput input = new UserInput(CMD.EDIT,description);
@@ -549,11 +535,11 @@ public class Parser {
 		int hour = -1; 
 		int minute = -1;
 		
-		boolean pm = false;
+		boolean isPM = false;
 		if (str.length()>2){
 			String lastTwoChars = str.substring(str.length()-2);
 			if (lastTwoChars.equalsIgnoreCase("pm")){
-				pm = true;
+				isPM = true;
 				str=str.substring(0,str.length()-2);
 			}
 			else if(lastTwoChars.equalsIgnoreCase("am")){
@@ -596,7 +582,7 @@ public class Parser {
 			}
 		}
 		
-		if (pm){
+		if (isPM){
 			hour += 12;
 		}
 		if (hour>=0&&hour<24&&minute<60&&minute>=0){
