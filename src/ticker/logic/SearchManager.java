@@ -379,10 +379,16 @@ public class SearchManager {
 		result.add(timePeriod);
 
 		for (Task task: storedTasksByTime) {
-			if (task.getStartDate() != null && task.getStartTime() != null && task.getEndDate() != null && task.getEndTime() != null) {
+			if (task.getStartDate() != null && task.getStartTime() != null && task.getEndDate() != null && task.getEndTime() != null 
+					&& task.getStartDate().compareTo(startDate) >= 0 && task.getEndDate().compareTo(endDate) <= 0 
+					&& task.getStartTime().compareTo(startTime) >= 0 && task.getEndTime().compareTo(endTime) <= 0) {
 				freeslotList.add(task);
 			}
 		}
+		
+		// Sort the tasks beforehand so the earliest task in the period will be considered first
+		// This allows us to do comparison only once
+		Collections.sort(freeslotList, new sortByTime());
 
 		for (Task task: freeslotList) {
 			TimePeriod  taskPeriod = new TimePeriod(new DateTime(task.getStartDate(), task.getStartTime()),new DateTime(task.getEndDate(),task.getEndTime()));
@@ -404,7 +410,7 @@ public class SearchManager {
 				}
 
 				// If potential free slot has no overlap with scheduled task on the left tail end
-				else if (resultPeriod.getStart().compareTo(taskPeriod.getStart()) < 0 && resultPeriod.getEnd().compareTo(taskPeriod.getEnd()) <= 0) {
+				else if (resultPeriod.getStart().compareTo(taskPeriod.getStart()) < 0 && resultPeriod.getEnd().compareTo(taskPeriod.getStart()) >= 0) {
 					result.remove(i);
 					result.add(new TimePeriod(resultPeriod.getStart(), taskPeriod.getStart()));
 				}
@@ -413,6 +419,11 @@ public class SearchManager {
 				else if (resultPeriod.getStart().compareTo(resultPeriod.getStart()) >= 0 && resultPeriod.getEnd().compareTo(taskPeriod.getEnd()) > 0){
 					result.remove(i);
 					result.add(new TimePeriod(taskPeriod.getEnd(), resultPeriod.getEnd()));
+				}
+				
+				// If free slots has no overlap with tasks
+				else {
+					continue;
 				}
 			}	
 		}
