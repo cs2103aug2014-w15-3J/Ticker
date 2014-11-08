@@ -5,9 +5,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Calendar;
 import java.util.List;
-
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
-
 import ticker.common.*;
 import ticker.common.Task.RepeatingInterval;
 
@@ -302,6 +300,9 @@ public class Parser {
 		return res.trim();
 	}
 	
+	//This method analyses the UserInput object. If input.description contains date 
+	//in the format mm/dd or yy/mm/dd (without any dash), this part of description 
+	//will be extracted and the date parsed will be assigned to input.startDate and input.endDate
 	private void extractSingleDate(UserInput input){
 		if (input.getStartDate()==null&&input.getEndDate()==null){
 			String res = input.getDescription();
@@ -351,10 +352,6 @@ public class Parser {
 		extractSingleDate(input);
 		input.validifyTime();
 		
-		if (!((input.getStartTime()==null)&&(input.getEndTime()==null)&&(input.getStartDate()==null)&&(input.getEndDate()==null))){
-			input.setCommand("editt");
-		}
-
 		if (input.getStartDate()==null&&input.getEndDate()!=null&&input.getStartTime()!=null&&input.getEndTime()==null){
 			return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
 		}
@@ -368,7 +365,6 @@ public class Parser {
 	private UserInput callSearch(String[] words,String command){
 		
 		String description = extractDesc(command); 
-		
 		UserInput input = new UserInput(CMD.SEARCH,description);
 		
 		for (int i=0;i<words.length;i++){
@@ -495,6 +491,7 @@ public class Parser {
 		}
 	}
 	
+	//This method determines whether the Time/Date in nlp result is a deadline.
 	private boolean isDeadLine(String description){
 		description = description.toLowerCase();
 		if (description.indexOf("deadline")!=-1){
@@ -544,27 +541,43 @@ public class Parser {
 	
 	
 	private static Time constructTime(String str){
-		if (str.equals("")) return null;
 		str=removeBlank(str);
+		if (str.equals("")) return null;
 		int firstIndex = str.indexOf(':');
 		int lastIndex = str.lastIndexOf(':');
 		
 		int hour = -1; 
 		int minute = -1;
 		
+		boolean pm = false;
+		if (str.length()>2){
+			String lastTwoChars = str.substring(str.length()-2);
+			if (lastTwoChars.equalsIgnoreCase("pm")){
+				pm = true;
+				str=str.substring(0,str.length()-2);
+			}
+			else if(lastTwoChars.equalsIgnoreCase("am")){
+				str=str.substring(0,str.length()-2);
+			}
+		}
+		
 		if (firstIndex==-1){
+			
 			for (int i=0;i<str.length();i++){
 				if (str.charAt(i)<'0'||str.charAt(i)>'9')
 					return null;
 			}
-		
-			int time = Integer.parseInt(str);
+			int time=0;
+			try{
+				time = Integer.parseInt(str);
+			}catch(NumberFormatException nfe){
+				return null;
+			}
 			
 			if (time < 100) {
 				hour = time;
 				minute = 0;
 			}
-			
 			else if (time < 10000){
 				hour = time/100;
 				minute = time%100;
@@ -577,27 +590,26 @@ public class Parser {
 				if (i!=firstIndex&&(str.charAt(i)<'0'||str.charAt(i)>'9'))
 					return null;
 			}
-			
 			if (firstIndex!=0&&firstIndex!=str.length()-1){
 				hour = Integer.parseInt(str.substring(0,firstIndex));
 				minute = Integer.parseInt(str.substring(firstIndex+1)); 
 			}
 		}
 		
+		if (pm){
+			hour += 12;
+		}
 		if (hour>=0&&hour<24&&minute<60&&minute>=0){
 			logger.log(Level.INFO,"valid time constructed, hour = " + hour +" minute = " + minute);
 			return new Time(hour,minute);
 		}
-		
 		return null;
 	}
-	
 	
 	static Date constructDate(String str){
 
 		if (str.equals("")) return null;
 		int index = str.indexOf("/");
-
 		if (index==-1) return null;
 		
 		int month = 0;
