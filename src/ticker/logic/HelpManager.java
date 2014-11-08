@@ -45,9 +45,17 @@ public class HelpManager {
 	private static final String MESSAGE_DELETE = "delete <index>";
 	private static final String MESSAGE_SEARCH = "search <description> <time> -<priority>";
 	private static final String MESSAGE_SHOW = "show <listType>";
+	private static final String MESSAGE_EMPTY = "";
 	
-	private static final String EMPTY_STRING = "";
-
+	private static final int ARRAY_FIRST = 0;
+	
+	private static final int ACTIVATION_LENGTH = 2;
+	
+	private static final double SIMILARITY_THRESHOLD = 65.0;
+	private static final float SIMILARITY_INDEX_ZERO = 0F;
+	private static final float SIMILARITY_INDEX_FOUR = 4.0F;
+	private static final float SIMILARITY_INDEX_HUNDRED = 100.0F;
+	
 	//@author A0116673A
 
 	public HelpManager() {
@@ -96,10 +104,10 @@ public class HelpManager {
 		Vector<String> temp = new Vector<String>();
 		matchList.removeAllElements();
 		
-		if (key.length() < 2) {
-			return EMPTY_STRING;
+		if (key.length() < ACTIVATION_LENGTH) {
+			return MESSAGE_EMPTY;
 		} else {
-			String firstWordKey = key.split(" ")[0];
+			String firstWordKey = key.split(" ")[ARRAY_FIRST];
 
 			int i = 0;	
 			for (String command: commandListSet) {
@@ -111,16 +119,16 @@ public class HelpManager {
 			Collections.sort(matchList, new StringMatchComparator());
 
 			for (StringMatch sm : matchList) {
-				if (sm.getSimilarityScore() < 65.0) {
+				if (sm.getSimilarityScore() < SIMILARITY_THRESHOLD) {
 					break;
 				}
 				temp.add(commandListSet[sm.getIndex()]);
 			}
 
 			if (temp.isEmpty()) {
-				return EMPTY_STRING;
+				return MESSAGE_EMPTY;
 			} else {
-				return helpList.get(temp.get(0));
+				return helpList.get(temp.get(ARRAY_FIRST));
 			}
 		}
 	}
@@ -136,7 +144,7 @@ public class HelpManager {
 	 */
 	private static float getMatchLikelyhood(final String str1, final String str2) {
 		AbstractStringMetric metric;
-		float avg = 0F, result = 0F;
+		float avg = SIMILARITY_INDEX_ZERO, result = SIMILARITY_INDEX_ZERO;
 		metric = new SmithWaterman();
 		result = metric.getSimilarity(str1, str2);
 		avg += result;
@@ -149,6 +157,6 @@ public class HelpManager {
 		metric = new MongeElkan();
 		result = metric.getSimilarity(str1, str2);
 		avg += result;
-		return (avg / 4.0F) * 100.0F;
+		return (avg / SIMILARITY_INDEX_FOUR) * SIMILARITY_INDEX_HUNDRED;
 	}
 }	
