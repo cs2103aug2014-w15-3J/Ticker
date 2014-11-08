@@ -300,7 +300,7 @@ public class TickerUI extends Application {
 		help.setFitWidth(400);
 		help.setPreserveRatio(true);
 		root.getChildren().add(help);
-		
+
 		//warning for file corruption
 		warning_isCorrupted = new ImageView();
 		warning_isCorrupted.setImage(new Image("ticker/ui/pic/warning.png", true));
@@ -309,12 +309,13 @@ public class TickerUI extends Application {
 		} else {
 			warning_isCorrupted.setVisible(false);
 		}
-		
+
 		warning_isCorrupted.setLayoutX(95);
 		warning_isCorrupted.setLayoutY(150);
 		warning_isCorrupted.setFitWidth(300);
 		warning_isCorrupted.setOpacity(0.9);
 		warning_isCorrupted.setPreserveRatio(true);
+		warning_isCorrupted.setVisible(false);
 		root.getChildren().add(warning_isCorrupted);
 
 		clock = buildClock();
@@ -374,7 +375,7 @@ public class TickerUI extends Application {
 	public void setNextView(int next) {
 		this.nextView = next;
 	}
-	
+
 	public void isFileCorrupted(boolean isCorrupted) {
 		this.isFileCorrupted = isCorrupted;
 	}
@@ -589,153 +590,76 @@ public class TickerUI extends Application {
 		trivial = new Image("ticker/ui/pic/trivial.png", true);
 		normal = new Image("ticker/ui/pic/normal.png", true);
 		impt = new Image("ticker/ui/pic/impt.png", true);
+		
 		if (isFileCorrupted) {
-			
+			warning_isCorrupted.setVisible(true);
 		}
+		else{
+			for (int i = 0; i < tasksToBeShown.size(); i++) {
 
-		for (int i = 0; i < tasksToBeShown.size(); i++) {
+				HBox hb = new HBox(10);
+				hb.setPadding(new Insets(10, 15, 10, 5));
+				hb.setAlignment(Pos.CENTER_LEFT);
 
-			HBox hb = new HBox(10);
-			hb.setPadding(new Insets(10, 15, 10, 5));
-			hb.setAlignment(Pos.CENTER_LEFT);
+				// index
+				Label index = new Label("" + (i + 1 - d) + ".");
+				index.setPrefSize(widthIndex, prefHeight);
+				index.setAlignment(Pos.CENTER_RIGHT);
+				// index.setFont(content);
 
-			// index
-			Label index = new Label("" + (i + 1 - d) + ".");
-			index.setPrefSize(widthIndex, prefHeight);
-			index.setAlignment(Pos.CENTER_RIGHT);
-			// index.setFont(content);
+				// priority
+				ImageView priority = new ImageView();
+				priority.setFitWidth(8);
+				priority.setPreserveRatio(true);
+				priority.setSmooth(true);
+				priority.setCache(true);
 
-			// priority
-			ImageView priority = new ImageView();
-			priority.setFitWidth(8);
-			priority.setPreserveRatio(true);
-			priority.setSmooth(true);
-			priority.setCache(true);
-
-			char p = tasksToBeShown.get(i).getPriority();
-			if (p == 'A') {
-				priority.setImage(impt);
-			} else if (p == 'B') {
-				priority.setImage(normal);
-			} else if (p == 'C') {
-				priority.setImage(trivial);
-			}
-
-			// task description
-			String newTask = tasksToBeShown.get(i).getDescription();
-
-			int length = newTask.length();
-			maxHeight = prefHeight;
-			maxHeight += (length / avgCharNum) * additionalHeight; // adjust the maxHeight accordingly
-			Label description = new Label(newTask);
-			description.setPrefSize(widthDes, maxHeight);
-			description.setWrapText(true);
-			description.setAlignment(Pos.CENTER_LEFT);
-			description.setFont(content);
-
-			Date sd = tasksToBeShown.get(i).getStartDate();
-			Date ed = tasksToBeShown.get(i).getEndDate();
-			Time st = tasksToBeShown.get(i).getStartTime();
-			Time et = tasksToBeShown.get(i).getEndTime();
-
-			String SD, ED, ST, ET;
-
-			SD = (sd == null) ? "" : sd.toString();
-			ED = (ed == null) ? "" : ed.toString();
-			ST = (st == null) ? "" : st.toString();
-			ET = (et == null) ? "" : et.toString();
-
-			Label start = new Label();
-			Label end = new Label();
-
-			if (tasksToBeShown.get(i).getIsExpired()) { // mark tasks as red to show expired
-				index.setTextFill(Color.RED);
-				description.setTextFill(Color.RED);
-				start.setTextFill(Color.RED);
-				end.setTextFill(Color.RED);
-			}
-
-			if(newTask.equals("\\***FREE***\\")) {     // if this list is for search empty slot
-				description.setText("Empty slot");
-				description.setTextFill(Color.DARKGREEN);
-				VBox time = new VBox(5);
-				start.setText("Start: " + ST + ", " + SD);
-				end.setText("End: " + ET + ", " + ED);
-				time.getChildren().add(start);
-				time.getChildren().add(end);
-				time.setPrefSize(widthTime, prefHeight);
-				time.setAlignment(Pos.CENTER_LEFT);
-				hb.getChildren().addAll(index, priority, description, time);
-				chart.getChildren().add(hb);		
-			}
-
-			else if ((newTask.equals("\\***TICKED***\\"))) { // this list is search
-				// result
-				isSearchResult = true;
-
-				Label todo = new Label(MESSAGE_SEARCH_TODO);
-				todo.setPrefHeight(35);
-				todo.setAlignment(Pos.BOTTOM_LEFT);
-				todo.setFont(heading);
-				chart.getChildren().add(0, todo);
-
-				d++;
-
-				Label ticked = new Label(MESSAGE_SEARCH_TICKED);
-				ticked.setPrefHeight(35);
-				ticked.setAlignment(Pos.BOTTOM_LEFT);
-				ticked.setFont(heading);
-				chart.getChildren().add(ticked);
-
-			} else if (newTask.equals("\\***KIV***\\")) {
-				d++;
-				Label kiv = new Label(MESSAGE_SEARCH_KIV);
-				kiv.setPrefHeight(35);
-				kiv.setAlignment(Pos.BOTTOM_LEFT);
-				kiv.setFont(heading);
-				chart.getChildren().add(kiv);
-			}
-
-			else if (tasksToBeShown.get(i).getRepeat()) { // if is repeated task
-				VBox repeat = new VBox();
-				Label day = new Label();
-				Label time = new Label();
-
-				if (ED == "") {
-					day.setText("every " + dayOfWeek[Date.dayOfWeek(sd)]);
-				} else {
-					day.setText("every " + dayOfWeek[Date.dayOfWeek(ed)]);
+				char p = tasksToBeShown.get(i).getPriority();
+				if (p == 'A') {
+					priority.setImage(impt);
+				} else if (p == 'B') {
+					priority.setImage(normal);
+				} else if (p == 'C') {
+					priority.setImage(trivial);
 				}
-				if (ST == "") {
-					time.setText(ET);
-				} else if (ET == "") {
-					time.setText(ST);
-				} else {
-					time.setText(ST + " to " + ET);
-				}
-				repeat.getChildren().addAll(day, time);
-				hb.getChildren().addAll(index, priority, description, repeat);
-				chart.getChildren().add(hb);
 
-			} else {
-				if (sd == null && st == null && ed == null && et == null) {
-					hb.getChildren().addAll(index, priority, description);
-					chart.getChildren().add(hb);
-				} else if (ed == null && et == null) {
-					description.setFont(content);
-					start.setMaxSize(widthTime, prefHeight);
-					start.setAlignment(Pos.CENTER_LEFT);
-					start.setText(ST + ", " + SD + " onwards");
-					hb.getChildren()
-					.addAll(index, priority, description, start);
-					chart.getChildren().add(hb);
-				} else if (sd == null && st == null) {
-					end.setMaxSize(widthTime, prefHeight);
-					end.setAlignment(Pos.CENTER_LEFT);
-					end.setText("By " + ET + ", " + ED);
-					hb.getChildren().addAll(index, priority, description, end);
-					chart.getChildren().add(hb);
-				} else {
+				// task description
+				String newTask = tasksToBeShown.get(i).getDescription();
+
+				int length = newTask.length();
+				maxHeight = prefHeight;
+				maxHeight += (length / avgCharNum) * additionalHeight; // adjust the maxHeight accordingly
+				Label description = new Label(newTask);
+				description.setPrefSize(widthDes, maxHeight);
+				description.setWrapText(true);
+				description.setAlignment(Pos.CENTER_LEFT);
+				description.setFont(content);
+
+				Date sd = tasksToBeShown.get(i).getStartDate();
+				Date ed = tasksToBeShown.get(i).getEndDate();
+				Time st = tasksToBeShown.get(i).getStartTime();
+				Time et = tasksToBeShown.get(i).getEndTime();
+
+				String SD, ED, ST, ET;
+
+				SD = (sd == null) ? "" : sd.toString();
+				ED = (ed == null) ? "" : ed.toString();
+				ST = (st == null) ? "" : st.toString();
+				ET = (et == null) ? "" : et.toString();
+
+				Label start = new Label();
+				Label end = new Label();
+
+				if (tasksToBeShown.get(i).getIsExpired()) { // mark tasks as red to show expired
+					index.setTextFill(Color.RED);
+					description.setTextFill(Color.RED);
+					start.setTextFill(Color.RED);
+					end.setTextFill(Color.RED);
+				}
+
+				if(newTask.equals("\\***FREE***\\")) {     // if this list is for search empty slot
+					description.setText("Empty slot");
+					description.setTextFill(Color.DARKGREEN);
 					VBox time = new VBox(5);
 					start.setText("Start: " + ST + ", " + SD);
 					end.setText("End: " + ET + ", " + ED);
@@ -744,19 +668,98 @@ public class TickerUI extends Application {
 					time.setPrefSize(widthTime, prefHeight);
 					time.setAlignment(Pos.CENTER_LEFT);
 					hb.getChildren().addAll(index, priority, description, time);
-					chart.getChildren().add(hb);
+					chart.getChildren().add(hb);		
 				}
 
+				else if ((newTask.equals("\\***TICKED***\\"))) { // this list is search
+					// result
+					isSearchResult = true;
+
+					Label todo = new Label(MESSAGE_SEARCH_TODO);
+					todo.setPrefHeight(35);
+					todo.setAlignment(Pos.BOTTOM_LEFT);
+					todo.setFont(heading);
+					chart.getChildren().add(0, todo);
+
+					d++;
+
+					Label ticked = new Label(MESSAGE_SEARCH_TICKED);
+					ticked.setPrefHeight(35);
+					ticked.setAlignment(Pos.BOTTOM_LEFT);
+					ticked.setFont(heading);
+					chart.getChildren().add(ticked);
+
+				} else if (newTask.equals("\\***KIV***\\")) {
+					d++;
+					Label kiv = new Label(MESSAGE_SEARCH_KIV);
+					kiv.setPrefHeight(35);
+					kiv.setAlignment(Pos.BOTTOM_LEFT);
+					kiv.setFont(heading);
+					chart.getChildren().add(kiv);
+				}
+
+				else if (tasksToBeShown.get(i).getRepeat()) { // if is repeated task
+					VBox repeat = new VBox();
+					Label day = new Label();
+					Label time = new Label();
+
+					if (ED == "") {
+						day.setText("every " + dayOfWeek[Date.dayOfWeek(sd)]);
+					} else {
+						day.setText("every " + dayOfWeek[Date.dayOfWeek(ed)]);
+					}
+					if (ST == "") {
+						time.setText(ET);
+					} else if (ET == "") {
+						time.setText(ST);
+					} else {
+						time.setText(ST + " to " + ET);
+					}
+					repeat.getChildren().addAll(day, time);
+					hb.getChildren().addAll(index, priority, description, repeat);
+					chart.getChildren().add(hb);
+
+				} else {
+					if (sd == null && st == null && ed == null && et == null) {
+						hb.getChildren().addAll(index, priority, description);
+						chart.getChildren().add(hb);
+					} else if (ed == null && et == null) {
+						description.setFont(content);
+						start.setMaxSize(widthTime, prefHeight);
+						start.setAlignment(Pos.CENTER_LEFT);
+						start.setText(ST + ", " + SD + " onwards");
+						hb.getChildren()
+						.addAll(index, priority, description, start);
+						chart.getChildren().add(hb);
+					} else if (sd == null && st == null) {
+						end.setMaxSize(widthTime, prefHeight);
+						end.setAlignment(Pos.CENTER_LEFT);
+						end.setText("By " + ET + ", " + ED);
+						hb.getChildren().addAll(index, priority, description, end);
+						chart.getChildren().add(hb);
+					} else {
+						VBox time = new VBox(5);
+						start.setText("Start: " + ST + ", " + SD);
+						end.setText("End: " + ET + ", " + ED);
+						time.getChildren().add(start);
+						time.getChildren().add(end);
+						time.setPrefSize(widthTime, prefHeight);
+						time.setAlignment(Pos.CENTER_LEFT);
+						hb.getChildren().addAll(index, priority, description, time);
+						chart.getChildren().add(hb);
+					}
+
+				}
+				if (isSearchResult == true) {
+					String searchResult = String.format(MESSAGE_SEARCH_RESULT, tasksToBeShown.size()-2);
+					Label numResult = new Label(searchResult);
+					numResult.setPrefHeight(40);
+					numResult.setAlignment(Pos.BOTTOM_LEFT);
+					numResult.setFont(heading);
+					chart.getChildren().add(0, numResult);
+				}
+				isSearchResult = false;
 			}
-			if (isSearchResult == true) {
-				String searchResult = String.format(MESSAGE_SEARCH_RESULT, tasksToBeShown.size()-2);
-				Label numResult = new Label(searchResult);
-				numResult.setPrefHeight(40);
-				numResult.setAlignment(Pos.BOTTOM_LEFT);
-				numResult.setFont(heading);
-				chart.getChildren().add(0, numResult);
-			}
-			isSearchResult = false;
 		}
 	}
 
@@ -904,7 +907,7 @@ public class TickerUI extends Application {
 
 			setTickedTab();
 			setKivTab();
-			
+
 		} else if (view == KEY_TICKED) { // 3
 			currentView = KEY_TICKED;
 			root.getChildren().remove(INDEX_TABS);
