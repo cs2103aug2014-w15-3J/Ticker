@@ -575,8 +575,8 @@ public class TickerUI extends Application {
 				end.setTextFill(Color.RED);
 			}
 
-			if(newTask.equals("\\***EMPTY***\\")) {     // if this list is for search empty slot
-				description.setText("empty slot");
+			if(newTask.equals("\\***FREE***\\")) {     // if this list is for search empty slot
+				description.setText("Empty slot");
 				description.setTextFill(Color.DARKGREEN);
 				VBox time = new VBox(5);
 				start.setText("Start: " + ST + ", " + SD);
