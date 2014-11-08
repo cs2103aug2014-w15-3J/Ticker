@@ -15,6 +15,7 @@ public class UndoManager {
 	private static final String COMMAND_KIV = "kiv";
 	private static final String COMMAND_UNKIV = "unkiv";
 	private static final String COMMAND_UNTICK = "untick";
+	private static final String COMMAND_TAKE = "take";
 	
 	private static final String LIST_TIME = "time";
 	private static final String LIST_PRIORITY = "priority";
@@ -54,6 +55,7 @@ public class UndoManager {
 					storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
 					return FEEDBACK_SUCCESSFUL_UNDO;
 				case COMMAND_ADD:
+				case COMMAND_TAKE:
 					assert previousAction.getTaskBeforeEdit() != null;
 					
 					storedTasksByPriority.remove(previousAction.getTaskBeforeEdit());
@@ -129,6 +131,7 @@ public class UndoManager {
 				storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
 				return FEEDBACK_SUCCESSFUL_REDO;
 			case COMMAND_ADD:
+			case COMMAND_TAKE:
 				assert nextAction.getTaskBeforeEdit() != null;
 				
 				storedTasksByPriority.add(nextAction.getTaskBeforeEdit());
