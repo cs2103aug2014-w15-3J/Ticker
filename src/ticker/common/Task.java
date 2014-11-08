@@ -2,6 +2,8 @@ package ticker.common;
 
 public class Task {
 	
+	//@author: A0115369B  A0114535M
+	
 	public enum RepeatingInterval {
 		DAY,WEEK,MONTH;
 	};
