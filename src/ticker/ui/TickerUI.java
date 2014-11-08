@@ -473,6 +473,7 @@ public class TickerUI extends Application {
 				String cmd = command.getText();
 				command.clear();
 				feedback.setText(logic.getLogic(cmd));
+				logger.log(Level.INFO, "UI-passing one user command to Logic");
 
 				if (nextView != currentView) {
 					buildTabs(nextView);
@@ -669,7 +670,7 @@ public class TickerUI extends Application {
 				chart.getChildren().add(kiv);
 			}
 
-			else if (tasksToBeShown.get(i).getRepeat()) { // if repeated task
+			else if (tasksToBeShown.get(i).getRepeat()) { // if is repeated task
 				VBox repeat = new VBox();
 				Label day = new Label();
 				Label time = new Label();
@@ -844,6 +845,7 @@ public class TickerUI extends Application {
 	 * @param view      the view mode that it is supposed to be shown
 	 */
 	private void buildTabs(int view) {
+		logger.log(Level.INFO, "change view");
 		if (view == KEY_SORTED_TIME) { // 1
 			currentView = view;
 			root.getChildren().remove(INDEX_TABS);
