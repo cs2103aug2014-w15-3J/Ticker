@@ -10,18 +10,13 @@ import java.util.logging.Logger;
 import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-
 import javafx.application.Application;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -39,20 +34,17 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-
 import javafx.util.Duration;
-
 import ticker.common.Date;
 import ticker.common.Task;
 import ticker.common.Time;
-
 import ticker.logic.HelpManager;
 import ticker.logic.Logic;
+import ticker.logic.Observer;
 
-public class TickerUI extends Application {
+public class TickerUI extends Application implements Observer {
 
 	private static TickerUI ticker;
 	private Logic logic;
@@ -139,7 +131,7 @@ public class TickerUI extends Application {
 	public TickerUI() {
 		// Initialisation
 		ticker = this;
-		logic = new Logic(this);
+		logic = Logic.getInstance(this);
 	}
 
 	public void start(final Stage stage) {
