@@ -3,14 +3,13 @@
 /* Team ID: W15-3J
  * Name: Li Jia'En, Nicholette
  * Matric Number: A0114535M
- * Project Title: CE1 TextBuddy
- * Purpose: This class receives text commands from the user and edits a textfile. 
- * The commands are for add, display, delete, clear and exit.
+ * Project Title: Ticker
+ * Class: CRUManager
+ * Description: This class adds, delete and edits task.
  * Assumptions: 
  * This program assumes that:
- * -the user knows the format for each command
- * -the user input lines in the textfile is not numbered.
- * -(option c) the file is saved to disk when the user exit the program
+ * -this class will be called by Logic class.
+ * -the Logic class will always be used with classes CRUDManager, TickKIVManager, UndoRedoManager and SearchManager.
  */
 
 package ticker.logic;
@@ -27,9 +26,6 @@ import ticker.common.TimedTask;
 
 public class CRUManager {
 	// CONSTANTS
-
-	// String constant for freeslots
-	private static final String FREESLOT_STAMP = "\\***FREE***\\";
 	// String constants for command types
 	private static final String COMMAND_ADD = "add";
 	private static final String COMMAND_DELETE = "delete";
@@ -45,22 +41,13 @@ public class CRUManager {
 	private static final String TASKS_TIME = "time";
 	private static final String TASKS_TICKED = "ticked";
 	private static final String TASKS_KIV = "kiv";
-
+	// String constants for stamps
+	private static final String FREESLOT_STAMP = "\\***FREE***\\";
 
 	// Instances of other components
 	private UndoManager undoMng;
 	private Vector<Task> storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV;
 
-	/**
-	 * This method determines the action for each user command.
-	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
-	 */
 	CRUManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKIV) {
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTime = storedTasksByTime;
@@ -71,14 +58,87 @@ public class CRUManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method adds a task.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param description		Task description to be set.
+	 * @param isRepeating	    Set a task as repeating.
+	 * @param startDate			Start date to be set.
+	 * @param endDate			End date to be set.
+	 * @param startTime			Start time to be set.
+	 * @param endTime 			End time to be set.			
+	 * @param priority 			Level of priority to be set.
+	 * @return     Feedback after adding.
+	 * @throws IllegalArgumentException  If description is empty.
+	 */
+	String add(String description, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,	char priority) throws IllegalArgumentException {
+
+		if (description == null || description.equals("")) {
+			throw new IllegalArgumentException();
+		}
+
+		Task newTask;
+
+		// Creation of RepeatingTask
+		if (isRepeating) {
+			if (startDate != null) {
+				newTask = new RepeatingTask(description, startDate, startTime, endTime, priority, isRepeating);
+			}
+			else if (endDate != null) {
+				newTask = new RepeatingTask(description, endDate, startTime, endTime, priority, isRepeating);
+			}
+			else {
+				throw new IllegalArgumentException();
+			}
+		}
+
+		else if (startDate == null && startTime == null) {
+			// Creation of floating tasks
+			if (endDate == null && endTime == null) {
+				newTask = new FloatingTask(description, priority, false);
+			}
+			// Creation of deadline tasks
+			else {
+				newTask = new DeadlineTask(description, endDate, endTime, priority, false);
+			}
+		}
+
+		// Creation of timed tasks
+		else {
+			if (startDate != null && endDate != null && startTime != null && endTime != null && 
+					(endDate.compareTo(startDate) == -1 || endTime.compareTo(startTime) == -1)) {
+				return "Invalid ending date or time.";
+			}
+
+			if (startDate != null && endDate != null && startTime == null && endTime == null && 
+					(endDate.compareTo(startDate) == -1)) {
+				return "Invalid ending date.";
+			}
+			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
+		}
+
+		// Check whether there's an exact task already inside the list
+		if (storedTasksByPriority.contains(newTask) || storedTasksByTicked.contains(newTask) || storedTasksByKIV.contains(newTask)) {
+			return "Task already exists.";
+		}
+
+		addTaskIntoUndone(newTask);
+
+		Event event = new Event(COMMAND_ADD, newTask);
+		undoMng.add(event);
+
+
+		return description + " has been added.";
+	}
+
+	/**
+	 * This method deletes a task from a tasklist.
+	 *
+	 * @param index			 	Index of the specified task displayed in UI.
+	 * @param listTracker    	List key of the current task list being displayed.
+	 * @param current		 	Current task list being displayed.
+	 * @param currentListName	Name of current list being displayed.
+	 * @return     Feedback after a task is deleted.
+	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
 	 */
 	String delete(int index, int listTracker, Vector<Task> current, String currentListName) 
 			throws ArrayIndexOutOfBoundsException {
@@ -177,116 +237,19 @@ public class CRUManager {
 	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method edits a task.
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
-	 */
-	String add(String description, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
-			char priority) throws IllegalArgumentException {
-
-		if (description == null || description.equals("")) {
-			throw new IllegalArgumentException();
-		}
-
-		Task newTask;
-
-		// Creation of RepeatingTask
-		if (isRepeating) {
-			if (startDate != null) {
-				newTask = new RepeatingTask(description, startDate, startTime, endTime, priority, isRepeating);
-			}
-			else if (endDate != null) {
-				newTask = new RepeatingTask(description, endDate, startTime, endTime, priority, isRepeating);
-			}
-			else {
-				throw new IllegalArgumentException();
-			}
-		}
-
-		else if (startDate == null && startTime == null) {
-			// Creation of floating tasks
-			if (endDate == null && endTime == null) {
-				newTask = new FloatingTask(description, priority, false);
-			}
-			// Creation of deadline tasks
-			else {
-				newTask = new DeadlineTask(description, endDate, endTime, priority, false);
-			}
-		}
-
-		// Creation of timed tasks
-		else {
-			if (startDate != null && endDate != null && startTime != null && endTime != null && 
-					(endDate.compareTo(startDate) == -1 || endTime.compareTo(startTime) == -1)) {
-				return "Invalid ending date or time.";
-			}
-
-			if (startDate != null && endDate != null && startTime == null && endTime == null && 
-					(endDate.compareTo(startDate) == -1)) {
-				return "Invalid ending date.";
-			}
-			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
-		}
-
-		// Check whether there's an exact task already inside the list
-		if (storedTasksByPriority.contains(newTask) || storedTasksByTicked.contains(newTask) || storedTasksByKIV.contains(newTask)) {
-			return "Task already exists.";
-		}
-
-		addTaskIntoUndone(newTask);
-
-		Event event = new Event(COMMAND_ADD, newTask);
-		undoMng.add(event);
-
-
-		return description + " has been added.";
-	}
-
-	// Resetting repeated task will make it a timedTask
-	/**
-	 * This method determines the action for each user command.
-	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
-	 */
-	Task remakeTask(Task task) throws IllegalArgumentException {
-		String description = task.getDescription();
-		boolean isRepeating = false;
-		Date startDate = task.getStartDate();
-		Date endDate = task.getEndDate();
-		Time startTime = task.getStartTime();
-		Time endTime = task.getEndTime();
-		char priority = task.getPriority();
-
-		if (description == null || description.equals("")) {
-			throw new IllegalArgumentException();
-		}
-
-		Task newTask;
-
-		newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
-
-		return newTask;
-	}
-
-	/**
-	 * This method determines the action for each user command.
-	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param description		Task description to be set.
+	 * @param isRepeating	    Set a task as repeating.
+	 * @param startDate			Start date to be set.
+	 * @param endDate			End date to be set.
+	 * @param startTime			Start time to be set.
+	 * @param endTime 			End time to be set.			
+	 * @param priority 			Level of priority to be set.
+	 * @param listTracker    	List key of the current task list being displayed.
+	 * @param current		 	Current task list being displayed.
+	 * @return     Feedback after editing.
+	 * @throws ArrayIndexOutOfBoundsException  If index exceeds boundaries of current list.
 	 */
 	String edit(int index, String description,boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
 			char priority, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException{
@@ -342,7 +305,7 @@ public class CRUManager {
 				storedTasksByTime.remove(oldTask);
 			}
 		}
-		
+
 		newTask = oldTask.copy();
 
 		// Edit description of task
@@ -354,7 +317,13 @@ public class CRUManager {
 		if (startDate != null && endDate == null) {
 			// Edited task can update startDate without worrying of endDate being earlier than startDate
 			if (newTask.getEndDate() == null) {
-				newTask.setStartDate(startDate);
+				if (newTask instanceof FloatingTask) {
+					newTask = new TimedTask(newTask.getDescription(), startDate, new Time(0,0), null, null, newTask.getPriority(), newTask.getRepeat());
+				}
+				// Editing TimedTask or RepeatingTask
+				else {
+					newTask.setStartDate(startDate);
+				}
 			}
 			else {
 				// Error: Edited task will end up with earlier endDate than startDate
@@ -362,15 +331,22 @@ public class CRUManager {
 					addTaskIntoUndone(oldTask);
 					return "Invalid edit on starting date";
 				}
-				newTask.setStartDate(startDate);
+				// Edit DeadlineTask
+				newTask = new TimedTask(newTask.getDescription(), startDate, new Time(0, 0), newTask.getEndDate(), newTask.getEndTime(), newTask.getPriority(), newTask.getRepeat());
 			}
 		}
-		
+
 		// Edit endDate only
 		if (endDate != null && startDate == null) {
 			// Edited task can update endDate without worrying of endDate being earlier than startDate
 			if (newTask.getStartDate() == null) {
-				newTask.setEndDate(endDate);
+				if (newTask instanceof FloatingTask) {
+					newTask = new DeadlineTask(newTask.getDescription(), endDate, new Time(23, 59), newTask.getPriority(), newTask.getRepeat());
+				}
+				// Editing DeadlineTask
+				else {
+					newTask.setEndDate(endDate);
+				}
 			}
 			else {
 				// Error: Edited task will end up with earlier endDate than startDate
@@ -378,7 +354,11 @@ public class CRUManager {
 					addTaskIntoUndone(oldTask);
 					return "Invalid edit on ending date";
 				}
+				// Editing TimedTask and RepeatingTask
 				newTask.setEndDate(endDate);
+				if (newTask.getEndTime() == null) {
+					newTask.setEndTime(new Time(23, 59));
+				}
 			}
 		}
 		// Edit startDate and endDate
@@ -389,8 +369,16 @@ public class CRUManager {
 				return "Invalid edit on dates";
 			}
 			else {
-				newTask.setStartDate(startDate);
-				newTask.setEndDate(endDate);
+				if (newTask instanceof FloatingTask) {
+					newTask = new TimedTask(newTask.getDescription(), startDate, new Time(0,0), endDate, new Time(23, 59), newTask.getPriority(), newTask.getRepeat());
+				}
+				else if (newTask instanceof TimedTask || newTask instanceof RepeatingTask) {
+					newTask.setStartDate(startDate);
+					newTask.setEndDate(endDate);
+				}
+				else if (newTask instanceof DeadlineTask) {
+					newTask = new TimedTask(newTask.getDescription(), startDate, new Time(0,0), endDate, newTask.getEndTime(), newTask.getPriority(), newTask.getRepeat());
+				}
 			}
 		}
 
@@ -398,7 +386,15 @@ public class CRUManager {
 		if (startTime != null && endTime == null) {
 			// Edited task can update startTime without worrying of endTime being earlier than startTime
 			if (newTask.getEndTime() == null) {
-				newTask.setStartTime(startTime);
+				if (newTask instanceof FloatingTask) {
+					newTask = new TimedTask(newTask.getDescription(), Date.getCurrentDate(), startTime, null, null, newTask.getPriority(), newTask.getRepeat());
+				}
+				else if (newTask instanceof TimedTask || newTask instanceof RepeatingTask) {
+					newTask.setStartTime(startTime);
+				}
+				else if (newTask instanceof DeadlineTask) {
+					newTask = new TimedTask(newTask.getDescription(), Date.getCurrentDate(), startTime, newTask.getEndDate(), newTask.getEndTime(), newTask.getPriority(), newTask.getRepeat());
+				}
 			}
 			else {
 				// Error: Edited task will end up with earlier endTime than startTime
@@ -413,17 +409,29 @@ public class CRUManager {
 		if (endTime != null && startTime == null) {
 			// Edited task can update endTime without worrying of endTime being earlier than startTime
 			if (newTask.getStartTime() == null) {
-				newTask.setEndTime(endTime);
+				if (newTask instanceof FloatingTask) {
+					newTask = new DeadlineTask(newTask.getDescription(), Date.getCurrentDate(), endTime, newTask.getPriority(), newTask.getRepeat());
+				}
+				// Edit DeadlineTask
+				else {
+					newTask.setEndTime(endTime);
+				}
 			}
 			else {
 				// Error: Edited task will end up with earlier endTime than startTime
+
 				if (newTask.getStartTime().compareTo(endTime) == 1) {
 					addTaskIntoUndone(oldTask);
 					return "Invalid edit on ending time";
 				}
+				// Edit TimedTask or RepeatingTask
 				newTask.setEndTime(endTime);
+				if (newTask.getEndDate() == null) {
+					newTask.setEndDate(newTask.getStartDate());
+				}
 			}
 		}
+
 		// Edit startTime and endTime
 		if (startTime != null && endTime != null) {
 			// Error: endTime is earlier than startTime
@@ -432,8 +440,19 @@ public class CRUManager {
 				return "Invalid edit on both timings";
 			}
 			else {
-				newTask.setStartTime(startTime);
-				newTask.setEndTime(endTime);
+				if (newTask instanceof FloatingTask) {
+					newTask = new TimedTask(newTask.getDescription(), Date.getCurrentDate(), startTime, Date.getCurrentDate(), endTime, newTask.getPriority(), newTask.getRepeat());
+				}
+				else if (newTask instanceof TimedTask || newTask instanceof RepeatingTask ) {
+					newTask.setStartTime(startTime);
+					newTask.setEndTime(endTime);
+					if (newTask.getEndDate() == null) {
+						newTask.setEndDate(newTask.getStartDate());
+					}
+				}
+				else if (newTask instanceof DeadlineTask) {
+					newTask = new TimedTask(newTask.getDescription(), newTask.getEndDate(), startTime, newTask.getEndDate(), endTime, newTask.getPriority(), newTask.getRepeat());
+				}
 			}
 		}
 
@@ -480,19 +499,41 @@ public class CRUManager {
 		undoMng.add(event);
 		return oldTask.getDescription() + " has been updated.";
 	}
+	
+	/**
+	 * This method resets a task into a TimedTask.
+	 *
+	 * @param task 		Task to be remade.
+	 * @return     TimedTask
+	 * @throws IllegalArgumentException  If description is empty.
+	 */
+	private TimedTask remakeTask(Task task) throws IllegalArgumentException {
+		String description = task.getDescription();
+		boolean isRepeating = false;
+		Date startDate = task.getStartDate();
+		Date endDate = task.getEndDate();
+		Time startTime = task.getStartTime();
+		Time endTime = task.getEndTime();
+		char priority = task.getPriority();
+
+		if (description == null || description.equals("")) {
+			throw new IllegalArgumentException();
+		}
+
+		TimedTask newTask;
+
+		newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
+
+		return newTask;
+	}
 
 	/**
-	 * This method determines the action for each user command.
+	 * This method adds task into undone lists (time list and priority list).
 	 *
-	 * @param userCommand Command from the user.
-	 * @param fileName    Name of textfile.
-	 * @param commandType Type of command from the user.
-	 * @param input       Name of temporary data structure containing the contents.
-	 * @return     Message from the action of the userCommand.
-	 * @throws Error  If commandType is unidentified.
+	 * @param Task		Task to be added.
 	 */
-	private void addTaskIntoUndone(Task oldTask) {
-		storedTasksByTime.add(oldTask);
-		storedTasksByPriority.add(oldTask);
+	private void addTaskIntoUndone(Task task) {
+		storedTasksByTime.add(task);
+		storedTasksByPriority.add(task);
 	}
 }
