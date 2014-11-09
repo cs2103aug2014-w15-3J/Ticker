@@ -86,7 +86,7 @@ public class TickKIVManager {
 	 * @return     Feedback after a task is ticked.
 	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
 	 */
-	protected String tick(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException {
+	protected String tick(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task ticked;
 		int actualIndex = getActualIndex(displayedIndex);
 
@@ -131,7 +131,8 @@ public class TickKIVManager {
 		}
 
 		moveToTicked(ticked);
-
+		
+		// Throws IllegalArgumentException
 		Event event = new Event(COMMAND_TICK, ticked, LIST_TIME, LIST_TICKED);
 		undoMng.add(event);
 
@@ -147,7 +148,7 @@ public class TickKIVManager {
 	 * @return     Feedback after a task is unticked.
 	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
 	 */
-	protected String untick(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException {
+	protected String untick(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task unticked;
 		int actualIndex = getActualIndex(displayedIndex);
 
@@ -184,7 +185,8 @@ public class TickKIVManager {
 		}
 
 		addedToUndoneLists(unticked);
-
+		
+		// Throws IllegalArgumentException
 		Event event = new Event(COMMAND_UNTICK, unticked, LIST_TIME, LIST_TICKED);
 		undoMng.add(event);
 
@@ -201,7 +203,7 @@ public class TickKIVManager {
 	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
 	 */
 	protected String kiv(int displayedIndex, int listTracker, Vector<Task> current, String currentListName) 
-			throws ArrayIndexOutOfBoundsException,IllegalArgumentException {
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 
 		Task kiv;
 		int actualIndex = getActualIndex(displayedIndex);
@@ -244,7 +246,8 @@ public class TickKIVManager {
 		}
 
 		moveToKiv(kiv);
-
+		
+		// Throws IllegalArgumentException
 		Event event = new Event(COMMAND_KIV, kiv, LIST_TIME, LIST_KIV);
 		undoMng.add(event);
 
@@ -261,7 +264,7 @@ public class TickKIVManager {
 	 * @return     Feedback after a task is unkiv-ed.
 	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
 	 */
-	protected String unkiv(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException {
+	protected String unkiv(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task unkiv;
 		int actualIndex = getActualIndex(displayedIndex);
 
@@ -300,7 +303,8 @@ public class TickKIVManager {
 		}
 
 		addedToUndoneLists(unkiv);
-
+		
+		// Throws IllegalArgumentException
 		Event event = new Event(COMMAND_UNKIV, unkiv, LIST_TIME, LIST_KIV);
 		undoMng.add(event);
 
