@@ -26,14 +26,10 @@ import ticker.parser.Parser;
 import ticker.parser.UserInput;
 // Package Storage
 import ticker.storage.Storage;
-// Package UI
-import ticker.ui.TickerUI;
 // Package Common
 import ticker.common.Task;
 import ticker.common.sortByTime;
 import ticker.common.sortByPriority;
-
-
 
 // Package Java util
 import java.util.Collections;
@@ -43,9 +39,6 @@ import java.util.logging.Logger;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
-
-// TODO: make UI an observer
-// TODO: check description by end of project
 
 public class Logic{
 	// CONSTANTS
@@ -80,7 +73,10 @@ public class Logic{
 	private static final String LIST_KIV = "kiv";
 	private static final String LIST_SEARCH = "search";
 	private static final String LIST_FREESLOTS = "free";
-
+	
+	// Singleton pattern
+	private static Logic theOne;
+	private static Vector<Observer> observerList;
 	// Instances of other components
 	private Parser parser;
 	private Storage storage;
@@ -125,7 +121,7 @@ public class Logic{
 		}
 
 		catch  (IllegalStateException ise){
-			UI.isFileCorrupted(true);
+			isFileCorrupted(true);
 		}
 		
 		try{
@@ -135,8 +131,8 @@ public class Logic{
 			storedTasksByKIV = storage.restoreDataFromFile(KEY_KIV);
 		}
 
-		catch  (IllegalStateException ise2){
-			UI.isFileCorrupted(true);
+		catch  (IllegalStateException ise){
+			isFileCorrupted(true);
 		}
 
 		cruMng = new CRUManager(storedTasksByTime, storedTasksByPriority, storedTasksByTicked, storedTasksByKIV);
@@ -152,9 +148,28 @@ public class Logic{
 		currentListName = LIST_TIME;
 
 		checkForTaskExpiry();
-		UI.setList(current);
-		UI.setNextView(listTracker);
+		updateList(current);
+		updateDisplayKey(listTracker);
 
+	}
+	
+	/**
+	 * This method is for UI to request to be an observer of Logic.
+	 *
+	 * @param UI		Observer UI.
+	 * @return    		The one instance of Logic.
+	 */
+	public static Logic getInstance(Observer UI) {
+		if(theOne == null) {
+			observerList = new Vector<Observer>();
+			observerList.add(UI);
+			theOne = new Logic(UI);
+		}
+		else {
+			observerList.add(UI);
+		}
+		
+		return theOne;
 	}
 
 	/**
@@ -223,8 +238,8 @@ public class Logic{
 			currentListName = LIST_FREESLOTS;
 
 			checkForTaskExpiry(current);
-			UI.setList(current);
-			UI.setNextView(listTracker);
+			updateList(current);
+			updateDisplayKey(listTracker);
 
 			feedback = "Searching for free slots....";
 
@@ -256,8 +271,8 @@ public class Logic{
 				currentListName = LIST_SEARCH;
 
 				checkForTaskExpiry();
-				UI.setList(current);
-				UI.setNextView(listTracker);
+				updateList(current);
+				updateDisplayKey(listTracker);
 
 				feedback = "Searching for tasks...";
 
@@ -290,8 +305,8 @@ public class Logic{
 				currentListName = LIST_SEARCH;
 
 				checkForTaskExpiry();
-				UI.setList(current);
-				UI.setNextView(listTracker);
+				updateList(current);
+				updateDisplayKey(listTracker);
 
 				feedback = "Searching for tasks...";
 
@@ -317,8 +332,8 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(current);
-				UI.setNextView(listTracker);
+				updateList(current);
+				updateDisplayKey(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been deleted.";
@@ -364,8 +379,8 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(current);
-				UI.setNextView(listTracker);
+				updateList(current);
+				updateDisplayKey(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been edited.";
@@ -397,8 +412,8 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(current);
-				UI.setNextView(listTracker);
+				updateList(current);
+				updateDisplayKey(listTracker);
 			}
 			catch (IllegalArgumentException ex) {
 				return "Error in input. Either description is missing or date is missing for repeated tasks.";
@@ -425,8 +440,8 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(current);
-				UI.setNextView(listTracker);
+				updateList(current);
+				updateDisplayKey(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been marked as cannot do.";
@@ -449,8 +464,8 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(current);
-				UI.setNextView(listTracker);
+				updateList(current);
+				updateDisplayKey(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been unmarked as cannot do.";
@@ -481,8 +496,8 @@ public class Logic{
 
 				checkForTaskExpiry();
 
-				UI.setList(current);
-				UI.setNextView(listTracker);
+				updateList(current);
+				updateDisplayKey(listTracker);
 			}
 			catch (NullPointerException ex) {
 				System.out.println("Error with UndoManager");
@@ -510,8 +525,8 @@ public class Logic{
 
 				checkForTaskExpiry();
 				sortLists();
-				UI.setList(current);
-				UI.setNextView(listTracker);
+				updateList(current);
+				updateDisplayKey(listTracker);
 			}
 			catch (NullPointerException ex) {
 				System.out.println("Error with UndoManager");
@@ -539,8 +554,8 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(current);
-				UI.setNextView(listTracker);
+				updateList(current);
+				updateDisplayKey(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been ticked.";
@@ -563,8 +578,8 @@ public class Logic{
 				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				UI.setList(current);
-				UI.setNextView(listTracker);
+				updateList(current);
+				updateDisplayKey(listTracker);
 			}
 			catch (ArrayIndexOutOfBoundsException ex) {
 				return "Index out of bounds. Nothing has been unticked.";
@@ -657,8 +672,8 @@ public class Logic{
 		}
 
 		storeLists();
-		UI.setList(current);
-		UI.setNextView(listTracker);
+		updateList(current);
+		updateDisplayKey(listTracker);
 
 		return "Spick and span!";
 	}
@@ -695,35 +710,65 @@ public class Logic{
 			current = storedTasksByTime;
 			listTracker = KEY_SORTED_TIME;
 			currentListName = LIST_TIME;
-			UI.setList(current);
-			UI.setNextView(listTracker);
+			updateList(current);
+			updateDisplayKey(listTracker);
 			return "Listing by time...";
 		case LIST_PRIORITY:
 			current = storedTasksByPriority;
 			listTracker = KEY_SORTED_PRIORITY;
 			currentListName = LIST_PRIORITY;
-			UI.setList(current);
-			UI.setNextView(listTracker);
+			updateList(current);
+			updateDisplayKey(listTracker);
 			return "Listing by priority...";
 		case LIST_TICKED:
 			current = storedTasksByTicked;
 			listTracker = KEY_TICKED;
 			currentListName = LIST_TICKED;
-			UI.setList(current);
-			UI.setNextView(listTracker);
+			updateList(current);
+			updateDisplayKey(listTracker);
 			return "Listing ticked tasks...";
 		case COMMAND_KIV:
 			current = storedTasksByKIV;
 			listTracker = KEY_KIV;
 			currentListName = LIST_KIV;
-			UI.setList(current);
-			UI.setNextView(listTracker);
+			updateList(current);
+			updateDisplayKey(listTracker);
 			return "Listing tasks that are kept in view...";
 		default:
 			throw new IllegalArgumentException();
 		}
 	}
+	
+	/**
+	 * This method notifies observer UI(s) that the storage files have been corrupted.
+	 *
+	 * @param corrupted		The state of whether the file is corrupted
+	 */
+	private void isFileCorrupted(boolean corrupted) {
+		for (Observer observer: observerList) {
+			observer.isFileCorrupted(corrupted);
+		}
+	}
+	
+	/**
+	 * This method updates observer UI(s) on the tasks being displayed.
+	 *
+	 * @param taskList		Vector of tasks to be displayed.
+	 */
+	private void updateList(Vector<Task> taskList) {
+		for (Observer observer: observerList) {
+			observer.setList(taskList);
+		}
+	}
+	
+	/**
+	 * This method updates observer UI(s) of the task display key.
+	 *
+	 * @param corrupted		The state of whether the file is corrupted
+	 */
+	private void updateDisplayKey(int displayKey) {
+		for (Observer observer: observerList) {
+			observer.setNextView(displayKey);
+		}
+	}
 }
-
-//TODO: 
-//-refactor the code and make it neat
