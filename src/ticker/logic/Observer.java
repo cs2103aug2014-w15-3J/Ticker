@@ -6,14 +6,7 @@
  * 
  * Project Title: Ticker
  * Interface: Observer
- * Description: This interface
- * 
- * Assumptions: 
- * This program assumes that:
- * -the Parser class will pass Logic class valid processed user input (as an UserInput object) with data at their correct
- * positions.
- * -the Logic class will always be used with classes CRUDManager, TickKIVManager, UndoRedoManager and SearchManager.
- * -the UI using this class knows the key for different task lists.
+ * Description: This interface allows any type or number of UI to observe the Logic class.
  */
 
 package ticker.logic;
