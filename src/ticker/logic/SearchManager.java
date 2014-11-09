@@ -235,20 +235,21 @@ public class SearchManager {
 				// If potential free slot is within or equals the timings of a scheduled task
 				if (resultPeriod.getStart().compareTo(taskPeriod.getStart()) >= EQUAL && resultPeriod.getEnd().compareTo(taskPeriod.getEnd()) <= EQUAL) {
 					result.remove(i);
-
+					
+				// If potential free slot has larger period then the timings of a scheduled task on both tail ends
 				} else if (resultPeriod.getStart().compareTo(taskPeriod.getStart()) < EQUAL && resultPeriod.getEnd().compareTo(taskPeriod.getEnd()) > EQUAL) {
-					// If potential free slot has larger period then the timings of a scheduled task on both tail ends
 					updateTwoTailedFreeslot(result, taskPeriod, i, resultPeriod);
-
+					
+				// If potential free slot has no overlap with scheduled task on the left tail end
 				} else if (resultPeriod.getStart().compareTo(taskPeriod.getStart()) < EQUAL && resultPeriod.getEnd().compareTo(taskPeriod.getStart()) >= EQUAL) {
-					// If potential free slot has no overlap with scheduled task on the left tail end
 					updateLeftTailedFreeslot(result, taskPeriod, i, resultPeriod);
-
+					
+				// If potential free slot has no overlap with scheduled task on the right tail end
 				} else if (resultPeriod.getStart().compareTo(resultPeriod.getStart()) >= EQUAL && resultPeriod.getEnd().compareTo(taskPeriod.getEnd()) > EQUAL) {
-					// If potential free slot has no overlap with scheduled task on the right tail end
 					updateRightTailedFreeslot(result, taskPeriod, i, resultPeriod);
+					
+				// If free slots has no overlap with tasks	
 				} else {
-					// If free slots has no overlap with tasks
 					continue;
 				}
 			}	
