@@ -20,7 +20,6 @@ public class HelpManagerTest {
 	private static final String MESSAGE_DELETE = "delete <index>";
 	private static final String MESSAGE_SEARCH = "search <description> <time> -<priority>";
 	private static final String MESSAGE_SHOW = "show <listType>";
-	private static final String MESSAGE_EMPTY = "";
 	
 	@Test
 	public void testGetHelp() {
