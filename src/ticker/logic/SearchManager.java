@@ -44,6 +44,7 @@ public class SearchManager {
 	// Integer constants
 	private static final int EQUAL = 0;
 	private static final double PASSING_SIMILARITY_SCORE = 65.0;
+	private static final int OFFSET_INDEX = 1;
 	// String constants
 	private static final String EMPTY_STRING = "";
 	// String constants for command types
@@ -319,9 +320,11 @@ public class SearchManager {
 	 * @param index		 	Index of freeslot to be taken.
 	 * @param description   Name of task description that fills in the freeslot.
 	 * @return     Message from the action of taking a freeslot.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
-	public String take(int index, String description) throws IllegalArgumentException {
-		TimedTask chosenSlot = (TimedTask) freeslotList.get(index - 1);
+	public String take(int displayedIndex, String description) throws IllegalArgumentException {
+		int actualIndex = getActualIndex(displayedIndex);
+		TimedTask chosenSlot = (TimedTask) freeslotList.get(actualIndex);
 		if (chosenSlot.getDescription() != STAMP_FREESLOT) {
 			storedTasksByTime.remove(chosenSlot);
 			storedTasksByPriority.remove(chosenSlot);
@@ -666,6 +669,16 @@ public class SearchManager {
 			}
 		}
 		return searchResult;
+	}
+	
+	/**
+	 * This method calculates the actual index of the task displayed in UI.
+	 *
+	 * @param index			 Index of the specified task displayed in UI.
+	 * @return     Actual index of tasklist.
+	 */
+	private int getActualIndex(int index) {
+		return index - OFFSET_INDEX;
 	}
 
 
