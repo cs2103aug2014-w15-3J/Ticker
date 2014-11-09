@@ -1,9 +1,6 @@
 //@author A0114535M
 
 /* Team ID: W15-3J
- * Name: Li Jia'En, Nicholette
- * Matric Number: A0114535M
- * 
  * Project Title: Ticker
  * Class: Logic
  * Description: This class passes the user input from UI to the Parser to process the input. Logic class then receives the
@@ -21,17 +18,6 @@
 
 package ticker.logic;
 
-// Package Parser
-import ticker.parser.Parser;
-import ticker.parser.UserInput;
-// Package Storage
-import ticker.storage.Storage;
-// Package Common
-import ticker.common.Task;
-import ticker.common.sortByTime;
-import ticker.common.sortByPriority;
-
-// Package Java util
 import java.util.Collections;
 import java.util.Vector;
 import java.util.logging.Level;
@@ -40,8 +26,16 @@ import java.util.logging.Logger;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 
+import ticker.parser.Parser;
+import ticker.parser.UserInput;
+import ticker.storage.Storage;
+import ticker.common.Task;
+import ticker.common.sortByTime;
+import ticker.common.sortByPriority;
+
 public class Logic{
 	// CONSTANTS
+
 	// String constants for command types
 	private static final String COMMAND_HELP = "help";
 	private static final String COMMAND_UNTICK = "untick";
@@ -73,83 +67,81 @@ public class Logic{
 	private static final String LIST_KIV = "kiv";
 	private static final String LIST_SEARCH = "search";
 	private static final String LIST_FREESLOTS = "free";
+	// Feedback messages
+	private static final String FEEDBACK_SEARCH_FREESLOTS = "Searching for free slots....";
+	private static final String FEEDBACK_SEARCH = "Searching for tasks...";
+	private static final String FEEDBACK_HELP = "Help is on the way!";
+	private static final String FEEDBACK_CLEAR = "Spick and span!";
+	private static final String FEEDBACK_LIST_KIV = "Listing tasks that are kept in view...";
+	private static final String FEEDBACK_LIST_TICKED = "Listing ticked tasks...";
+	private static final String FEEDBACK_LIST_PRIORITY = "Listing by priority...";
+	private static final String FEEDBACK_LIST_TIME = "Listing by time...";
+	private static final String FEEDBACK_ERROR_NO_SUCH_LIST = "List does not exist. Please re-enter.";
+	private static final String FEEDBACK_ERROR_MISSING_DESCRIPTION = "Task description is empty. Please re-enter.";
+	private static final String FEEDBACK_ERROR_ADD_REPEATED_TASK = "Error in input. Either description is missing or date is missing for repeated tasks.";
+	private static final String FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS = "Index out of bounds. No action is performed.";
+	private static final String FEEDBACK_ERROR_INVALID_COMMAND = "Invalid command";	
+	private static final String FEEDBACK_ERROR_MISUSED_TAKE = "Invalid use of take. Please use it only with searching for freeslots.";
+	// Log messages
+	private static final String LOG_SUCCESSFUL_ACTION = "Action proceeded successfully";
+	private static final String LOG_NO_COMMANDS_PASSED = "NO COMMANDS PASSED";
+	private static final String LOG_PERFORM_ACTION = "Performing an action";
+	
+	private static final String LOGIC = "Logic";
+	private static final String EMPTY_STRING = "";
+	
 	
 	// ATTRIBUTES
+
 	// Singleton pattern
 	private static Logic theOne;
 	private static Vector<Observer> observerList;
+
+	private static Logger logger;
+
 	// Instances of other components
 	private Parser parser;
 	private Storage storage;
-	private Observer UI;
 	private UndoManager undoMng;
 	private CRUManager cruMng;
-	private TickKIVManager tickKIVMng;
+	private TickKIVManager tickKivMng;
 	private SearchManager searchMng;
-	private static Logger logger;
-	// Tracker to track which list is being displayed
-	private static Integer listTracker;
-	private static String currentListName;
-	// Pointer to the Vector currently in display
-	private static Vector<Task> current;
+
+	// Variables to track which list is being displayed
+	private Integer listTracker;
+	private String currentListName;
+	private Vector<Task> current;
+
 	// Temporary sorted storages
-	private static Vector<Task> storedTasksByTime;
-	private static Vector<Task> storedTasksByPriority;
-	private static Vector<Task> storedTasksByTicked; // not sorted
-	private static Vector<Task> storedTasksByKIV; // not sorted
-	private static Vector<Task> searchResults;
-	private static Vector<Task> freeslotsResults;
+	private Vector<Task> storedTasksByTime;
+	private Vector<Task> storedTasksByPriority;
+	private Vector<Task> storedTasksByTicked; // not sorted
+	private Vector<Task> storedTasksByKiv; // not sorted
+	private Vector<Task> searchResults;
+	private Vector<Task> freeslotsResults;
+
 	// Store existing (current) search request
-	private static UserInput searchRequest;
-	private static UserInput freeslotsRequest;
+	private UserInput searchRequest;
+	private UserInput freeslotsRequest;
 
 	// Construct dependency with UI
-	public Logic(Observer UI){
-		this.UI = UI;
+	public Logic(){
 
-		// Instantiating sub-components
-		parser = new Parser();
-		logger = Logger.getLogger("Logic");
-		storage = new Storage();
+		instantiateParserAndStorage();
 
-		// Retrieve last saved tasks
-		try{
-			storage.initFile();
-		}
+		initialiseStorageFiles();
+		retrieveStoredFiles();
 
-		catch  (IllegalStateException ise){
-			isFileCorrupted(true);
-		}
-		
-		try{
-			storedTasksByTime = storage.restoreDataFromFile(KEY_SORTED_TIME);
-			storedTasksByPriority = storage.restoreDataFromFile(KEY_SORTED_PRIORITY);
-			storedTasksByTicked = storage.restoreDataFromFile(KEY_TICKED);
-			storedTasksByKIV = storage.restoreDataFromFile(KEY_KIV);
-		}
+		instantiateLogicManagers();
 
-		catch  (IllegalStateException ise){
-			isFileCorrupted(true);
-		}
+		instantiateSearchResults();
 
-		cruMng = new CRUManager(storedTasksByTime, storedTasksByPriority, storedTasksByTicked, storedTasksByKIV);
-		tickKIVMng = new TickKIVManager(storedTasksByTime, storedTasksByPriority, storedTasksByTicked, storedTasksByKIV);
-		searchMng = new SearchManager(storedTasksByTime, storedTasksByPriority, storedTasksByTicked, storedTasksByKIV);
-		undoMng = UndoManager.getInstance(storedTasksByTime, storedTasksByPriority, storedTasksByTicked, storedTasksByKIV);
+		setCurrentAsTime();
 
-		searchResults = new Vector<Task>();
-		freeslotsResults = new Vector<Task>();
-
-		current = storedTasksByTime;
-		listTracker = KEY_SORTED_TIME;
-		currentListName = LIST_TIME;
-
-		checkForTaskExpiry();
-		updateList(current);
-		updateDisplayKey(listTracker);
+		updateObservers();
 
 	}
-	
+
 	/**
 	 * This method is for UI to request to be an observer of Logic.
 	 *
@@ -160,27 +152,31 @@ public class Logic{
 		if(theOne == null) {
 			observerList = new Vector<Observer>();
 			observerList.add(UI);
-			theOne = new Logic(UI);
+			theOne = new Logic();
 		}
 		else {
 			observerList.add(UI);
 		}
-		
+
 		return theOne;
 	}
 
 	/**
-	 * This method is for UI to call logic and for logic to pass the string to parser to process user input
+	 * This method is for observer to call logic and for logic to pass the string to parser to process user input
 	 *
 	 * @param input		Name of user input string
 	 * @return    		Message from the command operation.
 	 */
 	public String getLogic(String input) {
-		// Crash the program if Logic is contructed without TickerUI, missing dependency
-		assert(UI != null);
+		// Crash the program if Logic is constructed without observer, missing dependency
+		assert(observerList.isEmpty() != true);
+
+		String feedback;
 
 		UserInput processed = parser.processInput(input);
-		return getOutput(processed);
+		feedback = getOutput(processed);
+
+		return feedback;
 	}
 
 	/**
@@ -191,24 +187,22 @@ public class Logic{
 	 */
 	protected String getOutput(UserInput processed) {
 
-		String feedback = "";
-		String command = "";
-		logger.log(Level.INFO, "Performing an action");
+		String feedback = EMPTY_STRING;
+		String command = EMPTY_STRING;
+		logger.log(Level.INFO, LOG_PERFORM_ACTION);
 
 		try {
 			command = processed.getCommand();
 		}
-
-		catch (NullPointerException ep) {
-			logger.log(Level.WARNING, "NO COMMANDS PASSED");
-			System.out.println("Parser just sent a null command");
+		catch (NullPointerException npe) {
+			logger.log(Level.WARNING, LOG_NO_COMMANDS_PASSED);
 		}
 
-		switch(command){
+		switch(command) {
 		case COMMAND_TAKE:
 			//try {
 			if (listTracker != KEY_FREESLOTS) {
-				return "Invalid use of take. Please use it only with searching for freeslots.";
+				return FEEDBACK_ERROR_MISUSED_TAKE;
 			}
 			feedback = searchMng.take(processed.getIndex(), processed.getDescription());
 			//}
@@ -219,26 +213,16 @@ public class Logic{
 
 		case COMMAND_SEARCH_FREESLOTS:
 			//try {
-			freeslotsRequest = new UserInput();
-			freeslotsRequest.setStartDate(processed.getStartDate());
-			freeslotsRequest.setStartTime(processed.getStartTime());
-			freeslotsRequest.setEndDate(processed.getEndDate());
-			freeslotsRequest.setEndTime(processed.getEndTime());
-
+			freeslotsRequest = deepCopyUserInput(processed);
 			freeslotsResults.removeAllElements();
-
 			freeslotsResults = searchMng.searchForFreeSlots(processed.getStartDate(), processed.getStartTime(), 
 					processed.getEndDate(), processed.getEndTime());
 
-			listTracker = KEY_FREESLOTS;
-			current = freeslotsResults;
-			currentListName = LIST_FREESLOTS;
-
+			setCurrentAsSearchFreeslots();
 			checkForTaskExpiry(current);
-			updateList(current);
-			updateDisplayKey(listTracker);
+			updateObservers();
 
-			feedback = "Searching for free slots....";
+			feedback = FEEDBACK_SEARCH_FREESLOTS;
 
 			//}
 			/*catch (Exception e) {
@@ -248,30 +232,18 @@ public class Logic{
 
 		case COMMAND_SEARCH: 
 			try {
-				searchRequest = new UserInput();
-				searchRequest.setCommand(processed.getCommand());
-				searchRequest.setDescription(processed.getDescription());
-				searchRequest.setRepeating(processed.getRepeating());
-				searchRequest.setStartDate(processed.getStartDate());
-				searchRequest.setStartTime(processed.getStartTime());
-				searchRequest.setEndDate(processed.getEndDate());
-				searchRequest.setEndTime(processed.getEndTime());
-				searchRequest.setPriority(processed.getPriority());
+				searchRequest = deepCopyUserInput(processed);
 
 				searchResults.removeAllElements();
 
 				searchResults = searchMng.search(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
 
-				listTracker = KEY_SEARCH;
-				current = searchResults;
-				currentListName = LIST_SEARCH;
+				setCurrentAsSearch();
 
-				checkForTaskExpiry();
-				updateList(current);
-				updateDisplayKey(listTracker);
+				updateObservers();
 
-				feedback = "Searching for tasks...";
+				feedback = FEEDBACK_SEARCH;
 
 			}
 			catch (Exception e) {
@@ -282,30 +254,18 @@ public class Logic{
 
 		case COMMAND_SEARCH_EXPIRED:
 			try {
-				searchRequest = new UserInput();
-				searchRequest.setCommand(processed.getCommand());
-				searchRequest.setDescription(processed.getDescription());
-				searchRequest.setRepeating(processed.getRepeating());
-				searchRequest.setStartDate(processed.getStartDate());
-				searchRequest.setStartTime(processed.getStartTime());
-				searchRequest.setEndDate(processed.getEndDate());
-				searchRequest.setEndTime(processed.getEndTime());
-				searchRequest.setPriority(processed.getPriority());
+				searchRequest = deepCopyUserInput(processed);
 
 				searchResults.removeAllElements();
 
 				searchResults = searchMng.searchExpired(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
 
-				listTracker = KEY_SEARCH;
-				current = searchResults;
-				currentListName = LIST_SEARCH;
+				setCurrentAsSearch();
 
-				checkForTaskExpiry();
-				updateList(current);
-				updateDisplayKey(listTracker);
+				updateObservers();
 
-				feedback = "Searching for tasks...";
+				feedback = FEEDBACK_SEARCH;
 
 			}
 			catch (Exception e) {
@@ -326,14 +286,12 @@ public class Logic{
 					current = freeslotsResults;
 				}
 
-				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				updateList(current);
-				updateDisplayKey(listTracker);
+				updateObservers();
 			}
-			catch (ArrayIndexOutOfBoundsException ex) {
-				return "Index out of bounds. Nothing has been deleted.";
+			catch (ArrayIndexOutOfBoundsException OOBE) {
+				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
 			}
 			break;
 
@@ -346,9 +304,8 @@ public class Logic{
 				checkForTaskExpiry();
 				feedback = this.list(processed.getDescription());
 			}
-			catch (IllegalArgumentException ex) {
-				System.out.println("Wrong list name from parser");
-				return "List does not exist. Please re-enter.";
+			catch (IllegalArgumentException iae) {
+				return FEEDBACK_ERROR_NO_SUCH_LIST;
 			}
 			break;
 
@@ -373,17 +330,15 @@ public class Logic{
 					current = freeslotsResults;
 				}
 
-				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				updateList(current);
-				updateDisplayKey(listTracker);
+				updateObservers();
 			}
-			catch (ArrayIndexOutOfBoundsException ex) {
-				return "Index out of bounds. Nothing has been edited.";
+			catch (ArrayIndexOutOfBoundsException oobe) {
+				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
 			}
-			catch (IllegalArgumentException ex) {
-				return "Task description is empty. Please re-enter.";
+			catch (IllegalArgumentException iae) {
+				return FEEDBACK_ERROR_MISSING_DESCRIPTION;
 			}
 			break;
 
@@ -393,9 +348,7 @@ public class Logic{
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
 
 				if (listTracker == KEY_KIV || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
-					listTracker = KEY_SORTED_TIME;
-					current = storedTasksByTime;
-					currentListName = LIST_TIME;
+					setCurrentAsTime();
 				}
 
 				else if (listTracker == KEY_FREESLOTS) {
@@ -406,20 +359,18 @@ public class Logic{
 					current = freeslotsResults;
 				}
 
-				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				updateList(current);
-				updateDisplayKey(listTracker);
+				updateObservers();
 			}
-			catch (IllegalArgumentException ex) {
-				return "Error in input. Either description is missing or date is missing for repeated tasks.";
+			catch (IllegalArgumentException iae) {
+				return FEEDBACK_ERROR_ADD_REPEATED_TASK;
 			}
 			break;
 
 		case COMMAND_KIV:
 			try {
-				feedback = tickKIVMng.kiv(processed.getIndex(), listTracker, current, currentListName);
+				feedback = tickKivMng.kiv(processed.getIndex(), listTracker, current, currentListName);
 
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -440,8 +391,8 @@ public class Logic{
 				updateList(current);
 				updateDisplayKey(listTracker);
 			}
-			catch (ArrayIndexOutOfBoundsException ex) {
-				return "Index out of bounds. Nothing has been marked as cannot do.";
+			catch (ArrayIndexOutOfBoundsException oobe) {
+				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
 			}
 			/*catch (IllegalArgumentException ex) {
 				return "Current list: " + currentListName + "Cannot perform command on this list";
@@ -450,7 +401,7 @@ public class Logic{
 
 		case COMMAND_UNKIV:
 			try {
-				feedback = tickKIVMng.unkiv(processed.getIndex(), listTracker, current);
+				feedback = tickKivMng.unkiv(processed.getIndex(), listTracker, current);
 
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -458,14 +409,12 @@ public class Logic{
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
 
-				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				updateList(current);
-				updateDisplayKey(listTracker);
+				updateObservers();
 			}
-			catch (ArrayIndexOutOfBoundsException ex) {
-				return "Index out of bounds. Nothing has been unmarked as cannot do.";
+			catch (ArrayIndexOutOfBoundsException oobe) {
+				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
 			}
 			/*catch (IllegalArgumentException ex) {
 				return "Current list: " + currentListName + "Cannot perform command on this list";
@@ -491,12 +440,9 @@ public class Logic{
 					current = freeslotsResults;
 				}
 
-				checkForTaskExpiry();
-
-				updateList(current);
-				updateDisplayKey(listTracker);
+				updateObservers();
 			}
-			catch (NullPointerException ex) {
+			catch (NullPointerException npe) {
 				System.out.println("Error with UndoManager");
 			}
 			return feedback;
@@ -520,19 +466,18 @@ public class Logic{
 					current = freeslotsResults;
 				}
 
-				checkForTaskExpiry();
 				sortLists();
-				updateList(current);
-				updateDisplayKey(listTracker);
+				storeLists();
+				updateObservers();
 			}
-			catch (NullPointerException ex) {
+			catch (NullPointerException npe) {
 				System.out.println("Error with UndoManager");
 			}
 			return feedback;
 
 		case COMMAND_TICK:
 			try {
-				feedback = tickKIVMng.tick(processed.getIndex(), listTracker, current);
+				feedback = tickKivMng.tick(processed.getIndex(), listTracker, current);
 
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -548,14 +493,12 @@ public class Logic{
 					current = freeslotsResults;
 				}
 
-				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				updateList(current);
-				updateDisplayKey(listTracker);
+				updateObservers();
 			}
-			catch (ArrayIndexOutOfBoundsException ex) {
-				return "Index out of bounds. Nothing has been ticked.";
+			catch (ArrayIndexOutOfBoundsException oobe) {
+				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
 			}
 			/*catch (IllegalArgumentException ex) {
 				return "Current list: " + currentListName + "Cannot perform command on this list";
@@ -564,7 +507,7 @@ public class Logic{
 
 		case COMMAND_UNTICK:
 			try {
-				feedback = tickKIVMng.untick(processed.getIndex(), listTracker, current);
+				feedback = tickKivMng.untick(processed.getIndex(), listTracker, current);
 
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -572,14 +515,12 @@ public class Logic{
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
 
-				checkForTaskExpiry();
 				sortLists();
 				storeLists();
-				updateList(current);
-				updateDisplayKey(listTracker);
+				updateObservers();
 			}
-			catch (ArrayIndexOutOfBoundsException ex) {
-				return "Index out of bounds. Nothing has been unticked.";
+			catch (ArrayIndexOutOfBoundsException oobe) {
+				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
 			}
 			//catch (IllegalArgumentException ex) {
 			//return "Current list: " + currentListName + "Cannot perform command on this list";
@@ -588,72 +529,51 @@ public class Logic{
 
 
 		case COMMAND_HELP:
-			feedback = "help is on the way!";
-			UI.setHelp();
+			feedback = FEEDBACK_HELP;
+			setHelp();
+
 			break;
 
 		default:
-			feedback = "invalid command";
+			feedback = FEEDBACK_ERROR_INVALID_COMMAND;
 			break;
 		}
 
-		logger.log(Level.INFO, "Action proceeded successfully");
+		logger.log(Level.INFO, LOG_SUCCESSFUL_ACTION);
 		return feedback;
 	}
 
+
+
 	/**
-	 * This method checks for expired tasks and updates their attribute isExpired.
+	 * This method deep copies a UserInput object.
+	 * 
+	 * @param processed		UserInput object to be duplicated.
+	 * returns 		Copied UserInput
 	 */
-	private void checkForTaskExpiry() {
-		if (!storedTasksByTime.isEmpty()) {
-			for (Task timeTask: storedTasksByTime) {
-				timeTask.isExpired();
-			}
-		}
-		if (!storedTasksByPriority.isEmpty()) {
-			for (Task priorityTask: storedTasksByPriority) {
-				priorityTask.isExpired();
-			}
-		}
-		if (!storedTasksByKIV.isEmpty()) {
-			for (Task kivTask: storedTasksByKIV) {
-				kivTask.isExpired();
-			}
-		}
-		if (!storedTasksByTicked.isEmpty()) {
-			for (Task tickedTask: storedTasksByTicked) {
-				tickedTask.isExpired();
-			}
-		}
+	private UserInput deepCopyUserInput(UserInput input) {
+		UserInput copied = new UserInput();
+		copied.setCommand(input.getCommand());
+		copied.setDescription(input.getDescription());
+		copied.setRepeating(input.getRepeating());
+		copied.setStartDate(input.getStartDate());
+		copied.setStartTime(input.getStartTime());
+		copied.setEndDate(input.getEndDate());
+		copied.setEndTime(input.getEndTime());
+		copied.setPriority(input.getPriority());
+
+		return copied;
 	}
 
 	/**
-	 * This is an overloaded method that checks for expired tasks in only one task list and updates their attribute isExpired.
-	 * @param taskList 		Task list to be checked for expired task.
+	 * This method sets the observers to display help instructions.
 	 */
-	private void checkForTaskExpiry(Vector<Task> taskList) {
-		for (Task task: taskList) {
-			task.isExpired();
+	private void setHelp() {
+		for (Observer observer: observerList) {
+			observer.setHelp();
 		}
 	}
 
-	/**
-	 * This method writes the lists into storage.
-	 */
-	private void storeLists() {
-		storage.writeStorageArrayIntoFile(KEY_SORTED_TIME, storedTasksByTime);
-		storage.writeStorageArrayIntoFile(KEY_SORTED_PRIORITY, storedTasksByPriority);
-		storage.writeStorageArrayIntoFile(KEY_TICKED, storedTasksByTicked);
-		storage.writeStorageArrayIntoFile(KEY_KIV, storedTasksByKIV);
-	}
-
-	/**
-	 * This method sorts the time and priority lists.
-	 */
-	private void sortLists() {
-		Collections.sort(storedTasksByTime, new sortByTime());
-		Collections.sort(storedTasksByPriority, new sortByPriority());
-	}
 
 	/**
 	 * This method clears the current list.
@@ -661,18 +581,20 @@ public class Logic{
 	 * @return     Message from the operation clear().
 	 */
 	protected String clear() {
-		current.removeAllElements();
 
 		if (listTracker == KEY_SORTED_TIME || listTracker == KEY_SORTED_PRIORITY) {
 			storedTasksByTime.removeAllElements();
 			storedTasksByPriority.removeAllElements();
 		}
+		else {
+			current.removeAllElements();
+		}
 
 		storeLists();
-		updateList(current);
-		updateDisplayKey(listTracker);
 
-		return "Spick and span!";
+		updateObservers();
+
+		return FEEDBACK_CLEAR;
 	}
 
 	/**
@@ -683,10 +605,10 @@ public class Logic{
 	 */
 	protected String list() {
 		if (current == null) {
-			return "Nothing to display.\n";
+			return "Nothing to display";
 		}
 		int i = 0;
-		String list = "";
+		String list = EMPTY_STRING;
 		for (Task task: current) {
 
 			list += ++i + ". " + task.toString() + "\n";
@@ -704,49 +626,164 @@ public class Logic{
 	protected String list(String listType) throws IllegalArgumentException {
 		switch (listType) {
 		case LIST_TIME:
-			current = storedTasksByTime;
-			listTracker = KEY_SORTED_TIME;
-			currentListName = LIST_TIME;
-			updateList(current);
-			updateDisplayKey(listTracker);
-			return "Listing by time...";
+			setCurrentAsTime();
+			updateObservers();
+			return FEEDBACK_LIST_TIME;
 		case LIST_PRIORITY:
-			current = storedTasksByPriority;
-			listTracker = KEY_SORTED_PRIORITY;
-			currentListName = LIST_PRIORITY;
-			updateList(current);
-			updateDisplayKey(listTracker);
-			return "Listing by priority...";
+			setCurrentAsPriority();
+			updateObservers();
+			return FEEDBACK_LIST_PRIORITY;
 		case LIST_TICKED:
-			current = storedTasksByTicked;
-			listTracker = KEY_TICKED;
-			currentListName = LIST_TICKED;
-			updateList(current);
-			updateDisplayKey(listTracker);
-			return "Listing ticked tasks...";
+			setCurrentAsTicked();
+			updateObservers();
+			return FEEDBACK_LIST_TICKED;
 		case COMMAND_KIV:
-			current = storedTasksByKIV;
-			listTracker = KEY_KIV;
-			currentListName = LIST_KIV;
-			updateList(current);
-			updateDisplayKey(listTracker);
-			return "Listing tasks that are kept in view...";
+			setCurrentAsKiv();
+			updateObservers();
+			return FEEDBACK_LIST_KIV;
 		default:
 			throw new IllegalArgumentException();
 		}
 	}
-	
+
+
+	/**
+	 * This method creates instances of Parser and Storage.
+	 */
+	private void instantiateParserAndStorage() {
+		parser = new Parser();
+		storage = new Storage();
+		logger = Logger.getLogger(LOGIC);
+	}
+
+	/**
+	 * This method initialises files in Storage.
+	 */
+	private void initialiseStorageFiles() {
+		try{
+			storage.initFile();
+		} catch  (IllegalStateException ise){
+			isFileCorrupted(true);
+		}
+	}
+
+	/**
+	 * This method restores the last saved files if there is any.
+	 */
+	private void retrieveStoredFiles() {
+		try{
+			storedTasksByTime = storage.restoreDataFromFile(KEY_SORTED_TIME);
+			storedTasksByPriority = storage.restoreDataFromFile(KEY_SORTED_PRIORITY);
+			storedTasksByTicked = storage.restoreDataFromFile(KEY_TICKED);
+			storedTasksByKiv = storage.restoreDataFromFile(KEY_KIV);
+		} catch  (IllegalStateException ise){
+			isFileCorrupted(true);
+		}
+	}
+
+	/**
+	 * This method creates instances of the logic managers.
+	 */
+	private void instantiateLogicManagers() {
+		cruMng = new CRUManager(storedTasksByTime, storedTasksByPriority, storedTasksByTicked, storedTasksByKiv);
+		tickKivMng = new TickKIVManager(storedTasksByTime, storedTasksByPriority, storedTasksByTicked, storedTasksByKiv);
+		searchMng = new SearchManager(storedTasksByTime, storedTasksByPriority, storedTasksByTicked, storedTasksByKiv);
+		undoMng = UndoManager.getInstance(storedTasksByTime, storedTasksByPriority, storedTasksByTicked, storedTasksByKiv);
+	}
+
+
+	/**
+	 * This method creates instances of the search results.
+	 */
+	private void instantiateSearchResults() {
+		searchResults = new Vector<Task>();
+		freeslotsResults = new Vector<Task>();
+	}
+
 	/**
 	 * This method notifies observer UI(s) that the storage files have been corrupted.
 	 *
 	 * @param corrupted		The state of whether the file is corrupted
 	 */
-	private void isFileCorrupted(boolean corrupted) {
+	private void isFileCorrupted(boolean isCorrupted) {
 		for (Observer observer: observerList) {
-			observer.isFileCorrupted(corrupted);
+			observer.isFileCorrupted(isCorrupted);
 		}
 	}
-	
+
+	/**
+	 * This method checks for expired tasks and updates their attribute isExpired.
+	 */
+	private void checkForTaskExpiry() {
+		checkForTaskExpiryInListTime();
+		checkForTaskExpiryInListPriority();
+		checkForTaskExpiryInListKiv();
+		checkForTaskExpiryInListTicked();
+	}
+
+	/**
+	 * This method checks for expired tasks in list ticked.
+	 */
+	private void checkForTaskExpiryInListTicked() {
+		if (!storedTasksByTicked.isEmpty()) {
+			for (Task tickedTask: storedTasksByTicked) {
+				tickedTask.isExpired();
+			}
+		}
+	}
+
+	/**
+	 * This method checks for expired tasks in list KIV.
+	 */
+	private void checkForTaskExpiryInListKiv() {
+		if (!storedTasksByKiv.isEmpty()) {
+			for (Task kivTask: storedTasksByKiv) {
+				kivTask.isExpired();
+			}
+		}
+	}
+
+	/**
+	 * This method checks for expired tasks in list by priority.
+	 */
+	private void checkForTaskExpiryInListPriority() {
+		if (!storedTasksByPriority.isEmpty()) {
+			for (Task priorityTask: storedTasksByPriority) {
+				priorityTask.isExpired();
+			}
+		}
+	}
+
+	/**
+	 * This method checks for expired tasks in list by time.
+	 */
+	private void checkForTaskExpiryInListTime() {
+		if (!storedTasksByTime.isEmpty()) {
+			for (Task timeTask: storedTasksByTime) {
+				timeTask.isExpired();
+			}
+		}
+	}
+
+	/**
+	 * This is an overloaded method that checks for expired tasks in only one task list and updates their attribute isExpired.
+	 * @param taskList 		Task list to be checked for expired task.
+	 */
+	private void checkForTaskExpiry(Vector<Task> taskList) {
+		for (Task task: taskList) {
+			task.isExpired();
+		}
+	}
+
+	/**
+	 * This method updates the observers of the new display.
+	 */
+	private void updateObservers() {
+		checkForTaskExpiry();
+		updateList(current);
+		updateDisplayKey(listTracker);
+	}
+
 	/**
 	 * This method updates observer UI(s) on the tasks being displayed.
 	 *
@@ -757,7 +794,7 @@ public class Logic{
 			observer.setList(taskList);
 		}
 	}
-	
+
 	/**
 	 * This method updates observer UI(s) of the task display key.
 	 *
@@ -767,5 +804,77 @@ public class Logic{
 		for (Observer observer: observerList) {
 			observer.setNextView(displayKey);
 		}
+	}
+
+	/**
+	 * This method sets the tasklist sorted by time to be displayed.
+	 */
+	private void setCurrentAsTime() {
+		listTracker = KEY_SORTED_TIME;
+		current = storedTasksByTime;	
+		currentListName = LIST_TIME;
+	}
+
+	/**
+	 * This method sets the tasklist sorted by priority to be displayed.
+	 */
+	private void setCurrentAsPriority() {
+		listTracker = KEY_SORTED_PRIORITY;
+		current = storedTasksByPriority;
+		currentListName = LIST_PRIORITY;
+	}
+
+	/**
+	 * This method sets the tasklist containing ticked tasks to be displayed.
+	 */
+	private void setCurrentAsTicked() {
+		listTracker = KEY_TICKED;
+		current = storedTasksByTicked;
+		currentListName = LIST_TICKED;
+	}
+
+	/**
+	 * This method sets the tasklist containing kiv-ed tasks to be displayed.
+	 */
+	private void setCurrentAsKiv() {
+		listTracker = KEY_KIV;
+		current = storedTasksByKiv;
+		currentListName = LIST_KIV;
+	}
+
+	/**
+	 * This method sets the search tasklist to be displayed.
+	 */
+	private void setCurrentAsSearch() {
+		listTracker = KEY_SEARCH;
+		current = searchResults;
+		currentListName = LIST_SEARCH;
+	}
+
+	/**
+	 * This method sets the search freeslots tasklist to be displayed.
+	 */
+	private void setCurrentAsSearchFreeslots() {
+		listTracker = KEY_FREESLOTS;
+		current = freeslotsResults;
+		currentListName = LIST_FREESLOTS;
+	}
+
+	/**
+	 * This method writes the lists into storage.
+	 */
+	private void storeLists() {
+		storage.writeStorageArrayIntoFile(KEY_SORTED_TIME, storedTasksByTime);
+		storage.writeStorageArrayIntoFile(KEY_SORTED_PRIORITY, storedTasksByPriority);
+		storage.writeStorageArrayIntoFile(KEY_TICKED, storedTasksByTicked);
+		storage.writeStorageArrayIntoFile(KEY_KIV, storedTasksByKiv);
+	}
+
+	/**
+	 * This method sorts the time and priority lists.
+	 */
+	private void sortLists() {
+		Collections.sort(storedTasksByTime, new sortByTime());
+		Collections.sort(storedTasksByPriority, new sortByPriority());
 	}
 }
