@@ -7,6 +7,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import ticker.common.Task;
 
@@ -42,7 +44,13 @@ public class Storage {
 	private static final String TASKS_KIV_FILENAME = "kiv.json";
 	
 	private static final String JSON_EMPTY = "[]";
-
+	
+	//These messages are used by Logger
+	private static final String LOGGER_MESSAGE_MISSING = "Missing JSON file";
+	private static final String LOGGER_MESSAGE_ALTER = "Altered JSON file";
+	private static final String LOGGER_MESSAGE_STORAGE = "Storage";
+	
+	private static Logger logger;
 	private Vector<Task> storedTasksByPriority;
 	private Vector<Task> storedTasksByDeadline;
 	private Vector<Task> storedTasksByTicked;
@@ -58,6 +66,7 @@ public class Storage {
 		storedTasksByTicked = new Vector<Task>();
 		storedTasksByKIV = new Vector<Task>();
 		isMissing = false;
+		logger = Logger.getLogger(LOGGER_MESSAGE_STORAGE);
 	}
 	
 	/**
@@ -79,6 +88,7 @@ public class Storage {
 			checkFileExist(fileSortedByTicked);
 			checkFileExist(fileSortedByKIV);
 		} catch (JsonSyntaxException jse) {
+			logger.log(Level.WARNING, LOGGER_MESSAGE_ALTER);
 			clearFile();
 			restoreDataFromFile(TASKS_PRIORITY_INDEX);
 			restoreDataFromFile(TASKS_DEADLINE_INDEX);
@@ -88,6 +98,7 @@ public class Storage {
 		}
 		//if one or more of the file is being altered, reset all files
 		if(isMissing) {
+			logger.log(Level.WARNING, LOGGER_MESSAGE_MISSING);
 			clearFile();
 			restoreDataFromFile(TASKS_PRIORITY_INDEX);
 			restoreDataFromFile(TASKS_DEADLINE_INDEX);

@@ -3,6 +3,8 @@ package ticker.logic;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.MongeElkan;
@@ -11,6 +13,7 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.SmithWatermanGotoh;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.SmithWatermanGotohWindowedAffine;
 
 public class HelpManager {
+	
 	//List of available commands
 	private static final String COMMAND_HELP = "help";
 	private static final String COMMAND_UNTICK = "untick";
@@ -44,6 +47,10 @@ public class HelpManager {
 	private static final String MESSAGE_SHOW = "show <listType>";
 	private static final String MESSAGE_EMPTY = "";
 	
+	//These messages are used by Logger
+	private static final String LOGGER_MESSAGE_DISPLAY = "Displaying help message";
+	private static final String LOGGER_MESSAGE_HELPMANAGER = "HelpManager";
+	
 	//HelpManager activation length
 	private static final int ACTIVATION_LENGTH = 2;
 	
@@ -55,6 +62,7 @@ public class HelpManager {
 	
 	private static final int ARRAY_FIRST = 0;
 	
+	private static Logger logger;
 	private Vector<StringMatch> matchList;
 	private HashMap<String, String> helpList;
 	private String[] commandListSet;
@@ -66,6 +74,7 @@ public class HelpManager {
 		matchList = new Vector<StringMatch>();
 		initHelpList();
 		initCommandListSet();
+		logger = Logger.getLogger(LOGGER_MESSAGE_HELPMANAGER);
 	}
 
 	/**
@@ -115,6 +124,8 @@ public class HelpManager {
 			Collections.sort(matchList, new StringMatchComparator());
 			
 			findElementWithinSimilarityScore(possibleCommands);
+			
+			logger.log(Level.INFO, LOGGER_MESSAGE_DISPLAY);
 			return findMostLikelyHelpMessage(possibleCommands);
 		}
 	}
