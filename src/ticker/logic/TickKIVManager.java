@@ -104,8 +104,9 @@ public class TickKIVManager {
 				ticked = current.remove(actualIndex);
 			} else if (actualIndex >= tickedPartitionIndex && actualIndex <= displayedKivPartitionIndex) {
 				ticked = current.remove(actualIndex + OFFSET_TICKED);
+				
+			// task occurs after kivPartitionIndex	
 			} else {
-				// task occurs after kivPartitionIndex
 				ticked = current.remove(actualIndex + OFFSET_KIV);
 			}
 
@@ -167,8 +168,9 @@ public class TickKIVManager {
 				unticked = current.remove(actualIndex);
 			} else if (actualIndex >= tickedPartitionIndex && actualIndex <= displayedKivPartitionIndex) {
 				unticked = current.remove(actualIndex + OFFSET_TICKED);
+				
+			// task occurs after kivPartitionIndex	
 			} else {
-				// task occurs after kivPartitionIndex
 				unticked = current.remove(actualIndex + OFFSET_KIV);
 			}
 
