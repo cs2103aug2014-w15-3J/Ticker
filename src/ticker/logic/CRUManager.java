@@ -23,40 +23,7 @@ import ticker.common.Time;
 import ticker.common.TimedTask;
 
 public class CRUManager {
-	private static final String FEEDBACK_APPEND_IS_UPDATED = " has been updated.";
-	private static final String FEEDBACK_ERROR_INVALID_EDIT_TO_REPEATED_TASK = "Invalid edit to repeated task. Missing date";
-	private static final char NULL_CHAR = '\u0000';
-	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_BOTH_TIMINGS = "Invalid edit on both timings";
-	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_TIME = "Invalid edit on ending time";
-	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_TIME = "Invalid edit on starting time";
-	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_DATES = "Invalid edit on dates";
-	private static final int BIGGER = 1;
-	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_DATE = "Invalid edit on ending date";
-	private static final int END_MIN = 59;
-	private static final int END_HOUR = 23;
-	private static final int START_MIN = 0;
-	private static final int START_HOUR = 0;
-	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_DATE = "Invalid edit on starting date";
-	private static final String FEEDBACK_ERROR_CANNOT_EDIT_FROM_TICKED_AND_KIV_LIST = "Cannot edit from ticked and KIV list.";
-	private static final String FEEDBACK_ERROR_CANNOT_EDIT_FROM_KIV_LIST = "Cannot edit from KIV list.";
-	private static final String FEEDBACK_ERROR_CANNOT_EDIT_FROM_TICKED_LIST = "Cannot edit from ticked list.";
-	private static final String FEEDBACK_APPEND_IS_DELETED = " has been removed.";
-	private static final String FEEDBACK_ERROR_DELETE_FREESLOT = "Cannot delete freeslot.";
-	private static final int INIT = 0;
-	private static final char PRIORITY_NORMAL = 'B';
-	private static final String STAMP_KIV = "\\***KIV***\\";
-	private static final String STAMP_TICKED = "\\***TICKED***\\";
-	private static final int SMALLER = -1;
-	private static final int OFFSET_INDEX = 1;
-	private static final int OFFSET_TICKED = 1;
-	private static final int OFFSET_KIV = 2;
-	private static final String FEEDBACK_APPEND_IS_ADDED = " has been added.";
-	private static final String FEEDBACK_ERROR_DUPLICATE_TASK = "Task already exists.";
-	private static final String FEEDBACK_ERROR_INVALID_ENDING_DATE = "Invalid ending date.";
-	private static final String FEEDBACK_ERROR_INVALID_DATE_TIME = "Invalid ending date or time.";
-	private static final String FEEDBACK_ERROR_REPEATING_TASK_WITHOUT_DATE = "Cannot add repeating tasks without a date.";
-	private static final String FEEDBACK_ERROR_CANNOT_ADD_WITHOUT_DESCRIPTION = "Cannot add without description.";
-	private static final String EMPTY_STRING = "";
+
 	// CONSTANTS
 	// String constants for command types
 	private static final String COMMAND_ADD = "add";
@@ -75,6 +42,46 @@ public class CRUManager {
 	private static final String TASKS_KIV = "kiv";
 	// String constants for stamps
 	private static final String FREESLOT_STAMP = "\\***FREE***\\";
+	private static final String STAMP_TICKED = "\\***TICKED***\\";
+	private static final String STAMP_KIV = "\\***KIV***\\";
+	// String constant
+	private static final String EMPTY_STRING = "";
+	// Char constants
+	private static final char NULL_CHAR = '\u0000';
+	private static final char PRIORITY_NORMAL = 'B';
+	// Integer constants
+	private static final int INIT = 0;
+	private static final int SMALLER = -1;
+	private static final int BIGGER = 1;
+	// Integer constants for offsets
+	private static final int OFFSET_INDEX = 1;
+	private static final int OFFSET_TICKED = 1;
+	private static final int OFFSET_KIV = 2;
+	// Integer constants for time
+	private static final int START_HOUR = 0;
+	private static final int START_MIN = 0;
+	private static final int END_HOUR = 23;
+	private static final int END_MIN = 59;
+	// Feedback messages
+	private static final String FEEDBACK_APPEND_IS_UPDATED = " has been updated.";
+	private static final String FEEDBACK_APPEND_IS_DELETED = " has been removed.";
+	private static final String FEEDBACK_APPEND_IS_ADDED = " has been added.";
+	private static final String FEEDBACK_ERROR_DUPLICATE_TASK = "Task already exists.";
+	private static final String FEEDBACK_ERROR_REPEATING_TASK_WITHOUT_DATE = "Cannot add repeating tasks without a date.";
+	private static final String FEEDBACK_ERROR_INVALID_ENDING_DATE = "Invalid ending date.";
+	private static final String FEEDBACK_ERROR_INVALID_DATE_TIME = "Invalid ending date or time.";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_TO_REPEATED_TASK = "Invalid edit to repeated task. Missing date";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_BOTH_TIMINGS = "Invalid edit on both timings";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_TIME = "Invalid edit on ending time";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_TIME = "Invalid edit on starting time";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_DATES = "Invalid edit on dates";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_DATE = "Invalid edit on ending date";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_DATE = "Invalid edit on starting date";
+	private static final String FEEDBACK_ERROR_CANNOT_EDIT_FROM_TICKED_AND_KIV_LIST = "Cannot edit from ticked and KIV list.";
+	private static final String FEEDBACK_ERROR_CANNOT_EDIT_FROM_KIV_LIST = "Cannot edit from KIV list.";
+	private static final String FEEDBACK_ERROR_CANNOT_EDIT_FROM_TICKED_LIST = "Cannot edit from ticked list.";
+	private static final String FEEDBACK_ERROR_CANNOT_ADD_WITHOUT_DESCRIPTION = "Cannot add without description.";
+	private static final String FEEDBACK_ERROR_DELETE_FREESLOT = "Cannot delete freeslot.";
 
 	// Instances of other components
 	private UndoManager undoMng;
@@ -159,7 +166,7 @@ public class CRUManager {
 	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
 	 */
 	String delete(int displayedIndex, int listTracker, Vector<Task> current, String currentListName) 
-			throws ArrayIndexOutOfBoundsException {
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 
 		Task deleted;
 		int actualIndex = getActualIndex(displayedIndex);
@@ -192,11 +199,11 @@ public class CRUManager {
 	 * @param actualIndex		Index of task to be deleted.
 	 * @return		Deleted task.
 	 */
-	private Task deleteFromTickedOrKiv(Vector<Task> current, String currentListName, int actualIndex) {
-		Event event;
-		Task deleted;
-		deleted = current.remove(actualIndex);
-		event = new Event(COMMAND_DELETE, deleted, currentListName, actualIndex);
+	private Task deleteFromTickedOrKiv(Vector<Task> current, String currentListName, int actualIndex) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		Task deleted = current.remove(actualIndex);
+
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_DELETE, deleted, currentListName, actualIndex);
 		undoMng.add(event);
 		return deleted;
 	}
@@ -208,12 +215,12 @@ public class CRUManager {
 	 * @param currentListName	Name of current tasklist.
 	 * @param actualIndex		Index of task to be deleted.
 	 */
-	private void deleteFromFreeslots(Vector<Task> current, Task deleted, int actualIndex) {
-		Event event;
+	private void deleteFromFreeslots(Vector<Task> current, Task deleted, int actualIndex) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		current.remove(actualIndex);
 		int index = storedTasksByTime.indexOf(deleted);
 		removeTaskFromUndoneLists(deleted);
-		event = new Event(COMMAND_DELETE, deleted, TASKS_TIME, index);
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_DELETE, deleted, TASKS_TIME, index);
 		undoMng.add(event);
 	}
 
@@ -224,13 +231,13 @@ public class CRUManager {
 	 * @param actualIndex		Index of task to be deleted.
 	 * @return		Deleted task.
 	 */
-	private Task deleteFromSearchList(Vector<Task> current, int actualIndex) {
+	private Task deleteFromSearchList(Vector<Task> current, int actualIndex) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task deleted;
 		Task tickedPartition = new Task(STAMP_TICKED, null, null, null, null, PRIORITY_NORMAL, false);
 		Task kivPartition = new Task(STAMP_KIV, null, null, null, null, PRIORITY_NORMAL, false);
 		int tickedPartitionIndex = current.indexOf(tickedPartition);
 		int kivPartitionIndex = current.indexOf(kivPartition);
-		
+
 		int displayedKivPartitionIndex = getDisplayedKivPartitionIndex(kivPartitionIndex);
 
 		if (actualIndex < tickedPartitionIndex) {
@@ -256,11 +263,11 @@ public class CRUManager {
 	 * 
 	 * @param deleted	Kiv task to be deleted.
 	 */
-	private void deleteKivFromSearchList(Task deleted) {
-		Event event;
+	private void deleteKivFromSearchList(Task deleted) throws IllegalArgumentException {
 		int indexCounter = getIndexInOriginalList(deleted, storedTasksByKiv);
 		storedTasksByKiv.remove(deleted);
-		event = new Event(COMMAND_DELETE, deleted, TASKS_KIV, indexCounter);
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_DELETE, deleted, TASKS_KIV, indexCounter);
 		undoMng.add(event);
 	}
 
@@ -269,11 +276,11 @@ public class CRUManager {
 	 * 
 	 * @param deleted	Ticked task to be deleted.
 	 */
-	private void deleteTickedFromSearchList(Task deleted) {
-		Event event;
+	private void deleteTickedFromSearchList(Task deleted) throws IllegalArgumentException {
 		int indexCounter = getIndexInOriginalList(deleted, storedTasksByTicked);
 		storedTasksByTicked.remove(deleted);
-		event = new Event(COMMAND_DELETE, deleted, TASKS_TICKED, indexCounter);
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_DELETE, deleted, TASKS_TICKED, indexCounter);
 		undoMng.add(event);
 	}
 
@@ -282,13 +289,12 @@ public class CRUManager {
 	 * 
 	 * @param deleted	Undone task to be deleted.
 	 */
-	private void deleteUndoneFromSearchList(Task deleted) {
-		Event event;
+	private void deleteUndoneFromSearchList(Task deleted) throws IllegalArgumentException {
 		int indexCounter = getIndexInOriginalList(deleted, storedTasksByTime);
 		removeTaskFromUndoneLists(deleted);
-		
+
 		// Throws IllegalArgumentException
-		event = new Event(COMMAND_DELETE, deleted, TASKS_TIME, indexCounter);
+		Event event = new Event(COMMAND_DELETE, deleted, TASKS_TIME, indexCounter);
 		undoMng.add(event);
 	}
 
@@ -318,14 +324,13 @@ public class CRUManager {
 	 * @param actualIndex		Index of task to be deleted.
 	 * @return		Deleted task.
 	 */
-	private Task deleteFromPriorityList(Vector<Task> current, String currentListName, int actualIndex) {
-		Event event;
-		Task deleted;
-		deleted = current.remove(actualIndex);
-		storedTasksByTime.remove(deleted);
-		event = new Event(COMMAND_DELETE, deleted, currentListName, actualIndex);
-		undoMng.add(event);
-		return deleted;
+	private Task deleteFromPriorityList(Vector<Task> current, String currentListName, int actualIndex) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {;
+	Task deleted = current.remove(actualIndex);
+	storedTasksByTime.remove(deleted);
+	// Throws IllegalArgumentException
+	Event event = new Event(COMMAND_DELETE, deleted, currentListName, actualIndex);
+	undoMng.add(event);
+	return deleted;
 	}
 
 	/**
@@ -336,13 +341,11 @@ public class CRUManager {
 	 * @param actualIndex		Index of task to be deleted.
 	 * @return		Deleted task.
 	 */
-	private Task deleteFromTimedList(Vector<Task> current,
-			String currentListName, int actualIndex) {
-		Event event;
-		Task deleted;
-		deleted = current.remove(actualIndex);
+	private Task deleteFromTimedList(Vector<Task> current, String currentListName, int actualIndex) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		Task deleted = current.remove(actualIndex);
 		storedTasksByPriority.remove(deleted);
-		event = new Event(COMMAND_DELETE, deleted, currentListName, actualIndex);
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_DELETE, deleted, currentListName, actualIndex);
 		undoMng.add(event);
 		return deleted;
 	}
@@ -393,9 +396,9 @@ public class CRUManager {
 			Task kivPartition = new Task(STAMP_KIV, null, null, null, null, PRIORITY_NORMAL, false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
-			
+
 			int displayedKivPartitionIndex = getDisplayedKivPartitionIndex(kivPartitionIndex);
-			
+
 			if (actualIndex < tickedPartitionIndex) {
 				oldTask = current.get(actualIndex);
 			} else if (actualIndex >= tickedPartitionIndex && actualIndex <= displayedKivPartitionIndex) {
@@ -429,11 +432,11 @@ public class CRUManager {
 			if (newTask.getEndDate() == null) {
 				if (newTask instanceof FloatingTask) {
 					newTask = new TimedTask(newTask.getDescription(), startDate, new Time(START_HOUR, START_MIN), null, null, newTask.getPriority(), newTask.getRepeat());
-				// Editing TimedTask or RepeatingTask	
+					// Editing TimedTask or RepeatingTask	
 				} else {
 					newTask.setStartDate(startDate);
 				}
-			// Error: Edited task will end up with earlier endDate than startDate	
+				// Error: Edited task will end up with earlier endDate than startDate	
 			} else {
 				if (newTask.getEndDate().compareTo(startDate) == SMALLER) {
 					addTaskIntoUndone(oldTask);
@@ -450,11 +453,11 @@ public class CRUManager {
 			if (newTask.getStartDate() == null) {
 				if (newTask instanceof FloatingTask) {
 					newTask = new DeadlineTask(newTask.getDescription(), endDate, new Time(END_HOUR, END_MIN), newTask.getPriority(), newTask.getRepeat());
-				// Editing DeadlineTask	
+					// Editing DeadlineTask	
 				} else {
 					newTask.setEndDate(endDate);
 				}
-				
+
 			} else {
 				// Error: Edited task will end up with earlier endDate than startDate
 				if (newTask.getStartDate().compareTo(endDate) == BIGGER) {
@@ -468,7 +471,7 @@ public class CRUManager {
 				}
 			}
 		}
-		
+
 		// Edit startDate and endDate
 		if (startDate != null && endDate != null) {
 			// Error: endDate is earlier than startDate
@@ -507,14 +510,14 @@ public class CRUManager {
 				newTask.setStartTime(startTime);
 			}
 		}
-		
+
 		// Edit endTime only
 		if (endTime != null && startTime == null) {
 			// Edited task can update endTime without worrying of endTime being earlier than startTime
 			if (newTask.getStartTime() == null) {
 				if (newTask instanceof FloatingTask) {
 					newTask = new DeadlineTask(newTask.getDescription(), Date.getCurrentDate(), endTime, newTask.getPriority(), newTask.getRepeat());
-				// Edit DeadlineTask	
+					// Edit DeadlineTask	
 				} else {
 					newTask.setEndTime(endTime);
 				}
@@ -566,14 +569,14 @@ public class CRUManager {
 					addTaskIntoUndone(oldTask);
 					return FEEDBACK_ERROR_INVALID_EDIT_TO_REPEATED_TASK;
 				}
-			// Remove repeat from the task	
+				// Remove repeat from the task	
 			} else if (newTask.getRepeat() == true) {
 				newTask = remakeTask(newTask);
 			}
 		}	
 
 		addEditedTask(listTracker, current, oldTask, newTask, actualIndex);
-		
+
 		return oldTask.getDescription() + FEEDBACK_APPEND_IS_UPDATED;
 	}
 
@@ -592,7 +595,7 @@ public class CRUManager {
 		} else {
 			current.add(actualIndex, newTask);
 		}
-		
+
 		// Throws IllegalArgumentException
 		Event event = new Event(COMMAND_EDIT, oldTask, newTask);
 		undoMng.add(event);
@@ -621,7 +624,7 @@ public class CRUManager {
 			newTask.setDescription(description);
 		}
 	}
-	
+
 	/**
 	 * This method resets a task into a TimedTask.
 	 *
@@ -657,7 +660,7 @@ public class CRUManager {
 		storedTasksByTime.add(task);
 		storedTasksByPriority.add(task);
 	}
-	
+
 	/**
 	 * This method calculates the actual index of the task displayed in UI.
 	 *
@@ -667,7 +670,7 @@ public class CRUManager {
 	private int getActualIndex(int index) {
 		return index - OFFSET_INDEX;
 	}
-	
+
 	/**
 	 * This method calculates the actual index of the task displayed in UI.
 	 *
