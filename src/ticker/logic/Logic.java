@@ -194,7 +194,7 @@ public class Logic{
 		String command = extractCommand(processed);
 
 		switch(command) {
-		case COMMAND_TAKE:
+		case COMMAND_TAKE :
 			//try {
 			if (listTracker != KEY_FREESLOTS) {
 				return FEEDBACK_ERROR_MISUSED_TAKE;
@@ -206,7 +206,7 @@ public class Logic{
 			//}
 			break;
 
-		case COMMAND_SEARCH_FREESLOTS:
+		case COMMAND_SEARCH_FREESLOTS :
 			//try {
 			freeslotsRequest = deepCopyUserInput(processed);
 			freeslotsResults.removeAllElements();
@@ -225,7 +225,7 @@ public class Logic{
 			}*/
 			break;
 
-		case COMMAND_SEARCH: 
+		case COMMAND_SEARCH : 
 			try {
 				searchRequest = deepCopyUserInput(processed);
 				searchResults.removeAllElements();
@@ -244,7 +244,7 @@ public class Logic{
 
 			break;
 
-		case COMMAND_SEARCH_EXPIRED:
+		case COMMAND_SEARCH_EXPIRED :
 			try {
 				searchRequest = deepCopyUserInput(processed);
 
@@ -266,7 +266,7 @@ public class Logic{
 
 			break;
 
-		case COMMAND_DELETE: 
+		case COMMAND_DELETE : 
 			try {
 				feedback = cruMng.delete(processed.getIndex(), listTracker, current, currentListName);
 
@@ -286,11 +286,11 @@ public class Logic{
 			}
 			break;
 
-		case COMMAND_CLEAR:
+		case COMMAND_CLEAR :
 			feedback = this.clear(); 
 			break;
 
-		case COMMAND_LIST:
+		case COMMAND_LIST :
 			try {
 				checkForTaskExpiry();
 				feedback = this.list(processed.getDescription());
@@ -301,7 +301,7 @@ public class Logic{
 			break;
 
 
-		case COMMAND_EDIT:
+		case COMMAND_EDIT :
 			try {
 
 				feedback = cruMng.edit(processed.getIndex(), processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
@@ -332,7 +332,7 @@ public class Logic{
 			}
 			break;
 
-		case COMMAND_ADD:
+		case COMMAND_ADD :
 			try {
 				feedback = cruMng.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
@@ -357,7 +357,7 @@ public class Logic{
 			}
 			break;
 
-		case COMMAND_KIV:
+		case COMMAND_KIV :
 			try {
 				feedback = tickKivMng.kiv(processed.getIndex(), listTracker, current, currentListName);
 
@@ -385,7 +385,7 @@ public class Logic{
 			}*/
 			break;
 
-		case COMMAND_UNKIV:
+		case COMMAND_UNKIV :
 			try {
 				feedback = tickKivMng.unkiv(processed.getIndex(), listTracker, current);
 
@@ -406,7 +406,7 @@ public class Logic{
 			}*/
 			break;
 
-		case COMMAND_UNDO:
+		case COMMAND_UNDO :
 			try {
 				feedback = undoMng.undo();
 				maintainLists();
@@ -432,7 +432,7 @@ public class Logic{
 			}
 			return feedback;
 
-		case COMMAND_REDO:
+		case COMMAND_REDO :
 			try {
 				feedback = undoMng.redo();
 
@@ -459,7 +459,7 @@ public class Logic{
 			}
 			return feedback;
 
-		case COMMAND_TICK:
+		case COMMAND_TICK :
 			try {
 				feedback = tickKivMng.tick(processed.getIndex(), listTracker, current);
 
@@ -488,7 +488,7 @@ public class Logic{
 			}*/
 			break;
 
-		case COMMAND_UNTICK:
+		case COMMAND_UNTICK :
 			try {
 				feedback = tickKivMng.untick(processed.getIndex(), listTracker, current);
 
@@ -510,13 +510,13 @@ public class Logic{
 			break;
 
 
-		case COMMAND_HELP:
+		case COMMAND_HELP :
 			feedback = FEEDBACK_HELP;
 			setHelp();
 
 			break;
 
-		default:
+		default :
 			feedback = FEEDBACK_ERROR_INVALID_COMMAND;
 			break;
 		}
