@@ -1,8 +1,6 @@
 //@author A0114535M
 
 /* Team ID: W15-3J
- * Name: Li Jia'En, Nicholette
- * Matric Number: A0114535M
  * Project Title: Ticker
  * Class: CRUManager
  * Description: This class adds, delete and edits task.
@@ -25,6 +23,40 @@ import ticker.common.Time;
 import ticker.common.TimedTask;
 
 public class CRUManager {
+	private static final String FEEDBACK_APPEND_IS_UPDATED = " has been updated.";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_TO_REPEATED_TASK = "Invalid edit to repeated task. Missing date";
+	private static final char NULL_CHAR = '\u0000';
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_BOTH_TIMINGS = "Invalid edit on both timings";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_TIME = "Invalid edit on ending time";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_TIME = "Invalid edit on starting time";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_DATES = "Invalid edit on dates";
+	private static final int BIGGER = 1;
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_DATE = "Invalid edit on ending date";
+	private static final int END_MIN = 59;
+	private static final int END_HOUR = 23;
+	private static final int START_MIN = 0;
+	private static final int START_HOUR = 0;
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_DATE = "Invalid edit on starting date";
+	private static final String FEEDBACK_ERROR_CANNOT_EDIT_FROM_TICKED_AND_KIV_LIST = "Cannot edit from ticked and KIV list.";
+	private static final String FEEDBACK_ERROR_CANNOT_EDIT_FROM_KIV_LIST = "Cannot edit from KIV list.";
+	private static final String FEEDBACK_ERROR_CANNOT_EDIT_FROM_TICKED_LIST = "Cannot edit from ticked list.";
+	private static final String FEEDBACK_APPEND_IS_DELETED = " has been removed.";
+	private static final String FEEDBACK_ERROR_DELETE_FREESLOT = "Cannot delete freeslot.";
+	private static final int INIT = 0;
+	private static final char PRIORITY_NORMAL = 'B';
+	private static final String STAMP_KIV = "\\***KIV***\\";
+	private static final String STAMP_TICKED = "\\***TICKED***\\";
+	private static final int SMALLER = -1;
+	private static final int OFFSET_INDEX = 1;
+	private static final int OFFSET_TICKED = 1;
+	private static final int OFFSET_KIV = 2;
+	private static final String FEEDBACK_APPEND_IS_ADDED = " has been added.";
+	private static final String FEEDBACK_ERROR_DUPLICATE_TASK = "Task already exists.";
+	private static final String FEEDBACK_ERROR_INVALID_ENDING_DATE = "Invalid ending date.";
+	private static final String FEEDBACK_ERROR_INVALID_DATE_TIME = "Invalid ending date or time.";
+	private static final String FEEDBACK_ERROR_REPEATING_TASK_WITHOUT_DATE = "Cannot add repeating tasks without a date.";
+	private static final String FEEDBACK_ERROR_CANNOT_ADD_WITHOUT_DESCRIPTION = "Cannot add without description.";
+	private static final String EMPTY_STRING = "";
 	// CONSTANTS
 	// String constants for command types
 	private static final String COMMAND_ADD = "add";
@@ -46,15 +78,15 @@ public class CRUManager {
 
 	// Instances of other components
 	private UndoManager undoMng;
-	private Vector<Task> storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV;
+	private Vector<Task> storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKiv;
 
-	CRUManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKIV) {
+	CRUManager(Vector<Task> storedTasksByTime, Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKiv) {
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTime = storedTasksByTime;
 		this.storedTasksByTicked = storedTasksByTicked;
-		this.storedTasksByKIV = storedTasksByKIV;
+		this.storedTasksByKiv = storedTasksByKiv;
 
-		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV);
+		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKiv);
 	}
 
 	/**
@@ -72,53 +104,40 @@ public class CRUManager {
 	 */
 	String add(String description, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,	char priority) throws IllegalArgumentException {
 
-		if (description == null || description.equals("")) {
-			throw new IllegalArgumentException();
+		if (description == null || description == EMPTY_STRING) {
+			return FEEDBACK_ERROR_CANNOT_ADD_WITHOUT_DESCRIPTION;
 		}
 
 		Task newTask;
 
-		// Creation of RepeatingTask
 		if (isRepeating) {
 			if (startDate != null) {
 				newTask = new RepeatingTask(description, startDate, startTime, endTime, priority, isRepeating);
-			}
-			else if (endDate != null) {
+			} else if (endDate != null) {
 				newTask = new RepeatingTask(description, endDate, startTime, endTime, priority, isRepeating);
+			} else {
+				return FEEDBACK_ERROR_REPEATING_TASK_WITHOUT_DATE;
 			}
-			else {
-				throw new IllegalArgumentException();
-			}
-		}
-
-		else if (startDate == null && startTime == null) {
-			// Creation of floating tasks
+		} else if (startDate == null && startTime == null) {
 			if (endDate == null && endTime == null) {
 				newTask = new FloatingTask(description, priority, false);
-			}
-			// Creation of deadline tasks
-			else {
+			} else {
 				newTask = new DeadlineTask(description, endDate, endTime, priority, false);
 			}
-		}
-
-		// Creation of timed tasks
-		else {
+		} else {
 			if (startDate != null && endDate != null && startTime != null && endTime != null && 
-					(endDate.compareTo(startDate) == -1 || endTime.compareTo(startTime) == -1)) {
-				return "Invalid ending date or time.";
+					(endDate.compareTo(startDate) == SMALLER || endTime.compareTo(startTime) == SMALLER)) {
+				return FEEDBACK_ERROR_INVALID_DATE_TIME;
 			}
-
 			if (startDate != null && endDate != null && startTime == null && endTime == null && 
-					(endDate.compareTo(startDate) == -1)) {
-				return "Invalid ending date.";
+					(endDate.compareTo(startDate) == SMALLER)) {
+				return FEEDBACK_ERROR_INVALID_ENDING_DATE;
 			}
 			newTask = new TimedTask(description, startDate, startTime, endDate, endTime, priority, false);
 		}
 
-		// Check whether there's an exact task already inside the list
-		if (storedTasksByPriority.contains(newTask) || storedTasksByTicked.contains(newTask) || storedTasksByKIV.contains(newTask)) {
-			return "Task already exists.";
+		if (storedTasksByPriority.contains(newTask) || storedTasksByTicked.contains(newTask) || storedTasksByKiv.contains(newTask)) {
+			return FEEDBACK_ERROR_DUPLICATE_TASK;
 		}
 
 		addTaskIntoUndone(newTask);
@@ -126,8 +145,7 @@ public class CRUManager {
 		Event event = new Event(COMMAND_ADD, newTask);
 		undoMng.add(event);
 
-
-		return description + " has been added.";
+		return description + FEEDBACK_APPEND_IS_ADDED;
 	}
 
 	/**
@@ -140,100 +158,206 @@ public class CRUManager {
 	 * @return     Feedback after a task is deleted.
 	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
 	 */
-	String delete(int index, int listTracker, Vector<Task> current, String currentListName) 
+	String delete(int displayedIndex, int listTracker, Vector<Task> current, String currentListName) 
 			throws ArrayIndexOutOfBoundsException {
-		Event event;
+
 		Task deleted;
+		int actualIndex = getActualIndex(displayedIndex);
 
 		if (listTracker == KEY_SORTED_TIME) {
-			deleted = current.remove(index - 1);
-			storedTasksByPriority.remove(deleted);
-			event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
-			undoMng.add(event);
-		}
-		else if (listTracker == KEY_SORTED_PRIORITY) {
-			deleted = current.remove(index - 1);
-			storedTasksByTime.remove(deleted);
-			event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
-			undoMng.add(event);
-		}
-		else if (listTracker == KEY_SEARCH) {
-			int indexCounter;
-			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
-			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
-			int tickedPartitionIndex = current.indexOf(tickedPartition);
-			int kivPartitionIndex = current.indexOf(kivPartition);
-
-			if ((index - 1) < tickedPartitionIndex) {
-				deleted = current.remove(index - 1);
-			}
-			else if ((index - 1) >= tickedPartitionIndex && (index - 1) <= (kivPartitionIndex - 2)) {
-				deleted = current.remove(index);
-			}
-			else {
-				deleted = current.remove(index + 1);
-			}
-
-			if (storedTasksByTime.contains(deleted) || storedTasksByPriority.contains(deleted)) {
-				indexCounter = 0;
-				for (Task task: storedTasksByTime) {
-					if (task.equals(deleted)) {
-						break;
-					}
-					indexCounter++;
-				}
-				storedTasksByTime.remove(deleted);
-				storedTasksByPriority.remove(deleted);
-				event = new Event(COMMAND_DELETE, deleted, TASKS_TIME, indexCounter);
-				undoMng.add(event);
-			}
-			else if (storedTasksByTicked.contains(deleted)) {
-				indexCounter = 0;
-				for (Task task: storedTasksByTicked) {
-					if (task.equals(deleted)) {
-						break;
-					}
-					indexCounter++;
-				}
-				storedTasksByTicked.remove(deleted);
-				event = new Event(COMMAND_DELETE, deleted, TASKS_TICKED, indexCounter);
-				undoMng.add(event);
-			}
-			else if (storedTasksByKIV.contains(deleted)) {
-				indexCounter = 0;
-				for (Task task: storedTasksByKIV) {
-					if (task.equals(deleted)) {
-						break;
-					}
-					indexCounter++;
-				}
-				storedTasksByKIV.remove(deleted);
-				event = new Event(COMMAND_DELETE, deleted, TASKS_KIV, indexCounter);
-				undoMng.add(event);
-			}
-		}
-		else if (listTracker == KEY_FREESLOTS) {
-			deleted = current.get(index - 1);
+			deleted = deleteFromTimedList(current, currentListName, actualIndex);
+		} else if (listTracker == KEY_SORTED_PRIORITY) {
+			deleted = deleteFromPriorityList(current, currentListName, actualIndex);
+		} else if (listTracker == KEY_SEARCH) {
+			deleted = deleteFromSearchList(current, actualIndex);
+		} else if (listTracker == KEY_FREESLOTS) {
+			deleted = current.get(actualIndex);
 			if (deleted.getDescription() == FREESLOT_STAMP) {
-				return "Cannot delete freeslot.";
+				return FEEDBACK_ERROR_DELETE_FREESLOT;
+			} else {
+				deleteFromFreeslots(current, deleted, actualIndex);
 			}
-			else {
-				current.remove(index - 1);
-				int actualIndex = storedTasksByTime.indexOf(deleted);
-				storedTasksByTime.remove(deleted);
-				storedTasksByPriority.remove(deleted);
-				event = new Event(COMMAND_DELETE, deleted, TASKS_TIME, actualIndex);
-				undoMng.add(event);
-			}
-		}
-		// For ticked list and KIV list
-		else {
-			deleted = current.remove(index - 1);
-			event = new Event(COMMAND_DELETE, deleted, currentListName, index - 1);
-			undoMng.add(event);
+		} else {
+			deleted = deleteFromTickedOrKiv(current, currentListName, actualIndex);
 		}
 
-		return deleted.getDescription() + " has been removed.";
+		return deleted.getDescription() + FEEDBACK_APPEND_IS_DELETED;
+	}
+
+	/**
+	 * This method deletes a task from ticked or kiv list.
+	 * 
+	 * @param current			Current tasklist.
+	 * @param currentListName	Name of current tasklist.
+	 * @param actualIndex		Index of task to be deleted.
+	 * @return		Deleted task.
+	 */
+	private Task deleteFromTickedOrKiv(Vector<Task> current, String currentListName, int actualIndex) {
+		Event event;
+		Task deleted;
+		deleted = current.remove(actualIndex);
+		event = new Event(COMMAND_DELETE, deleted, currentListName, actualIndex);
+		undoMng.add(event);
+		return deleted;
+	}
+
+	/**
+	 * This method deletes a task from freeslots list.
+	 * 
+	 * @param current			Current tasklist.
+	 * @param currentListName	Name of current tasklist.
+	 * @param actualIndex		Index of task to be deleted.
+	 */
+	private void deleteFromFreeslots(Vector<Task> current, Task deleted, int actualIndex) {
+		Event event;
+		current.remove(actualIndex);
+		int index = storedTasksByTime.indexOf(deleted);
+		removeTaskFromUndoneLists(deleted);
+		event = new Event(COMMAND_DELETE, deleted, TASKS_TIME, index);
+		undoMng.add(event);
+	}
+
+	/**
+	 * This method deletes a task from the search list.
+	 * 
+	 * @param current			Current tasklist.
+	 * @param actualIndex		Index of task to be deleted.
+	 * @return		Deleted task.
+	 */
+	private Task deleteFromSearchList(Vector<Task> current, int actualIndex) {
+		Task deleted;
+		Task tickedPartition = new Task(STAMP_TICKED, null, null, null, null, PRIORITY_NORMAL, false);
+		Task kivPartition = new Task(STAMP_KIV, null, null, null, null, PRIORITY_NORMAL, false);
+		int tickedPartitionIndex = current.indexOf(tickedPartition);
+		int kivPartitionIndex = current.indexOf(kivPartition);
+		
+		int displayedKivPartitionIndex = getDisplayedKivPartitionIndex(kivPartitionIndex);
+
+		if (actualIndex < tickedPartitionIndex) {
+			deleted = current.remove(actualIndex);
+		} else if (actualIndex >= tickedPartitionIndex && actualIndex <= displayedKivPartitionIndex) {
+			deleted = current.remove(actualIndex + OFFSET_TICKED);
+		} else {
+			deleted = current.remove(actualIndex + OFFSET_KIV);
+		}
+
+		if (storedTasksByTime.contains(deleted) || storedTasksByPriority.contains(deleted)) {
+			deleteUndoneFromSearchList(deleted);
+		} else if (storedTasksByTicked.contains(deleted)) {
+			deleteTickedFromSearchList(deleted);
+		} else if (storedTasksByKiv.contains(deleted)) {
+			deleteKivFromSearchList(deleted);
+		}
+		return deleted;
+	}
+
+	/**
+	 * This method deletes a kiv task in search list.
+	 * 
+	 * @param deleted	Kiv task to be deleted.
+	 */
+	private void deleteKivFromSearchList(Task deleted) {
+		Event event;
+		int indexCounter = getIndexInOriginalList(deleted, storedTasksByKiv);
+		storedTasksByKiv.remove(deleted);
+		event = new Event(COMMAND_DELETE, deleted, TASKS_KIV, indexCounter);
+		undoMng.add(event);
+	}
+
+	/**
+	 * This method deletes a ticked task in search list.
+	 * 
+	 * @param deleted	Ticked task to be deleted.
+	 */
+	private void deleteTickedFromSearchList(Task deleted) {
+		Event event;
+		int indexCounter = getIndexInOriginalList(deleted, storedTasksByTicked);
+		storedTasksByTicked.remove(deleted);
+		event = new Event(COMMAND_DELETE, deleted, TASKS_TICKED, indexCounter);
+		undoMng.add(event);
+	}
+
+	/**
+	 * This method deletes an undone task in search list.
+	 * 
+	 * @param deleted	Undone task to be deleted.
+	 */
+	private void deleteUndoneFromSearchList(Task deleted) {
+		Event event;
+		int indexCounter = getIndexInOriginalList(deleted, storedTasksByTime);
+		removeTaskFromUndoneLists(deleted);
+		
+		// Throws IllegalArgumentException
+		event = new Event(COMMAND_DELETE, deleted, TASKS_TIME, indexCounter);
+		undoMng.add(event);
+	}
+
+	/**
+	 * This method gets the index of the original tasklist.
+	 * 
+	 * @param deleted	Task to be deleted.
+	 * @return		Index of task to be deleted in the original tasklist.
+	 */
+	private int getIndexInOriginalList(Task deleted, Vector<Task> originalList) {
+		int indexCounter;
+		indexCounter = INIT;
+		for (Task task: originalList) {
+			if (task.equals(deleted)) {
+				break;
+			}
+			indexCounter++;
+		}
+		return indexCounter;
+	}
+
+	/**
+	 * This method deletes a task from priority list.
+	 * 
+	 * @param current			Current tasklist.
+	 * @param currentListName	Name of current tasklist.
+	 * @param actualIndex		Index of task to be deleted.
+	 * @return		Deleted task.
+	 */
+	private Task deleteFromPriorityList(Vector<Task> current, String currentListName, int actualIndex) {
+		Event event;
+		Task deleted;
+		deleted = current.remove(actualIndex);
+		storedTasksByTime.remove(deleted);
+		event = new Event(COMMAND_DELETE, deleted, currentListName, actualIndex);
+		undoMng.add(event);
+		return deleted;
+	}
+
+	/**
+	 * This method deletes a task timed list.
+	 * 
+	 * @param current			Current tasklist.
+	 * @param currentListName	Name of current tasklist.
+	 * @param actualIndex		Index of task to be deleted.
+	 * @return		Deleted task.
+	 */
+	private Task deleteFromTimedList(Vector<Task> current,
+			String currentListName, int actualIndex) {
+		Event event;
+		Task deleted;
+		deleted = current.remove(actualIndex);
+		storedTasksByPriority.remove(deleted);
+		event = new Event(COMMAND_DELETE, deleted, currentListName, actualIndex);
+		undoMng.add(event);
+		return deleted;
+	}
+
+	/**
+	 * This method deletes a task from undone list.
+	 * 
+	 * @param current			Current tasklist.
+	 * @param currentListName	Name of current tasklist.
+	 * @param actualIndex		Index of task to be deleted.
+	 * @return		Deleted task.
+	 */
+	private void removeTaskFromUndoneLists(Task task) {
+		storedTasksByTime.remove(task);
+		storedTasksByPriority.remove(task);
 	}
 
 	/**
@@ -251,88 +375,72 @@ public class CRUManager {
 	 * @return     Feedback after editing.
 	 * @throws ArrayIndexOutOfBoundsException  If index exceeds boundaries of current list.
 	 */
-	String edit(int index, String description,boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
+	String edit(int displayedIndex, String description,boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,
 			char priority, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException{
 		Task oldTask;
 		Task newTask;
+		int actualIndex = getActualIndex(displayedIndex);
 
 		if (listTracker == KEY_TICKED) {
-			return "Cannot edit from ticked list.";
+			return FEEDBACK_ERROR_CANNOT_EDIT_FROM_TICKED_LIST;
 		}
 		else if (listTracker == KEY_KIV) { 
-			return "Cannot edit from KIV list.";
+			return FEEDBACK_ERROR_CANNOT_EDIT_FROM_KIV_LIST;
 		}
 
 		else if (listTracker == KEY_SEARCH) {
-			Task tickedPartition = new Task("\\***TICKED***\\", null, null, null, null, 'B', false);
-			Task kivPartition = new Task("\\***KIV***\\", null, null, null, null, 'B', false);
+			Task tickedPartition = new Task(STAMP_TICKED, null, null, null, null, PRIORITY_NORMAL, false);
+			Task kivPartition = new Task(STAMP_KIV, null, null, null, null, PRIORITY_NORMAL, false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
-
-			if ((index - 1) < tickedPartitionIndex) {
-				oldTask = current.get(index - 1);
-			}
-			else if ((index - 1) >= tickedPartitionIndex && (index - 1) <= (kivPartitionIndex - 2)) {
-				oldTask = current.get(index);
-			}
-			else {
-				oldTask = current.get(index + 1);
+			
+			int displayedKivPartitionIndex = getDisplayedKivPartitionIndex(kivPartitionIndex);
+			
+			if (actualIndex < tickedPartitionIndex) {
+				oldTask = current.get(actualIndex);
+			} else if (actualIndex >= tickedPartitionIndex && actualIndex <= displayedKivPartitionIndex) {
+				oldTask = current.get(actualIndex + OFFSET_TICKED);
+			} else {
+				oldTask = current.get(actualIndex + OFFSET_KIV);
 			}
 
 			if (storedTasksByTime.contains(oldTask) || storedTasksByPriority.contains(oldTask)) {
-				storedTasksByTime.remove(oldTask);
-				storedTasksByTime.remove(oldTask);
+				removeTaskFromUndoneLists(oldTask);
+			} else if (storedTasksByTicked.contains(oldTask) || storedTasksByKiv.contains(oldTask)) {
+				return FEEDBACK_ERROR_CANNOT_EDIT_FROM_TICKED_AND_KIV_LIST;
 			}
-			else if (storedTasksByTicked.contains(oldTask) || storedTasksByKIV.contains(oldTask)) {
-				return "Cannot edit from ticked and KIV list.";
-			}
-		}
-
-		else if (listTracker == KEY_FREESLOTS) {
-			oldTask = current.remove(index - 1);
-			storedTasksByTime.remove(oldTask);
-			storedTasksByTime.remove(oldTask);
-		}
-
-		// in undone lists
-		else {
-			oldTask = current.remove(index-1);
-			// Edit the other Vector<Task>
-			if (listTracker == KEY_SORTED_TIME ) {
-				storedTasksByPriority.remove(oldTask);
-			}
-			else if (listTracker == KEY_SORTED_PRIORITY) {
-				storedTasksByTime.remove(oldTask);
-			}
+		} else if (listTracker == KEY_FREESLOTS) {
+			oldTask = current.remove(actualIndex);
+			removeTaskFromUndoneLists(oldTask);
+		} else {
+			oldTask = current.remove(actualIndex);
+			removeTaskFromUndoneLists(oldTask);
 		}
 
 		newTask = oldTask.copy();
 
-		// Edit description of task
-		if (description != null && !description.equals("")) {
-			newTask.setDescription(description);
-		}
+		editDescription(description, newTask);
+
+		editPriority(priority, newTask);
 
 		// Edit startDate only
 		if (startDate != null && endDate == null) {
 			// Edited task can update startDate without worrying of endDate being earlier than startDate
 			if (newTask.getEndDate() == null) {
 				if (newTask instanceof FloatingTask) {
-					newTask = new TimedTask(newTask.getDescription(), startDate, new Time(0,0), null, null, newTask.getPriority(), newTask.getRepeat());
-				}
-				// Editing TimedTask or RepeatingTask
-				else {
+					newTask = new TimedTask(newTask.getDescription(), startDate, new Time(START_HOUR, START_MIN), null, null, newTask.getPriority(), newTask.getRepeat());
+				// Editing TimedTask or RepeatingTask	
+				} else {
 					newTask.setStartDate(startDate);
 				}
-			}
-			else {
-				// Error: Edited task will end up with earlier endDate than startDate
-				if (newTask.getEndDate().compareTo(startDate) == -1) {
+			// Error: Edited task will end up with earlier endDate than startDate	
+			} else {
+				if (newTask.getEndDate().compareTo(startDate) == SMALLER) {
 					addTaskIntoUndone(oldTask);
-					return "Invalid edit on starting date";
+					return FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_DATE;
 				}
 				// Edit DeadlineTask
-				newTask = new TimedTask(newTask.getDescription(), startDate, new Time(0, 0), newTask.getEndDate(), newTask.getEndTime(), newTask.getPriority(), newTask.getRepeat());
+				newTask = new TimedTask(newTask.getDescription(), startDate, new Time(START_HOUR, START_MIN), newTask.getEndDate(), newTask.getEndTime(), newTask.getPriority(), newTask.getRepeat());
 			}
 		}
 
@@ -341,43 +449,40 @@ public class CRUManager {
 			// Edited task can update endDate without worrying of endDate being earlier than startDate
 			if (newTask.getStartDate() == null) {
 				if (newTask instanceof FloatingTask) {
-					newTask = new DeadlineTask(newTask.getDescription(), endDate, new Time(23, 59), newTask.getPriority(), newTask.getRepeat());
-				}
-				// Editing DeadlineTask
-				else {
+					newTask = new DeadlineTask(newTask.getDescription(), endDate, new Time(END_HOUR, END_MIN), newTask.getPriority(), newTask.getRepeat());
+				// Editing DeadlineTask	
+				} else {
 					newTask.setEndDate(endDate);
 				}
-			}
-			else {
+				
+			} else {
 				// Error: Edited task will end up with earlier endDate than startDate
-				if (newTask.getStartDate().compareTo(endDate) == 1) {
+				if (newTask.getStartDate().compareTo(endDate) == BIGGER) {
 					addTaskIntoUndone(oldTask);
-					return "Invalid edit on ending date";
+					return FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_DATE;
 				}
 				// Editing TimedTask and RepeatingTask
 				newTask.setEndDate(endDate);
 				if (newTask.getEndTime() == null) {
-					newTask.setEndTime(new Time(23, 59));
+					newTask.setEndTime(new Time(END_HOUR, END_MIN));
 				}
 			}
 		}
+		
 		// Edit startDate and endDate
 		if (startDate != null && endDate != null) {
 			// Error: endDate is earlier than startDate
-			if (startDate.compareTo(endDate) == 1) {
+			if (startDate.compareTo(endDate) == BIGGER) {
 				addTaskIntoUndone(oldTask);
-				return "Invalid edit on dates";
-			}
-			else {
+				return FEEDBACK_ERROR_INVALID_EDIT_ON_DATES;
+			} else {
 				if (newTask instanceof FloatingTask) {
-					newTask = new TimedTask(newTask.getDescription(), startDate, new Time(0,0), endDate, new Time(23, 59), newTask.getPriority(), newTask.getRepeat());
-				}
-				else if (newTask instanceof TimedTask || newTask instanceof RepeatingTask) {
+					newTask = new TimedTask(newTask.getDescription(), startDate, new Time(START_HOUR, START_MIN), endDate, new Time(END_HOUR, END_MIN), newTask.getPriority(), newTask.getRepeat());
+				} else if (newTask instanceof TimedTask || newTask instanceof RepeatingTask) {
 					newTask.setStartDate(startDate);
 					newTask.setEndDate(endDate);
-				}
-				else if (newTask instanceof DeadlineTask) {
-					newTask = new TimedTask(newTask.getDescription(), startDate, new Time(0,0), endDate, newTask.getEndTime(), newTask.getPriority(), newTask.getRepeat());
+				} else if (newTask instanceof DeadlineTask) {
+					newTask = new TimedTask(newTask.getDescription(), startDate, new Time(START_HOUR, START_MIN), endDate, newTask.getEndTime(), newTask.getPriority(), newTask.getRepeat());
 				}
 			}
 		}
@@ -388,41 +493,36 @@ public class CRUManager {
 			if (newTask.getEndTime() == null) {
 				if (newTask instanceof FloatingTask) {
 					newTask = new TimedTask(newTask.getDescription(), Date.getCurrentDate(), startTime, null, null, newTask.getPriority(), newTask.getRepeat());
-				}
-				else if (newTask instanceof TimedTask || newTask instanceof RepeatingTask) {
+				} else if (newTask instanceof TimedTask || newTask instanceof RepeatingTask) {
 					newTask.setStartTime(startTime);
-				}
-				else if (newTask instanceof DeadlineTask) {
+				} else if (newTask instanceof DeadlineTask) {
 					newTask = new TimedTask(newTask.getDescription(), Date.getCurrentDate(), startTime, newTask.getEndDate(), newTask.getEndTime(), newTask.getPriority(), newTask.getRepeat());
 				}
-			}
-			else {
+			} else {
 				// Error: Edited task will end up with earlier endTime than startTime
-				if (newTask.getEndTime().compareTo(startTime) == -1) {
+				if (newTask.getEndTime().compareTo(startTime) == SMALLER) {
 					addTaskIntoUndone(oldTask);
-					return "Invalid edit on starting time";
+					return FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_TIME;
 				}
 				newTask.setStartTime(startTime);
 			}
 		}
+		
 		// Edit endTime only
 		if (endTime != null && startTime == null) {
 			// Edited task can update endTime without worrying of endTime being earlier than startTime
 			if (newTask.getStartTime() == null) {
 				if (newTask instanceof FloatingTask) {
 					newTask = new DeadlineTask(newTask.getDescription(), Date.getCurrentDate(), endTime, newTask.getPriority(), newTask.getRepeat());
-				}
-				// Edit DeadlineTask
-				else {
+				// Edit DeadlineTask	
+				} else {
 					newTask.setEndTime(endTime);
 				}
-			}
-			else {
+			} else {
 				// Error: Edited task will end up with earlier endTime than startTime
-
 				if (newTask.getStartTime().compareTo(endTime) == 1) {
 					addTaskIntoUndone(oldTask);
-					return "Invalid edit on ending time";
+					return FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_TIME;
 				}
 				// Edit TimedTask or RepeatingTask
 				newTask.setEndTime(endTime);
@@ -435,31 +535,24 @@ public class CRUManager {
 		// Edit startTime and endTime
 		if (startTime != null && endTime != null) {
 			// Error: endTime is earlier than startTime
-			if (startTime.compareTo(endTime) == 1) {
+			if (startTime.compareTo(endTime) == BIGGER) {
 				addTaskIntoUndone(oldTask);
-				return "Invalid edit on both timings";
-			}
-			else {
+				return FEEDBACK_ERROR_INVALID_EDIT_ON_BOTH_TIMINGS;
+			} else {
 				if (newTask instanceof FloatingTask) {
 					newTask = new TimedTask(newTask.getDescription(), Date.getCurrentDate(), startTime, Date.getCurrentDate(), endTime, newTask.getPriority(), newTask.getRepeat());
-				}
-				else if (newTask instanceof TimedTask || newTask instanceof RepeatingTask ) {
+				} else if (newTask instanceof TimedTask || newTask instanceof RepeatingTask ) {
 					newTask.setStartTime(startTime);
 					newTask.setEndTime(endTime);
 					if (newTask.getEndDate() == null) {
 						newTask.setEndDate(newTask.getStartDate());
 					}
-				}
-				else if (newTask instanceof DeadlineTask) {
+				} else if (newTask instanceof DeadlineTask) {
 					newTask = new TimedTask(newTask.getDescription(), newTask.getEndDate(), startTime, newTask.getEndDate(), endTime, newTask.getPriority(), newTask.getRepeat());
 				}
 			}
 		}
 
-		// Edit priority
-		if (priority != '\u0000') {
-			newTask.setPriority(priority);
-		}
 
 		// Edit repeating
 		if (isRepeating) {
@@ -467,37 +560,66 @@ public class CRUManager {
 			if (newTask.getRepeat() == false) {
 				if (newTask.getStartDate() != null) {
 					newTask = new RepeatingTask(newTask.getDescription(), newTask.getStartDate(), newTask.getStartTime(), newTask.getEndTime(), newTask.getPriority(), true);
-				}
-				else if (newTask.getEndDate() != null) {
+				} else if (newTask.getEndDate() != null) {
 					newTask = new RepeatingTask(newTask.getDescription(), newTask.getEndDate(), newTask.getStartTime(), newTask.getEndTime(), newTask.getPriority(), true);
-				}
-				else {
+				} else {
 					addTaskIntoUndone(oldTask);
-					return "Invalid edit to repeated task. Missing date";
+					return FEEDBACK_ERROR_INVALID_EDIT_TO_REPEATED_TASK;
 				}
-			}
-			// Remove repeat from the task
-			else if (newTask.getRepeat() == true) {
+			// Remove repeat from the task	
+			} else if (newTask.getRepeat() == true) {
 				newTask = remakeTask(newTask);
 			}
 		}	
 
-		// Add newTask into undone list
-		if (listTracker == KEY_SEARCH || listTracker == KEY_FREESLOTS) {
+		addEditedTask(listTracker, current, oldTask, newTask, actualIndex);
+		
+		return oldTask.getDescription() + FEEDBACK_APPEND_IS_UPDATED;
+	}
+
+	/**
+	 * This method adds back the edited task.
+	 * 
+	 * @param listTracker	Key of current tasklist.
+	 * @param current		Current tasklist.
+	 * @param oldTask		Task before editing.
+	 * @param newTask		Task after editing.
+	 * @param actualIndex	Actual index in tasklist
+	 */
+	private void addEditedTask(int listTracker, Vector<Task> current, Task oldTask, Task newTask, int actualIndex) throws IllegalArgumentException {
+		if (listTracker != KEY_TICKED || listTracker != KEY_KIV) {
 			addTaskIntoUndone(newTask);
+		} else {
+			current.add(actualIndex, newTask);
 		}
-		else {
-			current.add(index - 1, newTask);
-			if (listTracker == KEY_SORTED_TIME ) {
-				storedTasksByPriority.add(newTask);
-			}
-			else if (listTracker == KEY_SORTED_PRIORITY) {
-				storedTasksByTime.add(newTask);
-			}
-		}
+		
+		// Throws IllegalArgumentException
 		Event event = new Event(COMMAND_EDIT, oldTask, newTask);
 		undoMng.add(event);
-		return oldTask.getDescription() + " has been updated.";
+	}
+
+	/**
+	 * This method edits the priority of the task.
+	 * 
+	 * @param priority	New priority to be set.
+	 * @param newTask	Task with the edits.
+	 */
+	private void editPriority(char priority, Task newTask) {
+		if (priority != NULL_CHAR) {
+			newTask.setPriority(priority);
+		}
+	}
+
+	/**
+	 * This method edits the description of the task.
+	 * 
+	 * @param description	New description to be set.
+	 * @param newTask		Task with the edits.
+	 */
+	private void editDescription(String description, Task newTask) {
+		if (description != null && !description.equals(EMPTY_STRING)) {
+			newTask.setDescription(description);
+		}
 	}
 	
 	/**
@@ -509,14 +631,13 @@ public class CRUManager {
 	 */
 	private TimedTask remakeTask(Task task) throws IllegalArgumentException {
 		String description = task.getDescription();
-		boolean isRepeating = false;
 		Date startDate = task.getStartDate();
 		Date endDate = task.getEndDate();
 		Time startTime = task.getStartTime();
 		Time endTime = task.getEndTime();
 		char priority = task.getPriority();
 
-		if (description == null || description.equals("")) {
+		if (description == null || description.equals(EMPTY_STRING)) {
 			throw new IllegalArgumentException();
 		}
 
@@ -535,5 +656,25 @@ public class CRUManager {
 	private void addTaskIntoUndone(Task task) {
 		storedTasksByTime.add(task);
 		storedTasksByPriority.add(task);
+	}
+	
+	/**
+	 * This method calculates the actual index of the task displayed in UI.
+	 *
+	 * @param index			 Index of the specified task displayed in UI.
+	 * @return     Actual index of tasklist.
+	 */
+	private int getActualIndex(int index) {
+		return index - OFFSET_INDEX;
+	}
+	
+	/**
+	 * This method calculates the actual index of the task displayed in UI.
+	 *
+	 * @param index			 Index of the specified task displayed in UI.
+	 * @return     Actual index of tasklist.
+	 */
+	private int getDisplayedKivPartitionIndex(int kivPartitionIndex) {
+		return kivPartitionIndex - OFFSET_KIV;
 	}
 }
