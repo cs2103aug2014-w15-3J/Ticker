@@ -147,7 +147,7 @@ public class TickKIVManager {
 	 * @return     Feedback after a task is unticked.
 	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
 	 */
-	protected String untick(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException{
+	protected String untick(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException {
 		Task unticked;
 		int actualIndex = getActualIndex(displayedIndex);
 
@@ -338,7 +338,6 @@ public class TickKIVManager {
 		storedTasksByPriority.add(task);
 	}
 
-
 	/**
 	 * This method removes a task from the undone lists.
 	 * 
@@ -358,7 +357,6 @@ public class TickKIVManager {
 		removeTaskFromUndoneLists(ticked);
 		storedTasksByTicked.add(TOP_OF_THE_LIST, ticked);
 	}
-
 
 	/**
 	 * This method shifts the task to the kiv list.
