@@ -16,6 +16,7 @@
  * -the Parser class will pass Logic class valid processed user input (as an UserInput object) with data at their correct
  * positions.
  * -the Logic class will always be used with classes CRUDManager, TickKIVManager, UndoRedoManager and SearchManager.
+ * -the UI using this class knows the key for different task lists.
  */
 
 package ticker.logic;
@@ -78,7 +79,7 @@ public class Logic{
 	// Instances of other components
 	private Parser parser;
 	private Storage storage;
-	private TickerUI UI;
+	private Observer UI;
 	private UndoManager undoMng;
 	private CRUManager cruMng;
 	private TickKIVManager tickKIVMng;
@@ -103,9 +104,9 @@ public class Logic{
 	/**
 	 * This method instantiate a Logic object while creating dependency with TickerUI
 	 *
-	 * @param UI	Name of TickerUI.
+	 * @param UI	Name of Observer UI.
 	 */
-	public Logic(TickerUI UI){
+	public Logic(Observer UI){
 		this.UI = UI;
 
 		// Instantiating sub-components
