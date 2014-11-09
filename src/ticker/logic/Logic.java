@@ -34,6 +34,7 @@ import ticker.common.sortByTime;
 import ticker.common.sortByPriority;
 
 public class Logic{
+
 	// CONSTANTS
 
 	// String constants for command types
@@ -86,11 +87,11 @@ public class Logic{
 	private static final String LOG_SUCCESSFUL_ACTION = "Action proceeded successfully";
 	private static final String LOG_NO_COMMANDS_PASSED = "NO COMMANDS PASSED";
 	private static final String LOG_PERFORM_ACTION = "Performing an action";
-	
+
 	private static final String LOGIC = "Logic";
 	private static final String EMPTY_STRING = "";
-	
-	
+
+
 	// ATTRIBUTES
 
 	// Singleton pattern
@@ -187,16 +188,10 @@ public class Logic{
 	 */
 	protected String getOutput(UserInput processed) {
 
-		String feedback = EMPTY_STRING;
-		String command = EMPTY_STRING;
 		logger.log(Level.INFO, LOG_PERFORM_ACTION);
 
-		try {
-			command = processed.getCommand();
-		}
-		catch (NullPointerException npe) {
-			logger.log(Level.WARNING, LOG_NO_COMMANDS_PASSED);
-		}
+		String feedback = EMPTY_STRING;
+		String command = extractCommand(processed);
 
 		switch(command) {
 		case COMMAND_TAKE:
@@ -233,14 +228,11 @@ public class Logic{
 		case COMMAND_SEARCH: 
 			try {
 				searchRequest = deepCopyUserInput(processed);
-
 				searchResults.removeAllElements();
-
 				searchResults = searchMng.search(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
 						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
 
 				setCurrentAsSearch();
-
 				updateObservers();
 
 				feedback = FEEDBACK_SEARCH;
@@ -286,8 +278,7 @@ public class Logic{
 					current = freeslotsResults;
 				}
 
-				sortLists();
-				storeLists();
+				maintainLists();
 				updateObservers();
 			}
 			catch (ArrayIndexOutOfBoundsException OOBE) {
@@ -330,8 +321,7 @@ public class Logic{
 					current = freeslotsResults;
 				}
 
-				sortLists();
-				storeLists();
+				maintainLists();
 				updateObservers();
 			}
 			catch (ArrayIndexOutOfBoundsException oobe) {
@@ -359,8 +349,7 @@ public class Logic{
 					current = freeslotsResults;
 				}
 
-				sortLists();
-				storeLists();
+				maintainLists();
 				updateObservers();
 			}
 			catch (IllegalArgumentException iae) {
@@ -385,11 +374,8 @@ public class Logic{
 					current = freeslotsResults;
 				}
 
-				checkForTaskExpiry();
-				sortLists();
-				storeLists();
-				updateList(current);
-				updateDisplayKey(listTracker);
+				maintainLists();
+				updateObservers();
 			}
 			catch (ArrayIndexOutOfBoundsException oobe) {
 				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
@@ -409,8 +395,7 @@ public class Logic{
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
 
-				sortLists();
-				storeLists();
+				maintainLists();
 				updateObservers();
 			}
 			catch (ArrayIndexOutOfBoundsException oobe) {
@@ -424,7 +409,7 @@ public class Logic{
 		case COMMAND_UNDO:
 			try {
 				feedback = undoMng.undo();
-				sortLists();
+				maintainLists();
 
 				if (listTracker == KEY_SEARCH) {
 					searchResults.removeAllElements();
@@ -466,8 +451,7 @@ public class Logic{
 					current = freeslotsResults;
 				}
 
-				sortLists();
-				storeLists();
+				maintainLists();
 				updateObservers();
 			}
 			catch (NullPointerException npe) {
@@ -493,8 +477,7 @@ public class Logic{
 					current = freeslotsResults;
 				}
 
-				sortLists();
-				storeLists();
+				maintainLists();
 				updateObservers();
 			}
 			catch (ArrayIndexOutOfBoundsException oobe) {
@@ -515,8 +498,7 @@ public class Logic{
 							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
 				}
 
-				sortLists();
-				storeLists();
+				maintainLists();
 				updateObservers();
 			}
 			catch (ArrayIndexOutOfBoundsException oobe) {
@@ -541,6 +523,31 @@ public class Logic{
 
 		logger.log(Level.INFO, LOG_SUCCESSFUL_ACTION);
 		return feedback;
+	}
+
+	/**
+	 * This method maintains any updates in the lists.
+	 */
+	private void maintainLists() {
+		sortLists();
+		storeLists();
+	}
+
+	/**
+	 * This method tries to get command from the processed user input.
+	 * 
+	 * @param processed		Processed user input.	
+	 * @return		User input command.
+	 */
+	private String extractCommand(UserInput processed) {
+		String command = EMPTY_STRING;
+		try {
+			command = processed.getCommand();
+		}
+		catch (NullPointerException npe) {
+			logger.log(Level.WARNING, LOG_NO_COMMANDS_PASSED);
+		}
+		return command;
 	}
 
 
