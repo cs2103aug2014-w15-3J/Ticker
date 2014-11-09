@@ -37,6 +37,9 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
+
 public class Logic{
 	// CONSTANTS
 	// String constants for command types

@@ -12,7 +12,9 @@ import ticker.common.Task;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 
 //@author A0116673A
 /**
@@ -59,11 +61,19 @@ public class Storage {
 		fileSortedByTicked = new File(TASKS_TICKED_FILENAME);
 		fileSortedByKIV = new File(TASKS_KIV_FILENAME);
 		
-		checkFileExist(fileSortedByDeadline);
-		checkFileExist(fileSortedByPriority);
-		checkFileExist(fileSortedByTicked);
-		checkFileExist(fileSortedByKIV);
-		
+		try {
+			checkFileExist(fileSortedByDeadline);
+			checkFileExist(fileSortedByPriority);
+			checkFileExist(fileSortedByTicked);
+			checkFileExist(fileSortedByKIV);
+		} catch (JsonSyntaxException jse) {
+			clearFile();
+			restoreDataFromFile(TASKS_PRIORITY_INDEX);
+			restoreDataFromFile(TASKS_DEADLINE_INDEX);
+			restoreDataFromFile(TASKS_TICKED_INDEX);
+			restoreDataFromFile(TASKS_KIV_INDEX);
+			throw new IllegalStateException();
+		}
 		//if one or more of the file is being altered, reset all files
 		if(isMissing) {
 			clearFile();
@@ -147,7 +157,7 @@ public class Storage {
 		}
 	}
 	
-	private void readFileContentIntoStorageArray(File jsonFile){
+	private void readFileContentIntoStorageArray(File jsonFile) throws JsonParseException{
 		createNewFileReader(jsonFile);
 		String json = "";
 		while(fileReader.hasNextLine()) {
@@ -181,7 +191,7 @@ public class Storage {
 	*  @return 							a list of tasks in <code>Vector<Task></code> form								
 	*  @throws IllegalArgumentException If the input is not 1 or 2
 	*/
-	public Vector<Task> restoreDataFromFile(int key){
+	public Vector<Task> restoreDataFromFile(int key) throws JsonSyntaxException{
 		if(key == TASKS_PRIORITY_INDEX) {
 			readFileContentIntoStorageArray(fileSortedByPriority);
 			return storedTasksByPriority;
@@ -289,7 +299,7 @@ public class Storage {
 	*  @return							a list of tasks in <code>Vector<Task></code>
 	*  @throws IllegalStateException	if the file is not in JSON format	
 	*/
-	public Vector<Task> JSONToTasksVector(String json) throws IllegalStateException{
+	public Vector<Task> JSONToTasksVector(String json) throws IllegalStateException, JsonParseException{
 		Vector<Task> tasks = new Vector<Task>();
 		GsonBuilder gson = new GsonBuilder();
 		JsonParser parse = new JsonParser();
