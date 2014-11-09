@@ -1,9 +1,6 @@
 //@author A0114535M
 
 /* Team ID: W15-3J
- * Name: Li Jia'En, Nicholette
- * Matric Number: A0114535M
- * 
  * Project Title: Ticker
  * Class: StringMatch
  * Description: Objects of this class stores the index of a task in the task list and the level of similarity between the said task and the search key.

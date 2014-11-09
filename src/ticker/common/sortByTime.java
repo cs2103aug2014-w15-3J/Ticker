@@ -1,9 +1,6 @@
 //@author A0114535M
 
 /* Team ID: W15-3J
- * Name: Li Jia'En, Nicholette
- * Matric Number: A0114535M
- * 
  * Project Title: Ticker
  * Class: sortByTime
  * Description: This class implements the Comparator interface and is used to sort tasks according to these tiers-
@@ -22,6 +19,11 @@ import java.util.Comparator;
 
 public class sortByTime implements Comparator<Task> {
 	
+	// CONSTANTS
+	private static final int BIGGER = 1;
+	private static final int SMALLER = -1;
+	private static final int EQUAL = 0;
+
 	/**
 	 * This method compares the tasks by their date, time, task type and lexicographical string description.
 	 */
@@ -29,10 +31,10 @@ public class sortByTime implements Comparator<Task> {
 		
 		// Comparing between non-repeating tasks and RepeatingTasks
 		if (task1.isRepeating == false && task2.isRepeating == true) {
-			return -1;
+			return SMALLER;
 		}
 		if (task1.isRepeating == true && task2.isRepeating == false) {
-			return 1;
+			return BIGGER;
 		}
 		
 		// Comparing between RepeatingTasks
@@ -48,23 +50,24 @@ public class sortByTime implements Comparator<Task> {
 			// Primary comparison between TimedTasks using startDate
 			int startDateComparator = task1.startDate.compareTo(task2.startDate);
 
-			if (startDateComparator != 0) {
+			if (startDateComparator != EQUAL) {
 				return startDateComparator;
 			}
+			
 			// Secondary comparison between TimedTasks using startTime
 			if (task1.startTime != null && task2.startTime != null) {
 				int startTimeComparator = task1.startTime.compareTo(task2.startTime);
 
-				if (startTimeComparator != 0) {
+				if (startTimeComparator != EQUAL) {
 					return startTimeComparator;
 				}
 			}
 			// TimedTasks with startTime will be above TimedTasks without startTime
 			if (task1.startTime != null && task2.startTime == null) {
-				return -1;
+				return SMALLER;
 			}
 			if (task1.startTime == null && task2.startTime != null) {
-				return 1;
+				return BIGGER;
 			}
 			
 			// Tertiary comparison between TimedTasks using description
@@ -78,23 +81,24 @@ public class sortByTime implements Comparator<Task> {
 			// Primary comparison between TimedTasks and DeadlineTasks using startDate and endDate respectively
 			int mixedDateComparator = task1.startDate.compareTo(task2.endDate);
 
-			if (mixedDateComparator != 0) {
+			if (mixedDateComparator != EQUAL) {
 				return mixedDateComparator;
 			}
+			
 			// Secondary comparison between TimedTasks and DeadlineTasks using startTime and endTime respectively
 			if (task1.startTime != null && task2.endTime != null) {
 				int mixedTimeComparator = task1.startTime.compareTo(task2.endTime);
 
-				if (mixedTimeComparator != 0) {
+				if (mixedTimeComparator != EQUAL) {
 					return mixedTimeComparator;
 				}
 			}
 			// Task with time will be before the other
 			if (task1.startTime != null && task2.endTime == null) {
-				return -1;
+				return SMALLER;
 			}
 			if (task1.startTime == null && task2.endTime != null) {
-				return 1;
+				return BIGGER;
 			}
 
 			// Tertiary comparison using description
@@ -107,23 +111,24 @@ public class sortByTime implements Comparator<Task> {
 			// Primary comparison between TimedTasks and DeadlineTasks using startDate and endDate respectively
 			int mixedDateComparator = task1.endDate.compareTo(task2.startDate);
 
-			if (mixedDateComparator != 0) {
+			if (mixedDateComparator != EQUAL) {
 				return mixedDateComparator;
 			}
+			
 			// Secondary comparison between TimedTasks and DeadlineTasks using startTime and endTime respectively
 			if (task1.endTime != null && task2.startTime != null) {
 				int mixedTimeComparator = task1.endTime.compareTo(task2.startTime);
 
-				if (mixedTimeComparator != 0) {
+				if (mixedTimeComparator != EQUAL) {
 					return mixedTimeComparator;
 				}
 			}
 			// Task with time will be before the other
 			if (task1.endTime != null && task2.startTime == null) {
-				return -1;
+				return SMALLER;
 			}
 			if (task1.endTime == null && task2.startTime != null) {
-				return 1;
+				return BIGGER;
 			}
 
 			// Tertiary comparison using description
@@ -134,10 +139,10 @@ public class sortByTime implements Comparator<Task> {
 		// Comparing TimedTasks with FloatingTasks
 		// TimedTasks placed before FloatingTasks
 		if (task1.startDate != null && (task2.startDate == null && task2.endDate == null)) {
-			return -1;
+			return SMALLER;
 		}
 		if ((task1.startDate == null && task1.endDate == null) && task2.startDate != null) {
-			return 1;
+			return BIGGER;
 		}
 
 		// Comparing between DeadlineTasks
@@ -145,23 +150,23 @@ public class sortByTime implements Comparator<Task> {
 			// Primary comparison between TimedTasks and DeadlineTasks using startDate and endDate respectively
 			int endDateComparator = task1.endDate.compareTo(task2.endDate);
 
-			if (endDateComparator != 0) {
+			if (endDateComparator != EQUAL) {
 				return endDateComparator;
 			}
 			// Secondary comparison between TimedTasks and DeadlineTasks using startTime and endTime respectively
 			if (task1.endTime != null && task2.endTime != null) {
 				int endTimeComparator = task1.endTime.compareTo(task2.endTime);
 
-				if (endTimeComparator != 0) {
+				if (endTimeComparator != EQUAL) {
 					return endTimeComparator;
 				}
 			}
 			// Task with time will be before the other
 			if (task1.endTime != null && task2.endTime == null) {
-				return -1;
+				return SMALLER;
 			}
 			if (task1.endTime == null && task2.endTime != null) {
-				return 1;
+				return BIGGER;
 			}
 
 			// Tertiary comparison between DeadlineTasks using description
@@ -171,10 +176,10 @@ public class sortByTime implements Comparator<Task> {
 		// Comparing DeadlineTasks with FloatingTasks
 		// DeadlineTasks placed before FloatingTasks
 		if ((task1.startDate == null && task1.endDate != null) && (task2.startDate == null && task2.endDate == null)) {
-			return -1;
+			return SMALLER;
 		}
 		if ((task1.startDate == null && task1.endDate == null) && (task2.startDate == null && task2.endDate != null)) {
-			return 1;
+			return BIGGER;
 		}
 		
 		// Comparing between FloatingTasks
