@@ -107,7 +107,7 @@ public class CRUManager {
 	 * @param endTime 			End time to be set.			
 	 * @param priority 			Level of priority to be set.
 	 * @return     Feedback after adding.
-	 * @throws IllegalArgumentException  If description is empty.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	String add(String description, boolean isRepeating, Date startDate, Date endDate, Time startTime, Time endTime,	char priority) throws IllegalArgumentException {
 
@@ -163,7 +163,8 @@ public class CRUManager {
 	 * @param current		 	Current task list being displayed.
 	 * @param currentListName	Name of current list being displayed.
 	 * @return     Feedback after a task is deleted.
-	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	String delete(int displayedIndex, int listTracker, Vector<Task> current, String currentListName) 
 			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
@@ -198,6 +199,8 @@ public class CRUManager {
 	 * @param currentListName	Name of current tasklist.
 	 * @param actualIndex		Index of task to be deleted.
 	 * @return		Deleted task.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	private Task deleteFromTickedOrKiv(Vector<Task> current, String currentListName, int actualIndex) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task deleted = current.remove(actualIndex);
@@ -214,6 +217,8 @@ public class CRUManager {
 	 * @param current			Current tasklist.
 	 * @param currentListName	Name of current tasklist.
 	 * @param actualIndex		Index of task to be deleted.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	private void deleteFromFreeslots(Vector<Task> current, Task deleted, int actualIndex) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		current.remove(actualIndex);
@@ -230,6 +235,8 @@ public class CRUManager {
 	 * @param current			Current tasklist.
 	 * @param actualIndex		Index of task to be deleted.
 	 * @return		Deleted task.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	private Task deleteFromSearchList(Vector<Task> current, int actualIndex) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task deleted;
@@ -262,6 +269,7 @@ public class CRUManager {
 	 * This method deletes a kiv task in search list.
 	 * 
 	 * @param deleted	Kiv task to be deleted.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	private void deleteKivFromSearchList(Task deleted) throws IllegalArgumentException {
 		int indexCounter = getIndexInOriginalList(deleted, storedTasksByKiv);
@@ -275,6 +283,7 @@ public class CRUManager {
 	 * This method deletes a ticked task in search list.
 	 * 
 	 * @param deleted	Ticked task to be deleted.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	private void deleteTickedFromSearchList(Task deleted) throws IllegalArgumentException {
 		int indexCounter = getIndexInOriginalList(deleted, storedTasksByTicked);
@@ -288,6 +297,7 @@ public class CRUManager {
 	 * This method deletes an undone task in search list.
 	 * 
 	 * @param deleted	Undone task to be deleted.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	private void deleteUndoneFromSearchList(Task deleted) throws IllegalArgumentException {
 		int indexCounter = getIndexInOriginalList(deleted, storedTasksByTime);
@@ -323,6 +333,8 @@ public class CRUManager {
 	 * @param currentListName	Name of current tasklist.
 	 * @param actualIndex		Index of task to be deleted.
 	 * @return		Deleted task.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	private Task deleteFromPriorityList(Vector<Task> current, String currentListName, int actualIndex) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {;
 	Task deleted = current.remove(actualIndex);
@@ -340,6 +352,8 @@ public class CRUManager {
 	 * @param currentListName	Name of current tasklist.
 	 * @param actualIndex		Index of task to be deleted.
 	 * @return		Deleted task.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	private Task deleteFromTimedList(Vector<Task> current, String currentListName, int actualIndex) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task deleted = current.remove(actualIndex);
@@ -588,6 +602,7 @@ public class CRUManager {
 	 * @param oldTask		Task before editing.
 	 * @param newTask		Task after editing.
 	 * @param actualIndex	Actual index in tasklist
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	private void addEditedTask(int listTracker, Vector<Task> current, Task oldTask, Task newTask, int actualIndex) throws IllegalArgumentException {
 		if (listTracker != KEY_TICKED || listTracker != KEY_KIV) {

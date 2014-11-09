@@ -84,7 +84,8 @@ public class TickKIVManager {
 	 * @param listTracker    List key of the current task list being displayed.
 	 * @param current		 Current task list being displayed.
 	 * @return     Feedback after a task is ticked.
-	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
+	 * @throws ArrayIndexOutOfBounds  			If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	protected String tick(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task ticked;
@@ -147,7 +148,8 @@ public class TickKIVManager {
 	 * @param listTracker    List key of the current task list being displayed.
 	 * @param current		 Current task list being displayed.
 	 * @return     Feedback after a task is unticked.
-	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
+	 * @throws ArrayIndexOutOfBounds 			If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	protected String untick(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task unticked;
@@ -202,7 +204,8 @@ public class TickKIVManager {
 	 * @param listTracker    List key of the current task list being displayed.
 	 * @param current		 Current task list being displayed.
 	 * @return     Feedback after a task is kiv-ed.
-	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
+	 * @throws ArrayIndexOutOfBounds 			If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	protected String kiv(int displayedIndex, int listTracker, Vector<Task> current, String currentListName) 
 			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
@@ -264,7 +267,8 @@ public class TickKIVManager {
 	 * @param listTracker    List key of the current task list being displayed.
 	 * @param current		 Current task list being displayed.
 	 * @return     Feedback after a task is unkiv-ed.
-	 * @throws ArrayIndexOutOfBounds  If index exceeds the boundaries of task list.
+	 * @throws ArrayIndexOutOfBounds  			If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	protected String unkiv(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task unkiv;

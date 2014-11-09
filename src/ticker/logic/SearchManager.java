@@ -320,6 +320,7 @@ public class SearchManager {
 	 * @param index		 	Index of freeslot to be taken.
 	 * @param description   Name of task description that fills in the freeslot.
 	 * @return     Message from the action of taking a freeslot.
+	 * @throws IllegalArgumentException			If event is created wrongly.
 	 */
 	public String take(int displayedIndex, String description) throws IllegalArgumentException {
 		int actualIndex = getActualIndex(displayedIndex);

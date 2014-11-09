@@ -32,9 +32,11 @@ import ticker.common.sortByPriority;
 
 public class Logic{
 
+	private static final String PARTITION_STRING = ". ";
 
+	private static final String NEWLINE_STRING = "\n";
 	// CONSTANTS
-
+	
 	// String constants for command types
 	private static final String COMMAND_HELP = "help";
 	private static final String COMMAND_UNTICK = "untick";
@@ -76,11 +78,10 @@ public class Logic{
 	private static final String FEEDBACK_LIST_PRIORITY = "Listing by priority...";
 	private static final String FEEDBACK_LIST_TIME = "Listing by time...";
 	private static final String FEEDBACK_ERROR_NO_SUCH_LIST = "List does not exist. Please re-enter.";
-	private static final String FEEDBACK_ERROR_MISSING_DESCRIPTION = "Task description is empty. Please re-enter.";
-	private static final String FEEDBACK_ERROR_ADD_REPEATED_TASK = "Error in input. Either description is missing or date is missing for repeated tasks.";
 	private static final String FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS = "Index out of bounds. No action is performed.";
 	private static final String FEEDBACK_ERROR_INVALID_COMMAND = "Invalid command";	
 	private static final String FEEDBACK_ERROR_MISUSED_TAKE = "Invalid use of take. Please use it only with searching for freeslots.";
+	private static final String FEEDBACK_NOTHING_TO_DISPLAY = "Nothing to display";
 	// Log messages
 	private static final String LOG_SUCCESSFUL_ACTION = "Action proceeded successfully";
 	private static final String LOG_NO_COMMANDS_PASSED = "NO COMMANDS PASSED";
@@ -89,14 +90,20 @@ public class Logic{
 	private static final String LOG_ERROR_UNDOMNG_AND_TICK = "Error with UndoManager in tick";
 	private static final String LOG_ERROR_UNDOMNG_AND_KIV = "Error with UndoManager in KIV";
 	private static final String LOG_ERROR_UNDOMNG_AND_UNKIV = "Error with UndoManager in unKIV";
+	private static final String LOG_ERROR_UNDOMNG_AND_TAKE = "Error with UndoManager in take";
+	private static final String LOG_ERROR_UNDOMNG_AND_ADD = "Error with UndoManager in add ";
+	private static final String LOG_ERROR_UNDOMNG_AND_DELETE = "Error with UndoManager in delete";
+	private static final String LOG_ERROR_UNDOMNG_AND_EDIT = "Error with UndoManager in edit";
 	
 	private static final String LOGIC = "Logic";
 	private static final String EMPTY_STRING = "";
+	private static final String LOG_ERROR_UNDOMNG_AND_UNDO = null;
+	private static final String LOG_ERROR_UNDOMNG_AND_REDO = null;
 
 	// ATTRIBUTES
 
 	protected static Logger logger;
-	
+
 	// Singleton pattern
 	private static Logic theOne;
 	private static Vector<Observer> observerList;
@@ -128,7 +135,7 @@ public class Logic{
 
 	// Construct dependency with UI
 	public Logic(){
-		
+
 		getLogger();
 		instantiateParserAndStorage();
 
@@ -197,325 +204,126 @@ public class Logic{
 
 		switch(command) {
 		case COMMAND_TAKE :
-			//try {
-			if (listTracker != KEY_FREESLOTS) {
-				return FEEDBACK_ERROR_MISUSED_TAKE;
+			try {
+				if (listTracker != KEY_FREESLOTS) {
+					return FEEDBACK_ERROR_MISUSED_TAKE;
+				}
+				feedback = performTake(processed);
+			} catch (IllegalArgumentException iae) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_TAKE);
 			}
-			feedback = searchMng.take(processed.getIndex(), processed.getDescription());
-			//}
-			//catch (Exception e) {
-
-			//}
 			break;
 
 		case COMMAND_SEARCH_FREESLOTS :
-			//try {
-			freeslotsRequest = deepCopyUserInput(processed);
-			freeslotsResults.removeAllElements();
-			freeslotsResults = searchMng.searchForFreeSlots(processed.getStartDate(), processed.getStartTime(), 
-					processed.getEndDate(), processed.getEndTime());
-
-			setCurrentAsSearchFreeslots();
-			checkForTaskExpiry(current);
-			updateObservers();
-
-			feedback = FEEDBACK_SEARCH_FREESLOTS;
-
-			//}
-			/*catch (Exception e) {
-				System.out.println("error in search for free timeslots");
-			}*/
+			feedback = performSearchFreeslots(processed);
 			break;
 
 		case COMMAND_SEARCH : 
-			try {
-				searchRequest = deepCopyUserInput(processed);
-				searchResults.removeAllElements();
-				searchResults = searchMng.search(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
-						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
-
-				setCurrentAsSearch();
-				updateObservers();
-
-				feedback = FEEDBACK_SEARCH;
-
-			}
-			catch (Exception e) {
-				System.out.println("error in search");
-			}
-
+			feedback = performSearch(processed);
 			break;
 
 		case COMMAND_SEARCH_EXPIRED :
-			try {
-				searchRequest = deepCopyUserInput(processed);
-
-				searchResults.removeAllElements();
-
-				searchResults = searchMng.searchExpired(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
-						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
-
-				setCurrentAsSearch();
-
-				updateObservers();
-
-				feedback = FEEDBACK_SEARCH;
-
-			}
-			catch (Exception e) {
-				return "error in search";
-			}
-
+			feedback = performSearchExpired(processed);
 			break;
 
 		case COMMAND_DELETE : 
 			try {
-				feedback = cruMng.delete(processed.getIndex(), listTracker, current, currentListName);
-
-				if (listTracker == KEY_FREESLOTS) {
-					freeslotsResults.removeAllElements();
-					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
-							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
-
-					current = freeslotsResults;
-				}
-
-				maintainLists();
-				updateObservers();
-			}
-			catch (ArrayIndexOutOfBoundsException OOBE) {
+				feedback = performDelete(processed);
+			} catch (ArrayIndexOutOfBoundsException OOBE) {
 				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
+			} catch (IllegalArgumentException iae) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_DELETE);
 			}
 			break;
 
 		case COMMAND_CLEAR :
-			feedback = this.clear(); 
+			feedback = performClear(); 
 			break;
 
 		case COMMAND_LIST :
 			try {
-				checkForTaskExpiry();
-				feedback = this.list(processed.getDescription());
-			}
-			catch (IllegalArgumentException iae) {
+				feedback = performList(processed);
+			} catch (IllegalArgumentException iae) {
 				return FEEDBACK_ERROR_NO_SUCH_LIST;
 			}
 			break;
 
-
 		case COMMAND_EDIT :
 			try {
-
-				feedback = cruMng.edit(processed.getIndex(), processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
-						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority(), listTracker, current);
-
-				if (listTracker == KEY_SEARCH) {
-					searchResults.removeAllElements();
-					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
-							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
-				}
-
-				else if (listTracker == KEY_FREESLOTS) {
-					freeslotsResults.removeAllElements();
-					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
-							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
-
-					current = freeslotsResults;
-				}
-
-				maintainLists();
-				updateObservers();
-			}
-			catch (ArrayIndexOutOfBoundsException oobe) {
+				feedback = performEdit(processed);
+			} catch (ArrayIndexOutOfBoundsException oobe) {
 				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
-			}
-			catch (IllegalArgumentException iae) {
-				return FEEDBACK_ERROR_MISSING_DESCRIPTION;
+			} catch (IllegalArgumentException iae) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_EDIT);
 			}
 			break;
 
 		case COMMAND_ADD :
 			try {
-				feedback = cruMng.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
-						processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
-
-				if (listTracker == KEY_KIV || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
-					setCurrentAsTime();
-				}
-
-				else if (listTracker == KEY_FREESLOTS) {
-					freeslotsResults.removeAllElements();
-					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
-							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
-
-					current = freeslotsResults;
-				}
-
-				maintainLists();
-				updateObservers();
-			}
-			catch (IllegalArgumentException iae) {
-				return FEEDBACK_ERROR_ADD_REPEATED_TASK;
+				feedback = performAdd(processed);
+			} catch (IllegalArgumentException iae) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_ADD);
 			}
 			break;
 
 		case COMMAND_KIV :
 			try {
-				feedback = tickKivMng.kiv(processed.getIndex(), listTracker, current, currentListName);
-
-				if (listTracker == KEY_SEARCH) {
-					searchResults.removeAllElements();
-					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
-							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
-				}
-				else if (listTracker == KEY_FREESLOTS) {
-					freeslotsResults.removeAllElements();
-					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
-							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
-
-					current = freeslotsResults;
-				}
-
-				maintainLists();
-				updateObservers();
-			}
-			catch (ArrayIndexOutOfBoundsException oobe) {
+				feedback = performKiv(processed);
+			} catch (ArrayIndexOutOfBoundsException oobe) {
 				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
-			}
-			catch (IllegalArgumentException ex) {
+			} catch (IllegalArgumentException ex) {
 				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_KIV);
 			}
 			break;
 
 		case COMMAND_UNKIV :
 			try {
-				feedback = tickKivMng.unkiv(processed.getIndex(), listTracker, current);
-
-				if (listTracker == KEY_SEARCH) {
-					searchResults.removeAllElements();
-					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
-							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
-				}
-
-				maintainLists();
-				updateObservers();
-			}
-			catch (ArrayIndexOutOfBoundsException oobe) {
+				feedback = performUnkiv(processed);
+			} catch (ArrayIndexOutOfBoundsException oobe) {
 				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
-			}
-			catch (IllegalArgumentException ex) {
+			} catch (IllegalArgumentException ex) {
 				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_UNKIV);
 			}
 			break;
 
 		case COMMAND_UNDO :
 			try {
-				feedback = undoMng.undo();
-				maintainLists();
-
-				if (listTracker == KEY_SEARCH) {
-					searchResults.removeAllElements();
-					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
-							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
-				}
-
-				else if (listTracker == KEY_FREESLOTS) {
-					freeslotsResults.removeAllElements();
-					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
-							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
-
-					current = freeslotsResults;
-				}
-
-				updateObservers();
-			}
-			catch (NullPointerException npe) {
-				System.out.println("Error with UndoManager");
+				feedback = performUndo();
+			} catch (NullPointerException npe) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_UNDO);
 			}
 			return feedback;
 
 		case COMMAND_REDO :
 			try {
-				feedback = undoMng.redo();
-
-				if (listTracker == KEY_SEARCH) {
-					searchResults.removeAllElements();
-					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
-							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
-
-				}
-
-				else if (listTracker == KEY_FREESLOTS) {
-					freeslotsResults.removeAllElements();
-					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
-							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
-
-					current = freeslotsResults;
-				}
-
-				maintainLists();
-				updateObservers();
-			}
-			catch (NullPointerException npe) {
-				System.out.println("Error with UndoManager");
+				feedback = performRedo();
+			} catch (NullPointerException npe) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_REDO);
 			}
 			return feedback;
 
 		case COMMAND_TICK :
 			try {
-				feedback = tickKivMng.tick(processed.getIndex(), listTracker, current);
-
-				if (listTracker == KEY_SEARCH) {
-					searchResults.removeAllElements();
-					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
-							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
-				}
-
-				else if (listTracker == KEY_FREESLOTS) {
-					freeslotsResults.removeAllElements();
-					freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
-							freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
-
-					current = freeslotsResults;
-				}
-
-				maintainLists();
-				updateObservers();
-			}
-			catch (ArrayIndexOutOfBoundsException oobe) {
+				feedback = performTick(processed);
+			} catch (ArrayIndexOutOfBoundsException oobe) {
 				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
-			}
-			catch (IllegalArgumentException ex) {
+			} catch (IllegalArgumentException ex) {
 				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_TICK);
 			}
 			break;
 
 		case COMMAND_UNTICK :
 			try {
-				feedback = tickKivMng.untick(processed.getIndex(), listTracker, current);
-
-				if (listTracker == KEY_SEARCH) {
-					searchResults.removeAllElements();
-					searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
-							searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
-				}
-
-				maintainLists();
-				updateObservers();
-			}
-			catch (ArrayIndexOutOfBoundsException oobe) {
+				feedback = performUntick(processed);
+			} catch (ArrayIndexOutOfBoundsException oobe) {
 				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
-			}
-			catch (IllegalArgumentException ex) {
+			} catch (IllegalArgumentException ex) {
 				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_UNTICK);
 			}
 			break;
 
-
 		case COMMAND_HELP :
-			feedback = FEEDBACK_HELP;
-			setHelp();
-
+			feedback = performHelp();
 			break;
 
 		default :
@@ -524,6 +332,356 @@ public class Logic{
 		}
 
 		logger.log(Level.INFO, LOG_SUCCESSFUL_ACTION);
+		return feedback;
+	}
+
+	/**
+	 * This method sets the help instructions in the observers.
+	 * 
+	 * @return	Feedback from action.
+	 */
+	private String performHelp() {
+		String feedback;
+		feedback = FEEDBACK_HELP;
+		setHelp();
+		return feedback;
+	}
+
+	/**
+	 * This method unticks a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return	Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performUntick(UserInput processed) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = tickKivMng.untick(processed.getIndex(), listTracker, current);
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+					searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method ticks a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return	Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performTick(UserInput processed) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = tickKivMng.tick(processed.getIndex(), listTracker, current);
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+					searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+		} else if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method redo the undid action.
+	 * 
+	 * @return	Feedback from the action.
+	 */
+	private String performRedo() {
+		String feedback;
+		feedback = undoMng.redo();
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+					searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+		} else if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method undo the last action.
+	 * 
+	 * @return	Feedback from the action.
+	 */
+	private String performUndo() {
+		String feedback;
+		feedback = undoMng.undo();
+		maintainLists();
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+					searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+		} else if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method unkiv a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return	Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performUnkiv(UserInput processed) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = tickKivMng.unkiv(processed.getIndex(), listTracker, current);
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+					searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method kiv a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return	Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performKiv(UserInput processed) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = tickKivMng.kiv(processed.getIndex(), listTracker, current, currentListName);
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+					searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+		} else if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+	
+	/**
+	 * This method adds a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return	Feedback from the action.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performAdd(UserInput processed) throws IllegalArgumentException {
+		String feedback;
+		feedback = cruMng.add(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
+				processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
+
+		if (listTracker == KEY_KIV || listTracker == KEY_TICKED || listTracker == KEY_SEARCH) {
+			setCurrentAsTime();
+		} else if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method edits a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return	Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performEdit(UserInput processed) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = cruMng.edit(processed.getIndex(), processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
+				processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority(), listTracker, current);
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(), searchRequest.getRepeating(), searchRequest.getStartDate(), 
+					searchRequest.getEndDate(), searchRequest.getStartTime(), searchRequest.getEndTime(), searchRequest.getPriority());
+		} else if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method lists a specified tasklist.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return	Feedback from the action.
+	 * @throws IllegalArgumentException			If list name requested is invalid.
+	 */
+	private String performList(UserInput processed)	throws IllegalArgumentException {
+		String feedback;
+		checkForTaskExpiry();
+		feedback = this.list(processed.getDescription());
+		return feedback;
+	}
+
+	/**
+	 * This method clears the current list.
+	 * 
+	 * @return Feedback from the action.
+	 */
+	private String performClear() {
+		String feedback;
+		feedback = this.clear();
+		return feedback;
+	}
+
+	/**
+	 * This method deletes a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return	Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performDelete(UserInput processed) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = cruMng.delete(processed.getIndex(), listTracker, current, currentListName);
+
+		if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(freeslotsRequest.getStartDate(), freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(), freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method takes a freeslot.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return	Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performTake(UserInput processed) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = searchMng.take(processed.getIndex(), processed.getDescription());
+		return feedback;
+	}
+
+	/**
+	 * This method searches for expired tasks.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return	Feedback from the action.
+	 */
+	private String performSearchExpired(UserInput processed) {
+		String feedback;
+		searchRequest = deepCopyUserInput(processed);
+		searchResults.removeAllElements();
+		searchResults = searchMng.searchExpired(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
+				processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
+
+		setCurrentAsSearch();
+		updateObservers();
+
+		feedback = FEEDBACK_SEARCH;
+		return feedback;
+	}
+
+	/**
+	 * This method searches for tasks.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return	Feedback from the action.
+	 */
+	private String performSearch(UserInput processed) {
+		String feedback;
+		searchRequest = deepCopyUserInput(processed);
+		searchResults.removeAllElements();
+		searchResults = searchMng.search(processed.getDescription(), processed.getRepeating(), processed.getStartDate(), 
+				processed.getEndDate(), processed.getStartTime(), processed.getEndTime(), processed.getPriority());
+
+		setCurrentAsSearch();
+		updateObservers();
+
+		feedback = FEEDBACK_SEARCH;
+		return feedback;
+	}
+
+	/**
+	 * This method searches for freeslots.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return	Feedback from the action.
+	 */
+	private String performSearchFreeslots(UserInput processed) {
+		String feedback;
+		freeslotsRequest = deepCopyUserInput(processed);
+		freeslotsResults.removeAllElements();
+		freeslotsResults = searchMng.searchForFreeSlots(processed.getStartDate(), processed.getStartTime(), 
+				processed.getEndDate(), processed.getEndTime());
+
+		setCurrentAsSearchFreeslots();
+		checkForTaskExpiry(current);
+		updateObservers();
+
+		feedback = FEEDBACK_SEARCH_FREESLOTS;
 		return feedback;
 	}
 
@@ -545,8 +703,7 @@ public class Logic{
 		String command = EMPTY_STRING;
 		try {
 			command = processed.getCommand();
-		}
-		catch (NullPointerException npe) {
+		} catch (NullPointerException npe) {
 			logger.log(Level.WARNING, LOG_NO_COMMANDS_PASSED);
 		}
 		return command;
@@ -594,13 +751,11 @@ public class Logic{
 		if (listTracker == KEY_SORTED_TIME || listTracker == KEY_SORTED_PRIORITY) {
 			storedTasksByTime.removeAllElements();
 			storedTasksByPriority.removeAllElements();
-		}
-		else {
+		} else {
 			current.removeAllElements();
 		}
 
 		storeLists();
-
 		updateObservers();
 
 		return FEEDBACK_CLEAR;
@@ -614,13 +769,12 @@ public class Logic{
 	 */
 	protected String list() {
 		if (current == null) {
-			return "Nothing to display";
+			return FEEDBACK_NOTHING_TO_DISPLAY;
 		}
-		int i = 0;
+		
 		String list = EMPTY_STRING;
-		for (Task task: current) {
-
-			list += ++i + ". " + task.toString() + "\n";
+		for (int i = 1; i <= current.size(); i++) {
+			list += i + PARTITION_STRING + current.get(i).toString() + NEWLINE_STRING;
 		}
 		return list;
 	}
@@ -664,7 +818,7 @@ public class Logic{
 		storage = new Storage();
 		logger = Logger.getLogger(LOGIC);
 	}
-	
+
 	/**
 	 * This method creates instances of Parser and Storage.
 	 */
