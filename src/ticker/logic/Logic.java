@@ -23,9 +23,6 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonSyntaxException;
-
 import ticker.parser.Parser;
 import ticker.parser.UserInput;
 import ticker.storage.Storage;
@@ -34,6 +31,7 @@ import ticker.common.sortByTime;
 import ticker.common.sortByPriority;
 
 public class Logic{
+
 
 	// CONSTANTS
 
@@ -87,18 +85,21 @@ public class Logic{
 	private static final String LOG_SUCCESSFUL_ACTION = "Action proceeded successfully";
 	private static final String LOG_NO_COMMANDS_PASSED = "NO COMMANDS PASSED";
 	private static final String LOG_PERFORM_ACTION = "Performing an action";
-
+	private static final String LOG_ERROR_UNDOMNG_AND_UNTICK = "Error with UndoManager in untick";
+	private static final String LOG_ERROR_UNDOMNG_AND_TICK = "Error with UndoManager in tick";
+	private static final String LOG_ERROR_UNDOMNG_AND_KIV = "Error with UndoManager in KIV";
+	private static final String LOG_ERROR_UNDOMNG_AND_UNKIV = "Error with UndoManager in unKIV";
+	
 	private static final String LOGIC = "Logic";
 	private static final String EMPTY_STRING = "";
 
-
 	// ATTRIBUTES
 
+	protected static Logger logger;
+	
 	// Singleton pattern
 	private static Logic theOne;
 	private static Vector<Observer> observerList;
-
-	private static Logger logger;
 
 	// Instances of other components
 	private Parser parser;
@@ -127,7 +128,8 @@ public class Logic{
 
 	// Construct dependency with UI
 	public Logic(){
-
+		
+		getLogger();
 		instantiateParserAndStorage();
 
 		initialiseStorageFiles();
@@ -380,9 +382,9 @@ public class Logic{
 			catch (ArrayIndexOutOfBoundsException oobe) {
 				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
 			}
-			/*catch (IllegalArgumentException ex) {
-				return "Current list: " + currentListName + "Cannot perform command on this list";
-			}*/
+			catch (IllegalArgumentException ex) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_KIV);
+			}
 			break;
 
 		case COMMAND_UNKIV :
@@ -401,9 +403,9 @@ public class Logic{
 			catch (ArrayIndexOutOfBoundsException oobe) {
 				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
 			}
-			/*catch (IllegalArgumentException ex) {
-				return "Current list: " + currentListName + "Cannot perform command on this list";
-			}*/
+			catch (IllegalArgumentException ex) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_UNKIV);
+			}
 			break;
 
 		case COMMAND_UNDO :
@@ -483,9 +485,9 @@ public class Logic{
 			catch (ArrayIndexOutOfBoundsException oobe) {
 				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
 			}
-			/*catch (IllegalArgumentException ex) {
-				return "Current list: " + currentListName + "Cannot perform command on this list";
-			}*/
+			catch (IllegalArgumentException ex) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_TICK);
+			}
 			break;
 
 		case COMMAND_UNTICK :
@@ -504,9 +506,9 @@ public class Logic{
 			catch (ArrayIndexOutOfBoundsException oobe) {
 				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
 			}
-			//catch (IllegalArgumentException ex) {
-			//return "Current list: " + currentListName + "Cannot perform command on this list";
-			//}
+			catch (IllegalArgumentException ex) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_UNTICK);
+			}
 			break;
 
 
@@ -660,6 +662,13 @@ public class Logic{
 	private void instantiateParserAndStorage() {
 		parser = new Parser();
 		storage = new Storage();
+		logger = Logger.getLogger(LOGIC);
+	}
+	
+	/**
+	 * This method creates instances of Parser and Storage.
+	 */
+	private void getLogger() {
 		logger = Logger.getLogger(LOGIC);
 	}
 
