@@ -12,7 +12,7 @@
  * searching and auto-complete.
  * 
  * Assumptions: 
- * This program assumes that:
+ * This class assumes that:
  * -the Parser class will pass Logic class valid processed user input (as an UserInput object) with data at their correct
  * positions.
  * -the Logic class will always be used with classes CRUDManager, TickKIVManager, UndoRedoManager and SearchManager.
@@ -74,6 +74,7 @@ public class Logic{
 	private static final String LIST_SEARCH = "search";
 	private static final String LIST_FREESLOTS = "free";
 	
+	// ATTRIBUTES
 	// Singleton pattern
 	private static Logic theOne;
 	private static Vector<Observer> observerList;
@@ -102,11 +103,7 @@ public class Logic{
 	private static UserInput searchRequest;
 	private static UserInput freeslotsRequest;
 
-	/**
-	 * This method instantiate a Logic object while creating dependency with TickerUI
-	 *
-	 * @param UI	Name of Observer UI.
-	 */
+	// Construct dependency with UI
 	public Logic(Observer UI){
 		this.UI = UI;
 
