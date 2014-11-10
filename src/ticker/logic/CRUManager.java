@@ -14,6 +14,7 @@
 package ticker.logic;
 
 import java.util.Vector;
+import java.util.logging.Level;
 
 import ticker.common.Date;
 import ticker.common.DeadlineTask;
@@ -25,6 +26,8 @@ import ticker.common.TimedTask;
 
 public class CRUManager {
 
+
+	private static final String LOG_UNCATCHED_TASK_IN_EDIT_START_TIME = "Uncatched task in edit startTime";
 	// CONSTANTS
 	// String constants for command types
 	private static final String COMMAND_ADD = "add";
@@ -83,11 +86,13 @@ public class CRUManager {
 	private static final String FEEDBACK_ERROR_CANNOT_EDIT_FROM_TICKED_LIST = "Cannot edit from ticked list.";
 	private static final String FEEDBACK_ERROR_CANNOT_ADD_WITHOUT_DESCRIPTION = "Cannot add without description.";
 	private static final String FEEDBACK_ERROR_DELETE_FREESLOT = "Cannot delete freeslot.";
+	// Log messages
+	private static final String LOG_UNCATCHED_TASK_IN_STARTDATE = "Uncatched task in edit startDate";
 
 	// Instances of other components
 	private UndoManager undoMng;
 	private Vector<Task> storedTasksByPriority, storedTasksByTime,
-			storedTasksByTicked, storedTasksByKiv;
+	storedTasksByTicked, storedTasksByKiv;
 
 	CRUManager(Vector<Task> storedTasksByTime,
 			Vector<Task> storedTasksByPriority,
@@ -116,7 +121,7 @@ public class CRUManager {
 	 */
 	String add(String description, boolean isRepeating, Date startDate,
 			Date endDate, Time startTime, Time endTime, char priority)
-			throws IllegalArgumentException {
+					throws IllegalArgumentException {
 
 		if (description == null || description == EMPTY_STRING) {
 			return FEEDBACK_ERROR_CANNOT_ADD_WITHOUT_DESCRIPTION;
@@ -221,7 +226,7 @@ public class CRUManager {
 	 */
 	private Task deleteFromTickedOrKiv(Vector<Task> current,
 			String currentListName, int actualIndex)
-			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+					throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task deleted = current.remove(actualIndex);
 
 		// Throws IllegalArgumentException
@@ -371,7 +376,7 @@ public class CRUManager {
 	 */
 	private Task deleteFromPriorityList(Vector<Task> current,
 			String currentListName, int actualIndex)
-			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+					throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		;
 		Task deleted = current.remove(actualIndex);
 		storedTasksByTime.remove(deleted);
@@ -394,7 +399,7 @@ public class CRUManager {
 	 */
 	private Task deleteFromTimedList(Vector<Task> current,
 			String currentListName, int actualIndex)
-			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+					throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 		Task deleted = current.remove(actualIndex);
 		storedTasksByPriority.remove(deleted);
 		// Throws IllegalArgumentException
@@ -435,7 +440,7 @@ public class CRUManager {
 	String edit(int displayedIndex, String description, boolean isRepeating,
 			Date startDate, Date endDate, Time startTime, Time endTime,
 			char priority, int listTracker, Vector<Task> current)
-			throws ArrayIndexOutOfBoundsException {
+					throws ArrayIndexOutOfBoundsException {
 		Task oldTask;
 		Task newTask;
 		int actualIndex = getActualIndex(displayedIndex);
@@ -496,8 +501,11 @@ public class CRUManager {
 							startDate, new Time(START_HOUR, START_MIN), null,
 							null, newTask.getPriority(), newTask.getRepeat());
 					// Editing TimedTask or RepeatingTask
-				} else {
+				} else if (newTask instanceof TimedTask
+						|| newTask instanceof RepeatingTask) {
 					newTask.setStartDate(startDate);
+				} else {
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_IN_STARTDATE);
 				}
 				// Error: Edited task will end up with earlier endDate than
 				// startDate
@@ -505,12 +513,15 @@ public class CRUManager {
 				if (newTask.getEndDate().compareTo(startDate) == SMALLER) {
 					addTaskIntoUndone(oldTask);
 					return FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_DATE;
+					// Editing TimedTask or RepeatingTask
+				} else if (newTask.getStartDate() != null) {
+					newTask.setStartDate(startDate);
+				} else if (newTask instanceof DeadlineTask){				
+					newTask = new TimedTask(newTask.getDescription(), startDate,
+							new Time(START_HOUR, START_MIN), newTask.getEndDate(),
+							newTask.getEndTime(), newTask.getPriority(),
+							newTask.getRepeat());
 				}
-				// Edit DeadlineTask
-				newTask = new TimedTask(newTask.getDescription(), startDate,
-						new Time(START_HOUR, START_MIN), newTask.getEndDate(),
-						newTask.getEndTime(), newTask.getPriority(),
-						newTask.getRepeat());
 			}
 		}
 
@@ -529,8 +540,7 @@ public class CRUManager {
 				}
 
 			} else {
-				// Error: Edited task will end up with earlier endDate than
-				// startDate
+				// Error: Edited task will end up with earlier endDate than startDate
 				if (newTask.getStartDate().compareTo(endDate) == BIGGER) {
 					addTaskIntoUndone(oldTask);
 					return FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_DATE;
@@ -580,20 +590,24 @@ public class CRUManager {
 				} else if (newTask instanceof TimedTask
 						|| newTask instanceof RepeatingTask) {
 					newTask.setStartTime(startTime);
-				} else if (newTask instanceof DeadlineTask) {
-					newTask = new TimedTask(newTask.getDescription(),
-							Date.getCurrentDate(), startTime,
-							newTask.getEndDate(), newTask.getEndTime(),
-							newTask.getPriority(), newTask.getRepeat());
+				} else {
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_IN_EDIT_START_TIME);
 				}
-			} else {
-				// Error: Edited task will end up with earlier endTime than
-				// startTime
-				if (newTask.getEndTime().compareTo(startTime) == SMALLER) {
-					addTaskIntoUndone(oldTask);
-					return FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_TIME;
-				}
+
+			}
+		} else {
+			// Error: Edited task will end up with earlier endTime than
+			// startTime
+			if (newTask.getEndTime().compareTo(startTime) == SMALLER) {
+				addTaskIntoUndone(oldTask);
+				return FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_TIME;
+			} else if (newTask.getStartTime() != null) {
 				newTask.setStartTime(startTime);
+			} else if (newTask instanceof DeadlineTask) {
+				newTask = new TimedTask(newTask.getDescription(),
+						Date.getCurrentDate(), startTime,
+						newTask.getEndDate(), newTask.getEndTime(),
+						newTask.getPriority(), newTask.getRepeat());
 			}
 		}
 
@@ -611,8 +625,7 @@ public class CRUManager {
 					newTask.setEndTime(endTime);
 				}
 			} else {
-				// Error: Edited task will end up with earlier endTime than
-				// startTime
+				// Error: Edited task will end up with earlier endTime than startTime
 				if (newTask.getStartTime().compareTo(endTime) == 1) {
 					addTaskIntoUndone(oldTask);
 					return FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_TIME;
@@ -692,7 +705,7 @@ public class CRUManager {
 	 */
 	private void addEditedTask(int listTracker, Vector<Task> current,
 			Task oldTask, Task newTask, int actualIndex)
-			throws IllegalArgumentException {
+					throws IllegalArgumentException {
 		if (listTracker != KEY_TICKED || listTracker != KEY_KIV) {
 			addTaskIntoUndone(newTask);
 		} else {
