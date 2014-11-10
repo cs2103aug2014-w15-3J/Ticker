@@ -4,6 +4,10 @@ import java.util.Calendar;
 
 //@author A0115369B
  
+/*
+ * This class represents a time
+ */
+
 public class Time {
 	private int hour;
 	private int minute;
@@ -26,7 +30,7 @@ public class Time {
 	}
 	
 	public void setHour(int hour){
-		this.hour=hour;
+		this.hour = hour;
 	}
 	
 	public void setMinute(int minute){
@@ -34,9 +38,9 @@ public class Time {
 	}
 	
 	public int compareTo(Time other){
-		if (this.getHour()<other.getHour()||(this.getHour()==other.getHour()&&this.getMinute()<other.getMinute()))
+		if (this.getHour() < other.getHour() || (this.getHour() == other.getHour() && this.getMinute() < other.getMinute()))
 			return -1;
-		if (this.getHour()==other.getHour()&&this.getMinute()==other.getMinute())
+		if (this.getHour() == other.getHour() && this.getMinute() == other.getMinute())
 			return 0;
 		return 1;
 	}
@@ -55,6 +59,6 @@ public class Time {
 		return new Time(cal.get(Calendar.HOUR_OF_DAY),cal.get(Calendar.MINUTE));
 	}
 	public boolean smallerThan(Time other) {
-		return this.compareTo(other)<0;
+		return this.compareTo(other) < 0;
 	}
 }

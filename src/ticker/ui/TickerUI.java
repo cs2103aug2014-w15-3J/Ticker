@@ -1,6 +1,10 @@
 package ticker.ui;
 
 //@author A0115288B
+/*
+ * This class builds the layout of the GUI, receives input command directly from 
+ * user and passes it to Logic for processing, and displays the wanted task list accordingly
+ */
 
 import java.util.Calendar;
 import java.util.Vector;
