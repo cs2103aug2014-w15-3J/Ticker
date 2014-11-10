@@ -3,6 +3,13 @@ import ticker.common.Date;
 import ticker.common.Time;
 
 //@author  A0115369B
+
+/*
+ * This class represents one command entered by the user
+ * after being processed by parser
+ * 
+ */
+
 public class UserInput {
 	
 	private String command;
