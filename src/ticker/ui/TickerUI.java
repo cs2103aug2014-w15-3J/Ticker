@@ -21,7 +21,6 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
@@ -129,7 +128,7 @@ public class TickerUI extends Application implements Observer {
 	}
 
 	public TickerUI() {
-		// Initialisation
+		// Initialization
 		ticker = this;
 		logic = Logic.getInstance(this);
 	}
@@ -339,7 +338,7 @@ public class TickerUI extends Application implements Observer {
 		helpFadeOut.setFromValue(0.8);
 		helpFadeOut.setToValue(0);
 
-		Scene scene = new Scene(root);
+		scene = new Scene(root);
 		stage.setScene(scene);
 		stage.setMaxWidth(490);
 		stage.setMinWidth(490);
@@ -524,7 +523,7 @@ public class TickerUI extends Application implements Observer {
 	/**
 	 * This method builds the structure of the current tie and date display
 	 *
-	 * @return clock        a frame for displayTime()
+	 * @return clock        a VBox frame for displayTime()
 	 */
 	private VBox buildClock() {
 		VBox clock = new VBox();
@@ -537,6 +536,11 @@ public class TickerUI extends Application implements Observer {
 		return clock;
 	}
 
+	/**
+	 * This method fills the content of the VBox clock using current time
+	 * it will be called once every second on the timeline
+	 *
+	 */
 	private void displayTime() {
 		c = Calendar.getInstance();
 
@@ -568,8 +572,11 @@ public class TickerUI extends Application implements Observer {
 
 	/**
 	 * This method displays the task list according to user command
+	 * it displays expired tasks, search results and empty slots differently
+	 * 
 	 */
 	private void displayTasks() {
+		logger.log(Level.INFO, "refreshing the task list");
 		int prefHeight = 30;
 		int maxHeight;
 		int widthIndex = 18;
@@ -791,7 +798,10 @@ public class TickerUI extends Application implements Observer {
 		});
 	}
 
-	// set the action of the todo tab
+	/**
+	 * set the activity of the todo tab
+	 *
+	 */
 	private void setTodoTab() {
 		todoTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent evt) {
@@ -814,7 +824,10 @@ public class TickerUI extends Application implements Observer {
 			}
 		});
 	}
-	// set the action of the ticked tab
+	/**
+	 * set the activity of the ticked tab
+	 *
+	 */
 	private void setTickedTab() {
 		tickedTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent evt) {
@@ -837,7 +850,10 @@ public class TickerUI extends Application implements Observer {
 			}
 		});
 	}
-	// set the action of the kiv tab
+	/**
+	 * set the activity of the kiv tab 
+	 *
+	 */
 	private void setKivTab() {
 		kivTab.setOnMouseEntered(new EventHandler<MouseEvent>() {
 			public void handle(MouseEvent evt) {

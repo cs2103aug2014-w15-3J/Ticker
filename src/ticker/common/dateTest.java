@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-public class testDate {
+public class dateTest {
 
 	@Test
 	public void test() {
