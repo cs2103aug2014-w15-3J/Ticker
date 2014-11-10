@@ -4,6 +4,10 @@ import java.util.Comparator;
 import java.util.logging.Level;
 
 //@author A0114535M
+/**
+ * Description: This class implements the Comparator interface and is used 
+ * to sort tasks according to their similarity points.
+ */
 public class StringMatchComparator implements Comparator<StringMatch> {
 
 	// CONSTANTS

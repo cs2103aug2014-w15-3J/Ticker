@@ -3,6 +3,13 @@ package ticker.common;
 import java.util.Comparator;
 
 //@author A0114535M
+/**
+ * Description: This class implements the Comparator interface and is used 
+ * to sort tasks according to these tiers-
+ * 1: Timing (sorted with earliest deadline first)
+ * 2: Task type (TimedTask, DeadlineTask, FloatingTask, RepeatingTask)
+ * 3: Lexicographical order
+ */
 public class sortByTime implements Comparator<Task> {
 
 	// CONSTANTS

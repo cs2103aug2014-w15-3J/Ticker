@@ -9,6 +9,9 @@ import ticker.common.Time;
 import ticker.parser.UserInput;
 
 //@author A0114535M
+/**
+ * Description: This class test functions related to search.
+ */
 public class SearchManagerTest {
 	// String constants for command types
 	private static final String COMMAND_UNTICK = "untick";

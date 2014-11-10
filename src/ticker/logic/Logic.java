@@ -13,6 +13,14 @@ import ticker.common.sortByTime;
 import ticker.common.sortByPriority;
 
 //@author A0114535M
+/**
+ * Description: This class passes the user input from UI to the Parser 
+ * to process the input. Logic class then receives the processed command 
+ * and acts on it. Functions provided include adding task, deleting task,
+ * edit an existing task, listing out the tasks in different formats 
+ * (e.g priority, time, done and cannot be completed), as well as
+ * searching and auto-complete.
+ */
 public class Logic {
 
 	// CONSTANTS
@@ -82,7 +90,7 @@ public class Logic {
 	// Other string constants
 	private static final String LOGIC = "Logic";
 	private static final String EMPTY_STRING = "";
-		private static final String PARTITION_STRING = ". ";
+	private static final String PARTITION_STRING = ". ";
 	private static final String NEWLINE_STRING = "\n";
 
 	// ATTRIBUTES

@@ -1,6 +1,9 @@
 package ticker.common;
 
 //@author A0114535M
+/**
+ * Description: This class is used for floating tasks.
+ */
 public class FloatingTask extends Task {
 	public final int id = 1; // used in storage
 

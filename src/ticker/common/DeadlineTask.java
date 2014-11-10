@@ -1,6 +1,9 @@
 package ticker.common;
 
 //@author A0114535M
+/**
+ * Description: This class is used for deadline tasks.
+ */
 public class DeadlineTask extends Task {
 	// CONSTANTS
 	private static final String STRING_DEADLINE = " deadline ";

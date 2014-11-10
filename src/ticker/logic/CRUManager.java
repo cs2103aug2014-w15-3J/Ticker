@@ -12,6 +12,9 @@ import ticker.common.Time;
 import ticker.common.TimedTask;
 
 //@author A0114535M
+/**
+ * Description: This class adds, delete and edits task.
+ */
 public class CRUManager {
 
 	// CONSTANTS
@@ -77,7 +80,7 @@ public class CRUManager {
 	private static final String LOG_UNCATCHED_TASK_IN_EDIT_STARTTIME = "Uncatched task in edit startTime";
 	private static final String LOG_UNCATCHED_TASK_EDIT_STARTTIME_ENDTIME = "Error in catching task in edit startTime and endTime";
 	private static final String LOG_UNCATCHED_TASK_EDIT_STARTDATE_ENDDATE = "Error catching task in edit startDate and endDate";
-	
+
 	// ATTRIBUTES
 	// Instances of other components
 	private UndoManager undoMng;

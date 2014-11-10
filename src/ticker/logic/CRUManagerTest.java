@@ -9,6 +9,9 @@ import ticker.common.Time;
 import ticker.parser.UserInput;
 
 //@author A0114535M
+/**
+ * Description: This class is an automated test to test out add, delete and edit funtions.
+ */
 public class CRUManagerTest {
 	// String constants for command types
 	private static final String COMMAND_ADD = "add";

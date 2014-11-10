@@ -17,6 +17,14 @@ import ticker.common.sortByTime;
 import ticker.parser.TimePeriod;
 
 //@author A0114535M
+/**
+ * Description: This class has 3 main functions:
+ * 1. Search: Searches for tasks based on any task property.
+ * 2. Near-match: Finds similar tasks by calculating the level of similarity 
+ * between the search key and the existing tasks in.
+ * the task list. Returns only the tasks with appointed level of similarity.
+ * 3. Search for free slots: Shows free slots
+ */
 public class SearchManager {
 
 	// CONSTANTS
@@ -97,7 +105,7 @@ public class SearchManager {
 		if (key != null && !key.equals(EMPTY_STRING)) {
 			searchByKeyInSubSearchResults(key);
 		}
-		
+
 		// Unused code
 		/*if (isRepeating) {
 			searchByRepeatingInSubSearchResults();
@@ -106,7 +114,7 @@ public class SearchManager {
 		// Search by priority
 		if (priority != NULL_CHAR
 				&& (priority == PRIORITY_IMPORTANT
-						|| priority == PRIORITY_NORMAL || priority == PRIORITY_TRIVIAL)) {
+				|| priority == PRIORITY_NORMAL || priority == PRIORITY_TRIVIAL)) {
 			searchByPriorityInSubSearchResults(priority);
 		}
 
@@ -160,7 +168,7 @@ public class SearchManager {
 		if (key != null && !key.equals(EMPTY_STRING)) {
 			searchByKeyInSubSearchResults(key);
 		}
-		
+
 		// Unused code
 		/*if (isRepeating) {
 			searchByRepeatingInSubSearchResults();
@@ -169,7 +177,7 @@ public class SearchManager {
 		// Search by priority
 		if (priority != NULL_CHAR
 				&& (priority == PRIORITY_IMPORTANT
-						|| priority == PRIORITY_NORMAL || priority == PRIORITY_TRIVIAL)) {
+				|| priority == PRIORITY_NORMAL || priority == PRIORITY_TRIVIAL)) {
 			searchByPriorityInSubSearchResults(priority);
 		}
 
@@ -237,7 +245,7 @@ public class SearchManager {
 		for (Task task : freeslotList) {
 			TimePeriod taskPeriod = new TimePeriod(new DateTime(
 					task.getStartDate(), task.getStartTime()), new DateTime(
-					task.getEndDate(), task.getEndTime()));
+							task.getEndDate(), task.getEndTime()));
 
 			// Check from the back
 			for (int i = result.size() - 1; i >= 0; i--) {
@@ -460,6 +468,7 @@ public class SearchManager {
 		searchResultsTicked = searchByPriority(priority, searchResultsTicked);
 		searchResultsKIV = searchByPriority(priority, searchResultsKIV);
 	}
+
 	// Unused code
 	/**
 	 * This method searches for repeating tasks.
@@ -517,7 +526,7 @@ public class SearchManager {
 
 		return searchResult;
 	}
-	
+
 	// Unused code
 	/**
 	 * This method searches for repeating task within a tasklist.
@@ -533,7 +542,6 @@ public class SearchManager {
 				searchResult.add(task);
 			}
 		}
-
 		return searchResult;
 	}*/
 

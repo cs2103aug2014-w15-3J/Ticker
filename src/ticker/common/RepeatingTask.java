@@ -1,6 +1,9 @@
 package ticker.common;
 
 //@author A0114535M
+/**
+ * Description: This class is used for repeating tasks.
+ */
 public class RepeatingTask extends Task {
 	// CONSTANTS
 	// Integer constants for days
