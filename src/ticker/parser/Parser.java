@@ -331,6 +331,10 @@ public class Parser {
 				input.setPriority(ParserString.HIGH_PRIORITY_CHAR);
 			}
 			
+			if (words[i].toLowerCase().equals(ParserString.NORMAL_PRIORITY)){
+				input.setPriority(ParserString.NORMAL_PRIORITY_CHAR);
+			}
+			
 			if (words[i].toLowerCase().equals(ParserString.LOW_PRIORITY)){
 				input.setPriority(ParserString.LOW_PRIORITY_CHAR);
 			}

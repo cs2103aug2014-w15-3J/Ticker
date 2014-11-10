@@ -112,6 +112,7 @@ public class ParserTest {
 		assertEquals(new Time(13,0),par.processInput("edit 1 have lunch 13-14 ").getStartTime());
 		assertEquals(new Time(14,0),par.processInput("edit 1 have lunch 13-14 ").getEndTime());
 		assertEquals("have lunch",par.processInput("edit 1 have lunch").getDescription());
+		assertEquals('\u0000',par.processInput("edit 1 have lunch").getPriority());
 	}
 	
 	public void testConstructDate(){
