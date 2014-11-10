@@ -659,7 +659,7 @@ public class TickerUI extends Application implements Observer {
 
 				if(newTask.equals("\\***FREE***\\")) {     // if this list is for search empty slot
 					description.setText("Empty slot");
-					description.setTextFill(Color.DARKGREEN);
+					description.setTextFill(Color.GREEN);
 					VBox time = new VBox(5);
 					start.setText("Start: " + ST + ", " + SD);
 					end.setText("End: " + ET + ", " + ED);
