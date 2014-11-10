@@ -46,7 +46,7 @@ public class TickKIVManager {
 	// Character constants for priority level
 	private static final char PRIORITY_NORMAL = 'B';
 	// Feedback messages
-	private static final String FEEDBACK_APPEND_IS_KIV = " will be kept in view.";
+	private static final String FEEDBACK_APPEND_IS_KIV = " is kept in view.";
 	private static final String FEEDBACK_APPEND_IS_UNDONE = " is back to undone.";
 	private static final String FEEDBACK_APPEND_IS_DONE = " is done!";
 	private static final String FEEDBACK_ERROR_CANNOT_UNKIV_FROM_TICKED_LIST = "Cannot unkiv a task from ticked list.";
