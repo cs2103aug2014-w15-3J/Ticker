@@ -1,6 +1,9 @@
 package ticker.common;
 
 //@author A0114535M
+/**
+ * Description: This class is used for timed tasks.
+ */
 public class TimedTask extends Task {
 	// CONSTANTS
 	private static final int EQUAL = 0;
