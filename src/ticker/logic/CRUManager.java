@@ -501,8 +501,10 @@ public class CRUManager {
 							startDate, new Time(START_HOUR, START_MIN), null,
 							null, newTask.getPriority(), newTask.getRepeat());
 					// Editing TimedTask or RepeatingTask
-				} else if (newTask instanceof TimedTask
-						|| newTask instanceof RepeatingTask) {
+				} else if (newTask instanceof TimedTask) {
+					newTask.setStartDate(startDate);
+				} else if (newTask instanceof RepeatingTask) {
+					newTask = (RepeatingTask) newTask;
 					newTask.setStartDate(startDate);
 				} else {
 					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_IN_STARTDATE);
@@ -594,20 +596,20 @@ public class CRUManager {
 					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_IN_EDIT_START_TIME);
 				}
 
-			}
-		} else {
-			// Error: Edited task will end up with earlier endTime than
-			// startTime
-			if (newTask.getEndTime().compareTo(startTime) == SMALLER) {
-				addTaskIntoUndone(oldTask);
-				return FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_TIME;
-			} else if (newTask.getStartTime() != null) {
-				newTask.setStartTime(startTime);
-			} else if (newTask instanceof DeadlineTask) {
-				newTask = new TimedTask(newTask.getDescription(),
-						Date.getCurrentDate(), startTime,
-						newTask.getEndDate(), newTask.getEndTime(),
-						newTask.getPriority(), newTask.getRepeat());
+			} else {
+				// Error: Edited task will end up with earlier endTime than
+				// startTime
+				if (newTask.getEndTime().compareTo(startTime) == SMALLER) {
+					addTaskIntoUndone(oldTask);
+					return FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_TIME;
+				} else if (newTask.getStartTime() != null) {
+					newTask.setStartTime(startTime);
+				} else if (newTask instanceof DeadlineTask) {
+					newTask = new TimedTask(newTask.getDescription(),
+							Date.getCurrentDate(), startTime,
+							newTask.getEndDate(), newTask.getEndTime(),
+							newTask.getPriority(), newTask.getRepeat());
+				}
 			}
 		}
 

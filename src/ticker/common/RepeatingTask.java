@@ -38,7 +38,12 @@ public class RepeatingTask extends Task {
 	}
 	
 	@Override
-	// TODO: error in printing time for startTime + endTime, endTime only
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+		this.day = Date.dayOfWeek(startDate);
+	}
+	
+	@Override
 	public String toString(){
 		String timing = "";
 		

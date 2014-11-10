@@ -361,13 +361,31 @@ public class CruManagerTest {
 		// Test edit startDate on floating task
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
-		input.setIndex(3);
-		input.setStartDate(new Date(2014, 11, 9));
+		input.setIndex(4);
+		input.setStartDate(new Date(2014, 11, 10));
 
-		assertEquals("HW: Submit CS2106 v0.5 has been updated.", logic.getOutput(input));
+		assertEquals("CompClub: Add actionables on Trello has been updated.", logic.getOutput(input));
 		assertEquals("1. Self: Get a haircut\n"
 				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
-				+ "3. HW: Submit CS2106 v0.5 from 9 Nov, 0:00 to 10 Nov, 23:59\n"
+				+ "3. CompClub: Add actionables on Trello from 10 Nov, 0:00\n"
+				+ "4. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+		
+		// Test edit startDate on scheduled task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(5);
+		input.setStartDate(new Date(2014, 11, 4));
+
+		assertEquals("CompClub: Pcell meeting has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
 				+ "4. CompClub: Add actionables on Trello\n"
 				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
@@ -375,6 +393,5 @@ public class CruManagerTest {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-
 	}
 }
