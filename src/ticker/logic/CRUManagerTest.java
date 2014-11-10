@@ -16,15 +16,12 @@ public class CRUManagerTest {
 	private static final String COMMAND_LIST = "list";
 	private static final String COMMAND_CLEAR = "clear";
 	private static final String COMMAND_DELETE = "delete";
-	private static final String COMMAND_REDO = "redo";
 	private static final String COMMAND_UNDO = "undo";
 	// String constants for type of lists used
 	private static final String LIST_TIME = "time";
 	private static final String LIST_PRIORITY = "priority";
 	private static final String LIST_TICKED = "ticked";
 	private static final String LIST_KIV = "kiv";
-	private static final String LIST_SEARCH = "search";
-	private static final String LIST_FREESLOT = "free";
 
 	@Test
 	public final void testCRUManager() {

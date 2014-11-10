@@ -11,7 +11,6 @@ import ticker.parser.UserInput;
 //@author A0114535M
 public class SearchManagerTest {
 	// String constants for command types
-	private static final String COMMAND_HELP = "help";
 	private static final String COMMAND_UNTICK = "untick";
 	private static final String COMMAND_TICK = "tick";
 	private static final String COMMAND_REDO = "redo";
@@ -19,10 +18,8 @@ public class SearchManagerTest {
 	private static final String COMMAND_UNKIV = "unkiv";
 	private static final String COMMAND_KIV = "kiv";
 	private static final String COMMAND_ADD = "add";
-	private static final String COMMAND_EDIT = "edit";
 	private static final String COMMAND_LIST = "list";
 	private static final String COMMAND_CLEAR = "clear";
-	private static final String COMMAND_DELETE = "delete";
 	private static final String COMMAND_SEARCH = "search";
 
 	// String constants for type of lists used
@@ -30,8 +27,6 @@ public class SearchManagerTest {
 	private static final String LIST_PRIORITY = "priority";
 	private static final String LIST_TICKED = "ticked";
 	private static final String LIST_KIV = "kiv";
-	private static final String LIST_SEARCH = "search";
-	private static final String LIST_FREESLOT = "free";
 
 	@Test
 	public final void testSearchManager() {
@@ -207,7 +202,7 @@ public class SearchManagerTest {
 		// Test untick for current Search list
 		input = new UserInput();
 		input.setCommand(COMMAND_UNTICK);
-		input.setIndex(4);
+		input.setIndex(3);
 
 		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting is back to undone.", logic.getOutput(input));
 		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
@@ -221,9 +216,9 @@ public class SearchManagerTest {
 		input.setCommand(COMMAND_KIV);
 		input.setIndex(3);
 
-		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting will be kept in view.", logic.getOutput(input));
-		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
-				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
+		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting is kept in view.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
 				+ "3. \\***TICKED***\\\n"
 				+ "4. \\***KIV***\\\n"
 				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
@@ -232,11 +227,11 @@ public class SearchManagerTest {
 		// Test unKIV for current Search list
 		input = new UserInput();
 		input.setCommand(COMMAND_UNKIV);
-		input.setIndex(5);
+		input.setIndex(3);
 
 		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting is back to undone.", logic.getOutput(input));
-		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
-				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
 				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "4. \\***TICKED***\\\n"
 				+ "5. \\***KIV***\\\n", logic.list());
@@ -249,8 +244,8 @@ public class SearchManagerTest {
 		input.setStartTime(new Time(11, 30));
 
 		assertEquals("Searching for tasks...", logic.getOutput(input));
-		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
-				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
 				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "4. \\***TICKED***\\\n"
 				+ "5. \\***KIV***\\\n", logic.list());
@@ -262,8 +257,8 @@ public class SearchManagerTest {
 		input.setStartTime(new Time(11, 30));
 
 		assertEquals("Searching for tasks...", logic.getOutput(input));
-		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
-				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
 				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "4. \\***TICKED***\\\n"
 				+ "5. \\***KIV***\\\n", logic.list());
@@ -274,8 +269,8 @@ public class SearchManagerTest {
 		input.setEndDate(new Date(2014, 11, 6));
 
 		assertEquals("Searching for tasks...", logic.getOutput(input));
-		assertEquals("1. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n"
-				+ "2. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
+		assertEquals("1. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
 				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "4. \\***TICKED***\\\n"
 				+ "5. \\***KIV***\\\n", logic.list());
@@ -287,8 +282,8 @@ public class SearchManagerTest {
 		input.setEndTime(new Time(15, 0));
 
 		assertEquals("Searching for tasks...", logic.getOutput(input));
-		assertEquals("1. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n"
-				+ "2. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
+		assertEquals("1. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
 				+ "3. \\***TICKED***\\\n"
 				+ "4. \\***KIV***\\\n", logic.list());
 
@@ -299,9 +294,9 @@ public class SearchManagerTest {
 		input.setEndDate(new Date(2014, 11, 11));
 
 		assertEquals("Searching for tasks...", logic.getOutput(input));
-		assertEquals("1. Self: Watch running man from 3 Nov, 2014, 20:00 to 3 Nov, 2014, 21:30\n"
-				+ "2. CompClub: Man welfare pack booth from 5 Nov, 2014, 11:30 to 5 Nov, 2014, 14:00\n"
-				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov, 2014\n"
+		assertEquals("1. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
 				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
 				+ "5. \\***TICKED***\\\n"
 				+ "6. \\***KIV***\\\n", logic.list());
@@ -312,8 +307,8 @@ public class SearchManagerTest {
 		input.setPriority('A');
 
 		assertEquals("Searching for tasks...", logic.getOutput(input));
-		assertEquals("1. \\***TICKED***\\\n"
-				+ "2. \\***KIV***\\\n"
-				+ "3. Self: Get a haircut\n", logic.list());
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. \\***TICKED***\\\n"
+				+ "3. \\***KIV***\\\n", logic.list());
 	}
 }
