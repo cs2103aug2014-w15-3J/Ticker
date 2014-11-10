@@ -179,8 +179,7 @@ public class Parser {
 		TimePeriod result = checkDashTimeDate(command);
 		mergeTimeResult(result,input);
 		extractSingleDate(input);
-		input.validifyTime();
-
+		
 		if (input.getStartDate() == null && input.getEndDate() != null
 				&& input.getStartTime() != null && input.getEndTime() == null){
 			return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
@@ -189,6 +188,8 @@ public class Parser {
 				&& input.getStartTime() == null && input.getEndTime() != null){
 			return new UserInput(CMD.ERROR,INVALID_ET_AND_SD);
 		}
+		
+		input.validifyTime();
 		
 		return input;
 	}
