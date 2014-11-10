@@ -9,7 +9,7 @@ import ticker.common.Time;
 import ticker.parser.UserInput;
 import ticker.ui.TickerUI;
 
-public class TickKivManagerTest {
+public class TickKIVManagerTest {
 	// String constants for command types
 	private static final String COMMAND_UNTICK = "untick";
 	private static final String COMMAND_TICK = "tick";

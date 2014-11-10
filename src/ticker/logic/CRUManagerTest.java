@@ -9,7 +9,7 @@ import ticker.common.Time;
 import ticker.parser.UserInput;
 import ticker.ui.TickerUI;
 
-public class CruManagerTest {
+public class CRUManagerTest {
 	// String constants for command types
 	private static final String COMMAND_ADD = "add";
 	private static final String COMMAND_EDIT = "edit";
