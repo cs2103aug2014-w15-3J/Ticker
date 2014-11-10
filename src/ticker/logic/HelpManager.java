@@ -36,6 +36,7 @@ public class HelpManager {
 	private static final String COMMAND_DELETE = "delete";
 	private static final String COMMAND_SEARCH = "search";
 	private static final String COMMAND_SHOW = "show";
+	private static final String COMMAND_REMOVE = "remove";
 
 	// List of available help messages
 	private static final String MESSAGE_HELP = "help";
@@ -46,12 +47,13 @@ public class HelpManager {
 	private static final String MESSAGE_UNKIV = "unkiv <index>";
 	private static final String MESSAGE_KIV = "kiv <index>";
 	private static final String MESSAGE_ADD = "add <description> <startDate>-<endDate> <startTime>-<endTime>";
-	private static final String MESSAGE_EDIT = "edit <index> <description>";
+	private static final String MESSAGE_EDIT = "edit <index> <newParameter>";
 	private static final String MESSAGE_LIST = "list <listType>";
 	private static final String MESSAGE_CLEAR = "clear";
 	private static final String MESSAGE_DELETE = "delete <index>";
 	private static final String MESSAGE_SEARCH = "search <description> <time> -<priority>";
 	private static final String MESSAGE_SHOW = "show <listType>";
+	private static final String MESSAGE_REMOVE = "remove <index>";	
 	private static final String MESSAGE_EMPTY = "";
 
 	// These messages are used by Logger
@@ -103,6 +105,7 @@ public class HelpManager {
 		helpList.put(COMMAND_DELETE, MESSAGE_DELETE);
 		helpList.put(COMMAND_SEARCH, MESSAGE_SEARCH);
 		helpList.put(COMMAND_SHOW, MESSAGE_SHOW);
+		helpList.put(COMMAND_REMOVE, MESSAGE_REMOVE);
 	}
 
 	/**

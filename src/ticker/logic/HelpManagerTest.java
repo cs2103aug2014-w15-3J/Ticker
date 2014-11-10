@@ -16,12 +16,13 @@ public class HelpManagerTest {
 	private static final String MESSAGE_UNKIV = "unkiv <index>";
 	private static final String MESSAGE_KIV = "kiv <index>";
 	private static final String MESSAGE_ADD = "add <description> <startDate>-<endDate> <startTime>-<endTime>";
-	private static final String MESSAGE_EDIT = "edit <index> <description>";
+	private static final String MESSAGE_EDIT = "edit <index> <newParameter>";
 	private static final String MESSAGE_LIST = "list <listType>";
 	private static final String MESSAGE_CLEAR = "clear";
 	private static final String MESSAGE_DELETE = "delete <index>";
 	private static final String MESSAGE_SEARCH = "search <description> <time> -<priority>";
 	private static final String MESSAGE_SHOW = "show <listType>";
+	private static final String MESSAGE_REMOVE = "remove <index>";	
 	
 	@Test
 	public void testGetHelp() {
@@ -82,6 +83,10 @@ public class HelpManagerTest {
 		//test show command
 		input = "show";
 		assertEquals(MESSAGE_SHOW, helpManager.getHelp(input));
+		
+		//test remove command
+		input = "rem";
+		assertEquals(MESSAGE_REMOVE, helpManager.getHelp(input));
 	}
 
 }
