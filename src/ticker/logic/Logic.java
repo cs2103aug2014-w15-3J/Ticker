@@ -679,6 +679,7 @@ public class Logic {
 		String feedback;
 		feedback = searchMng.take(processed.getIndex(),
 				processed.getDescription());
+		maintainLists();
 		return feedback;
 	}
 
@@ -861,12 +862,10 @@ public class Logic {
 			updateObservers();
 			return FEEDBACK_LIST_PRIORITY;
 		case LIST_TICKED :
-			sortLists();
 			setCurrentAsTicked();
 			updateObservers();
 			return FEEDBACK_LIST_TICKED;
 		case COMMAND_KIV :
-			sortLists();
 			setCurrentAsKiv();
 			updateObservers();
 			return FEEDBACK_LIST_KIV;
