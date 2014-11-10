@@ -119,11 +119,38 @@ public class TickKivManagerTest {
 				+ "5. Self: Get a haircut\n"
 				+ "6. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
 		
-		
 		input = new UserInput();
 		input.setCommand(COMMAND_TICK);
 		input.setIndex(4);
 
 		assertEquals("CompClub: Add actionables on Trello is done!", logic.getOutput(input));
+		assertEquals("Listing ticked tasks...", logic.list(LIST_TICKED));
+		assertEquals("1. CompClub: Add actionables on Trello\n", logic.list());
+		
+		input = new UserInput();
+		input.setCommand(COMMAND_UNTICK);
+		input.setIndex(1);
+
+		assertEquals("CompClub: Add actionables on Trello is back to undone.", logic.getOutput(input));
+		assertEquals("Nothing to display", logic.list());
+		
+		assertEquals("Listing by time...", logic.list(LIST_TIME));
+		
+		input = new UserInput();
+		input.setCommand(COMMAND_KIV);
+		input.setIndex(4);
+
+		assertEquals("CompClub: Add actionables on Trello is kept in view.", logic.getOutput(input));
+		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_KIV));
+		assertEquals("1. CompClub: Add actionables on Trello\n", logic.list());
+		
+		input = new UserInput();
+		input.setCommand(COMMAND_UNKIV);
+		input.setIndex(1);
+
+		assertEquals("CompClub: Add actionables on Trello is back to undone.", logic.getOutput(input));
+		assertEquals("Nothing to display", logic.list());
+		
+		
 	}
 }
