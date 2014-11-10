@@ -7,7 +7,6 @@ import org.junit.Test;
 import ticker.common.Date;
 import ticker.common.Time;
 import ticker.parser.UserInput;
-import ticker.ui.TickerUI;
 
 //@author A0114535M
 public class CRUManagerTest {
