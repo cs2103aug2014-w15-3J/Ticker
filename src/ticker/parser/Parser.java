@@ -25,7 +25,8 @@ public class Parser {
 	public static final String INVALID_EDIT = "Invalid edit";
 	public static final String EMPTY_ADD = "Cannot add a task with empty description";
 	private static final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
-	
+	private static final Time START_OF_DAY = new Time(0,0);
+	private static final Time END_OF_DAY = new Time(23,59);
 	private static Logger logger = Logger.getLogger("parser");
 	private PrettyTimeParser ptp;
 	
@@ -398,6 +399,7 @@ public class Parser {
 		return input;
 	}
 	
+	//search for free slots
 	private UserInput callSearchFree(String command){
 
 		UserInput input = new UserInput(CMD.SEARCHFREE,command);
@@ -410,8 +412,14 @@ public class Parser {
 		if (!((input.getStartTime() == null) && (input.getEndTime() == null) && (input.getStartDate() == null) && (input.getEndDate() == null))){
 			getSearchTimePeriod(input,command);
 		}
-		input.setDescription(null);
+		else {
+			input.setStartDate(Date.getCurrentDate());
+			input.setEndDate(Date.getCurrentDate());
+			input.setStartTime(START_OF_DAY);
+			input.setStartTime(END_OF_DAY);
+		}
 		
+		input.setDescription(null);
 		return input;
 	}
 	
@@ -434,10 +442,10 @@ public class Parser {
 	private void getSearchTimePeriod(UserInput input, String description){
 	
 		if(input.getStartTime() == null){
-			input.setStartTime(new Time(0,0));
+			input.setStartTime(START_OF_DAY);
 		}
 		if(input.getEndTime() == null){
-			input.setEndTime(new Time(23,59));
+			input.setEndTime(END_OF_DAY);
 		}
 		if(input.getStartDate() == null&&input.getEndDate() == null){
 			input.setStartDate(Date.getCurrentDate());
@@ -451,6 +459,7 @@ public class Parser {
 		}
 	}
 	
+	//This method writes a time period into UserInput object
 	private void mergeTimeResult(TimePeriod result,UserInput ui){
 		if (result.getStartDate() != null){
 			ui.setStartDate(result.getStartDate());
@@ -469,6 +478,8 @@ public class Parser {
 		}
 	}
 	
+	//This method calls the PrettyTime natural language processing library, processes the String
+	//entered by the user and writes the result into UserInput object
 	private void nlp(String description,UserInput input){
 		
 		if (description.indexOf(ParserString.NLP_FLAG) == -1) return;
@@ -486,7 +497,7 @@ public class Parser {
 				input.setEndDate(convertDate(dates.get(0)));
 				
 				if (convertTime(dates.get(0)).equals(Time.getCurrentTime())){
-					input.setEndTime(new Time(23,59));
+					input.setEndTime(END_OF_DAY);
 				}
 				else {
 					input.setEndTime(convertTime(dates.get(0)));
@@ -527,12 +538,14 @@ public class Parser {
 		return false;
 	}
 	
+	//This method converts a java.util.Date object to a Ticker.common.Date object
 	private Time convertTime(java.util.Date date){
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
 		return new Time(cal.get(Calendar.HOUR_OF_DAY),cal.get(Calendar.MINUTE));
 	}
 	
+	//This method converts a java.util.Time object to a Ticker.common.Time object
 	private Date convertDate(java.util.Date date){
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(date);
@@ -549,7 +562,7 @@ public class Parser {
 		return str;
 	}
 	
-	
+	//This method tries to interpret a String entered by user and return a Time object 
 	private static Time constructTime(String str){
 		str = removeBlank(str);
 		if (str.equals("")) return null;
@@ -616,9 +629,10 @@ public class Parser {
 		return null;
 	}
 	
+	//This method tries to interpret a String entered by user and return a Date object 
 	static Date constructDate(String str){
 
-		if (str.equals("")) return null;
+		if (str.isEmpty()) return null;
 		int index = str.indexOf(ParserString.SLASH);
 		if (index == -1) return null;
 		
