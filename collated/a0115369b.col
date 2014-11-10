@@ -1,0 +1,1537 @@
+//@author: a0115369b
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\common\Date.java
+	 */
+
+
+/*
+ * This class represents a date
+ */
+
+public class Date {
+	private int year;
+	private int month;
+	private int date;
+	private static final int daysInaYear = 365;
+	private static final int daysInaWeek = 7;
+	private static final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+	
+	public Date (int year,int month, int date){
+		this.date = date;
+		this.month = month;
+		this.year = year;
+	}
+
+	public String toString(){
+		String showDate = date + " " + months[month];
+		if(year!=getCurrentYear()) {
+			showDate += " ";
+			showDate += year;
+		}
+		return showDate;
+	}
+	
+	public String getMonthStr(){
+		return months[getMonth()];
+	}
+	
+	public int getMonth(){
+		return month;
+	}
+	
+	public int getYear(){
+		return year;
+	}
+	
+	public int getDate(){
+		return date;
+	}
+	
+	public void setYear(int year){
+		this.year = year;		
+	}
+	
+	public void setMonth(int month){
+		this.month = month;
+	}
+	
+	public void setDate(int date){
+		this.date = date;	
+	}
+	
+	public int compareTo(Date other){
+		if (this.getYear() < other.getYear()){
+			return -1;
+		}
+	
+		if (this.getYear() > other.getYear()){
+			return 1;
+		}
+		
+		else {
+			if (this.getMonth() < other.getMonth())
+				return -1;
+			if (this.getMonth() > other.getMonth())
+				return 1;
+			else {
+				if (this.getDate() == other.getDate())
+					return 0;
+				return this.getDate() > other.getDate() ? 1 : -1;
+			}
+		}
+	}
+	
+	public boolean equals(Object obj) {
+		if (obj instanceof Date) {
+			Date myDate = (Date) obj;
+			return this.getYear() == myDate.getYear() && this.getMonth() == myDate.getMonth() 
+					&& this.getDate() == myDate.getDate();
+		} else {
+			return false;
+		}
+	}
+
+	public static Date getCurrentDate(){
+		Calendar cal = Calendar.getInstance();
+		return new Date(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DATE));
+	}
+	
+	public static int getCurrentYear(){
+		Calendar cal = Calendar.getInstance();
+		return cal.get(Calendar.YEAR);
+	}
+	
+	public static boolean isLeapYear(int year){
+		if (year % 400 == 0){ 
+			return true;
+		}
+		else if (year % 4 == 0 && year % 100 != 0){ 
+			return true;
+		}
+		return false;
+	}
+	
+	//returns 0 for Sunday, 1 for Monday, 2 for Tuesday etc
+	//pre-condition: date cannot be earlier than 1st Jan, 1900.
+	//the calculation is based on the fact that 0th Jan, 1900 is a Sunday.
+	
+	public static int dayOfWeek(Date date){
+		
+		//make sure the date is later than 1st Jan, 1900
+		assert date.compareTo(new Date(1900,1,1)) >= 0;
+		int numDays = 0;
+
+		for (int i = 1900; i < date.year; i++){
+			if (isLeapYear(i))
+				numDays += (daysInaYear + 1);
+			else numDays += daysInaYear;
+		}
+		
+		int[] numOfDaysEachMonth = {0,31,28,31,30,31,30,31,31,30,31,30,31};
+		
+		//numOfDays in February changes if it is leap year
+		if (isLeapYear(date.year)){
+			numOfDaysEachMonth[2]++;
+		}
+		
+		for (int i = 1; i < date.month; i++){
+			numDays += numOfDaysEachMonth[i];
+		}
+		
+		numDays += date.date;
+		
+		return numDays % daysInaWeek;
+	}
+
+	public boolean smallerThan(Date other) {
+		return this.compareTo(other) < 0;
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\common\Date.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\common\DateTime.java
+	 */
+
+
+/*
+ * An instance of DateTime class combines one date object and one time object
+ * into one single object
+ */
+
+public class DateTime{
+	private Date date;
+	private Time time;
+	
+	public DateTime(){	
+	}
+	
+	public DateTime(Date date,Time time){
+		this.date = date;
+		this.time = time;
+	} 
+	
+	public Time getTime(){
+		return this.time;
+	}
+	
+	public Date getDate(){
+		return this.date;
+	}
+	
+	public void setTime(Time time){
+		this.time = time;
+	}
+	
+	public void setDate(Date date){
+		this.date = date;
+	}
+	
+	public boolean equalsTo(DateTime other){
+		return this.compareTo(other) == 0;
+	}
+
+	public boolean smallerThan(DateTime other){
+		return this.compareTo(other) < 0;
+	}
+	
+	public int compareTo(DateTime other){
+		if (this.getDate().smallerThan(other.getDate()) || (this.getDate().equals(other.getDate())
+				&& this.getTime().smallerThan(other.getTime()))){
+			return -1;
+		}
+		else if(this.getTime().equals(other.getTime()) && this.getDate().equals(other.getDate())){
+			return 0;
+		}
+		else return 1;
+	}
+}
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\common\DateTime.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\common\Time.java
+	 */
+
+ 
+/*
+ * This class represents a time
+ */
+
+public class Time {
+	private int hour;
+	private int minute;
+	public Time (int hour,int minute){
+		this.hour = hour;
+		this.minute =  minute;
+	}
+
+	public String toString(){
+		String minutePrefix = (minute<10) ? "0" : "" ;
+		return hour + ":" +  minutePrefix  + minute;
+	}
+	
+	public int getHour(){
+		return hour;
+	}
+
+	public int getMinute(){
+		return minute;
+	}
+	
+	public void setHour(int hour){
+		this.hour = hour;
+	}
+	
+	public void setMinute(int minute){
+		this.minute = minute;
+	}
+	
+	public int compareTo(Time other){
+		if (this.getHour() < other.getHour() || (this.getHour() == other.getHour() && this.getMinute() < other.getMinute()))
+			return -1;
+		if (this.getHour() == other.getHour() && this.getMinute() == other.getMinute())
+			return 0;
+		return 1;
+	}
+
+	public boolean equals(Object obj) {
+		if (obj instanceof Time) {
+			Time myTime = (Time) obj;
+			return this.getHour() == myTime.getHour() && this.getMinute() == myTime.getMinute();
+		} else {
+			return false;
+		}
+	}
+	
+	public static Time getCurrentTime(){
+		Calendar cal = Calendar.getInstance();
+		return new Time(cal.get(Calendar.HOUR_OF_DAY),cal.get(Calendar.MINUTE));
+	}
+	public boolean smallerThan(Time other) {
+		return this.compareTo(other) < 0;
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\common\Time.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\common\TimedTask.java
+	 */
+
+	/**
+	 * This method prints the TimedTask.
+	 */
+	@Override
+	public String toString(){
+		String timing = new String();
+		
+		if (!(getStartTime() == null&&getStartDate() == null)){
+			timing += FROM;
+		}
+		
+		if (getStartDate() != null){
+			timing += SPACE;
+			timing += getStartDate();
+		}
+		
+		if (getStartTime() != null){
+			timing += COMMA;
+			timing += getStartTime();
+		}
+		
+		if(!(getEndTime() == null&&getEndDate() == null)){
+			timing += TO;
+		}
+		
+		if (getEndDate() != null){
+			timing += SPACE;
+			timing += getEndDate();
+		}
+		
+		if (getEndTime() != null){
+			timing += COMMA;
+			timing += getEndTime();
+		}
+		
+		return getDescription() + timing; 
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\common\TimedTask.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\parser\CMD.java
+	 */
+
+
+/*
+ * This enum stores all the commands(key words) that are supported by parser
+ */
+
+public enum CMD{
+	ERROR("error"), DEL("delete"), EDIT("edit"), EDITT("editt"),
+	SEARCH("search"), ADD("add"), TICK("tick"), UNTICK("untick"),
+	KIV("kiv"), UNKIV("unkiv"), CLEAR("clear"), EXIT("exit"),
+	UNDO("undo"), REDO("redo"), HELP("help"), LIST("list"), 
+	SEARCHFREE("searchfree"), TAKE("take");
+	
+	private final String text;
+	private CMD(final String text){
+		this.text = text;
+	}
+	@Override
+	public String toString(){
+		return text;
+	}
+}
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\parser\CMD.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\parser\Parser.java
+	 */
+
+/*
+ * This class analyzes the String entered by the user and determines
+ * what the user wants to do
+ * 
+ * usage: when Logic component calls the processInput method, the corresponding
+ * UserInput object is returned to Logic.
+ */
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.Calendar;
+import java.util.List;
+import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
+import ticker.common.*;
+
+public class Parser {
+	
+	public static final String INVALID_ST_AND_ED = "Cannot add a task with only start time and end date";
+	public static final String INVALID_ET_AND_SD = "Cannot add a task with only end time and start date";
+	public static final String INVALID_ARGUMENT = "Invalid Argument";
+	public static final String INVALID_SEARCH = "Invalid search";
+	public static final String INVALID_EDIT = "Invalid edit";
+	public static final String EMPTY_ADD = "Cannot add a task with empty description";
+	private static final String[] months = {"","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+	private static final Time START_OF_DAY = new Time(0,0);
+	private static final Time END_OF_DAY = new Time(23,59);
+	private static Logger logger = Logger.getLogger("parser");
+	private PrettyTimeParser ptp;
+	
+	public Parser(){
+		ptp = new PrettyTimeParser();
+	}
+
+	//This method takes in a string from Logic and returns a UserInput object to Logic
+	//indicating what the user want to do
+	public UserInput processInput(String command){
+		logger.log(Level.INFO,"processInput");
+		String[] words = command.toLowerCase().split(" +");
+		if (words.length == 0) return null;
+		
+		String key = words[0].toLowerCase();
+		
+		if (key.equals(ParserString.ADD)){
+			if (words.length == 1){
+				return new UserInput(CMD.ERROR,EMPTY_ADD);
+			}
+			return callAdd(words,command);
+		}
+		
+		else if (key.equals(ParserString.DELETE) || key.equals(ParserString.DEL) || key.equals(ParserString.REMOVE)){
+			return callDelete(words);
+		}
+		
+		else if (key.equals(ParserString.SEARCH)){
+			if(words.length == 1){
+				return new UserInput(CMD.ERROR,INVALID_SEARCH);
+			}
+			return callSearch(words,command);
+		}
+		
+		else if (key.equals(ParserString.EDIT)){
+			if (words.length <= 2){
+				return new UserInput(CMD.ERROR,INVALID_EDIT);
+			}
+			return callEdit(words,command);
+		}
+		
+		else if (key.equals(ParserString.LIST) || key.equals(ParserString.SHOW)){
+			return callList(words);
+		}
+		
+		else if (key.equals(ParserString.TICK) || key.equals(ParserString.DONE)){
+			return callTick(words);
+		}
+		
+		else if (key.equals(ParserString.KIV)){
+			return callKIV(words);
+		}
+		
+		else if (key.equals(ParserString.UNTICK)){
+			return callUntick(words);
+		}
+		
+		else if (key.equals(ParserString.UNKIV)){
+			return callUnKIV(words);
+		}
+		
+		else if (key.equals(ParserString.HELP)){
+			return callHelp(words);
+		}
+		
+		else if (key.equals(ParserString.CLEAR)){
+			return callClear(words);
+		}
+		
+		else if (key.equals(ParserString.UNDO)){
+			return new UserInput(CMD.UNDO,null);
+		}
+		
+		else if (key.equals(ParserString.REDO)){
+			return new UserInput(CMD.REDO,null);
+		}
+		
+		else if (key.equals(ParserString.EXIT)){
+			System.exit(0);
+		}
+		
+		else if (key.equals(ParserString.TAKE)){
+			return callTake(command, words);
+		}
+		
+		else if (key.equals(ParserString.SEARCH_FREE_SHORT) || key.equals(ParserString.SEARCH_FREE)){
+			return callSearchFree(command);
+		}
+		
+		return null;
+		
+	}
+	
+	private UserInput callTake(String command,String[] words) {
+		if (words.length < 3){
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		}
+		String description = command.substring(CMD.TAKE.toString().length() + 1);
+		description = description.trim();
+		description = description.substring(description.indexOf(ParserString.SPACE));
+		description = description.trim();
+		
+		UserInput input = new UserInput(CMD.TAKE,description);
+		
+		try{
+			input.setIndex(Integer.parseInt(words[1]));
+		} catch(NumberFormatException nfe) { 
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		}
+		
+		return input;
+	}
+
+	private UserInput callAdd(String[] words,String command){
+		logger.log(Level.INFO,"callAdd");
+		String description = extractDesc(command);
+		UserInput input = new UserInput(CMD.ADD,description);
+		input.setPriority(ParserString.NORMAL_PRIORITY_CHAR);
+		
+		for (int i = 0; i < words.length; i++){
+			
+			String lowerCase = words[i].toLowerCase();
+			
+			if (lowerCase.equals(ParserString.HIGH_PRIORITY_SHORT) || lowerCase.equals(ParserString.HIGH_PRIORITY)){
+				input.setPriority(ParserString.HIGH_PRIORITY_CHAR);
+			}
+			
+			else if (lowerCase.equals(ParserString.LOW_PRIORITY)){
+				input.setPriority(ParserString.LOW_PRIORITY_CHAR);
+			}
+
+			else if (lowerCase.equals(ParserString.REPEATING) || lowerCase.equals("-rw")){
+				input.setRepeating(true);
+				//input.setRepeatingInterval(RepeatingInterval.WEEK);
+			}
+			/*
+			else if (lowerCase.equals("-rd")){
+				input.setRepeating(true);
+				input.setRepeatingInterval(RepeatingInterval.DAY);
+			}
+			
+			else if (lowerCase.equals("-rm")){
+				input.setRepeating(true);
+				input.setRepeatingInterval(RepeatingInterval.MONTH);
+			}
+			*/
+		}
+		
+		nlp(description,input);
+		TimePeriod result = checkDashTimeDate(command);
+		mergeTimeResult(result,input);
+		extractSingleDate(input);
+		
+		if (input.getStartDate() == null && input.getEndDate() != null
+				&& input.getStartTime() != null && input.getEndTime() == null){
+			return new UserInput(CMD.ERROR,INVALID_ST_AND_ED);
+		}
+		else if (input.getStartDate() != null && input.getEndDate() == null
+				&& input.getStartTime() == null && input.getEndTime() != null){
+			return new UserInput(CMD.ERROR,INVALID_ET_AND_SD);
+		}
+		
+		input.validifyTime();
+		
+		return input;
+	}
+	
+	private static TimePeriod checkDashTimeDate(String description){
+		String[] strings = description.split(" +"); 
+		TimePeriod result = new TimePeriod();
+		for (String s:strings){
+			if (s.indexOf(ParserString.DASH_STRING) != -1 && s.indexOf(ParserString.DASH_STRING) == s.lastIndexOf(ParserString.DASH_STRING)){
+				int index = s.indexOf(ParserString.DASH_STRING);
+				if (constructTime(s.substring(0,index)) != null){
+					result.setStartTime(constructTime(s.substring(0,index)));
+				}
+				if (constructTime(s.substring(index+1)) != null){
+					result.setEndTime(constructTime(s.substring(index+1)));
+				}
+				if (constructDate(s.substring(0,index)) != null){
+					result.setStartDate(constructDate(s.substring(0,index)));
+				}
+				if (constructDate(s.substring(index+1)) != null){
+					result.setEndDate(constructDate(s.substring(index+1)));
+				}
+			}
+		}
+		return result;
+	}
+	
+	private UserInput callDelete(String[] words){
+		UserInput input = new UserInput(CMD.DEL,null);
+		return extractIndex(words,input);
+	}
+	
+	private UserInput callHelp(String[] words){
+		UserInput input = new UserInput();
+		input.setCommand(CMD.HELP.toString());
+		return input;
+	}
+	
+	private UserInput callClear(String[] words){
+		if (words.length > 1){
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		}
+		UserInput input = new UserInput(CMD.CLEAR,null);
+		return input;
+	}
+	
+	//This method extracts the index from user's input, assign it to the UserInput object
+	//and returns the modified UserInput object. It is used for delete tick untick kiv unkiv commands.
+	private UserInput extractIndex(String[] words,UserInput input){
+		if (words.length < 2)
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		
+		try {
+			input.setIndex(Integer.parseInt(words[1]));
+		} catch (NumberFormatException nfe){
+			return new UserInput(CMD.ERROR,INVALID_ARGUMENT);
+		} 
+		return input;
+	}
+
+	private UserInput callTick(String[] words){
+		UserInput input = new UserInput(CMD.TICK,null);
+		return extractIndex(words,input);
+	}
+
+	private UserInput callKIV(String[] words){
+		UserInput input = new UserInput(CMD.KIV,null);
+		return extractIndex(words,input);
+	}
+
+	private UserInput callUntick(String[] words){
+		UserInput input = new UserInput(CMD.UNTICK,null);
+		return extractIndex(words,input);
+	}
+
+	private UserInput callUnKIV(String[] words){
+		UserInput input = new UserInput(CMD.UNKIV,null);
+		return extractIndex(words,input);
+	}
+	
+	//This method extracts the description part from the String entered by user
+	private String extractDesc(String str){
+		if ((str.length() > 4 && str.substring(0,4).equalsIgnoreCase(ParserString.ADD_WITH_SPACE))
+				|| (str.length() > 6 && str.substring(0, 7).equalsIgnoreCase(ParserString.SEARCH_WITH_SPACE))){
+			str = str.substring(str.indexOf(ParserString.SPACE) + 1);
+		}
+		
+		else if (str.length() > 5 && str.substring(0,5).equalsIgnoreCase(ParserString.EDIT_WITH_SPACE)){
+			str = str.substring(str.indexOf(ParserString.SPACE) + 1);
+			str = str.substring(str.indexOf(ParserString.SPACE) + 1);
+		}
+		
+		String[] splitted = str.split(" +");
+		String res = str;
+		for (int i = 0; i < splitted.length; i++){
+			if (splitted[i].indexOf(ParserString.DASH_STRING) != -1 && !splitted[i].equals(ParserString.NLP_FLAG)){
+				int startIndex = res.indexOf(splitted[i]);
+				int endIndex = startIndex + splitted[i].length();
+				if (startIndex-1 >= 0 && res.charAt(startIndex-1) == ParserString.SPACE){
+					startIndex--;
+				}
+				res = res.substring(0,startIndex) + res.substring(endIndex);
+			}
+		}
+		
+		return res.trim();
+	}
+	
+	//This method analyses the UserInput object. If input.description contains date 
+	//in the format mm/dd or yy/mm/dd (without any dash), this part of description 
+	//will be extracted and the date parsed will be assigned to input.startDate and input.endDate
+	
+	private void extractSingleDate(UserInput input){
+		if (input.getStartDate() == null && input.getEndDate() == null){
+			String res = input.getDescription();
+			String[] splitted = res.split(" +");
+			for (int i = 0; i < splitted.length; i++){
+				if (constructDate(splitted[i]) != null){
+					int startIndex = res.indexOf(splitted[i]);
+					int endIndex = startIndex + splitted[i].length();
+					if (startIndex-1 >= 0 && res.charAt(startIndex-1) == ParserString.SPACE){
+						startIndex--;
+					}
+					res = res.substring(0,startIndex) + res.substring(endIndex);
+					input.setStartDate(constructDate(splitted[i]));
+					input.setEndDate(constructDate(splitted[i]));
+				}
+			}
+			input.setDescription(res);
+		}
+	}
+	
+	private UserInput callEdit(String[] words,String command){
+		String description = extractDesc(command);		
+		int index = Integer.parseInt(words[1]); 
+		
+		UserInput input = new UserInput(CMD.EDIT,description);
+		input.setIndex(index);
+		
+		for (int i=0; i < words.length; i++){
+			
+			if (words[i].toLowerCase().equals(ParserString.HIGH_PRIORITY_SHORT) || words[i].toLowerCase().equals(ParserString.HIGH_PRIORITY)){
+				input.setPriority(ParserString.HIGH_PRIORITY_CHAR);
+			}
+			
+			if (words[i].toLowerCase().equals(ParserString.NORMAL_PRIORITY)){
+				input.setPriority(ParserString.NORMAL_PRIORITY_CHAR);
+			}
+			
+			if (words[i].toLowerCase().equals(ParserString.LOW_PRIORITY)){
+				input.setPriority(ParserString.LOW_PRIORITY_CHAR);
+			}
+
+			if (words[i].equals(ParserString.REPEATING)){
+				input.setRepeating(true);
+			}
+		}
+		
+		nlp(description,input);
+		TimePeriod result = checkDashTimeDate(command);
+		mergeTimeResult(result,input);
+		extractSingleDate(input);
+
+		return input;
+	}
+	
+	private UserInput callSearch(String[] words,String command){
+		
+		String description = extractDesc(command); 
+		UserInput input = new UserInput(CMD.SEARCH,description);
+		
+		for (int i = 0; i < words.length; i++){
+			if (words[i].equals(ParserString.HIGH_PRIORITY_SHORT) || words[i].equals(ParserString.HIGH_PRIORITY)){
+				input.setPriority(ParserString.HIGH_PRIORITY_CHAR);
+			}
+			if (words[i].equals(ParserString.LOW_PRIORITY)){
+				input.setPriority(ParserString.LOW_PRIORITY_CHAR);
+			}
+			if (words[i].equals(ParserString.NORMAL_PRIORITY)){
+				input.setPriority(ParserString.NORMAL_PRIORITY_CHAR);
+			}
+			if (words[i].equals(ParserString.EXPIRED_SHORT) || words[i].equals(ParserString.EXPIRED)){
+				input.setCommand(ParserString.SEARCH_EXPIRED);
+			}
+				
+		}
+		
+		nlp(description,input);
+		TimePeriod result = checkDashTimeDate(command);
+		mergeTimeResult(result,input);
+		extractSingleDate(input);
+		
+		if (!((input.getStartTime() == null) && (input.getEndTime() == null) && (input.getStartDate() == null) 
+				&& (input.getEndDate() == null))){
+			getSearchTimePeriod(input,command);
+		}
+		
+		return input;
+	}
+	
+	//search for free slots
+	private UserInput callSearchFree(String command){
+
+		UserInput input = new UserInput(CMD.SEARCHFREE,command);
+		
+		nlp(command,input);
+		TimePeriod result = checkDashTimeDate(command);
+		mergeTimeResult(result,input);
+		extractSingleDate(input);
+		
+		if (!((input.getStartTime() == null) && (input.getEndTime() == null) && (input.getStartDate() == null) && (input.getEndDate() == null))){
+			getSearchTimePeriod(input,command);
+		}
+		else {
+			input.setStartDate(Date.getCurrentDate());
+			input.setEndDate(Date.getCurrentDate());
+			input.setStartTime(START_OF_DAY);
+			input.setEndTime(END_OF_DAY);
+		}
+		
+		input.setDescription(null);
+		return input;
+	}
+	
+	private UserInput callList (String[] words){
+		
+		UserInput input = new UserInput(CMD.LIST,ParserString.TIME);
+			
+		if (words.length >= 2){
+			if (words[1].equals(ParserString.PRIORITY) || words[1].equals(ParserString.PRIORITY_SHORT))
+				input.setDescription(ParserString.PRIORITY);
+			if (words[1].equals(ParserString.KIV_SHORT) || words[1].equals(ParserString.KIV))
+				input.setDescription(ParserString.KIV);
+			if (words[1].equals(ParserString.TICKED) || words[1].equals(ParserString.TICK))
+				input.setDescription(ParserString.TICKED);
+		}
+		return input;
+		
+	}
+	
+	private void getSearchTimePeriod(UserInput input, String description){
+	
+		if(input.getStartTime() == null){
+			input.setStartTime(START_OF_DAY);
+		}
+		if(input.getEndTime() == null){
+			input.setEndTime(END_OF_DAY);
+		}
+		if(input.getStartDate() == null&&input.getEndDate() == null){
+			input.setStartDate(Date.getCurrentDate());
+			input.setEndDate(Date.getCurrentDate());
+		}
+		else if (input.getStartDate() == null){
+			input.setStartDate(Date.getCurrentDate());
+		}
+		else if (input.getEndDate() == null){
+			input.setEndDate(input.getStartDate());
+		}
+	}
+	
+	//This method writes a time period into UserInput object
+	private void mergeTimeResult(TimePeriod result,UserInput ui){
+		if (result.getStartDate() != null){
+			ui.setStartDate(result.getStartDate());
+		}
+		
+		if (result.getEndDate() != null){
+			ui.setEndDate(result.getEndDate());
+		}
+		
+		if (result.getStartTime() != null){
+			ui.setStartTime(result.getStartTime());
+		}
+		
+		if (result.getEndTime() != null){
+			ui.setEndTime(result.getEndTime());
+		}
+	}
+	
+	//This method calls the PrettyTime natural language processing library, processes the String
+	//entered by the user and writes the result into UserInput object
+	private void nlp(String description,UserInput input){
+		
+		if (description.indexOf(ParserString.NLP_FLAG) == -1) return;
+		
+		input.setDescription(description.substring(0,description.indexOf(ParserString.NLP_FLAG)).trim());		
+		List<java.util.Date> dates = this.ptp.parse(description.substring(description.indexOf(ParserString.NLP_FLAG)+2));
+		if (dates.size() == 2){
+			input.setStartDate(convertDate(dates.get(0)));
+			input.setStartTime(convertTime(dates.get(0)));
+			input.setEndDate(convertDate(dates.get(1)));
+			input.setEndTime(convertTime(dates.get(1)));
+		}
+		else if (dates.size() == 1){
+			if (isDeadLine(description)){
+				input.setEndDate(convertDate(dates.get(0)));
+				
+				if (convertTime(dates.get(0)).equals(Time.getCurrentTime())){
+					input.setEndTime(END_OF_DAY);
+				}
+				else {
+					input.setEndTime(convertTime(dates.get(0)));
+				}
+			
+			}
+			
+			else {
+				input.setStartDate(convertDate(dates.get(0)));
+				input.setStartTime(convertTime(dates.get(0)));
+			}
+		}
+	}
+	
+	//This method determines whether the Time/Date in nlp result is a deadline.
+	private boolean isDeadLine(String description){
+		description = description.toLowerCase();
+		if (description.indexOf("deadline") != -1){
+			return true;
+		}
+		
+		int index=description.indexOf("by");
+		if (index != -1 && this.ptp.parse(description.substring(index)).size() == 1){
+			return true;
+		}
+
+		index=description.indexOf("before");
+		if (index != -1 && this.ptp.parse(description.substring(index)).size() == 1){
+			return true;
+		}
+		
+		index=description.indexOf("in");
+		if (index != -1 && this.ptp.parse(description.substring(index)).size() == 1){
+			if (description.indexOf("finish") != -1 || description.indexOf("do") != -1 || description.indexOf("complete") != -1)
+				return true;
+		}
+		
+		return false;
+	}
+	
+	//This method converts a java.util.Date object to a Ticker.common.Date object
+	private Time convertTime(java.util.Date date){
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		return new Time(cal.get(Calendar.HOUR_OF_DAY),cal.get(Calendar.MINUTE));
+	}
+	
+	//This method converts a java.util.Time object to a Ticker.common.Time object
+	private Date convertDate(java.util.Date date){
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		return new Date(cal.get(Calendar.YEAR),cal.get(Calendar.MONTH)+1,cal.get(Calendar.DATE));
+	}
+	
+	private static String removeBlank(String str){
+		str = str.trim();
+		for (int i=0; i < str.length(); i++){
+			while (str.charAt(i) == ParserString.SPACE)
+				str = str.substring(0,i) + str.substring(i+1);
+			if (i == str.length()) return str;
+		}
+		return str;
+	}
+	
+	//This method tries to interpret a String entered by user and return a Time object 
+	private static Time constructTime(String str){
+		str = removeBlank(str);
+		if (str.equals("")) return null;
+		int firstIndex = str.indexOf(':');
+		int lastIndex = str.lastIndexOf(':');
+		
+		int hour = -1; 
+		int minute = -1;
+		
+		boolean isPM = false;
+		if (str.length() > 2){
+			String lastTwoChars = str.substring(str.length()-2);
+			if (lastTwoChars.equalsIgnoreCase(ParserString.PM)){
+				isPM = true;
+				str = str.substring(0,str.length()-2);
+			}
+			else if(lastTwoChars.equalsIgnoreCase(ParserString.AM)){
+				str = str.substring(0,str.length()-2);
+			}
+		}
+		
+		if (firstIndex == -1){
+			
+			for (int i = 0; i < str.length(); i++){
+				if (str.charAt(i) < '0' || str.charAt(i) > '9')
+					return null;
+			}
+			int time = 0;
+			try{
+				time = Integer.parseInt(str);
+			}catch(NumberFormatException nfe){
+				return null;
+			}
+			
+			if (time < 100) {
+				hour = time;
+				minute = 0;
+			}
+			else if (time < 10000){
+				hour = time / 100;
+				minute = time % 100;
+			}
+		}
+		
+		else if (firstIndex == lastIndex){
+			
+			for (int i = 0; i < str.length(); i++){
+				if (i != firstIndex&&(str.charAt(i) < '0' || str.charAt(i) > '9'))
+					return null;
+			}
+			if (firstIndex != 0 && firstIndex != str.length() - 1){
+				hour = Integer.parseInt(str.substring(0,firstIndex));
+				minute = Integer.parseInt(str.substring(firstIndex+1)); 
+			}
+		}
+		
+		if (isPM){
+			hour += 12;
+		}
+		if (hour >= 0 && hour < 24 && minute < 60 && minute >= 0){
+			logger.log(Level.INFO,"valid time constructed, hour = " + hour + " minute = " + minute);
+			return new Time(hour,minute);
+		}
+		return null;
+	}
+	
+	//This method tries to interpret a String entered by user and return a Date object 
+	static Date constructDate(String str){
+
+		if (str.isEmpty()) return null;
+		int index = str.indexOf(ParserString.SLASH);
+		if (index == -1) return null;
+		
+		int month = 0;
+		int date=0;
+		int year = Date.getCurrentYear();
+		
+		if (str.lastIndexOf(ParserString.SLASH) == index){
+			
+			try {  
+				date = Integer.parseInt(str.substring(index + 1)); 
+				month = Integer.parseInt(str.substring(0,index));
+			}  
+				catch(NumberFormatException nfe) {    
+			}  
+		}
+		
+		else {
+
+			try {
+				year = Integer.parseInt(str.substring(0,index));  
+				if (year < 100){
+					year += 2000;
+				}
+				month =  Integer.parseInt(str.substring(index + 1,str.lastIndexOf(ParserString.SLASH)));  
+				date =  Integer.parseInt(str.substring(str.lastIndexOf(ParserString.SLASH) + 1));  
+			}	catch(NumberFormatException nfe) {
+			}  
+		}
+
+		try {  
+			month = Integer.parseInt(str.substring(index + 1,str.lastIndexOf(ParserString.SLASH)));  
+		}	catch(NumberFormatException nfe) {    
+		}	catch(IndexOutOfBoundsException ioobe){
+		} 
+		
+		int[] numOfDays = {0,31,28,31,30,31,30,31,31,30,31,30,31};
+		if (Date.isLeapYear(year)){
+			numOfDays[2] = 29;
+		}
+		
+		if (month == 0){
+			for (int i = 0; i < months.length; i++){
+				if (str.toLowerCase().indexOf(months[i].toLowerCase()) != -1){
+					month = i;
+					break;
+				}
+			}
+		}
+		
+		if (month > 0 && month < 13 && date <= numOfDays[month]){
+			logger.log(Level.INFO,"valid date constructed, year = " + year + " month = " + month + " date = " + date);
+			return new Date(year,month,date);
+		}
+		return null;
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\parser\Parser.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\parser\ParserString.java
+	 */
+
+
+/*
+ * This interface is used to store all the strings used in parser
+ */
+
+public interface ParserString {
+	public static final String ADD = "add";
+	public static final String DELETE = "delete";
+	public static final String DEL = "del";
+	public static final String REMOVE = "remove";
+	public static final String SEARCH = "search";
+	public static final String EDIT = "edit";
+	public static final String LIST = "list";
+	public static final String SHOW = "show";
+	public static final String TICK	= "tick";
+	public static final String TICKED	= "ticked";
+	public static final String DONE = "done";
+
+	public static final String HELP = "help";
+	public static final String CLEAR = "clear";
+	public static final String UNDO = "undo";
+	public static final String REDO = "redo";
+	public static final String EXIT = "exit";
+	public static final String TAKE	= "take";
+	public static final String SEARCH_FREE = "searchfree";
+	public static final String SEARCH_FREE_SHORT = "searchf";
+	
+	public static final String HIGH_PRIORITY = "-important";
+	public static final String HIGH_PRIORITY_SHORT = "-impt";
+	public static final String LOW_PRIORITY = "-trivial";
+	public static final String NORMAL_PRIORITY = "-normal";
+	public static final String DASH_STRING = "-";
+	public static final String UNTICK = "untick";
+	public static final String KIV = "kiv";
+	public static final String KIV_SHORT = "k";
+	public static final String UNKIV = "unkiv";
+	public static final String PRIORITY	= "priority";
+	public static final String PRIORITY_SHORT = "p";
+	public static final String SEARCH_EXPIRED = "searchExpired" ;
+	public static final String EXPIRED = "-exp";
+	public static final String EXPIRED_SHORT = "-e";
+	public static final String TIME = "time";
+	public static final String NLP_FLAG = "-t";
+	public static final String BLANK = " ";
+	public static final String REPEATING = "-r";
+	public static final String SLASH = "/";
+	public static final String AM = "am";
+	public static final String PM = "pm";
+
+	public static final String ADD_WITH_SPACE = "add ";
+	public static final String EDIT_WITH_SPACE = "edit ";
+	public static final String SEARCH_WITH_SPACE = "search ";
+	
+	public static final char HIGH_PRIORITY_CHAR = 'A';
+	public static final char NORMAL_PRIORITY_CHAR = 'B';
+	public static final char LOW_PRIORITY_CHAR = 'C';
+	public static final char SPACE = ' ';
+	
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\parser\ParserString.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\parser\ParserTest.java
+	 */
+
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
+
+import org.junit.Test;
+
+import ticker.common.Date;
+import ticker.common.Time;
+public class ParserTest {
+	
+	Parser par = new Parser();
+	@Test
+	public void test() {
+	}
+	
+	@Test
+	public void testAdd(){
+		//floating task
+		assertEquals("add",par.processInput("add Project Meeting").getCommand());
+	
+		//check whether time and date is parsed correctly
+		//format: startTime-endTime    startDate-endDate
+		Date date1 = new Date(2014,3,4);
+		Date date2 = new Date(2014,5,6);
+		Time time1 = new Time(1,0);
+		Time time2 = new Time(2,0);
+		
+		UserInput ui1 = par.processInput("add go shopping 1-2 3/4-5/6");
+		assertEquals(ui1.getStartDate(),date1);
+		assertEquals(ui1.getEndDate(),date2);
+		assertEquals(ui1.getStartTime(),time1);
+		assertEquals(ui1.getEndTime(),time2);
+
+		//check whether repeating task is correctly parsed 
+		UserInput ui2 = par.processInput("add go shopping 1-2 3/4-5/6 -r -impt");
+		assertEquals(ui2.getRepeating(),true);
+		//check whether priority is correctly parsed
+		assertEquals(ui2.getPriority(),'A'); 
+	
+		//check if StartDate and EndDate are set to the same day if only one date is given
+		UserInput ui3 = par.processInput("add go shopping 11am-2pm 3/4");
+		assertEquals(ui3.getStartDate(),date1);
+		assertEquals(ui3.getEndDate(),date1);
+		//test whether am pm are correctly interpreted
+		assertEquals(ui3.getStartTime(),new Time(11,0));
+		assertEquals(ui3.getEndTime(),new Time(14,0));
+		
+		//check whether start date and end date are assumed to be today
+		//if the user enters only time.
+		UserInput ui4 = par.processInput("add go shopping 11am-2pm");
+		assertEquals(ui4.getStartDate(),Date.getCurrentDate());
+		assertEquals(ui4.getEndDate(),Date.getCurrentDate());
+	}
+	
+	@Test
+	public void testDelete(){
+		
+		//correct syntax
+		assertEquals("delete",par.processInput("delete 1").getCommand());
+		assertEquals("delete",par.processInput("del 2").getCommand());
+		assertEquals("delete",par.processInput("remove 3").getCommand());
+		
+		// UPPERCASE and lowercase are both supported
+		assertThat(par.processInput("DeLeTE 4").getIndex(),is(4));
+		
+		//invalid format
+		assertEquals("error",par.processInput("delete").getCommand());
+		assertEquals("error",par.processInput("delete abc").getCommand());
+	}
+	
+	@Test
+	public void testSearch(){
+		assertEquals("search",par.processInput("search \"Lecture\"").getCommand());
+		assertEquals("Lecture",par.processInput("search Lecture").getDescription());
+		
+		UserInput searchUserIn = par.processInput("search Project 11/2-11/9");
+		assertEquals(searchUserIn.getStartDate(),new Date(2014,11,2));
+		assertEquals(searchUserIn.getEndDate(),new Date(2014,11,9));
+		assertEquals(searchUserIn.getStartTime(),new Time(0,0));
+		assertEquals(searchUserIn.getEndTime(),new Time(23,59));
+		
+		UserInput searchUserIn2 = par.processInput("search Project -t by next friday");
+		assertEquals(searchUserIn2.getStartDate(),Date.getCurrentDate());
+		
+		UserInput searchUserIn3 = par.processInput("search cs2101 hw");
+		assertEquals(searchUserIn3.getStartDate(),null);
+		assertEquals(searchUserIn3.getEndDate(),null);
+		assertEquals(searchUserIn3.getStartTime(),null);
+		assertEquals(searchUserIn3.getEndTime(),null);
+		
+		//search expired
+		UserInput searchUserIn4 = par.processInput("search Assignment -e");
+		assertEquals(searchUserIn4.getCommand(),"searchExpired");
+		
+		//search free slots
+		UserInput searchUserIn5 = par.processInput("searchfree 11/10");
+		assertEquals(searchUserIn5.getCommand(),"searchfree");
+		
+		UserInput searchUserIn6 = par.processInput("searchf");
+		assertEquals(searchUserIn6.getStartDate(),Date.getCurrentDate());
+	}
+		
+	@Test
+	public void testEdit(){
+		//edit description only
+		assertEquals("edit",par.processInput("edit 1 have lunch").getCommand());
+		assertThat(par.processInput("edit 1 have lunch").getIndex(),is(1));
+		
+		//edit timing for a task using -t
+		assertEquals(new Time(13,0),par.processInput("edit 1 have lunch 13-14 ").getStartTime());
+		assertEquals(new Time(14,0),par.processInput("edit 1 have lunch 13-14 ").getEndTime());
+		assertEquals("have lunch",par.processInput("edit 1 have lunch").getDescription());
+		assertEquals('\u0000',par.processInput("edit 1 have lunch").getPriority());
+	}
+	
+	public void testConstructDate(){
+		Date date1 = Parser.constructDate("11/1");
+		Date date2 = Parser.constructDate("2014/1/11");
+		assertEquals(date1,new Date(2014,11,1));
+		assertEquals(date2,new Date(2014,1,11));
+		assertEquals(Parser.constructDate("Sep/11"),new Date(2014,9,11));
+	}
+	
+	@Test
+	public void testOthers(){
+		//test undo redo
+		assertEquals("redo",par.processInput("redo").getCommand());
+		assertEquals("undo",par.processInput("undo").getCommand());
+		
+		//test list command
+		assertEquals("priority",par.processInput("list p").getDescription());
+		assertEquals("time",par.processInput("list time").getDescription());
+		
+		//test tick untick
+		assertEquals("tick",par.processInput("tick 1").getCommand());
+		assertEquals("tick",par.processInput("done 1").getCommand());
+		assertThat(par.processInput("done 1").getIndex(),is(1));
+		assertEquals("untick",par.processInput("untick 1").getCommand());
+		
+		//test for KIV (Keep In View)
+		assertEquals("kiv",par.processInput("kiv 1").getCommand());
+		assertEquals("unkiv",par.processInput("unkiv 1").getCommand());
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\parser\ParserTest.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\parser\TimePeriod.java
+	 */
+
+
+/*
+ * This class represents a time Period
+ * from start DateTime to end DateTime
+ */
+import ticker.common.Date;
+import ticker.common.DateTime;
+import ticker.common.Time;
+
+public class TimePeriod{
+	private DateTime start;
+	private DateTime end;
+	
+	public TimePeriod(){
+		start = new DateTime(null,null);
+		end = new DateTime(null,null);
+	}
+	public TimePeriod(DateTime start,DateTime end){
+		this.start=start;
+		this.end=end;
+	}
+	
+	public DateTime getStart(){
+		return start;
+	}
+	
+	public DateTime getEnd(){
+		return end;
+	}
+	
+	public Date getStartDate(){
+		return start.getDate();
+	}
+	
+	public Time getStartTime(){
+		return start.getTime();
+	}
+	
+	public Date getEndDate(){
+		return end.getDate();
+	}
+	
+	public Time getEndTime(){
+		return end.getTime();
+	}
+	
+	public void setStartDate(Date d){
+		this.getStart().setDate(d);
+	}
+	
+	public void setStartTime(Time t){
+		this.getStart().setTime(t);
+	}
+	
+	public void setEndDate(Date d){
+		this.getEnd().setDate(d);
+	}
+	
+	public void setEndTime(Time t){
+		this.getEnd().setTime(t);
+	}
+}
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\parser\TimePeriod.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\parser\UserInput.java
+	 */
+
+
+/*
+ * This class represents one command entered by the user
+ * after being processed by parser
+ * 
+ */
+
+public class UserInput {
+	
+	private String command;
+	private String description;
+	private Time startTime;
+	private Time endTime;
+	private Date endDate;
+	private Date startDate;
+	private boolean isRepeating;
+	private int index;
+	private char priority;
+	//protected RepeatingInterval repeatingInterval;
+	
+	// TODO: instantiate UserInput()
+	public UserInput(){
+	}
+	
+	public UserInput(CMD cmd,String description){
+		this.setCommand(cmd.toString());
+		this.setDescription(description);
+	}
+	
+	public String getCommand() {
+		return command;
+	}
+	
+	public String getDescription() {
+		return description;
+	}
+	
+	public Time getStartTime() {
+		return startTime;
+	}
+	
+	public Time getEndTime() {
+		return endTime;
+	}
+	
+	public Date getStartDate() {
+		return startDate;
+	}
+	
+	public Date getEndDate() {
+		return endDate;
+	}
+	
+	public void setStartTime(Time time){
+		this.startTime=time;
+	}
+	
+	public void setEndTime(Time time){
+		this.endTime=time;
+	}
+	
+	public void setStartDate(Date date){
+		this.startDate=date;
+	}
+	
+	public void setEndDate(Date date){
+		this.endDate=date;
+	}
+	
+	public boolean getRepeating() {
+		return isRepeating();
+	}
+	
+	public boolean getAppending() {
+		return isRepeating();
+	}
+	
+	public int getIndex() {
+		return index;
+	}
+	
+	public char getPriority() {
+		return priority;
+	}
+
+	void validifyTime(){
+		if (endTime!=null&&endDate==null){
+			if (startTime==null&&startDate==null){
+				endDate = Date.getCurrentDate();
+			}
+			else if (startTime!=null&&startDate==null){
+				startDate = endDate = Date.getCurrentDate();
+			}
+			else if (startTime!=null&&startDate!=null){
+				endDate = startDate;
+			}
+		}
+		
+		else if (endTime!=null){
+			if (startTime!=null&&startDate==null){
+				startDate = endDate;
+			}
+			else if (startTime==null&&startDate!=null){
+				startTime = new Time(0,0);
+			}
+		}
+		
+		//endTime == null
+		else {
+			if (endDate == null&&startTime!=null&&startDate==null){
+				startDate=Date.getCurrentDate();
+			}
+			else if (endDate != null&&startTime!=null&&startDate!=null){
+				endTime = new Time(23,59);
+			}
+			else if (startTime==null&&startDate!=null&&endDate!=null){
+				startTime = new Time(0,0);
+				endTime = new Time(23,59);
+			}
+			else if (startTime==null&&startDate!=null&&endDate==null){
+				startTime = new Time(0,0);
+			}
+			else if (startDate==null&&endDate!=null){
+				if (startTime==null){
+					endTime = new Time (23,59);
+				}
+				else {
+					startDate=endDate;
+				}
+			}
+		}
+	}
+
+	public void setPriority(char priority) {
+		this.priority = priority;
+	}
+
+	public boolean isRepeating() {
+		return isRepeating;
+	}
+
+	public void setRepeating(boolean isRepeating) {
+		this.isRepeating = isRepeating;
+	}
+
+	public void setCommand(String command) {
+		this.command = command;
+	}
+
+	public void setIndex(int index) {
+		this.index = index;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	
+	/*
+	public void setRepeatingInterval(RepeatingInterval ri) {
+		this.repeatingInterval = ri;
+	}
+	
+	public RepeatingInterval getRepeatingInterval() {
+		return this.repeatingInterval;
+	}
+ 	*/
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\parser\UserInput.java
+
+
+
+
+

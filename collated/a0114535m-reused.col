@@ -1,0 +1,42 @@
+//@author: a0114535m-reused
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\SearchManager.java
+	 */
+
+	/**
+	 * This method determines the level of similarity between the task
+	 * description and the given key (used library from SimMetrics)
+	 *
+	 * @param key				Key to be searched for.
+	 * @param taskDescription	Description of the task
+	 * @return Similarity points between the key and task description.
+	 */
+	private static float getMatchLikelyhood(String key,
+			final String taskDescription) {
+		AbstractStringMetric metric;
+		float avg = 0F, result = 0F;
+		metric = new SmithWaterman();
+		result = metric.getSimilarity(key, taskDescription);
+		avg += result;
+		metric = new SmithWatermanGotoh();
+		result = metric.getSimilarity(key, taskDescription);
+		avg += result;
+		metric = new SmithWatermanGotohWindowedAffine();
+		result = metric.getSimilarity(key, taskDescription);
+		avg += result;
+		metric = new MongeElkan();
+		result = metric.getSimilarity(key, taskDescription);
+		avg += result;
+		return (avg / 4.0F) * 100.0F;
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\SearchManager.java
+
+
+
+
+

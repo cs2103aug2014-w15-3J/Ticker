@@ -1,0 +1,5144 @@
+//@author: a0114535m
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\common\DeadlineTask.java
+	 */
+
+/**
+ * Description: This class is used for deadline tasks.
+ */
+public class DeadlineTask extends Task {
+	// CONSTANTS
+	private static final String STRING_DEADLINE = " deadline ";
+	private static final String STRING_COMMA = ", ";
+	private static final int SMALLER = -1;
+	private static final int EQUAL = 0;
+
+	// ATTRIBUTES
+	public final int id = 4; // used in storage
+
+	public DeadlineTask(String description, Date endDate, Time endTime,
+			char priority, boolean isRepeating) {
+		super(description, null, null, endDate, endTime, priority, isRepeating);
+	}
+	
+	/**
+	 * This method deep copies a DeadlineTask.
+	 */
+	public DeadlineTask copy() {
+		return new DeadlineTask(this.getDescription(), this.getEndDate(),
+				this.getEndTime(), this.getPriority(), this.getRepeat());
+	}
+	
+	/**
+	 * This method checks for task expiry.
+	 */
+	@Override
+	public void isExpired() {
+		if (this.endDate != null
+				&& this.endTime != null
+				&& (this.endDate.compareTo(Date.getCurrentDate()) < EQUAL || (this.endDate
+						.compareTo(Date.getCurrentDate()) == EQUAL && this.endTime
+						.compareTo(Time.getCurrentTime()) == SMALLER))) {
+			this.isExpired = true;
+			return;
+		}
+		this.isExpired = false;
+		return;
+	}
+	
+	/**
+	 * This method prints the DeadlineTask.
+	 */
+	@Override
+	public String toString() {
+
+		String timing = STRING_DEADLINE;
+
+		if (getEndTime() != null) {
+			timing += getEndTime() + STRING_COMMA;
+		}
+
+		timing += getEndDate();
+
+		return getDescription() + timing;
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\common\DeadlineTask.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\common\FloatingTask.java
+	 */
+
+/**
+ * Description: This class is used for floating tasks.
+ */
+public class FloatingTask extends Task {
+	public final int id = 1; // used in storage
+
+	public FloatingTask(String description, char priority, boolean isRepeating) {
+		super(description, null, null, null, null, priority, isRepeating);
+	}
+
+	/**
+	 * This method deep copies a FloatingTask.
+	 */
+	public FloatingTask copy() {
+		return new FloatingTask(this.getDescription(), this.getPriority(),
+				this.getRepeat());
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\common\FloatingTask.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\common\RepeatingTask.java
+	 */
+
+/**
+ * Description: This class is used for repeating tasks.
+ */
+public class RepeatingTask extends Task {
+	// CONSTANTS
+	// Integer constants for days
+	private static final int SUNDAY = 0;
+	private static final int MONDAY = 1;
+	private static final int TUESDAY = 2;
+	private static final int WEDNESDAY = 3;
+	private static final int THURSDAY = 4;
+	private static final int FRIDAY = 5;
+	private static final int SATURDAY = 6;
+	// Other integer constants
+	private static final int EQUAL = 0;
+	private static final int SMALLER = -1;
+	// String constants
+	private static final String STRING_END = "(end at ";
+	private static final String STRING_START = "(start at ";
+	private static final String STRING_CLOSE = ") ";
+	private static final String STRING_TO = " to ";
+	private static final String STRING_FROM = "(from ";
+	private static final String STRING_SATURDAY = "<Saturday> ";
+	private static final String STRING_FRIDAY = "<Friday> ";
+	private static final String STRING_THURSDAY = "<Thursday> ";
+	private static final String STRING_WEDNESDAY = "<Wednesday> ";
+	private static final String STRING_TUESDAY = "<Tuesday> ";
+	private static final String STRING_MONDAY = "<Monday> ";
+	private static final String STRING_SUNDAY = "<Sunday> ";
+	private static final String EMPTY_STRING = "";
+	// String feedback
+	private static final String FEEDBACK_ERROR_GET_DAY = "Error in getting Day for RepeatingTask";
+
+	// ATTRIBUTES
+	public final int id = 3; // used in storage
+	private int day;
+
+	public RepeatingTask(String description, Date date, Time startTime,
+			Time endTime, char priority, boolean isRepeating) {
+		super(description, date, startTime, null, endTime, priority,
+				isRepeating);
+		this.day = Date.dayOfWeek(date);
+	}
+	
+	/**
+	 * This method deep copies a RepeatingTask.
+	 */
+	public RepeatingTask copy() {
+		return new RepeatingTask(this.getDescription(), this.getStartDate(),
+				this.getStartTime(), this.getEndTime(), this.getPriority(),
+				this.getRepeat());
+	}
+
+	public int getDay() { // 0: Sunday, 1: Monday, ... 6: Saturday
+		return day;
+	}
+
+	/**
+	 * This method checks for task expiry.
+	 */
+	@Override
+	public void isExpired() {
+		if (this.endDate != null
+				&& this.endTime != null
+				&& (this.endDate.compareTo(Date.getCurrentDate()) == SMALLER || (this.endDate
+						.compareTo(Date.getCurrentDate()) == EQUAL && this.endTime
+						.compareTo(Time.getCurrentTime()) == SMALLER))) {
+			this.isExpired = true;
+			return;
+		}
+		this.isExpired = false;
+		return;
+	}
+	
+	/**
+	 * This method sets the start date of the repeating task.
+	 */
+	@Override
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+		this.day = Date.dayOfWeek(startDate);
+	}
+	
+	/**
+	 * This method prints the RepeatingTask.
+	 */
+	@Override
+	public String toString() {
+		String timing = EMPTY_STRING;
+
+		if (getStartTime() != null && getEndTime() != null) {
+			timing = STRING_FROM + getStartTime() + STRING_TO + getEndTime()
+					+ STRING_CLOSE;
+		} else if (getStartTime() != null) {
+			timing = STRING_START + getStartTime() + STRING_CLOSE;
+		} else if (getEndTime() != null) {
+			timing = STRING_END + getEndTime() + STRING_CLOSE;
+		}
+
+		switch (this.day) {
+		case SUNDAY:
+			return STRING_SUNDAY + timing + getDescription();
+		case MONDAY:
+			return STRING_MONDAY + timing + getDescription();
+		case TUESDAY:
+			return STRING_TUESDAY + timing + getDescription();
+		case WEDNESDAY:
+			return STRING_WEDNESDAY + timing + getDescription();
+		case THURSDAY:
+			return STRING_THURSDAY + timing + getDescription();
+		case FRIDAY:
+			return STRING_FRIDAY + timing + getDescription();
+		case SATURDAY:
+			return STRING_SATURDAY + timing + getDescription();
+		default:
+			return FEEDBACK_ERROR_GET_DAY;
+		}
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\common\RepeatingTask.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\common\sortByPriority.java
+	 */
+
+/**
+ * Description: This class implements the Comparator interface and is 
+ * used to sort tasks according to these tiers-
+ * 1: Priority (sorted with highest priority first)
+ * 2: Timing (sorted with earliest deadline first)
+ * 3: Task type (TimedTask, DeadlineTask, FloatingTask, RepeatingTask)
+ * 4: Lexicographical order
+ */
+public class sortByPriority implements Comparator<Task> {
+
+	// CONSTANTS
+	private static final int EQUAL = 0;
+	private static final int BIGGER = 1;
+	private static final int SMALLER = -1;
+
+	/**
+	 * This method compares the tasks by their priority, date, time, task type
+	 * and lexicographical string description.
+	 */
+	public int compare(Task task1, Task task2) {
+		// Comparing between Priority
+		if (task1.priority != task2.priority) {
+			return task1.priority - task2.priority;
+		}
+
+		// Comparing between non-repeating tasks and RepeatingTasks
+		if (task1.isRepeating == false && task2.isRepeating == true) {
+			return SMALLER;
+		}
+		if (task1.isRepeating == true && task2.isRepeating == false) {
+			return BIGGER;
+		}
+
+		// Comparing between RepeatingTasks
+		if (task1.isRepeating == true && task2.isRepeating == true) {
+			RepeatingTask rt1 = (RepeatingTask) task1;
+			RepeatingTask rt2 = (RepeatingTask) task2;
+			return rt1.getDay() - rt2.getDay();
+		}
+
+		if (task1.startDate != null && task2.startDate != null) {
+
+			// Primary comparison between TimedTasks using startDate
+			int startDateComparator = task1.startDate
+					.compareTo(task2.startDate);
+
+			if (startDateComparator != EQUAL) {
+				return startDateComparator;
+			}
+
+			// Secondary comparison between TimedTasks using startTime
+			if (task1.startTime != null && task2.startTime != null) {
+				int startTimeComparator = task1.startTime
+						.compareTo(task2.startTime);
+
+				if (startTimeComparator != EQUAL) {
+					return startTimeComparator;
+				}
+			}
+			// TimedTasks with startTime will be above TimedTasks without
+			// startTime
+			if (task1.startTime != null && task2.startTime == null) {
+				return SMALLER;
+			}
+			if (task1.startTime == null && task2.startTime != null) {
+				return BIGGER;
+			}
+
+			// Tertiary comparison between TimedTasks using description
+			return task1.description.compareToIgnoreCase(task2.description);
+		}
+
+		// Comparing between TimedTask and DeadlineTask
+		if (task1.startDate != null
+				&& (task2.startDate == null && task2.endDate != null)) {
+
+			// Primary comparison between TimedTasks and DeadlineTasks using
+			// startDate and endDate respectively
+			int mixedDateComparator = task1.startDate.compareTo(task2.endDate);
+
+			if (mixedDateComparator != EQUAL) {
+				return mixedDateComparator;
+			}
+
+			// Secondary comparison between TimedTasks and DeadlineTasks using
+			// startTime and endTime respectively
+			if (task1.startTime != null && task2.endTime != null) {
+				int mixedTimeComparator = task1.startTime
+						.compareTo(task2.endTime);
+
+				if (mixedTimeComparator != EQUAL) {
+					return mixedTimeComparator;
+				}
+			}
+			// Task with time will be before the other
+			if (task1.startTime != null && task2.endTime == null) {
+				return SMALLER;
+			}
+			if (task1.startTime == null && task2.endTime != null) {
+				return BIGGER;
+			}
+
+			// Tertiary comparison using description
+			return task1.description.compareToIgnoreCase(task2.description);
+		}
+
+		if ((task1.startDate == null && task1.endDate != null)
+				&& task2.startDate != null) {
+
+			// Primary comparison between TimedTasks and DeadlineTasks using
+			// startDate and endDate respectively
+			int mixedDateComparator = task1.endDate.compareTo(task2.startDate);
+
+			if (mixedDateComparator != EQUAL) {
+				return mixedDateComparator;
+			}
+
+			// Secondary comparison between TimedTasks and DeadlineTasks using
+			// startTime and endTime respectively
+			if (task1.endTime != null && task2.startTime != null) {
+				int mixedTimeComparator = task1.endTime
+						.compareTo(task2.startTime);
+
+				if (mixedTimeComparator != EQUAL) {
+					return mixedTimeComparator;
+				}
+			}
+			// Task with time will be before the other
+			if (task1.endTime != null && task2.startTime == null) {
+				return SMALLER;
+			}
+			if (task1.endTime == null && task2.startTime != null) {
+				return BIGGER;
+			}
+
+			// Tertiary comparison using description
+			return task1.description.compareToIgnoreCase(task2.description);
+		}
+
+		// Comparing TimedTasks with FloatingTasks
+		// TimedTasks placed before FloatingTasks
+		if (task1.startDate != null
+				&& (task2.startDate == null && task2.endDate == null)) {
+			return SMALLER;
+		}
+		if ((task1.startDate == null && task1.endDate == null)
+				&& task2.startDate != null) {
+			return BIGGER;
+		}
+
+		// Comparing between DeadlineTasks
+		if ((task1.startDate == null && task1.endDate != null)
+				&& (task2.startDate == null && task2.endDate != null)) {
+			// Primary comparison between TimedTasks and DeadlineTasks using
+			// startDate and endDate respectively
+			int endDateComparator = task1.endDate.compareTo(task2.endDate);
+
+			if (endDateComparator != EQUAL) {
+				return endDateComparator;
+			}
+
+			// Secondary comparison between TimedTasks and DeadlineTasks using
+			// startTime and endTime respectively
+			if (task1.endTime != null && task2.endTime != null) {
+				int endTimeComparator = task1.endTime.compareTo(task2.endTime);
+
+				if (endTimeComparator != EQUAL) {
+					return endTimeComparator;
+				}
+			}
+			// Task with time will be before the other
+			if (task1.endTime != null && task2.endTime == null) {
+				return SMALLER;
+			}
+			if (task1.endTime == null && task2.endTime != null) {
+				return BIGGER;
+			}
+
+			// Tertiary comparison between DeadlineTasks using description
+			return task1.description.compareToIgnoreCase(task2.description);
+		}
+
+		// Comparing DeadlineTasks with FloatingTasks
+		// DeadlineTasks placed before FloatingTasks
+		if ((task1.startDate == null && task1.endDate != null)
+				&& (task2.startDate == null && task2.endDate == null)) {
+			return SMALLER;
+		}
+		if ((task1.startDate == null && task1.endDate == null)
+				&& (task2.startDate == null && task2.endDate != null)) {
+			return BIGGER;
+		}
+
+		// Comparing between FloatingTasks
+		return task1.description.compareToIgnoreCase(task2.description);
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\common\sortByPriority.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\common\sortByTime.java
+	 */
+
+/**
+ * Description: This class implements the Comparator interface and is used 
+ * to sort tasks according to these tiers-
+ * 1: Timing (sorted with earliest deadline first)
+ * 2: Task type (TimedTask, DeadlineTask, FloatingTask, RepeatingTask)
+ * 3: Lexicographical order
+ */
+public class sortByTime implements Comparator<Task> {
+
+	// CONSTANTS
+	private static final int BIGGER = 1;
+	private static final int SMALLER = -1;
+	private static final int EQUAL = 0;
+
+	/**
+	 * This method compares the tasks by their date, time, task type and
+	 * lexicographical string description.
+	 */
+	public int compare(Task task1, Task task2) {
+
+		// Comparing between non-repeating tasks and RepeatingTasks
+		if (task1.isRepeating == false && task2.isRepeating == true) {
+			return SMALLER;
+		}
+		if (task1.isRepeating == true && task2.isRepeating == false) {
+			return BIGGER;
+		}
+
+		// Comparing between RepeatingTasks
+		if (task1.isRepeating == true && task2.isRepeating == true) {
+			RepeatingTask rt1 = (RepeatingTask) task1;
+			RepeatingTask rt2 = (RepeatingTask) task2;
+			return rt1.getDay() - rt2.getDay();
+		}
+
+		// Comparing between TimedTasks
+		if (task1.startDate != null && task2.startDate != null) {
+
+			// Primary comparison between TimedTasks using startDate
+			int startDateComparator = task1.startDate
+					.compareTo(task2.startDate);
+
+			if (startDateComparator != EQUAL) {
+				return startDateComparator;
+			}
+
+			// Secondary comparison between TimedTasks using startTime
+			if (task1.startTime != null && task2.startTime != null) {
+				int startTimeComparator = task1.startTime
+						.compareTo(task2.startTime);
+
+				if (startTimeComparator != EQUAL) {
+					return startTimeComparator;
+				}
+			}
+			// TimedTasks with startTime will be above TimedTasks without
+			// startTime
+			if (task1.startTime != null && task2.startTime == null) {
+				return SMALLER;
+			}
+			if (task1.startTime == null && task2.startTime != null) {
+				return BIGGER;
+			}
+
+			// Tertiary comparison between TimedTasks using description
+			return task1.description.compareToIgnoreCase(task2.description);
+
+		}
+
+		// Comparing between TimedTask and DeadlineTask
+		if (task1.startDate != null
+				&& (task2.startDate == null && task2.endDate != null)) {
+
+			// Primary comparison between TimedTasks and DeadlineTasks using
+			// startDate and endDate respectively
+			int mixedDateComparator = task1.startDate.compareTo(task2.endDate);
+
+			if (mixedDateComparator != EQUAL) {
+				return mixedDateComparator;
+			}
+
+			// Secondary comparison between TimedTasks and DeadlineTasks using
+			// startTime and endTime respectively
+			if (task1.startTime != null && task2.endTime != null) {
+				int mixedTimeComparator = task1.startTime
+						.compareTo(task2.endTime);
+
+				if (mixedTimeComparator != EQUAL) {
+					return mixedTimeComparator;
+				}
+			}
+			// Task with time will be before the other
+			if (task1.startTime != null && task2.endTime == null) {
+				return SMALLER;
+			}
+			if (task1.startTime == null && task2.endTime != null) {
+				return BIGGER;
+			}
+
+			// Tertiary comparison using description
+			return task1.description.compareToIgnoreCase(task2.description);
+
+		}
+
+		if ((task1.startDate == null && task1.endDate != null)
+				&& task2.startDate != null) {
+
+			// Primary comparison between TimedTasks and DeadlineTasks using
+			// startDate and endDate respectively
+			int mixedDateComparator = task1.endDate.compareTo(task2.startDate);
+
+			if (mixedDateComparator != EQUAL) {
+				return mixedDateComparator;
+			}
+
+			// Secondary comparison between TimedTasks and DeadlineTasks using
+			// startTime and endTime respectively
+			if (task1.endTime != null && task2.startTime != null) {
+				int mixedTimeComparator = task1.endTime
+						.compareTo(task2.startTime);
+
+				if (mixedTimeComparator != EQUAL) {
+					return mixedTimeComparator;
+				}
+			}
+			// Task with time will be before the other
+			if (task1.endTime != null && task2.startTime == null) {
+				return SMALLER;
+			}
+			if (task1.endTime == null && task2.startTime != null) {
+				return BIGGER;
+			}
+
+			// Tertiary comparison using description
+			return task1.description.compareToIgnoreCase(task2.description);
+
+		}
+
+		// Comparing TimedTasks with FloatingTasks
+		// TimedTasks placed before FloatingTasks
+		if (task1.startDate != null
+				&& (task2.startDate == null && task2.endDate == null)) {
+			return SMALLER;
+		}
+		if ((task1.startDate == null && task1.endDate == null)
+				&& task2.startDate != null) {
+			return BIGGER;
+		}
+
+		// Comparing between DeadlineTasks
+		if ((task1.startDate == null && task1.endDate != null)
+				&& (task2.startDate == null && task2.endDate != null)) {
+			// Primary comparison between TimedTasks and DeadlineTasks using
+			// startDate and endDate respectively
+			int endDateComparator = task1.endDate.compareTo(task2.endDate);
+
+			if (endDateComparator != EQUAL) {
+				return endDateComparator;
+			}
+			// Secondary comparison between TimedTasks and DeadlineTasks using
+			// startTime and endTime respectively
+			if (task1.endTime != null && task2.endTime != null) {
+				int endTimeComparator = task1.endTime.compareTo(task2.endTime);
+
+				if (endTimeComparator != EQUAL) {
+					return endTimeComparator;
+				}
+			}
+			// Task with time will be before the other
+			if (task1.endTime != null && task2.endTime == null) {
+				return SMALLER;
+			}
+			if (task1.endTime == null && task2.endTime != null) {
+				return BIGGER;
+			}
+
+			// Tertiary comparison between DeadlineTasks using description
+			return task1.description.compareToIgnoreCase(task2.description);
+		}
+
+		// Comparing DeadlineTasks with FloatingTasks
+		// DeadlineTasks placed before FloatingTasks
+		if ((task1.startDate == null && task1.endDate != null)
+				&& (task2.startDate == null && task2.endDate == null)) {
+			return SMALLER;
+		}
+		if ((task1.startDate == null && task1.endDate == null)
+				&& (task2.startDate == null && task2.endDate != null)) {
+			return BIGGER;
+		}
+
+		// Comparing between FloatingTasks
+		return task1.description.compareToIgnoreCase(task2.description);
+	}
+
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\common\sortByTime.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\common\TimedTask.java
+	 */
+
+/**
+ * Description: This class is used for timed tasks.
+ */
+public class TimedTask extends Task {
+	// CONSTANTS
+	private static final int EQUAL = 0;
+	private static final int SMALLER = -1;
+	private static final String FROM = " from";
+	private static final String SPACE = " ";
+	private static final String COMMA = ", ";
+	private static final String TO = " to";
+
+	// ATTRIBUTES
+	public final int id = 2; // used in storage
+
+	public TimedTask(String description, Date startDate, Time startTime,
+			Date endDate, Time endTime, char priority, boolean isRepeating) {
+		super(description, startDate, startTime, endDate, endTime, priority,
+				isRepeating);
+	}
+	
+	/**
+	 * This method deep copies a TimedTask.
+	 */
+	public TimedTask copy() {
+		return new TimedTask(this.getDescription(), this.getStartDate(),
+				this.getStartTime(), this.getEndDate(), this.getEndTime(),
+				this.getPriority(), this.getRepeat());
+	}
+	
+	/**
+	 * This method checks for task expiry.
+	 */
+	public void isExpired() {
+		if (this.endDate != null
+				&& this.endTime != null
+				&& (this.endDate.compareTo(Date.getCurrentDate()) == SMALLER || (this.endDate
+						.compareTo(Date.getCurrentDate()) == EQUAL && this.endTime
+						.compareTo(Time.getCurrentTime()) == SMALLER))) {
+			this.isExpired = true;
+			return;
+		}
+		this.isExpired = false;
+		return;
+	}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\common\TimedTask.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\CRUManager.java
+	 */
+
+/**
+ * Description: This class adds, delete and edits task.
+ */
+public class CRUManager {
+
+	// CONSTANTS
+	// String constants for command types
+	private static final String COMMAND_ADD = "add";
+	private static final String COMMAND_DELETE = "delete";
+	private static final String COMMAND_EDIT = "edit";
+	// Integer key constants for lists used by listTracker
+	private static final int KEY_SORTED_TIME = 1;
+	private static final int KEY_SORTED_PRIORITY = 2;
+	private static final int KEY_TICKED = 3;
+	private static final int KEY_KIV = 4;
+	private static final int KEY_SEARCH = 5;
+	private static final int KEY_FREESLOTS = 6;
+	// String constants for type of lists used
+	private static final String TASKS_TIME = "time";
+	private static final String TASKS_TICKED = "ticked";
+	private static final String TASKS_KIV = "kiv";
+	// String constants for stamps
+	private static final String FREESLOT_STAMP = "\\***FREE***\\";
+	private static final String STAMP_TICKED = "\\***TICKED***\\";
+	private static final String STAMP_KIV = "\\***KIV***\\";
+	// String constant
+	private static final String EMPTY_STRING = "";
+	// Char constants
+	private static final char NULL_CHAR = '\u0000';
+	private static final char PRIORITY_NORMAL = 'B';
+	// Integer constants
+	private static final int INIT = 0;
+	private static final int SMALLER = -1;
+	private static final int BIGGER = 1;
+	// Integer constants for offsets
+	private static final int OFFSET_INDEX = 1;
+	private static final int OFFSET_TICKED = 1;
+	private static final int OFFSET_KIV = 2;
+	// Integer constants for time
+	private static final int START_HOUR = 0;
+	private static final int START_MIN = 0;
+	private static final int END_HOUR = 23;
+	private static final int END_MIN = 59;
+	// Feedback messages
+	private static final String FEEDBACK_APPEND_IS_UPDATED = " has been updated.";
+	private static final String FEEDBACK_APPEND_IS_DELETED = " has been removed.";
+	private static final String FEEDBACK_APPEND_IS_ADDED = " has been added.";
+	private static final String FEEDBACK_ERROR_DUPLICATE_TASK = "Task already exists.";
+	private static final String FEEDBACK_ERROR_REPEATING_TASK_WITHOUT_DATE = "Cannot add repeating tasks without a date.";
+	private static final String FEEDBACK_ERROR_INVALID_ENDING_DATE = "Invalid ending date.";
+	private static final String FEEDBACK_ERROR_INVALID_DATE_TIME = "Invalid ending date or time.";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_TO_REPEATED_TASK = "Invalid edit to repeated task. Missing date";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_BOTH_TIMINGS = "Invalid edit on both timings";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_TIME = "Invalid edit on ending time";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_TIME = "Invalid edit on starting time";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_DATES = "Invalid edit on dates";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_DATE = "Invalid edit on ending date";
+	private static final String FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_DATE = "Invalid edit on starting date";
+	private static final String FEEDBACK_ERROR_CANNOT_EDIT_FROM_TICKED_AND_KIV_LIST = "Cannot edit from ticked and KIV list.";
+	private static final String FEEDBACK_ERROR_CANNOT_EDIT_FROM_KIV_LIST = "Cannot edit from KIV list.";
+	private static final String FEEDBACK_ERROR_CANNOT_EDIT_FROM_TICKED_LIST = "Cannot edit from ticked list.";
+	private static final String FEEDBACK_ERROR_CANNOT_ADD_WITHOUT_DESCRIPTION = "Cannot add without description.";
+	private static final String FEEDBACK_ERROR_DELETE_FREESLOT = "Cannot delete freeslot.";
+	// Log messages
+	private static final String LOG_UNCATCHED_TASK_EDIT_STARTDATE = "Uncatched task in edit startDate";
+	private static final String LOG_UNCATCHED_TASK_IN_EDIT_STARTTIME = "Uncatched task in edit startTime";
+	private static final String LOG_UNCATCHED_TASK_EDIT_STARTTIME_ENDTIME = "Error in catching task in edit startTime and endTime";
+	private static final String LOG_UNCATCHED_TASK_EDIT_STARTDATE_ENDDATE = "Error catching task in edit startDate and endDate";
+
+	// ATTRIBUTES
+	// Instances of other components
+	private UndoManager undoMng;
+	private Vector<Task> storedTasksByPriority, storedTasksByTime,
+	storedTasksByTicked, storedTasksByKiv;
+
+	CRUManager(Vector<Task> storedTasksByTime,
+			Vector<Task> storedTasksByPriority,
+			Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKiv) {
+		this.storedTasksByPriority = storedTasksByPriority;
+		this.storedTasksByTime = storedTasksByTime;
+		this.storedTasksByTicked = storedTasksByTicked;
+		this.storedTasksByKiv = storedTasksByKiv;
+
+		undoMng = UndoManager.getInstance(storedTasksByPriority,
+				storedTasksByTime, storedTasksByTicked, storedTasksByKiv);
+	}
+
+	/**
+	 * This method adds a task.
+	 *
+	 * @param description	Task description to be set.
+	 * @param isRepeating	Set a task as repeating.
+	 * @param startDate		Start date to be set.
+	 * @param endDate		End date to be set.
+	 * @param startTime		Start time to be set.
+	 * @param endTime		 End time to be set.
+	 * @param priority		Level of priority to be set.
+	 * @return Feedback after adding.
+	 * @throws IllegalArgumentException		If event is created wrongly.
+	 */
+	String add(String description, boolean isRepeating, Date startDate,
+			Date endDate, Time startTime, Time endTime, char priority)
+					throws IllegalArgumentException {
+
+		if (description == null || description.equals(EMPTY_STRING)) {
+			return FEEDBACK_ERROR_CANNOT_ADD_WITHOUT_DESCRIPTION;
+		}
+
+		Task newTask;
+
+		if (isRepeating) {
+			if (startDate != null && endDate != null && startTime != null
+					&& endTime != null && (endDate.compareTo(startDate) == SMALLER 
+					|| endTime.compareTo(startTime) == SMALLER)) {
+				return FEEDBACK_ERROR_INVALID_DATE_TIME;
+			}
+			if (startDate != null && endDate != null && startTime == null
+					&& endTime == null && (endDate.compareTo(startDate) == SMALLER)) {
+				return FEEDBACK_ERROR_INVALID_ENDING_DATE;
+			}
+
+			if (startDate != null) {
+				newTask = new RepeatingTask(description, startDate, startTime,
+						endTime, priority, isRepeating);
+			} else if (endDate != null) {
+				newTask = new RepeatingTask(description, endDate, startTime,
+						endTime, priority, isRepeating);
+			} else {
+				return FEEDBACK_ERROR_REPEATING_TASK_WITHOUT_DATE;
+			}
+		} else if (startDate == null && startTime == null) {
+			if (endDate == null && endTime == null) {
+				newTask = new FloatingTask(description, priority, false);
+			} else {
+				newTask = new DeadlineTask(description, endDate, endTime,
+						priority, false);
+			}
+		} else {
+			if (startDate != null && endDate != null && startTime != null
+					&& endTime != null && (endDate.compareTo(startDate) == SMALLER 
+					|| endTime.compareTo(startTime) == SMALLER)) {
+				return FEEDBACK_ERROR_INVALID_DATE_TIME;
+			}
+			if (startDate != null && endDate != null && startTime == null
+					&& endTime == null && (endDate.compareTo(startDate) == SMALLER)) {
+				return FEEDBACK_ERROR_INVALID_ENDING_DATE;
+			}
+			newTask = new TimedTask(description, startDate, startTime, endDate,
+					endTime, priority, false);
+		}
+
+		if (storedTasksByPriority.contains(newTask)
+				|| storedTasksByTicked.contains(newTask)
+				|| storedTasksByKiv.contains(newTask)) {
+			return FEEDBACK_ERROR_DUPLICATE_TASK;
+		}
+
+		addTaskIntoUndone(newTask);
+
+		Event event = new Event(COMMAND_ADD, newTask);
+		undoMng.add(event);
+
+		return description + FEEDBACK_APPEND_IS_ADDED;
+	}
+
+	/**
+	 * This method deletes a task from a tasklist.
+	 *
+	 * @param index				Index of the specified task displayed in UI.
+	 * @param listTracker		List key of the current task list being displayed.
+	 * @param current			Current task list being displayed.
+	 * @param currentListName	Name of current list being displayed.
+	 * @return Feedback after a task is deleted.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	String delete(int displayedIndex, int listTracker, Vector<Task> current,
+			String currentListName) throws ArrayIndexOutOfBoundsException,
+			IllegalArgumentException {
+
+		Task deleted;
+		int actualIndex = getActualIndex(displayedIndex);
+
+		if (listTracker == KEY_SORTED_TIME) {
+			deleted = deleteFromTimedList(current, currentListName, actualIndex);
+		} else if (listTracker == KEY_SORTED_PRIORITY) {
+			deleted = deleteFromPriorityList(current, currentListName,
+					actualIndex);
+		} else if (listTracker == KEY_SEARCH) {
+			deleted = deleteFromSearchList(current, actualIndex);
+		} else if (listTracker == KEY_FREESLOTS) {
+			deleted = current.get(actualIndex);
+			if (deleted.getDescription() == FREESLOT_STAMP) {
+				return FEEDBACK_ERROR_DELETE_FREESLOT;
+			} else {
+				deleteFromFreeslots(current, deleted, actualIndex);
+			}
+		} else {
+			deleted = deleteFromTickedOrKiv(current, currentListName,
+					actualIndex);
+		}
+
+		return deleted.getDescription() + FEEDBACK_APPEND_IS_DELETED;
+	}
+
+	/**
+	 * This method deletes a task from ticked or kiv list.
+	 * 
+	 * @param current			Current tasklist.
+	 * @param currentListName	Name of current tasklist.
+	 * @param actualIndex		Index of task to be deleted.
+	 * @return Deleted task.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private Task deleteFromTickedOrKiv(Vector<Task> current,
+			String currentListName, int actualIndex)
+					throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		Task deleted = current.remove(actualIndex);
+
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_DELETE, deleted, currentListName,
+				actualIndex);
+		undoMng.add(event);
+		return deleted;
+	}
+
+	/**
+	 * This method deletes a task from freeslots list.
+	 * 
+	 * @param current			Current tasklist.
+	 * @param currentListName	Name of current tasklist.
+	 * @param actualIndex		Index of task to be deleted.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private void deleteFromFreeslots(Vector<Task> current, Task deleted,
+			int actualIndex) throws ArrayIndexOutOfBoundsException,
+			IllegalArgumentException {
+		current.remove(actualIndex);
+		int index = storedTasksByTime.indexOf(deleted);
+		removeTaskFromUndoneLists(deleted);
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_DELETE, deleted, TASKS_TIME, index);
+		undoMng.add(event);
+	}
+
+	/**
+	 * This method deletes a task from the search list.
+	 * 
+	 * @param current		Current tasklist.
+	 * @param actualIndex	Index of task to be deleted.
+	 * @return Deleted task.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private Task deleteFromSearchList(Vector<Task> current, int actualIndex)
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		Task deleted;
+		Task tickedPartition = new Task(STAMP_TICKED, null, null, null, null,
+				PRIORITY_NORMAL, false);
+		Task kivPartition = new Task(STAMP_KIV, null, null, null, null,
+				PRIORITY_NORMAL, false);
+		int tickedPartitionIndex = current.indexOf(tickedPartition);
+		int kivPartitionIndex = current.indexOf(kivPartition);
+
+		int displayedKivPartitionIndex = getDisplayedKivPartitionIndex(kivPartitionIndex);
+
+		if (actualIndex < tickedPartitionIndex) {
+			deleted = current.remove(actualIndex);
+		} else if (actualIndex >= tickedPartitionIndex
+				&& actualIndex <= displayedKivPartitionIndex) {
+			deleted = current.remove(actualIndex + OFFSET_TICKED);
+		} else {
+			deleted = current.remove(actualIndex + OFFSET_KIV);
+		}
+
+		if (storedTasksByTime.contains(deleted)
+				|| storedTasksByPriority.contains(deleted)) {
+			deleteUndoneFromSearchList(deleted);
+		} else if (storedTasksByTicked.contains(deleted)) {
+			deleteTickedFromSearchList(deleted);
+		} else if (storedTasksByKiv.contains(deleted)) {
+			deleteKivFromSearchList(deleted);
+		}
+		return deleted;
+	}
+
+	/**
+	 * This method deletes a kiv task in search list.
+	 * 
+	 * @param deleted	Kiv task to be deleted.
+	 * @throws IllegalArgumentException		If event is created wrongly.
+	 */
+	private void deleteKivFromSearchList(Task deleted)
+			throws IllegalArgumentException {
+		int indexCounter = getIndexInOriginalList(deleted, storedTasksByKiv);
+		storedTasksByKiv.remove(deleted);
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_DELETE, deleted, TASKS_KIV,
+				indexCounter);
+		undoMng.add(event);
+	}
+
+	/**
+	 * This method deletes a ticked task in search list.
+	 * 
+	 * @param deleted		Ticked task to be deleted.
+	 * @throws IllegalArgumentException		If event is created wrongly.
+	 */
+	private void deleteTickedFromSearchList(Task deleted)
+			throws IllegalArgumentException {
+		int indexCounter = getIndexInOriginalList(deleted, storedTasksByTicked);
+		storedTasksByTicked.remove(deleted);
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_DELETE, deleted, TASKS_TICKED,
+				indexCounter);
+		undoMng.add(event);
+	}
+
+	/**
+	 * This method deletes an undone task in search list.
+	 * 
+	 * @param deleted	Undone task to be deleted.
+	 * @throws IllegalArgumentException		If event is created wrongly.
+	 */
+	private void deleteUndoneFromSearchList(Task deleted)
+			throws IllegalArgumentException {
+		int indexCounter = getIndexInOriginalList(deleted, storedTasksByTime);
+		removeTaskFromUndoneLists(deleted);
+
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_DELETE, deleted, TASKS_TIME,
+				indexCounter);
+		undoMng.add(event);
+	}
+
+	/**
+	 * This method gets the index of the original tasklist.
+	 * 
+	 * @param deleted	Task to be deleted.
+	 * @return Index of task to be deleted in the original tasklist.
+	 */
+	private int getIndexInOriginalList(Task deleted, Vector<Task> originalList) {
+		int indexCounter;
+		indexCounter = INIT;
+		for (Task task : originalList) {
+			if (task.equals(deleted)) {
+				break;
+			}
+			indexCounter++;
+		}
+		return indexCounter;
+	}
+
+	/**
+	 * This method deletes a task from priority list.
+	 * 
+	 * @param current			Current tasklist.
+	 * @param currentListName	Name of current tasklist.
+	 * @param actualIndex		Index of task to be deleted.
+	 * @return Deleted task.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private Task deleteFromPriorityList(Vector<Task> current,
+			String currentListName, int actualIndex)
+					throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		;
+		Task deleted = current.remove(actualIndex);
+		storedTasksByTime.remove(deleted);
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_DELETE, deleted, currentListName,
+				actualIndex);
+		undoMng.add(event);
+		return deleted;
+	}
+
+	/**
+	 * This method deletes a task timed list.
+	 * 
+	 * @param current			Current tasklist.
+	 * @param currentListName	Name of current tasklist.
+	 * @param actualIndex		Index of task to be deleted.
+	 * @return Deleted task.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private Task deleteFromTimedList(Vector<Task> current,
+			String currentListName, int actualIndex)
+					throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		Task deleted = current.remove(actualIndex);
+		storedTasksByPriority.remove(deleted);
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_DELETE, deleted, currentListName,
+				actualIndex);
+		undoMng.add(event);
+		return deleted;
+	}
+
+	/**
+	 * This method deletes a task from undone list.
+	 * 
+	 * @param current			Current tasklist.
+	 * @param currentListName	Name of current tasklist.
+	 * @param actualIndex		Index of task to be deleted.
+	 * @return Deleted task.
+	 */
+	private void removeTaskFromUndoneLists(Task task) {
+		storedTasksByTime.remove(task);
+		storedTasksByPriority.remove(task);
+	}
+
+	/**
+	 * This method edits a task.
+	 *
+	 * @param description	Task description to be set.
+	 * @param isRepeating	Set a task as repeating.
+	 * @param startDate		Start date to be set.
+	 * @param endDate		End date to be set.
+	 * @param startTime		Start time to be set.
+	 * @param endTime		End time to be set.
+	 * @param priority		Level of priority to be set.
+	 * @param listTracker	List key of the current task list being displayed.
+	 * @param current		Current task list being displayed.
+	 * @return Feedback after editing.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds boundaries of current list.
+	 */
+	String edit(int displayedIndex, String description, boolean isRepeating,
+			Date startDate, Date endDate, Time startTime, Time endTime,
+			char priority, int listTracker, Vector<Task> current)
+					throws ArrayIndexOutOfBoundsException {
+		Task oldTask;
+		Task newTask;
+		int actualIndex = getActualIndex(displayedIndex);
+
+		if (listTracker == KEY_TICKED) {
+			return FEEDBACK_ERROR_CANNOT_EDIT_FROM_TICKED_LIST;
+		} else if (listTracker == KEY_KIV) {
+			return FEEDBACK_ERROR_CANNOT_EDIT_FROM_KIV_LIST;
+		}
+
+		else if (listTracker == KEY_SEARCH) {
+			Task tickedPartition = new Task(STAMP_TICKED, null, null, null,
+					null, PRIORITY_NORMAL, false);
+			Task kivPartition = new Task(STAMP_KIV, null, null, null, null,
+					PRIORITY_NORMAL, false);
+			int tickedPartitionIndex = current.indexOf(tickedPartition);
+			int kivPartitionIndex = current.indexOf(kivPartition);
+
+			int displayedKivPartitionIndex = getDisplayedKivPartitionIndex(kivPartitionIndex);
+
+			if (actualIndex < tickedPartitionIndex) {
+				oldTask = current.get(actualIndex);
+			} else if (actualIndex >= tickedPartitionIndex
+					&& actualIndex <= displayedKivPartitionIndex) {
+				oldTask = current.get(actualIndex + OFFSET_TICKED);
+			} else {
+				oldTask = current.get(actualIndex + OFFSET_KIV);
+			}
+
+			if (storedTasksByTime.contains(oldTask)
+					|| storedTasksByPriority.contains(oldTask)) {
+				removeTaskFromUndoneLists(oldTask);
+			} else if (storedTasksByTicked.contains(oldTask)
+					|| storedTasksByKiv.contains(oldTask)) {
+				return FEEDBACK_ERROR_CANNOT_EDIT_FROM_TICKED_AND_KIV_LIST;
+			}
+		} else if (listTracker == KEY_FREESLOTS) {
+			oldTask = current.remove(actualIndex);
+			removeTaskFromUndoneLists(oldTask);
+		} else {
+			oldTask = current.remove(actualIndex);
+			removeTaskFromUndoneLists(oldTask);
+		}
+
+		newTask = oldTask.copy();
+
+		editDescription(description, newTask);
+
+		editPriority(priority, newTask);
+
+		// Edit startDate only
+		if (startDate != null && endDate == null) {
+			// Edited task can update startDate without worrying of endDate
+			// being earlier than startDate
+			if (newTask.getEndDate() == null) {
+				if (newTask instanceof FloatingTask) {
+					newTask = new TimedTask(newTask.getDescription(),
+							startDate, new Time(START_HOUR, START_MIN), null,
+							null, newTask.getPriority(), newTask.getRepeat());
+					// Editing TimedTask or RepeatingTask
+				} else if (newTask instanceof TimedTask) {
+					newTask.setStartDate(startDate);
+				} else if (newTask instanceof RepeatingTask) {
+					newTask = (RepeatingTask) newTask;
+					newTask.setStartDate(startDate);
+				} else {
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_EDIT_STARTDATE);
+				}
+				// Error: Edited task will end up with earlier endDate than
+				// startDate
+			} else {
+				if (newTask.getEndDate().compareTo(startDate) == SMALLER) {
+					addTaskIntoUndone(oldTask);
+					return FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_DATE;
+					// Editing TimedTask or RepeatingTask
+				} else if (newTask.getStartDate() != null) {
+					newTask.setStartDate(startDate);
+				} else if (newTask instanceof DeadlineTask){				
+					newTask = new TimedTask(newTask.getDescription(), startDate,
+							new Time(START_HOUR, START_MIN), newTask.getEndDate(),
+							newTask.getEndTime(), newTask.getPriority(),
+							newTask.getRepeat());
+				} else {
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_EDIT_STARTDATE);
+				}
+			}
+		}
+
+		// Edit endDate only
+		if (endDate != null && startDate == null) {
+			// Edited task can update endDate without worrying of endDate being
+			// earlier than startDate
+			if (newTask.getStartDate() == null) {
+				if (newTask instanceof FloatingTask) {
+					newTask = new DeadlineTask(newTask.getDescription(),
+							endDate, new Time(END_HOUR, END_MIN),
+							newTask.getPriority(), newTask.getRepeat());
+					// Editing DeadlineTask
+				} else {
+					newTask.setEndDate(endDate);
+				}
+
+			} else {
+				// Error: Edited task will end up with earlier endDate than startDate
+				if (newTask.getStartDate().compareTo(endDate) == BIGGER) {
+					addTaskIntoUndone(oldTask);
+					return FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_DATE;
+				}
+				// Editing TimedTask and RepeatingTask
+				newTask.setEndDate(endDate);
+				if (newTask.getEndTime() == null) {
+					newTask.setEndTime(new Time(END_HOUR, END_MIN));
+				}
+			}
+		}
+
+		// Edit startDate and endDate
+		if (startDate != null && endDate != null) {
+			// Error: endDate is earlier than startDate
+			if (startDate.compareTo(endDate) == BIGGER) {
+				addTaskIntoUndone(oldTask);
+				return FEEDBACK_ERROR_INVALID_EDIT_ON_DATES;
+			} else {
+				if (newTask instanceof FloatingTask) {
+					newTask = new TimedTask(newTask.getDescription(),
+							startDate, new Time(START_HOUR, START_MIN),
+							endDate, new Time(END_HOUR, END_MIN),
+							newTask.getPriority(), newTask.getRepeat());
+				} else if (newTask instanceof TimedTask) {
+					setStartDateAndEndDate(startDate, endDate, newTask);
+				} else if (newTask instanceof RepeatingTask) {
+					newTask = (RepeatingTask) newTask;
+					setStartDateAndEndDate(startDate, endDate, newTask);
+				} else if (newTask instanceof DeadlineTask) {
+					newTask = new TimedTask(newTask.getDescription(),
+							startDate, new Time(START_HOUR, START_MIN),
+							endDate, newTask.getEndTime(),
+							newTask.getPriority(), newTask.getRepeat());
+				} else {
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_EDIT_STARTDATE_ENDDATE);
+				}
+			}
+		}
+
+		// Edit startTime only
+		if (startTime != null && endTime == null) {
+			// Edited task can update startTime without worrying of endTime
+			// being earlier than startTime
+			if (newTask.getEndTime() == null) {
+				if (newTask instanceof FloatingTask) {
+					newTask = new TimedTask(newTask.getDescription(),
+							Date.getCurrentDate(), startTime, null, null,
+							newTask.getPriority(), newTask.getRepeat());
+				} else if (newTask instanceof TimedTask
+						|| newTask instanceof RepeatingTask) {
+					newTask.setStartTime(startTime);
+				} else {
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_IN_EDIT_STARTTIME);
+				}
+
+			} else {
+				// Error: Edited task will end up with earlier endTime than
+				// startTime
+				if (newTask.getEndTime().compareTo(startTime) == SMALLER) {
+					addTaskIntoUndone(oldTask);
+					return FEEDBACK_ERROR_INVALID_EDIT_ON_STARTING_TIME;
+				} else if (newTask.getStartTime() != null) {
+					newTask.setStartTime(startTime);
+				} else if (newTask instanceof DeadlineTask) {
+					newTask = new TimedTask(newTask.getDescription(),
+							Date.getCurrentDate(), startTime,
+							newTask.getEndDate(), newTask.getEndTime(),
+							newTask.getPriority(), newTask.getRepeat());
+				} else {
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_IN_EDIT_STARTTIME);
+				}
+			}
+		}
+
+		// Edit endTime only
+		if (endTime != null && startTime == null) {
+			// Edited task can update endTime without worrying of endTime being
+			// earlier than startTime
+			if (newTask.getStartTime() == null) {
+				if (newTask instanceof FloatingTask) {
+					newTask = new DeadlineTask(newTask.getDescription(),
+							Date.getCurrentDate(), endTime,
+							newTask.getPriority(), newTask.getRepeat());
+					// Edit DeadlineTask
+				} else {
+					newTask.setEndTime(endTime);
+				}
+			} else {
+				// Error: Edited task will end up with earlier endTime than startTime
+				if (newTask.getStartTime().compareTo(endTime) == 1) {
+					addTaskIntoUndone(oldTask);
+					return FEEDBACK_ERROR_INVALID_EDIT_ON_ENDING_TIME;
+				}
+				// Edit TimedTask or RepeatingTask
+				newTask.setEndTime(endTime);
+				if (newTask.getEndDate() == null) {
+					newTask.setEndDate(newTask.getStartDate());
+				}
+			}
+		}
+
+		// Edit startTime and endTime
+		if (startTime != null && endTime != null) {
+			// Error: endTime is earlier than startTime
+			if (startTime.compareTo(endTime) == BIGGER) {
+				addTaskIntoUndone(oldTask);
+				return FEEDBACK_ERROR_INVALID_EDIT_ON_BOTH_TIMINGS;
+			} else {
+				if (newTask instanceof FloatingTask) {
+					newTask = new TimedTask(newTask.getDescription(),
+							Date.getCurrentDate(), startTime,
+							Date.getCurrentDate(), endTime,
+							newTask.getPriority(), newTask.getRepeat());
+				} else if (newTask instanceof TimedTask
+						|| newTask instanceof RepeatingTask) {
+					newTask.setStartTime(startTime);
+					newTask.setEndTime(endTime);
+					if (newTask.getEndDate() == null) {
+						newTask.setEndDate(newTask.getStartDate());
+					}
+				} else if (newTask instanceof DeadlineTask) {
+					newTask = new TimedTask(newTask.getDescription(),
+							newTask.getEndDate(), startTime,
+							newTask.getEndDate(), endTime,
+							newTask.getPriority(), newTask.getRepeat());
+				} else {
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_EDIT_STARTTIME_ENDTIME);
+				}
+			}
+		}
+
+		// Edit repeating
+		if (isRepeating) {
+			// Add repeat to the task
+			if (newTask.getRepeat() == false) {
+				if (newTask.getStartDate() != null) {
+					newTask = new RepeatingTask(newTask.getDescription(),
+							newTask.getStartDate(), newTask.getStartTime(),
+							newTask.getEndTime(), newTask.getPriority(), true);
+				} else if (newTask.getEndDate() != null) {
+					newTask = new RepeatingTask(newTask.getDescription(),
+							newTask.getEndDate(), newTask.getStartTime(),
+							newTask.getEndTime(), newTask.getPriority(), true);
+				} else {
+					addTaskIntoUndone(oldTask);
+					return FEEDBACK_ERROR_INVALID_EDIT_TO_REPEATED_TASK;
+				}
+				// Remove repeat from the task
+			} else if (newTask.getRepeat() == true) {
+				newTask = remakeTask(newTask);
+			}
+		}
+
+		addEditedTask(listTracker, current, oldTask, newTask, actualIndex);
+
+		return oldTask.getDescription() + FEEDBACK_APPEND_IS_UPDATED;
+	}
+
+	/**
+	 * This method sets the startDate and endDate of a task.
+	 * 
+	 * @param startDate		Date to be set as start date for a task.
+	 * @param endDate		Date to be set as end date for a task.
+	 * @param newTask		Task to be set
+	 */
+	private void setStartDateAndEndDate(Date startDate, Date endDate, Task task) {
+		task.setStartDate(startDate);
+		task.setEndDate(endDate);
+	}
+
+	/**
+	 * This method adds back the edited task.
+	 * 
+	 * @param listTracker	Key of current tasklist.
+	 * @param current		Current tasklist.
+	 * @param oldTask		Task before editing.
+	 * @param newTask		Task after editing.
+	 * @param actualIndex	Actual index in tasklist
+	 * @throws IllegalArgumentException		If event is created wrongly.
+	 */
+	private void addEditedTask(int listTracker, Vector<Task> current,
+			Task oldTask, Task newTask, int actualIndex)
+					throws IllegalArgumentException {
+		if (listTracker != KEY_TICKED || listTracker != KEY_KIV) {
+			addTaskIntoUndone(newTask);
+		} else {
+			current.add(actualIndex, newTask);
+		}
+
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_EDIT, oldTask, newTask);
+		undoMng.add(event);
+	}
+
+	/**
+	 * This method edits the priority of the task.
+	 * 
+	 * @param priority	New priority to be set.
+	 * @param newTask	Task with the edits.
+	 */
+	private void editPriority(char priority, Task newTask) {
+		if (priority != NULL_CHAR) {
+			newTask.setPriority(priority);
+		}
+	}
+
+	/**
+	 * This method edits the description of the task.
+	 * 
+	 * @param description	New description to be set.
+	 * @param newTask		Task with the edits.
+	 */
+	private void editDescription(String description, Task newTask) {
+		if (description != null && !description.equals(EMPTY_STRING)) {
+			newTask.setDescription(description);
+		}
+	}
+
+	/**
+	 * This method resets a task into a TimedTask.
+	 *
+	 * @param task		Task to be remade.
+	 * @return TimedTask
+	 * @throws IllegalArgumentException		If description is empty.
+	 */
+	private TimedTask remakeTask(Task task) throws IllegalArgumentException {
+		String description = task.getDescription();
+		Date startDate = task.getStartDate();
+		Date endDate = task.getEndDate();
+		Time startTime = task.getStartTime();
+		Time endTime = task.getEndTime();
+		char priority = task.getPriority();
+
+		if (description == null || description.equals(EMPTY_STRING)) {
+			throw new IllegalArgumentException();
+		}
+
+		TimedTask newTask;
+
+		newTask = new TimedTask(description, startDate, startTime, endDate,
+				endTime, priority, false);
+
+		return newTask;
+	}
+
+	/**
+	 * This method adds task into undone lists (time list and priority list).
+	 *
+	 * @param Task	Task to be added.
+	 */
+	private void addTaskIntoUndone(Task task) {
+		storedTasksByTime.add(task);
+		storedTasksByPriority.add(task);
+	}
+
+	/**
+	 * This method calculates the actual index of the task displayed in UI.
+	 *
+	 * @param index		Index of the specified task displayed in UI.
+	 * @return Actual index of tasklist.
+	 */
+	private int getActualIndex(int index) {
+		return index - OFFSET_INDEX;
+	}
+
+	/**
+	 * This method calculates the actual index of the task displayed in UI.
+	 *
+	 * @param index		Index of the specified task displayed in UI.
+	 * @return Actual index of tasklist.
+	 */
+	private int getDisplayedKivPartitionIndex(int kivPartitionIndex) {
+		return kivPartitionIndex - OFFSET_KIV;
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\CRUManager.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\CRUManagerTest.java
+	 */
+
+/**
+ * Description: This class is an automated test to test out add, delete and edit funtions.
+ */
+public class CRUManagerTest {
+	// String constants for command types
+	private static final String COMMAND_ADD = "add";
+	private static final String COMMAND_EDIT = "edit";
+	private static final String COMMAND_LIST = "list";
+	private static final String COMMAND_CLEAR = "clear";
+	private static final String COMMAND_DELETE = "delete";
+	private static final String COMMAND_UNDO = "undo";
+	// String constants for type of lists used
+	private static final String LIST_TIME = "time";
+	private static final String LIST_PRIORITY = "priority";
+	private static final String LIST_TICKED = "ticked";
+	private static final String LIST_KIV = "kiv";
+
+	@Test
+	public final void testCRUManager() {
+		UIForLogicTesting ui = new UIForLogicTesting();
+		Logic logic = ui.getLogic();
+		UserInput input;
+
+		// Clear the list before every testing
+		input = new UserInput();
+		input.setCommand(COMMAND_CLEAR);
+		assertEquals("Spick and span!", logic.getOutput(input));
+		input = new UserInput();
+		input.setCommand(COMMAND_LIST);
+		input.setDescription(LIST_TICKED);
+		assertEquals("Listing ticked tasks...", logic.getOutput(input));
+		assertEquals("Spick and span!", logic.clear());
+		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_KIV));
+		assertEquals("Spick and span!", logic.clear());
+		assertEquals("Listing by time...", logic.list(LIST_TIME));
+		assertEquals("Spick and span!", logic.clear());
+		assertEquals("Nothing to display", logic.list());
+
+		// Add floating task
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("CompClub: Add actionables on Trello");
+		input.setPriority('B');
+
+		assertEquals("CompClub: Add actionables on Trello has been added.", logic.getOutput(input));
+		assertEquals("1. CompClub: Add actionables on Trello\n", logic.list());
+
+		// Add scheduled task
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("CompClub: Man welfare pack booth");
+		input.setStartDate(new Date(2014, 11, 5));
+		input.setStartTime(new Time(11, 30));
+		input.setEndDate(new Date(2014, 11, 5));
+		input.setEndTime(new Time(14, 0));
+		input.setPriority('B');
+
+		assertEquals("CompClub: Man welfare pack booth has been added.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. CompClub: Add actionables on Trello\n", logic.list());
+
+		// Add deadlined task
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("HW: Submit CS2106 v0.5");
+		input.setEndDate(new Date(2014, 11, 10));
+		input.setEndTime(new Time(23, 59));
+		input.setPriority('B');
+
+		assertEquals("HW: Submit CS2106 v0.5 has been added.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. CompClub: Add actionables on Trello\n", logic.list());
+
+		// Add repeated task
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("CompClub: Pcell meeting");
+		input.setStartDate(new Date(2014, 11, 5));
+		input.setStartTime(new Time(16, 0));
+		input.setStartDate(new Date(2014, 11, 5));
+		input.setEndTime(new Time(18, 0));
+		input.setRepeating(true);
+		input.setPriority('B');
+
+		assertEquals("CompClub: Pcell meeting has been added.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. CompClub: Add actionables on Trello\n"
+				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+
+		// Add floating task with priority A
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: Get a haircut");
+		input.setPriority('A');
+
+		assertEquals("Self: Get a haircut has been added.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. CompClub: Add actionables on Trello\n"
+				+ "4. Self: Get a haircut\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+
+		assertEquals("Listing by priority...", logic.list(LIST_PRIORITY));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+
+		// Add scheduled task with priority C
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: Watch running man");
+		input.setStartDate(new Date(2014, 11, 3));
+		input.setStartTime(new Time(20, 0));
+		input.setEndDate(new Date(2014, 11, 3));
+		input.setEndTime(new Time(21, 30));
+		input.setPriority('C');
+
+		assertEquals("Self: Watch running man has been added.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		// Test edit priority
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(1);
+		input.setPriority('C');
+
+		assertEquals("Self: Get a haircut has been updated.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. CompClub: Add actionables on Trello\n"
+				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "5. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n"
+				+ "6. Self: Get a haircut\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit description
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(1);
+		input.setDescription("Self: Get some ice-cream");
+
+		assertEquals("Self: Get a haircut has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get some ice-cream\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startDate
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(2);
+		input.setStartDate(new Date(2014, 11, 3));
+
+		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 3 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startTime
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(2);
+		input.setStartTime(new Time(10, 15));
+
+		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 10:15 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit endDate
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(2);
+		input.setEndDate(new Date(2014, 11, 8));
+
+		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 8 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit endTime
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(2);
+		input.setEndTime(new Time(23, 59));
+
+		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 23:59\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startTime and endTime
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(2);
+		input.setStartTime(new Time(6,0));
+		input.setEndTime(new Time(20, 0));
+
+		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 6:00 to 5 Nov, 20:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startDate and endDate
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(2);
+		input.setStartDate(new Date(2014, 11, 1));
+		input.setEndDate(new Date(2014, 11, 10));
+
+		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 1 Nov, 11:30 to 10 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		//Test delete in priority list
+		input = new UserInput();
+		input.setCommand(COMMAND_DELETE);
+		input.setIndex(2);
+
+		assertEquals("CompClub: Man welfare pack booth has been removed.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. CompClub: Add actionables on Trello\n"
+				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "5. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input)); 
+
+		// Test delete in timed list
+		assertEquals("Listing by time...", logic.list(LIST_TIME));
+		assertEquals("1. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. Self: Get a haircut\n"
+				+ "6. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_DELETE);
+		input.setIndex(2);
+
+		assertEquals("CompClub: Man welfare pack booth has been removed.", logic.getOutput(input));
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input)); 
+
+		assertEquals("Listing by priority...", logic.list(LIST_PRIORITY));
+
+		// Test edit startDate and endDate of TimedTask
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(2);
+		input.setStartDate(new Date(2014, 11, 1));
+		input.setEndDate(new Date(2014, 11, 10));
+
+		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 1 Nov, 11:30 to 10 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startDate and endDate of DeadlineTask
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(3);
+		input.setStartDate(new Date(2014, 11, 1));
+		input.setEndDate(new Date(2014, 11, 10));
+
+		assertEquals("HW: Submit CS2106 v0.5 has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. HW: Submit CS2106 v0.5 from 1 Nov, 0:00 to 10 Nov, 23:59\n"
+				+ "3. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startDate and endDate of FloatingTask
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(4);
+		input.setStartDate(new Date(2014, 11, 1));
+		input.setEndDate(new Date(2014, 11, 10));
+
+		assertEquals("CompClub: Add actionables on Trello has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Add actionables on Trello from 1 Nov, 0:00 to 10 Nov, 23:59\n"
+				+ "3. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "4. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startDate and endDate of RepeatingTask
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(5);
+		input.setStartDate(new Date(2014, 11, 1));
+		input.setEndDate(new Date(2014, 11, 10));
+
+		assertEquals("CompClub: Pcell meeting has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Saturday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startDate on deadline task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(3);
+		input.setStartDate(new Date(2014, 11, 9));
+
+		assertEquals("HW: Submit CS2106 v0.5 has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 from 9 Nov, 0:00 to 10 Nov, 23:59\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startDate on floating task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(4);
+		input.setStartDate(new Date(2014, 11, 10));
+
+		assertEquals("CompClub: Add actionables on Trello has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. CompClub: Add actionables on Trello from 10 Nov, 0:00\n"
+				+ "4. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startDate on repeating task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(5);
+		input.setStartDate(new Date(2014, 11, 4));
+
+		assertEquals("CompClub: Pcell meeting has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Tuesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startDate on scheduled task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(6);
+		input.setStartDate(new Date(2014, 11, 2));
+
+		assertEquals("Self: Watch running man has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 2 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit endDate on deadline task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(3);
+		input.setEndDate(new Date(2014, 11, 11));
+
+		assertEquals("HW: Submit CS2106 v0.5 has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 11 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit endDate on floating task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(4);
+		input.setEndDate(new Date(2014, 11, 11));
+
+		assertEquals("CompClub: Add actionables on Trello has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello deadline 23:59, 11 Nov\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit endDate on scheduled task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(5);
+		input.setStartDate(new Date(2014, 11, 11));
+
+		assertEquals("CompClub: Pcell meeting has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Tuesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+		
+		// Test edit startTime and endTime of TimedTask
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(2);
+		input.setStartTime(new Time(0, 0));
+		input.setEndTime(new Time(23, 59));
+
+		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 0:00 to 5 Nov, 23:59\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startTime and endTime of DeadlineTask
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(3);
+		input.setStartTime(new Time(0, 0));
+		input.setEndTime(new Time(23, 59));
+
+		assertEquals("HW: Submit CS2106 v0.5 has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 from 10 Nov, 0:00 to 10 Nov, 23:59\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startTime and endTime of FloatingTask 
+		// Test date varies according to current date
+		/*
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(4);
+		input.setStartTime(new Time(0, 0));
+		input.setEndTime(new Time(23, 59));
+
+		assertEquals("CompClub: Add actionables on Trello has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. CompClub: Add actionables on Trello from 10 Nov, 0:00 to 10 Nov, 23:59\n"
+				+ "4. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+		*/
+		
+		// Test edit startTime and endTime of RepeatingTask
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(5);
+		input.setStartTime(new Time(0, 0));
+		input.setEndTime(new Time(23, 59));
+
+		assertEquals("CompClub: Pcell meeting has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 0:00 to 23:59) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startTime on deadline task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(3);
+		input.setStartTime(new Time(0, 0));
+
+		assertEquals("HW: Submit CS2106 v0.5 has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 from 10 Nov, 0:00 to 10 Nov, 23:59\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+		
+		// Start date on floating task is dependent on current date
+		// Test edit startTime on floating task
+		/*
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(4);
+		input.setStartTime(new Time(0, 0));
+
+		assertEquals("CompClub: Add actionables on Trello has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. CompClub: Add actionables on Trello from 10 Nov, 0:00\n"
+				+ "4. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+		*/
+		
+		// Test edit startTime on repeating task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(5);
+		input.setStartTime(new Time(0, 0));
+
+		assertEquals("CompClub: Pcell meeting has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 0:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startTime on scheduled task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(6);
+		input.setStartTime(new Time(0, 0));
+
+		assertEquals("Self: Watch running man has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 0:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit endTime on deadline task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(3);
+		input.setEndTime(new Time(20, 59));
+
+		assertEquals("HW: Submit CS2106 v0.5 has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 20:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+		
+		// EndDate depends on the current date
+		// Test edit endTime on floating task
+		/*
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(4);
+		input.setEndTime(new Time(23, 59));
+
+		assertEquals("CompClub: Add actionables on Trello has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. CompClub: Add actionables on Trello deadline 23:59, 10 Nov\n"
+				+ "4. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+		*/
+
+		// Test edit repeating on deadline task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(3);
+		input.setRepeating(true);
+
+		assertEquals("HW: Submit CS2106 v0.5 has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. CompClub: Add actionables on Trello\n"
+				+ "4. <Monday> (end at 23:59) HW: Submit CS2106 v0.5\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit repeating on floating task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(4);
+		input.setRepeating(true);
+
+		assertEquals("Invalid edit to repeated task. Missing date", logic.getOutput(input));
+
+		// Test edit repeating on repeating task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(5);
+		input.setRepeating(true);
+
+		assertEquals("CompClub: Pcell meeting has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. CompClub: Pcell meeting from 5 Nov, 16:00 to, 18:00\n"
+				+ "4. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "5. CompClub: Add actionables on Trello\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit repeating on scheduled task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(6);
+		input.setRepeating(true);
+
+		assertEquals("Self: Watch running man has been updated.", logic.getOutput(input));
+		assertEquals("Listing by time...", logic.list(LIST_TIME));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. CompClub: Add actionables on Trello\n"
+				+ "4. Self: Get a haircut\n"
+				+ "5. <Monday> (from 20:00 to 21:30) Self: Watch running man\n"
+				+ "6. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\CRUManagerTest.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\Logic.java
+	 */
+
+/**
+ * Description: This class passes the user input from UI to the Parser 
+ * to process the input. Logic class then receives the processed command 
+ * and acts on it. Functions provided include adding task, deleting task,
+ * edit an existing task, listing out the tasks in different formats 
+ * (e.g priority, time, done and cannot be completed), as well as
+ * searching and auto-complete.
+ */
+public class Logic {
+
+	// CONSTANTS
+
+	// String constants for command types
+	private static final String COMMAND_HELP = "help";
+	private static final String COMMAND_UNTICK = "untick";
+	private static final String COMMAND_TICK = "tick";
+	private static final String COMMAND_REDO = "redo";
+	private static final String COMMAND_UNDO = "undo";
+	private static final String COMMAND_UNKIV = "unkiv";
+	private static final String COMMAND_KIV = "kiv";
+	private static final String COMMAND_ADD = "add";
+	private static final String COMMAND_EDIT = "edit";
+	private static final String COMMAND_LIST = "list";
+	private static final String COMMAND_CLEAR = "clear";
+	private static final String COMMAND_DELETE = "delete";
+	private static final String COMMAND_SEARCH = "search";
+	private static final String COMMAND_SEARCH_FREESLOTS = "searchfree";
+	private static final String COMMAND_TAKE = "take";
+	private static final String COMMAND_SEARCH_EXPIRED = "searchExpired";
+	// Integer key constants for lists used by listTracker
+	private static final int KEY_SORTED_TIME = 1;
+	private static final int KEY_SORTED_PRIORITY = 2;
+	private static final int KEY_TICKED = 3;
+	private static final int KEY_KIV = 4;
+	private static final int KEY_SEARCH = 5;
+	private static final int KEY_FREESLOTS = 6;
+	// Other integer constants
+	private static final int INIT = 0;
+	private static final int OFFSET_INDEX = 1;
+	// String constants for type of lists used
+	private static final String LIST_TIME = "time";
+	private static final String LIST_PRIORITY = "priority";
+	private static final String LIST_TICKED = "ticked";
+	private static final String LIST_KIV = "kiv";
+	private static final String LIST_SEARCH = "search";
+	private static final String LIST_FREESLOTS = "free";
+	// Feedback messages
+	private static final String FEEDBACK_SEARCH_FREESLOTS = "Searching for free slots....";
+	private static final String FEEDBACK_SEARCH = "Searching for tasks...";
+	private static final String FEEDBACK_HELP = "Help is on the way!";
+	private static final String FEEDBACK_CLEAR = "Spick and span!";
+	private static final String FEEDBACK_LIST_KIV = "Listing tasks that are kept in view...";
+	private static final String FEEDBACK_LIST_TICKED = "Listing ticked tasks...";
+	private static final String FEEDBACK_LIST_PRIORITY = "Listing by priority...";
+	private static final String FEEDBACK_LIST_TIME = "Listing by time...";
+	private static final String FEEDBACK_ERROR_NO_SUCH_LIST = "List does not exist. Please re-enter.";
+	private static final String FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS = "Index out of range. No action is performed.";
+	private static final String FEEDBACK_ERROR_INVALID_COMMAND = "Invalid command";
+	private static final String FEEDBACK_ERROR_MISUSED_TAKE = "Invalid use of take. Please use it only with searching for freeslots.";
+	private static final String FEEDBACK_NOTHING_TO_DISPLAY = "Nothing to display";
+	// Log messages
+	private static final String LOG_SUCCESSFUL_ACTION = "Action proceeded successfully";
+	private static final String LOG_NO_COMMANDS_PASSED = "NO COMMANDS PASSED";
+	private static final String LOG_PERFORM_ACTION = "Performing an action";
+	private static final String LOG_ERROR_UNDOMNG_AND_UNTICK = "Error with UndoManager in untick";
+	private static final String LOG_ERROR_UNDOMNG_AND_TICK = "Error with UndoManager in tick";
+	private static final String LOG_ERROR_UNDOMNG_AND_KIV = "Error with UndoManager in KIV";
+	private static final String LOG_ERROR_UNDOMNG_AND_UNKIV = "Error with UndoManager in unKIV";
+	private static final String LOG_ERROR_UNDOMNG_AND_TAKE = "Error with UndoManager in take";
+	private static final String LOG_ERROR_UNDOMNG_AND_ADD = "Error with UndoManager in add ";
+	private static final String LOG_ERROR_UNDOMNG_AND_DELETE = "Error with UndoManager in delete";
+	private static final String LOG_ERROR_UNDOMNG_AND_EDIT = "Error with UndoManager in edit";
+	private static final String LOG_ERROR_UNDOMNG_AND_UNDO = "Error with UndoManager in undo";
+	private static final String LOG_ERROR_UNDOMNG_AND_REDO = "Error with UndoManager in redo";
+	// Other string constants
+	private static final String LOGIC = "Logic";
+	private static final String EMPTY_STRING = "";
+	private static final String PARTITION_STRING = ". ";
+	private static final String NEWLINE_STRING = "\n";
+
+	// ATTRIBUTES
+	// Log error messages
+	protected static Logger logger;
+	// Singleton pattern
+	private static Logic theOne;
+	// Observer pattern
+	private static Vector<Observer> observerList;
+	// Instances of other components
+	private Parser parser;
+	private Storage storage;
+	private UndoManager undoMng;
+	private CRUManager cruMng;
+	private TickKIVManager tickKivMng;
+	private SearchManager searchMng;
+	// Variables to track which list is being displayed
+	private Integer listTracker;
+	private String currentListName;
+	private Vector<Task> current;
+	// Temporary sorted storages
+	private Vector<Task> storedTasksByTime;
+	private Vector<Task> storedTasksByPriority;
+	private Vector<Task> storedTasksByTicked; // not sorted
+	private Vector<Task> storedTasksByKiv; // not sorted
+	private Vector<Task> searchResults;
+	private Vector<Task> freeslotsResults;
+	// Store existing (current) search request
+	private UserInput searchRequest;
+	private UserInput freeslotsRequest;
+
+	// Construct dependency with UI
+	public Logic() {
+
+		getLogger();
+		instantiateParserAndStorage();
+
+		initialiseStorageFiles();
+		retrieveStoredFiles();
+
+		instantiateLogicManagers();
+
+		instantiateSearchResults();
+
+		setCurrentAsTime();
+
+		updateObservers();
+
+	}
+
+	/**
+	 * This method is for UI to request to be an observer of Logic.
+	 *
+	 * @param UI	Observer UI.
+	 * @return The one instance of Logic.
+	 */
+	public static Logic getInstance(Observer UI) {
+		if (theOne == null) {
+			observerList = new Vector<Observer>();
+			observerList.add(UI);
+			theOne = new Logic();
+		} else {
+			observerList.add(UI);
+		}
+
+		return theOne;
+	}
+
+	/**
+	 * This method is for observer to call logic and for logic to pass the
+	 * string to parser to process user input
+	 *
+	 * @param input		Name of user input string
+	 * @return Message from the command operation.
+	 */
+	public String getLogic(String input) {
+		// Crash the program if Logic is constructed without observer, missing
+		// dependency
+		assert (observerList.isEmpty() != true);
+
+		String feedback;
+
+		UserInput processed = parser.processInput(input);
+		feedback = getOutput(processed);
+
+		return feedback;
+	}
+
+	/**
+	 * This method gets the feedback from the command operation and updates the
+	 * UI display if applicable
+	 *
+	 * @param processed		Name of UserInput object with processed user input returned by
+	 *            			Parser object.
+	 * @return Message from the command operation.
+	 */
+	protected String getOutput(UserInput processed) {
+
+		logger.log(Level.INFO, LOG_PERFORM_ACTION);
+
+		String feedback = EMPTY_STRING;
+		String command = extractCommand(processed);
+
+		switch (command) {
+		case COMMAND_TAKE :
+			try {
+				if (listTracker != KEY_FREESLOTS) {
+					return FEEDBACK_ERROR_MISUSED_TAKE;
+				}
+				feedback = performTake(processed);
+			} catch (IllegalArgumentException iae) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_TAKE);
+			}
+			break;
+
+		case COMMAND_SEARCH_FREESLOTS :
+			feedback = performSearchFreeslots(processed);
+			break;
+
+		case COMMAND_SEARCH :
+			feedback = performSearch(processed);
+			break;
+
+		case COMMAND_SEARCH_EXPIRED:
+			feedback = performSearchExpired(processed);
+			break;
+
+		case COMMAND_DELETE :
+			try {
+				feedback = performDelete(processed);
+			} catch (ArrayIndexOutOfBoundsException OOBE) {
+				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
+			} catch (IllegalArgumentException iae) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_DELETE);
+			}
+			break;
+
+		case COMMAND_CLEAR :
+			feedback = performClear();
+			break;
+
+		case COMMAND_LIST :
+			try {
+				feedback = performList(processed);
+			} catch (IllegalArgumentException iae) {
+				return FEEDBACK_ERROR_NO_SUCH_LIST;
+			}
+			break;
+
+		case COMMAND_EDIT :
+			try {
+				feedback = performEdit(processed);
+			} catch (ArrayIndexOutOfBoundsException oobe) {
+				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
+			} catch (IllegalArgumentException iae) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_EDIT);
+			}
+			break;
+
+		case COMMAND_ADD :
+			try {
+				feedback = performAdd(processed);
+			} catch (IllegalArgumentException iae) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_ADD);
+			}
+			break;
+
+		case COMMAND_KIV :
+			try {
+				feedback = performKiv(processed);
+			} catch (ArrayIndexOutOfBoundsException oobe) {
+				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
+			} catch (IllegalArgumentException ex) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_KIV);
+			}
+			break;
+
+		case COMMAND_UNKIV :
+			try {
+				feedback = performUnkiv(processed);
+			} catch (ArrayIndexOutOfBoundsException oobe) {
+				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
+			} catch (IllegalArgumentException ex) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_UNKIV);
+			}
+			break;
+
+		case COMMAND_UNDO :
+			try {
+				feedback = performUndo();
+			} catch (NullPointerException npe) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_UNDO);
+			}
+			return feedback;
+
+		case COMMAND_REDO :
+			try {
+				feedback = performRedo();
+			} catch (NullPointerException npe) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_REDO);
+			}
+			return feedback;
+
+		case COMMAND_TICK :
+			try {
+				feedback = performTick(processed);
+			} catch (ArrayIndexOutOfBoundsException oobe) {
+				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
+			} catch (IllegalArgumentException ex) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_TICK);
+			}
+			break;
+
+		case COMMAND_UNTICK :
+			try {
+				feedback = performUntick(processed);
+			} catch (ArrayIndexOutOfBoundsException oobe) {
+				return FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS;
+			} catch (IllegalArgumentException ex) {
+				logger.log(Level.WARNING, LOG_ERROR_UNDOMNG_AND_UNTICK);
+			}
+			break;
+
+		case COMMAND_HELP :
+			feedback = performHelp();
+			break;
+
+		default:
+			feedback = FEEDBACK_ERROR_INVALID_COMMAND;
+			break;
+		}
+
+		logger.log(Level.INFO, LOG_SUCCESSFUL_ACTION);
+		return feedback;
+	}
+
+	/**
+	 * This method sets the help instructions in the observers.
+	 * 
+	 * @return Feedback from action.
+	 */
+	private String performHelp() {
+		String feedback;
+		feedback = FEEDBACK_HELP;
+		setHelp();
+		return feedback;
+	}
+
+	/**
+	 * This method unticks a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performUntick(UserInput processed)
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = tickKivMng
+				.untick(processed.getIndex(), listTracker, current);
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(),
+					searchRequest.getRepeating(), searchRequest.getStartDate(),
+					searchRequest.getEndDate(), searchRequest.getStartTime(),
+					searchRequest.getEndTime(), searchRequest.getPriority());
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method ticks a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performTick(UserInput processed)
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = tickKivMng.tick(processed.getIndex(), listTracker, current);
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(),
+					searchRequest.getRepeating(), searchRequest.getStartDate(),
+					searchRequest.getEndDate(), searchRequest.getStartTime(),
+					searchRequest.getEndTime(), searchRequest.getPriority());
+		} else if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(
+					freeslotsRequest.getStartDate(),
+					freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(),
+					freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method redo the undid action.
+	 * 
+	 * @return Feedback from the action.
+	 */
+	private String performRedo() {
+		String feedback;
+		feedback = undoMng.redo();
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(),
+					searchRequest.getRepeating(), searchRequest.getStartDate(),
+					searchRequest.getEndDate(), searchRequest.getStartTime(),
+					searchRequest.getEndTime(), searchRequest.getPriority());
+		} else if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(
+					freeslotsRequest.getStartDate(),
+					freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(),
+					freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method undo the last action.
+	 * 
+	 * @return Feedback from the action.
+	 */
+	private String performUndo() {
+		String feedback;
+		feedback = undoMng.undo();
+		maintainLists();
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(),
+					searchRequest.getRepeating(), searchRequest.getStartDate(),
+					searchRequest.getEndDate(), searchRequest.getStartTime(),
+					searchRequest.getEndTime(), searchRequest.getPriority());
+		} else if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(
+					freeslotsRequest.getStartDate(),
+					freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(),
+					freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method unkiv a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performUnkiv(UserInput processed)
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = tickKivMng.unkiv(processed.getIndex(), listTracker, current);
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(),
+					searchRequest.getRepeating(), searchRequest.getStartDate(),
+					searchRequest.getEndDate(), searchRequest.getStartTime(),
+					searchRequest.getEndTime(), searchRequest.getPriority());
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method kiv a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performKiv(UserInput processed)
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = tickKivMng.kiv(processed.getIndex(), listTracker, current,
+				currentListName);
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(),
+					searchRequest.getRepeating(), searchRequest.getStartDate(),
+					searchRequest.getEndDate(), searchRequest.getStartTime(),
+					searchRequest.getEndTime(), searchRequest.getPriority());
+		} else if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(
+					freeslotsRequest.getStartDate(),
+					freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(),
+					freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method adds a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return Feedback from the action.
+	 * @throws IllegalArgumentException		If event is created wrongly.
+	 */
+	private String performAdd(UserInput processed)
+			throws IllegalArgumentException {
+		String feedback;
+		feedback = cruMng.add(processed.getDescription(),
+				processed.getRepeating(), processed.getStartDate(),
+				processed.getEndDate(), processed.getStartTime(),
+				processed.getEndTime(), processed.getPriority());
+
+		if (listTracker == KEY_KIV || listTracker == KEY_TICKED
+				|| listTracker == KEY_SEARCH) {
+			setCurrentAsTime();
+		} else if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(
+					freeslotsRequest.getStartDate(),
+					freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(),
+					freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method edits a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performEdit(UserInput processed)
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = cruMng.edit(processed.getIndex(),
+				processed.getDescription(), processed.getRepeating(),
+				processed.getStartDate(), processed.getEndDate(),
+				processed.getStartTime(), processed.getEndTime(),
+				processed.getPriority(), listTracker, current);
+
+		if (listTracker == KEY_SEARCH) {
+			searchResults.removeAllElements();
+			searchResults = searchMng.search(searchRequest.getDescription(),
+					searchRequest.getRepeating(), searchRequest.getStartDate(),
+					searchRequest.getEndDate(), searchRequest.getStartTime(),
+					searchRequest.getEndTime(), searchRequest.getPriority());
+		} else if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(
+					freeslotsRequest.getStartDate(),
+					freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(),
+					freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method lists a specified tasklist.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return Feedback from the action.
+	 * @throws IllegalArgumentException		If list name requested is invalid.
+	 */
+	private String performList(UserInput processed)
+			throws IllegalArgumentException {
+		String feedback;
+		checkForTaskExpiry();
+		feedback = this.list(processed.getDescription());
+		return feedback;
+	}
+
+	/**
+	 * This method clears the current list.
+	 * 
+	 * @return Feedback from the action.
+	 */
+	private String performClear() {
+		String feedback;
+		feedback = this.clear();
+		return feedback;
+	}
+
+	/**
+	 * This method deletes a task.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performDelete(UserInput processed)
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = cruMng.delete(processed.getIndex(), listTracker, current,
+				currentListName);
+
+		if (listTracker == KEY_FREESLOTS) {
+			freeslotsResults.removeAllElements();
+			freeslotsResults = searchMng.searchForFreeSlots(
+					freeslotsRequest.getStartDate(),
+					freeslotsRequest.getStartTime(),
+					freeslotsRequest.getEndDate(),
+					freeslotsRequest.getEndTime());
+
+			current = freeslotsResults;
+		}
+
+		maintainLists();
+		updateObservers();
+		return feedback;
+	}
+
+	/**
+	 * This method takes a freeslot.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return Feedback from the action.
+	 * @throws ArrayIndexOutOfBoundsException	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException			If event is created wrongly.
+	 */
+	private String performTake(UserInput processed)
+			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+		String feedback;
+		feedback = searchMng.take(processed.getIndex(),
+				processed.getDescription());
+		maintainLists();
+		return feedback;
+	}
+
+	/**
+	 * This method searches for expired tasks.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return Feedback from the action.
+	 */
+	private String performSearchExpired(UserInput processed) {
+		String feedback;
+		searchRequest = deepCopyUserInput(processed);
+		searchResults.removeAllElements();
+		searchResults = searchMng.searchExpired(processed.getDescription(),
+				processed.getRepeating(), processed.getStartDate(),
+				processed.getEndDate(), processed.getStartTime(),
+				processed.getEndTime(), processed.getPriority());
+
+		setCurrentAsSearch();
+		updateObservers();
+
+		feedback = FEEDBACK_SEARCH;
+		return feedback;
+	}
+
+	/**
+	 * This method searches for tasks.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return Feedback from the action.
+	 */
+	private String performSearch(UserInput processed) {
+		String feedback;
+		searchRequest = deepCopyUserInput(processed);
+		searchResults.removeAllElements();
+		searchResults = searchMng.search(processed.getDescription(),
+				processed.getRepeating(), processed.getStartDate(),
+				processed.getEndDate(), processed.getStartTime(),
+				processed.getEndTime(), processed.getPriority());
+
+		setCurrentAsSearch();
+		updateObservers();
+
+		feedback = FEEDBACK_SEARCH;
+		return feedback;
+	}
+
+	/**
+	 * This method searches for freeslots.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return Feedback from the action.
+	 */
+	private String performSearchFreeslots(UserInput processed) {
+		String feedback;
+		freeslotsRequest = deepCopyUserInput(processed);
+		freeslotsResults.removeAllElements();
+		freeslotsResults = searchMng.searchForFreeSlots(
+				processed.getStartDate(), processed.getStartTime(),
+				processed.getEndDate(), processed.getEndTime());
+
+		setCurrentAsSearchFreeslots();
+		checkForTaskExpiry(current);
+		updateObservers();
+
+		feedback = FEEDBACK_SEARCH_FREESLOTS;
+		return feedback;
+	}
+
+	/**
+	 * This method maintains any updates in the lists.
+	 */
+	private void maintainLists() {
+		sortLists();
+		storeLists();
+	}
+
+	/**
+	 * This method tries to get command from the processed user input.
+	 * 
+	 * @param processed		Processed user input.
+	 * @return User input command.
+	 */
+	private String extractCommand(UserInput processed) {
+		String command = EMPTY_STRING;
+		try {
+			command = processed.getCommand();
+		} catch (NullPointerException npe) {
+			logger.log(Level.WARNING, LOG_NO_COMMANDS_PASSED);
+		}
+		return command;
+	}
+
+	/**
+	 * This method deep copies a UserInput object.
+	 * 
+	 * @param processed		UserInput object to be duplicated. 
+	 * @return Copied UserInput
+	 */
+	private UserInput deepCopyUserInput(UserInput input) {
+		UserInput copied = new UserInput();
+		copied.setCommand(input.getCommand());
+		copied.setDescription(input.getDescription());
+		copied.setRepeating(input.getRepeating());
+		copied.setStartDate(input.getStartDate());
+		copied.setStartTime(input.getStartTime());
+		copied.setEndDate(input.getEndDate());
+		copied.setEndTime(input.getEndTime());
+		copied.setPriority(input.getPriority());
+
+		return copied;
+	}
+
+	/**
+	 * This method sets the observers to display help instructions.
+	 */
+	private void setHelp() {
+		for (Observer observer : observerList) {
+			observer.setHelp();
+		}
+	}
+
+	/**
+	 * This method clears the current list.
+	 * 
+	 * @return Message from the operation clear().
+	 */
+	protected String clear() {
+
+		if (listTracker == KEY_SORTED_TIME
+				|| listTracker == KEY_SORTED_PRIORITY) {
+			storedTasksByTime.removeAllElements();
+			storedTasksByPriority.removeAllElements();
+		} else {
+			current.removeAllElements();
+		}
+
+		storeLists();
+		updateObservers();
+
+		return FEEDBACK_CLEAR;
+	}
+
+	/**
+	 * This method lists the current task list in string form. This This is used
+	 * by TestLogic class for testing without TickerUI.
+	 *
+	 * @return List of tasks in string format.
+	 */
+	protected String list() {
+		if (current.isEmpty()) {
+			return FEEDBACK_NOTHING_TO_DISPLAY;
+		}
+
+		String list = EMPTY_STRING;
+		for (int i = INIT; i < current.size(); i++) {
+			list += i + OFFSET_INDEX + PARTITION_STRING + current.get(i).toString()
+					+ NEWLINE_STRING;
+		}
+		return list;
+	}
+
+	/**
+	 * This method displays the list requested by the user
+	 *
+	 * @param listType	Name of list that the user wants displayed
+	 * @return Feedback message for listing a list type
+	 * @throws IllegalArgumentException		If list name is unidentifiable.
+	 */
+	protected String list(String listType) throws IllegalArgumentException {
+		switch (listType) {
+		case LIST_TIME :
+			sortLists();
+			setCurrentAsTime();
+			updateObservers();
+			return FEEDBACK_LIST_TIME;
+		case LIST_PRIORITY :
+			sortLists();
+			setCurrentAsPriority();
+			updateObservers();
+			return FEEDBACK_LIST_PRIORITY;
+		case LIST_TICKED :
+			setCurrentAsTicked();
+			updateObservers();
+			return FEEDBACK_LIST_TICKED;
+		case COMMAND_KIV :
+			setCurrentAsKiv();
+			updateObservers();
+			return FEEDBACK_LIST_KIV;
+		default :
+			throw new IllegalArgumentException();
+		}
+	}
+
+	/**
+	 * This method creates instances of Parser and Storage.
+	 */
+	private void instantiateParserAndStorage() {
+		parser = new Parser();
+		storage = new Storage();
+		logger = Logger.getLogger(LOGIC);
+	}
+
+	/**
+	 * This method creates instances of Parser and Storage.
+	 */
+	private void getLogger() {
+		logger = Logger.getLogger(LOGIC);
+	}
+
+	/**
+	 * This method initialises files in Storage.
+	 */
+	private void initialiseStorageFiles() {
+		try {
+			storage.initFile();
+		} catch (IllegalStateException ise) {
+			isFileCorrupted(true);
+		}
+	}
+
+	/**
+	 * This method restores the last saved files if there is any.
+	 */
+	private void retrieveStoredFiles() {
+		try {
+			storedTasksByTime = storage.restoreDataFromFile(KEY_SORTED_TIME);
+			storedTasksByPriority = storage
+					.restoreDataFromFile(KEY_SORTED_PRIORITY);
+			storedTasksByTicked = storage.restoreDataFromFile(KEY_TICKED);
+			storedTasksByKiv = storage.restoreDataFromFile(KEY_KIV);
+		} catch (IllegalStateException ise) {
+			isFileCorrupted(true);
+		}
+	}
+
+	/**
+	 * This method creates instances of the logic managers.
+	 */
+	private void instantiateLogicManagers() {
+		cruMng = new CRUManager(storedTasksByTime, storedTasksByPriority,
+				storedTasksByTicked, storedTasksByKiv);
+		tickKivMng = new TickKIVManager(storedTasksByTime,
+				storedTasksByPriority, storedTasksByTicked, storedTasksByKiv);
+		searchMng = new SearchManager(storedTasksByTime, storedTasksByPriority,
+				storedTasksByTicked, storedTasksByKiv);
+		undoMng = UndoManager.getInstance(storedTasksByTime,
+				storedTasksByPriority, storedTasksByTicked, storedTasksByKiv);
+	}
+
+	/**
+	 * This method creates instances of the search results.
+	 */
+	private void instantiateSearchResults() {
+		searchResults = new Vector<Task>();
+		freeslotsResults = new Vector<Task>();
+	}
+
+	/**
+	 * This method notifies observer UI(s) that the storage files have been
+	 * corrupted.
+	 *
+	 * @param isCorrupted		The state of whether the file is corrupted
+	 */
+	private void isFileCorrupted(boolean isCorrupted) {
+		for (Observer observer : observerList) {
+			observer.isFileCorrupted(isCorrupted);
+		}
+	}
+
+	/**
+	 * This method checks for expired tasks and updates their attribute
+	 * isExpired.
+	 */
+	private void checkForTaskExpiry() {
+		checkForTaskExpiryInListTime();
+		checkForTaskExpiryInListPriority();
+		checkForTaskExpiryInListKiv();
+		checkForTaskExpiryInListTicked();
+	}
+
+	/**
+	 * This method checks for expired tasks in list ticked.
+	 */
+	private void checkForTaskExpiryInListTicked() {
+		if (!storedTasksByTicked.isEmpty()) {
+			for (Task tickedTask : storedTasksByTicked) {
+				tickedTask.isExpired();
+			}
+		}
+	}
+
+	/**
+	 * This method checks for expired tasks in list KIV.
+	 */
+	private void checkForTaskExpiryInListKiv() {
+		if (!storedTasksByKiv.isEmpty()) {
+			for (Task kivTask : storedTasksByKiv) {
+				kivTask.isExpired();
+			}
+		}
+	}
+
+	/**
+	 * This method checks for expired tasks in list by priority.
+	 */
+	private void checkForTaskExpiryInListPriority() {
+		if (!storedTasksByPriority.isEmpty()) {
+			for (Task priorityTask : storedTasksByPriority) {
+				priorityTask.isExpired();
+			}
+		}
+	}
+
+	/**
+	 * This method checks for expired tasks in list by time.
+	 */
+	private void checkForTaskExpiryInListTime() {
+		if (!storedTasksByTime.isEmpty()) {
+			for (Task timeTask : storedTasksByTime) {
+				timeTask.isExpired();
+			}
+		}
+	}
+
+	/**
+	 * This is an overloaded method that checks for expired tasks in only one
+	 * task list and updates their attribute isExpired.
+	 * 
+	 * @param taskList	Tasklist to be checked for expired task.
+	 */
+	private void checkForTaskExpiry(Vector<Task> taskList) {
+		for (Task task : taskList) {
+			task.isExpired();
+		}
+	}
+
+	/**
+	 * This method updates the observers of the new display.
+	 */
+	private void updateObservers() {
+		checkForTaskExpiry();
+		updateList(current);
+		updateDisplayKey(listTracker);
+	}
+
+	/**
+	 * This method updates observer UI(s) on the tasks being displayed.
+	 *
+	 * @param taskList	Tasklist to be displayed.
+	 */
+	private void updateList(Vector<Task> taskList) {
+		for (Observer observer : observerList) {
+			observer.setList(taskList);
+		}
+	}
+
+	/**
+	 * This method updates observer UI(s) of the task display key.
+	 *
+	 * @param displayKey	Key of the displayed tasklist.
+	 */
+	private void updateDisplayKey(int displayKey) {
+		for (Observer observer : observerList) {
+			observer.setNextView(displayKey);
+		}
+	}
+
+	/**
+	 * This method sets the tasklist sorted by time to be displayed.
+	 */
+	private void setCurrentAsTime() {
+		listTracker = KEY_SORTED_TIME;
+		current = storedTasksByTime;
+		currentListName = LIST_TIME;
+	}
+
+	/**
+	 * This method sets the tasklist sorted by priority to be displayed.
+	 */
+	private void setCurrentAsPriority() {
+		listTracker = KEY_SORTED_PRIORITY;
+		current = storedTasksByPriority;
+		currentListName = LIST_PRIORITY;
+	}
+
+	/**
+	 * This method sets the tasklist containing ticked tasks to be displayed.
+	 */
+	private void setCurrentAsTicked() {
+		listTracker = KEY_TICKED;
+		current = storedTasksByTicked;
+		currentListName = LIST_TICKED;
+	}
+
+	/**
+	 * This method sets the tasklist containing kiv-ed tasks to be displayed.
+	 */
+	private void setCurrentAsKiv() {
+		listTracker = KEY_KIV;
+		current = storedTasksByKiv;
+		currentListName = LIST_KIV;
+	}
+
+	/**
+	 * This method sets the search tasklist to be displayed.
+	 */
+	private void setCurrentAsSearch() {
+		listTracker = KEY_SEARCH;
+		current = searchResults;
+		currentListName = LIST_SEARCH;
+	}
+
+	/**
+	 * This method sets the search freeslots tasklist to be displayed.
+	 */
+	private void setCurrentAsSearchFreeslots() {
+		listTracker = KEY_FREESLOTS;
+		current = freeslotsResults;
+		currentListName = LIST_FREESLOTS;
+	}
+
+	/**
+	 * This method writes the lists into storage.
+	 */
+	private void storeLists() {
+		storage.writeStorageArrayIntoFile(KEY_SORTED_TIME, storedTasksByTime);
+		storage.writeStorageArrayIntoFile(KEY_SORTED_PRIORITY,
+				storedTasksByPriority);
+		storage.writeStorageArrayIntoFile(KEY_TICKED, storedTasksByTicked);
+		storage.writeStorageArrayIntoFile(KEY_KIV, storedTasksByKiv);
+	}
+
+	/**
+	 * This method sorts the time and priority lists.
+	 */
+	private void sortLists() {
+		Collections.sort(storedTasksByTime, new sortByTime());
+		Collections.sort(storedTasksByPriority, new sortByPriority());
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\Logic.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\Observer.java
+	 */
+
+/** 
+ * Description: This interface allows any UI who implements it 
+ * to observe the Logic class.
+ */
+public interface Observer {
+	public void setList(Vector<Task> tasksToBeDisplayed);
+
+	public void setNextView(int displayPageKey);
+
+	public void isFileCorrupted(boolean corrupted);
+
+	public void setHelp();
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\Observer.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\SearchManager.java
+	 */
+
+/**
+ * Description: This class has 3 main functions:
+ * 1. Search: Searches for tasks based on any task property.
+ * 2. Near-match: Finds similar tasks by calculating the level of similarity 
+ * between the search key and the existing tasks in.
+ * the task list. Returns only the tasks with appointed level of similarity.
+ * 3. Search for free slots: Shows free slots
+ */
+public class SearchManager {
+
+	// CONSTANTS
+	// Char constants
+	private static final char NULL_CHAR = '\u0000';
+	private static final char PRIORITY_IMPORTANT = 'A';
+	private static final char PRIORITY_NORMAL = 'B';
+	private static final char PRIORITY_TRIVIAL = 'C';
+	// Integer constants
+	private static final int EQUAL = 0;
+	private static final double PASSING_SIMILARITY_SCORE = 65.0;
+	private static final int OFFSET_INDEX = 1;
+	// String constants
+	private static final String EMPTY_STRING = "";
+	// String constants for command types
+	private static final String COMMAND_TAKE = "take";
+	// String constants for stamps
+	private static final String STAMP_FREESLOT = "\\***FREE***\\";
+	private static final String STAMP_KIV = "\\***KIV***\\";
+	private static final String STAMP_TICKED = "\\***TICKED***\\";
+	// String constants for feedback
+	private static final String FEEDBACK_APPEND_IS_TAKEN = " has been added.";
+
+	// ATTRIBUTES
+	// Temporary sorted storages
+	private Vector<Task> storedTasksByTime;
+	private Vector<Task> storedTasksByPriority;
+	private Vector<Task> storedTasksByTicked; // not sorted
+	private Vector<Task> storedTasksByKIV; // not sorted
+	// Temporary storage for searchResults
+	private static Vector<Task> searchResultsTime;
+	private static Vector<Task> searchResultsTicked;
+	private static Vector<Task> searchResultsKIV;
+	private static Vector<Task> searchResults;
+	private static Vector<Task> freeslotList;
+	private static Vector<StringMatch> matchList;
+
+	// Instances of other components
+	private UndoManager undoMng;
+
+	public SearchManager(Vector<Task> storedTasksByTime,
+			Vector<Task> storedTasksByPriority,
+			Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKIV) {
+		this.storedTasksByTime = storedTasksByTime;
+		this.storedTasksByPriority = storedTasksByPriority;
+		this.storedTasksByTicked = storedTasksByTicked;
+		this.storedTasksByKIV = storedTasksByKIV;
+
+		undoMng = UndoManager.getInstance(storedTasksByPriority,
+				storedTasksByTime, storedTasksByTicked, storedTasksByKIV);
+
+		freeslotList = new Vector<Task>();
+
+		searchResults = new Vector<Task>();
+	}
+
+	/**
+	 * This method searches for all tasks with the specified task property.
+	 * Searching through description is based on the level of similarity between
+	 * specified key and task description.
+	 *
+	 * @param key            Search description key.
+	 * @param isRepeating    Query for repeating tasks.
+	 * @param startDate      Starting date query.
+	 * @param startTime      Starting time query.
+	 * @param endDate        Ending date query.
+	 * @param endTime        Ending time query.
+	 * @param priority       Query for tasks with a specified level of priority
+	 * @return Vector of tasks that fits the query
+	 */
+	public Vector<Task> search(String key, boolean isRepeating, Date startDate,
+			Date endDate, Time startTime, Time endTime, char priority) {
+		matchList = new Vector<StringMatch>();
+
+		initialiseSubSearchResults();
+
+		// Search by Key only
+		if (key != null && !key.equals(EMPTY_STRING)) {
+			searchByKeyInSubSearchResults(key);
+		}
+
+		// Unused code
+		/*if (isRepeating) {
+			searchByRepeatingInSubSearchResults();
+		}*/
+
+		// Search by priority
+		if (priority != NULL_CHAR
+				&& (priority == PRIORITY_IMPORTANT
+				|| priority == PRIORITY_NORMAL || priority == PRIORITY_TRIVIAL)) {
+			searchByPriorityInSubSearchResults(priority);
+		}
+
+		// Search for date and time assumes that there will be a date that is
+		// passed with the time
+		// Search by start date and start time
+		if (startDate != null) {
+			if (startTime != null) {
+				searchByStartDateAndTimeInSubSearchResults(startDate, startTime);
+			} else if (startTime == null) {
+				searchByStartDateInSubSearchResults(startDate);
+			}
+		}
+
+		// Search by end date and end time
+		if (endDate != null) {
+			if (endTime != null) {
+				searchByEndDateAndTimeInSubSearchResults(endDate, endTime);
+			} else if (endTime == null) {
+				searchByEndDateInSubSearchResults(endDate);
+			}
+		}
+
+		collateSubSearchResults();
+
+		return searchResults;
+	}
+
+	/**
+	 * This method searches for expired tasks with the specified task property.
+	 * Searching through description is based on the level of similarity between
+	 * specified key and task description.
+	 *
+	 * @param key			Search description key.
+	 * @param isRepeating	Query for repeating tasks.
+	 * @param startDate		Starting date query.
+	 * @param startTime		Starting time query.
+	 * @param endDate		Ending date query.
+	 * @param endTime		Ending time query.
+	 * @param priority		Query for tasks with a specified level of priority
+	 * @return Vector of tasks that fits the query
+	 */
+	public Vector<Task> searchExpired(String key, boolean isRepeating,
+			Date startDate, Date endDate, Time startTime, Time endTime,
+			char priority) {
+		matchList = new Vector<StringMatch>();
+
+		initialiseExpiredSubSearchResults();
+
+		// Search by Key only
+		if (key != null && !key.equals(EMPTY_STRING)) {
+			searchByKeyInSubSearchResults(key);
+		}
+
+		// Unused code
+		/*if (isRepeating) {
+			searchByRepeatingInSubSearchResults();
+		}*/
+
+		// Search by priority
+		if (priority != NULL_CHAR
+				&& (priority == PRIORITY_IMPORTANT
+				|| priority == PRIORITY_NORMAL || priority == PRIORITY_TRIVIAL)) {
+			searchByPriorityInSubSearchResults(priority);
+		}
+
+		// Search for date and time assumes that there will be a date that is
+		// passed with the time
+		// Search by start date and start time
+		if (startDate != null) {
+			if (startTime != null) {
+				searchByStartDateAndTimeInSubSearchResults(startDate, startTime);
+			} else if (startTime == null) {
+				searchByStartDateInSubSearchResults(startDate);
+			}
+		}
+
+		// Search by end date and end time
+		if (endDate != null) {
+			if (endTime != null) {
+				searchByEndDateAndTimeInSubSearchResults(endDate, endTime);
+			} else if (endTime == null) {
+				searchByEndDateInSubSearchResults(endDate);
+			}
+		}
+
+		collateSubSearchResults();
+
+		return searchResults;
+	}
+
+	/**
+	 * This method searches for freeslots within a certain time period.
+	 *
+	 * @param startDate		Starting date query.
+	 * @param startTime		Starting time query.
+	 * @param endDate		Ending date query.
+	 * @param endTime		Ending time query.
+	 * @return Vector of tasks and freeslots within the period queried.
+	 */
+	public Vector<Task> searchForFreeSlots(Date startDate, Time startTime,
+			Date endDate, Time endTime) {
+		DateTime start = new DateTime(startDate, startTime);
+		DateTime end = new DateTime(endDate, endTime);
+		TimePeriod timePeriod = new TimePeriod(start, end);
+
+		freeslotList = new Vector<Task>();
+
+		Vector<TimePeriod> result = new Vector<TimePeriod>();
+		result.add(timePeriod);
+
+		for (Task task : storedTasksByTime) {
+			if (task.getStartDate() != null && task.getStartTime() != null
+					&& task.getEndDate() != null && task.getEndTime() != null
+					&& task.getStartDate().compareTo(startDate) >= EQUAL
+					&& task.getEndDate().compareTo(endDate) <= EQUAL
+					&& task.getStartTime().compareTo(startTime) >= EQUAL
+					&& task.getEndTime().compareTo(endTime) <= EQUAL) {
+				freeslotList.add(task);
+			}
+		}
+
+		// Sort the tasks beforehand so the earliest task in the period will be
+		// considered first
+		// This allows us to do comparison only once
+		Collections.sort(freeslotList, new sortByTime());
+
+		for (Task task : freeslotList) {
+			TimePeriod taskPeriod = new TimePeriod(new DateTime(
+					task.getStartDate(), task.getStartTime()), new DateTime(
+							task.getEndDate(), task.getEndTime()));
+
+			// Check from the back
+			for (int i = result.size() - 1; i >= 0; i--) {
+				TimePeriod resultPeriod = result.get(i);
+
+				// If potential free slot is within or equals the timings of a
+				// scheduled task
+				if (resultPeriod.getStart().compareTo(taskPeriod.getStart()) >= EQUAL
+						&& resultPeriod.getEnd().compareTo(taskPeriod.getEnd()) <= EQUAL) {
+					result.remove(i);
+
+					// If potential free slot has larger period then the timings
+					// of a scheduled task on both tail ends
+				} else if (resultPeriod.getStart().compareTo(
+						taskPeriod.getStart()) < EQUAL
+						&& resultPeriod.getEnd().compareTo(taskPeriod.getEnd()) > EQUAL) {
+					updateTwoTailedFreeslot(result, taskPeriod, i, resultPeriod);
+
+					// If potential free slot has no overlap with scheduled task
+					// on the left tail end
+				} else if (resultPeriod.getStart().compareTo(
+						taskPeriod.getStart()) < EQUAL
+						&& resultPeriod.getEnd().compareTo(
+								taskPeriod.getStart()) >= EQUAL) {
+					updateLeftTailedFreeslot(result, taskPeriod, i,
+							resultPeriod);
+
+					// If potential free slot has no overlap with scheduled task
+					// on the right tail end
+				} else if (resultPeriod.getStart().compareTo(
+						resultPeriod.getStart()) >= EQUAL
+						&& resultPeriod.getEnd().compareTo(taskPeriod.getEnd()) > EQUAL) {
+					updateRightTailedFreeslot(result, taskPeriod, i,
+							resultPeriod);
+
+					// If free slots has no overlap with tasks
+				} else {
+					continue;
+				}
+			}
+		}
+
+		mergeFreeslotsAndExistingUndoneTasks(result);
+		Collections.sort(freeslotList, new sortByTime());
+		return freeslotList;
+	}
+
+	/**
+	 * This method merges the calculated freeslots with undone tasks.
+	 * 
+	 * @param result	Vector of freeslots.
+	 */
+	private void mergeFreeslotsAndExistingUndoneTasks(Vector<TimePeriod> result) {
+		for (TimePeriod freePeriod : result) {
+			TimedTask freeslot = new TimedTask(STAMP_FREESLOT,
+					freePeriod.getStartDate(), freePeriod.getStartTime(),
+					freePeriod.getEndDate(), freePeriod.getEndTime(),
+					PRIORITY_NORMAL, false);
+			freeslotList.add(freeslot);
+		}
+	}
+
+	/**
+	 * This method trims the freeslot as it is overlapped on the left tail.
+	 * 
+	 * @param result		Vector of potential freeslots.
+	 * @param taskPeriod	Period of the task being compared to
+	 * @param index			Index of freeslot.
+	 * @param resultPeriod	Period of freeslot.
+	 */
+	private void updateRightTailedFreeslot(Vector<TimePeriod> result,
+			TimePeriod taskPeriod, int index, TimePeriod resultPeriod) {
+		result.remove(index);
+		result.add(new TimePeriod(taskPeriod.getEnd(), resultPeriod.getEnd()));
+	}
+
+	/**
+	 * This method trims the freeslot as it is overlapped on the right tail.
+	 * 
+	 * @param result		Vector of potential freeslots.
+	 * @param taskPeriod	Period of the task being compared to
+	 * @param index			Index of freeslot.
+	 * @param resultPeriod	Period of freeslot.
+	 */
+	private void updateLeftTailedFreeslot(Vector<TimePeriod> result,
+			TimePeriod taskPeriod, int index, TimePeriod resultPeriod) {
+		result.remove(index);
+		result.add(new TimePeriod(resultPeriod.getStart(), taskPeriod
+				.getStart()));
+	}
+
+	/**
+	 * This method trims the freeslot as it is overlapped in the middle.
+	 * 
+	 * @param result		Vector of potential freeslots.
+	 * @param taskPeriod	Period of the task being compared to
+	 * @param index			Index of freeslot.
+	 * @param resultPeriod	Period of freeslot.
+	 */
+	private void updateTwoTailedFreeslot(Vector<TimePeriod> result,
+			TimePeriod taskPeriod, int index, TimePeriod resultPeriod) {
+		result.remove(index);
+		result.add(new TimePeriod(resultPeriod.getStart(), taskPeriod
+				.getStart()));
+		result.add(new TimePeriod(taskPeriod.getEnd(), resultPeriod.getEnd()));
+	}
+
+	/**
+	 * This method takes the freeslot.
+	 *
+	 * @param index			Index of freeslot to be taken.
+	 * @param description	Name of task description that fills in the freeslot.
+	 * @return Message from the action of taking a freeslot.
+	 * @throws IllegalArgumentException		If event is created wrongly.
+	 */
+	public String take(int displayedIndex, String description)
+			throws IllegalArgumentException {
+		int actualIndex = getActualIndex(displayedIndex);
+		TimedTask chosenSlot = (TimedTask) freeslotList.get(actualIndex);
+		if (chosenSlot.getDescription() != STAMP_FREESLOT) {
+			storedTasksByTime.remove(chosenSlot);
+			storedTasksByPriority.remove(chosenSlot);
+		}
+		chosenSlot.setDescription(description);
+		storedTasksByTime.add(chosenSlot);
+		storedTasksByPriority.add(chosenSlot);
+
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_TAKE, chosenSlot);
+		undoMng.add(event);
+
+		return description + FEEDBACK_APPEND_IS_TAKEN;
+	}
+
+	/**
+	 * This method collates and packages the substituent search results for the
+	 * actual search result.
+	 */
+	private void collateSubSearchResults() {
+		for (Task searchTime : searchResultsTime) {
+			searchResults.add(searchTime);
+		}
+
+		searchResults.add(new Task(STAMP_TICKED, null, null, null, null,
+				PRIORITY_NORMAL, false));
+
+		for (Task searchTicked : searchResultsTicked) {
+			searchResults.add(searchTicked);
+		}
+
+		searchResults.add(new Task(STAMP_KIV, null, null, null, null,
+				PRIORITY_NORMAL, false));
+
+		for (Task searchKIV : searchResultsKIV) {
+			searchResults.add(searchKIV);
+		}
+	}
+
+	/**
+	 * This method searches tasks by their end dates.
+	 * 
+	 * @param endDate	Queried end date.
+	 */
+	private void searchByEndDateInSubSearchResults(Date endDate) {
+		searchResultsTime = searchByEndDate(endDate, searchResultsTime);
+		searchResultsTicked = searchByEndDate(endDate, searchResultsTicked);
+		searchResultsKIV = searchByEndDate(endDate, searchResultsKIV);
+	}
+
+	/**
+	 * This method searches tasks by their end dates and end times.
+	 * 
+	 * @param endDate	Queried end date.
+	 * @param endTime	Queried end time.
+	 */
+	private void searchByEndDateAndTimeInSubSearchResults(Date endDate,
+			Time endTime) {
+		searchResultsTime = searchByEndDateAndTime(endDate, endTime,
+				searchResultsTime);
+		searchResultsTicked = searchByEndDateAndTime(endDate, endTime,
+				searchResultsTicked);
+		searchResultsKIV = searchByEndDateAndTime(endDate, endTime,
+				searchResultsKIV);
+	}
+
+	/**
+	 * This method searches tasks by their start dates.
+	 * 
+	 * @param startDate		Queried start date.
+	 */
+	private void searchByStartDateInSubSearchResults(Date startDate) {
+		searchResultsTime = searchByStartDate(startDate, searchResultsTime);
+		searchResultsTicked = searchByStartDate(startDate, searchResultsTicked);
+		searchResultsKIV = searchByStartDate(startDate, searchResultsKIV);
+	}
+
+	/**
+	 * This method searches tasks by their start dates and start times.
+	 * 
+	 * @param startDate		Queried start date.
+	 * @param startTime		Queried start time.
+	 */
+	private void searchByStartDateAndTimeInSubSearchResults(Date startDate,
+			Time startTime) {
+		searchResultsTime = searchByStartDateAndTime(startDate, startTime,
+				searchResultsTime);
+		searchResultsTicked = searchByStartDateAndTime(startDate, startTime,
+				searchResultsTicked);
+		searchResultsKIV = searchByStartDateAndTime(startDate, startTime,
+				searchResultsKIV);
+	}
+
+	/**
+	 * This method searches tasks by their priority.
+	 * 
+	 * @param priority		Queried level of priority.
+	 */
+	private void searchByPriorityInSubSearchResults(char priority) {
+		searchResultsTime = searchByPriority(priority, searchResultsTime);
+		searchResultsTicked = searchByPriority(priority, searchResultsTicked);
+		searchResultsKIV = searchByPriority(priority, searchResultsKIV);
+	}
+
+	// Unused code
+	/**
+	 * This method searches for repeating tasks.
+	 */
+	/*private void searchByRepeatingInSubSearchResults() {
+		searchResultsTime = searchRepeating(searchResultsTime);
+		searchResultsTicked = searchRepeating(searchResultsTicked);
+		searchResultsKIV = searchRepeating(searchResultsKIV);
+	}*/
+
+	/**
+	 * This method searches tasks by their description and their level of
+	 * similarity with the key.
+	 * 
+	 * @param key	Queried key.
+	 */
+	private void searchByKeyInSubSearchResults(String key) {
+		searchResultsTime = searchByKey(key, searchResultsTime);
+		searchResultsTicked = searchByKey(key, searchResultsTicked);
+		searchResultsKIV = searchByKey(key, searchResultsKIV);
+	}
+
+	/**
+	 * This method initialises the substituent search results.
+	 */
+	private void initialiseSubSearchResults() {
+		searchResultsTime = storedTasksByTime;
+		searchResultsTicked = storedTasksByTicked;
+		searchResultsKIV = storedTasksByKIV;
+	}
+
+	/**
+	 * This method initialises substituent search results with expired tasks.
+	 */
+	private void initialiseExpiredSubSearchResults() {
+		searchResultsTime = searchExpired(storedTasksByTime);
+		searchResultsTicked = searchExpired(storedTasksByTicked);
+		searchResultsKIV = searchExpired(storedTasksByKIV);
+	}
+
+	/**
+	 * This method searches for expired task within a tasklist.
+	 *
+	 * @param taskList		List of tasks to be searched from.
+	 * @return Vector of expired tasks.
+	 */
+	private Vector<Task> searchExpired(Vector<Task> taskList) {
+		Vector<Task> searchResult = new Vector<Task>();
+
+		for (Task task : taskList) {
+			if (task.getIsExpired()) {
+				searchResult.add(task);
+			}
+		}
+
+		return searchResult;
+	}
+
+	// Unused code
+	/**
+	 * This method searches for repeating task within a tasklist.
+	 *
+	 * @param taskList		List of tasks to be searched from.
+	 * @return Vector of repeating tasks.
+	 */
+	/*private Vector<Task> searchRepeating(Vector<Task> taskList) {
+		Vector<Task> searchResult = new Vector<Task>();
+
+		for (Task task : taskList) {
+			if (task.getRepeat()) {
+				searchResult.add(task);
+			}
+		}
+		return searchResult;
+	}*/
+
+	/**
+	 * This method searches for tasks through a word in the task description
+	 * (exact or with errors) within a tasklist.
+	 *
+	 * @param taskList		List of tasks to be searched from.
+	 * @return Vector of tasks that passes the specified SimMetrics similarity
+	 *         points.
+	 */
+	private Vector<Task> searchByKey(String key, Vector<Task> taskList) {
+		Vector<Task> searchResult = new Vector<Task>();
+		matchList.removeAllElements();
+
+		calculateSimilarityScore(key, taskList);
+
+		Collections.sort(matchList, new StringMatchComparator());
+
+		for (StringMatch sm : matchList) {
+			if (sm.getSimilarityScore() < PASSING_SIMILARITY_SCORE) {
+				break;
+			}
+			searchResult.add(taskList.get(sm.getIndex()));
+		}
+		return searchResult;
+	}
+
+	/**
+	 * This method calcultes the individual tasks similarity score and stores
+	 * them in matchlist.
+	 * 
+	 * @param key		Queried key.
+	 * @param taskList	List of tasks to be searched from.
+	 */
+	private void calculateSimilarityScore(String key, Vector<Task> taskList) {
+		for (int i = 0; i < taskList.size(); i++) {
+			float score = getMatchLikelyhood(key.toLowerCase(), taskList.get(i)
+					.toString().toLowerCase());
+			matchList.add(new StringMatch(i, score));
+		}
+	}
+
+	/**
+	 * This method searches for tasks of a certain level of priority within a
+	 * tasklist.
+	 *
+	 * @param taskList		List of tasks to be searched from.
+	 * @return Vector of tasks with the specified level of priority.
+	 */
+	private Vector<Task> searchByPriority(char priority, Vector<Task> taskList) {
+		Vector<Task> searchResult = new Vector<Task>();
+
+		for (Task task : taskList) {
+			if (task.getPriority() == priority) {
+				searchResult.add(task);
+			}
+		}
+		return searchResult;
+	}
+
+	/**
+	 * This method searches for all tasks starting from from the start date and
+	 * start time.
+	 *
+	 * @param taskList		List of tasks to be searched from.
+	 * @param startDate		Starting date query.
+	 * @param startTime		Starting time query.
+	 * @return Vector of tasks that fits the query
+	 */
+	private Vector<Task> searchByStartDateAndTime(Date startDate,
+			Time startTime, Vector<Task> taskList) {
+		Vector<Task> searchResult = new Vector<Task>();
+
+		for (Task task : taskList) {
+			if (task.getStartDate() != null && task.getStartTime() != null
+					&& task.getStartDate().compareTo(startDate) >= EQUAL
+					&& task.getStartTime().compareTo(startTime) >= EQUAL) {
+				searchResult.add(task);
+				continue;
+			}
+			if (task.getStartDate() != null && task.getStartTime() == null
+					&& task.getStartDate().compareTo(startDate) >= EQUAL) {
+				searchResult.add(task);
+				continue;
+			}
+			if (task.getEndDate() != null && task.getEndTime() != null
+					&& task.getEndDate().compareTo(startDate) >= EQUAL
+					&& task.getEndTime().compareTo(startTime) >= EQUAL) {
+				searchResult.add(task);
+				continue;
+			}
+			if (task.getEndDate() != null && task.getEndTime() == null
+					&& task.getEndDate().compareTo(startDate) >= EQUAL) {
+				searchResult.add(task);
+			}
+		}
+		return searchResult;
+	}
+
+	/**
+	 * This method searches for all tasks starting from from the start date
+	 * without start time.
+	 *
+	 * @param taskList		List of tasks to be searched from.
+	 * @param startDate		Starting date query.
+	 * @return Vector of tasks that fits the query
+	 */
+	private Vector<Task> searchByStartDate(Date startDate, Vector<Task> taskList) {
+		Vector<Task> searchResult = new Vector<Task>();
+
+		for (Task task : taskList) {
+			// Add tasks that have starting date before queried startDate
+			if (task.getStartDate() != null
+					&& task.getStartDate().compareTo(startDate) >= EQUAL) {
+				searchResult.add(task);
+				continue;
+			}
+			// Add tasks that have deadline after startDate
+			if (task.getEndDate() != null
+					&& task.getEndDate().compareTo(startDate) >= EQUAL) {
+				searchResult.add(task);
+				continue;
+			}
+			// Add tasks that started before startDate and is still spanning
+			// across queried time period
+			if (task.getStartDate() != null && task.getEndDate() == null
+					&& task.getStartDate().compareTo(startDate) < EQUAL) {
+				searchResult.add(task);
+			}
+		}
+		return searchResult;
+	}
+
+	/**
+	 * This method searches for all tasks till the end date and end time.
+	 *
+	 * @param taskList		List of tasks to be searched from.
+	 * @param endDate		Ending date query.
+	 * @param endTime		Ending time query.
+	 * @return Vector of tasks that fits the query
+	 */
+	private Vector<Task> searchByEndDateAndTime(Date endDate, Time endTime,
+			Vector<Task> taskList) {
+		Vector<Task> searchResult = new Vector<Task>();
+
+		for (Task task : taskList) {
+			if (task.getEndDate() != null && task.getEndTime() != null
+					&& task.getEndDate().compareTo(endDate) <= EQUAL
+					&& task.getEndTime().compareTo(endTime) <= EQUAL) {
+				searchResult.add(task);
+				continue;
+			}
+			if (task.getEndDate() != null && task.getEndTime() == null
+					&& task.getEndDate().compareTo(endDate) <= EQUAL) {
+				searchResult.add(task);
+				continue;
+			}
+			if (task.getStartDate() != null && task.getStartTime() != null
+					&& task.getStartDate().compareTo(endDate) <= EQUAL
+					&& task.getStartTime().compareTo(endTime) <= EQUAL) {
+				searchResult.add(task);
+				continue;
+			}
+			if (task.getStartDate() != null
+					&& task.getStartDate().compareTo(endDate) < EQUAL) {
+				searchResult.add(task);
+				continue;
+			}
+			if (task.getStartDate() != null && task.getStartTime() == null
+					&& task.getStartDate().compareTo(endDate) == EQUAL) {
+				searchResult.add(task);
+			}
+		}
+		return searchResult;
+	}
+
+	/**
+	 * This method searches for all tasks till the end date without end time.
+	 *
+	 * @param taskList		List of tasks to be searched from.
+	 * @param endDate		Ending date query.
+	 * @return Vector of tasks that fits the query
+	 */
+	private Vector<Task> searchByEndDate(Date endDate, Vector<Task> taskList) {
+		Vector<Task> searchResult = new Vector<Task>();
+
+		for (Task task : taskList) {
+			// Deadline tasks and scheduled tasks that end before endDate are
+			// added
+			if (task.getEndDate() != null
+					&& task.getEndDate().compareTo(endDate) <= EQUAL) {
+				searchResult.add(task);
+				continue;
+			}
+			// Scheduled tasks that start before endDate are added
+			if (task.getStartDate() != null
+					&& task.getStartDate().compareTo(endDate) <= EQUAL) {
+				searchResult.add(task);
+				continue;
+			}
+		}
+		return searchResult;
+	}
+
+	/**
+	 * This method calculates the actual index of the task displayed in UI.
+	 *
+	 * @param index		Index of the specified task displayed in UI.
+	 * @return Actual index of tasklist.
+	 */
+	private int getActualIndex(int index) {
+		return index - OFFSET_INDEX;
+	}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\SearchManager.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\SearchManagerTest.java
+	 */
+
+/**
+ * Description: This class test functions related to search.
+ */
+public class SearchManagerTest {
+	// String constants for command types
+	private static final String COMMAND_UNTICK = "untick";
+	private static final String COMMAND_TICK = "tick";
+	private static final String COMMAND_REDO = "redo";
+	private static final String COMMAND_UNDO = "undo";
+	private static final String COMMAND_UNKIV = "unkiv";
+	private static final String COMMAND_KIV = "kiv";
+	private static final String COMMAND_ADD = "add";
+	private static final String COMMAND_LIST = "list";
+	private static final String COMMAND_CLEAR = "clear";
+	private static final String COMMAND_SEARCH = "search";
+
+	// String constants for type of lists used
+	private static final String LIST_TIME = "time";
+	private static final String LIST_PRIORITY = "priority";
+	private static final String LIST_TICKED = "ticked";
+	private static final String LIST_KIV = "kiv";
+
+	@Test
+	public final void testSearchManager() {
+		UIForLogicTesting ui = new UIForLogicTesting();
+		Logic logic = ui.getLogic();
+		UserInput input;
+
+		// Clear the list before every testing
+		input = new UserInput();
+		input.setCommand(COMMAND_CLEAR);
+		assertEquals("Spick and span!", logic.getOutput(input));
+		input = new UserInput();
+		input.setCommand(COMMAND_LIST);
+		input.setDescription(LIST_TICKED);
+		assertEquals("Listing ticked tasks...", logic.getOutput(input));
+		assertEquals("Spick and span!", logic.clear());
+		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_KIV));
+		assertEquals("Spick and span!", logic.clear());
+		assertEquals("Listing by time...", logic.list(LIST_TIME));
+		assertEquals("Spick and span!", logic.clear());
+		assertEquals("Nothing to display", logic.list());
+
+		// Add floating task
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("CompClub: Add actionables on Trello");
+		input.setPriority('B');
+
+		assertEquals("CompClub: Add actionables on Trello has been added.", logic.getOutput(input));
+		assertEquals("1. CompClub: Add actionables on Trello\n", logic.list());
+
+		// Add scheduled task
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("CompClub: Man welfare pack booth");
+		input.setStartDate(new Date(2014, 11, 5));
+		input.setStartTime(new Time(11, 30));
+		input.setEndDate(new Date(2014, 11, 5));
+		input.setEndTime(new Time(14, 0));
+		input.setPriority('B');
+
+		assertEquals("CompClub: Man welfare pack booth has been added.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. CompClub: Add actionables on Trello\n", logic.list());
+
+		// Add deadlined task
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("HW: Submit CS2106 v0.5");
+		input.setEndDate(new Date(2014, 11, 10));
+		input.setEndTime(new Time(23, 59));
+		input.setPriority('B');
+
+		assertEquals("HW: Submit CS2106 v0.5 has been added.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. CompClub: Add actionables on Trello\n", logic.list());
+
+		// Add repeated task
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("CompClub: Pcell meeting");
+		input.setStartDate(new Date(2014, 11, 5));
+		input.setStartTime(new Time(16, 0));
+		input.setStartDate(new Date(2014, 11, 5));
+		input.setEndTime(new Time(18, 0));
+		input.setRepeating(true);
+		input.setPriority('B');
+
+		assertEquals("CompClub: Pcell meeting has been added.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. CompClub: Add actionables on Trello\n"
+				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+
+		// Add floating task with priority A
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: Get a haircut");
+		input.setPriority('A');
+
+		assertEquals("Self: Get a haircut has been added.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. CompClub: Add actionables on Trello\n"
+				+ "4. Self: Get a haircut\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+
+		assertEquals("Listing by priority...", logic.list(LIST_PRIORITY));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+
+		// Add scheduled task with priority C
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: Watch running man");
+		input.setStartDate(new Date(2014, 11, 3));
+		input.setStartTime(new Time(20, 0));
+		input.setEndDate(new Date(2014, 11, 3));
+		input.setEndTime(new Time(21, 30));
+		input.setPriority('C');
+
+		assertEquals("Self: Watch running man has been added.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+			
+		
+		// Test search for description
+		input = new UserInput();
+		input.setCommand(COMMAND_SEARCH);
+		input.setDescription("CompClub");
+
+		assertEquals("Searching for tasks...", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. CompClub: Add actionables on Trello\n"
+				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "4. \\***TICKED***\\\n"
+				+ "5. \\***KIV***\\\n", logic.list());
+
+		// Test Search for startDate
+		input = new UserInput();
+		input.setCommand(COMMAND_SEARCH);
+		input.setStartDate(new Date(2014, 11, 5));
+
+		assertEquals("Searching for tasks...", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "4. \\***TICKED***\\\n"
+				+ "5. \\***KIV***\\\n", logic.list());
+
+		// Test tick for current Search list
+		input = new UserInput();
+		input.setCommand(COMMAND_TICK);
+		input.setIndex(3);
+
+		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting is done!", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. \\***TICKED***\\\n"
+				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "5. \\***KIV***\\\n", logic.list());
+
+		// Test undo for current Search list
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+
+		assertEquals("Undoing action", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "4. \\***TICKED***\\\n"
+				+ "5. \\***KIV***\\\n", logic.list());
+
+		// Test redo for current Search list
+		input = new UserInput();
+		input.setCommand(COMMAND_REDO);
+
+		assertEquals("Redoing action", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. \\***TICKED***\\\n"
+				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "5. \\***KIV***\\\n", logic.list());
+
+		// Test untick for current Search list
+		input = new UserInput();
+		input.setCommand(COMMAND_UNTICK);
+		input.setIndex(3);
+
+		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting is back to undone.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "4. \\***TICKED***\\\n"
+				+ "5. \\***KIV***\\\n", logic.list());
+
+		// Test KIV for current Search list
+		input = new UserInput();
+		input.setCommand(COMMAND_KIV);
+		input.setIndex(3);
+
+		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting is kept in view.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. \\***TICKED***\\\n"
+				+ "4. \\***KIV***\\\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+
+
+		// Test unKIV for current Search list
+		input = new UserInput();
+		input.setCommand(COMMAND_UNKIV);
+		input.setIndex(3);
+
+		assertEquals("<Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting is back to undone.", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "4. \\***TICKED***\\\n"
+				+ "5. \\***KIV***\\\n", logic.list());
+
+
+		// Test search for startDate and startTime
+		input = new UserInput();
+		input.setCommand(COMMAND_SEARCH);
+		input.setStartDate(new Date(2014, 11, 5));
+		input.setStartTime(new Time(11, 30));
+
+		assertEquals("Searching for tasks...", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "4. \\***TICKED***\\\n"
+				+ "5. \\***KIV***\\\n", logic.list());
+
+		// Test search for startDate and startTime
+		input = new UserInput();
+		input.setCommand(COMMAND_SEARCH);
+		input.setStartDate(new Date(2014, 11, 5));
+		input.setStartTime(new Time(11, 30));
+
+		assertEquals("Searching for tasks...", logic.getOutput(input));
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "4. \\***TICKED***\\\n"
+				+ "5. \\***KIV***\\\n", logic.list());
+
+		// Test search for endDate
+		input = new UserInput();
+		input.setCommand(COMMAND_SEARCH);
+		input.setEndDate(new Date(2014, 11, 6));
+
+		assertEquals("Searching for tasks...", logic.getOutput(input));
+		assertEquals("1. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "4. \\***TICKED***\\\n"
+				+ "5. \\***KIV***\\\n", logic.list());
+
+		// Test search for endDate and endTime
+		input = new UserInput();
+		input.setCommand(COMMAND_SEARCH);
+		input.setEndDate(new Date(2014, 11, 5));
+		input.setEndTime(new Time(15, 0));
+
+		assertEquals("Searching for tasks...", logic.getOutput(input));
+		assertEquals("1. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. \\***TICKED***\\\n"
+				+ "4. \\***KIV***\\\n", logic.list());
+
+		// Test search for startDate and endDate
+		input = new UserInput();
+		input.setCommand(COMMAND_SEARCH);
+		input.setStartDate(new Date(2014, 11, 2));
+		input.setEndDate(new Date(2014, 11, 11));
+
+		assertEquals("Searching for tasks...", logic.getOutput(input));
+		assertEquals("1. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "5. \\***TICKED***\\\n"
+				+ "6. \\***KIV***\\\n", logic.list());
+
+		// Test search priority
+		input = new UserInput();
+		input.setCommand(COMMAND_SEARCH);
+		input.setPriority('A');
+
+		assertEquals("Searching for tasks...", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. \\***TICKED***\\\n"
+				+ "3. \\***KIV***\\\n", logic.list());
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\SearchManagerTest.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\StringMatch.java
+	 */
+
+/**
+ * Description: Objects of this class stores the index of a task in the task list 
+ * and the level of similarity between the said task and the search key.
+ */
+public class StringMatch {
+	private int taskArrayIndex;
+	private float similarityScore;
+
+	public StringMatch(int taskArrayIndex, float similarityScore) {
+		this.taskArrayIndex = taskArrayIndex;
+		this.similarityScore = similarityScore;
+	}
+
+	/**
+	 * This method returns the index of the task in the tasklist.
+	 * 
+	 * @return Index of the task in the tasklist.
+	 */
+	public int getIndex() {
+		return taskArrayIndex;
+	}
+
+	/**
+	 * This method returns the similarity score of the task and the search key.
+	 *
+	 * @return Similarity score of the task.
+	 */
+	public float getSimilarityScore() {
+		return similarityScore;
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\StringMatch.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\StringMatchComparator.java
+	 */
+
+/**
+ * Description: This class implements the Comparator interface and is used 
+ * to sort tasks according to their similarity points.
+ */
+public class StringMatchComparator implements Comparator<StringMatch> {
+
+	// CONSTANTS
+	private static final int SMALLER = -1;
+	private static final int EQUAL = 0;
+	private static final int BIGGER = 1;
+	// Log message
+	private static final String LOG_NULL_STRINGMATCH_PASSED = "Null StringMatch got into StringMatchComparator.";
+
+	/**
+	 * This method compares the tasks by their similarity score.
+	 */
+	public int compare(StringMatch sm1, StringMatch sm2) {
+		try {
+			if (sm1.getSimilarityScore() < sm2.getSimilarityScore()) {
+				return BIGGER;
+			}
+			if (sm1.getSimilarityScore() > sm2.getSimilarityScore()) {
+				return SMALLER;
+			}
+		} catch (NullPointerException npe) {
+			Logic.logger.log(Level.WARNING, LOG_NULL_STRINGMATCH_PASSED);
+		}
+		return EQUAL;
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\StringMatchComparator.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\TickKIVManager.java
+	 */
+
+/**
+ * Description: This class performs tick, untick, kiv and unkiv commands.
+ */
+public class TickKIVManager {
+
+	// CONSTANTS
+	// String constants for command types
+	private static final String COMMAND_UNTICK = "untick";
+	private static final String COMMAND_TICK = "tick";
+	private static final String COMMAND_UNKIV = "unkiv";
+	private static final String COMMAND_KIV = "kiv";
+	// Integer key constants for lists used by listTracker
+	private static final int KEY_TICKED = 3;
+	private static final int KEY_KIV = 4;
+	private static final int KEY_SEARCH = 5;
+	private static final int KEY_FREESLOTS = 6;
+	// Integer constants for offsets
+	private static final int TOP_OF_THE_LIST = 0;
+	private static final int OFFSET_INDEX = 1;
+	private static final int OFFSET_TICKED = 1;
+	private static final int OFFSET_KIV = 2;
+	// String constants for type of lists used by UndoManager
+	private static final String LIST_TIME = "time";
+	private static final String LIST_TICKED = "ticked";
+	private static final String LIST_KIV = "kiv";
+	// String constant for stamps
+	private static final String FREESLOT_STAMP = "\\***FREE***\\";
+	private static final String KIV_LIST_STAMP = "\\***KIV***\\";
+	private static final String TICKED_LIST_STAMP = "\\***TICKED***\\";
+	// Character constants for priority level
+	private static final char PRIORITY_NORMAL = 'B';
+	// Feedback messages
+	private static final String FEEDBACK_APPEND_IS_KIV = " is kept in view.";
+	private static final String FEEDBACK_APPEND_IS_UNDONE = " is back to undone.";
+	private static final String FEEDBACK_APPEND_IS_DONE = " is done!";
+	private static final String FEEDBACK_ERROR_CANNOT_UNKIV_FROM_TICKED_LIST = "Cannot unkiv a task from ticked list.";
+	private static final String FEEDBACK_ERROR_CANNOT_UNKIV_FROM_UNDONE_LIST = "Cannot unkiv a task from undone list.";
+	private static final String FEEDBACK_ERROR_MISUSED_UNKIV = "Can only unkiv in kiv list and search list.";
+	private static final String FEEDBACK_ERROR_CANNOT_KIV_FREESLOT = "Cannot kiv freeslot.";
+	private static final String FEEDBACK_ERROR_CANNOT_KIV_TICKED_TASK = "Cannot KIV a task from ticked. Please untick task first.";
+	private static final String FEEDBACK_ERROR_ALREADY_KIVED = "Task is already KIVed.";
+	private static final String FEEDBACK_ERROR_MISUSED_KIV = "Can only kiv in undone list, search list and search for freeslots list.";
+	private static final String FEEDBACK_ERROR_CANNOT_UNTICK_FROM_KIV = "Cannot untick a task from KIV.";
+	private static final String FEEDBACK_ERROR_CANNOT_UNTICK_FROM_UNDONE = "Cannot untick a task from undone list.";
+	private static final String FEEDBACK_ERROR_MISUSED_UNTICK = "Can only untick from ticked list and search list.";
+	private static final String FEEDBACK_ERROR_CANNOT_TICK_FREESLOT = "Cannot tick freeslot.";
+	private static final String FEEDBACK_ERROR_CANNOT_TICK_KIV_TASK = "Cannot tick a task from KIV. Please unKIV task first.";
+	private static final String FEEDBACK_ERROR_ALREADY_TICKED = "Task is already ticked.";
+	private static final String FEEDBACK_ERROR_MISUSED_TICK = "Can only tick from undone list, search list and search freeslots list.";
+
+	// ATTRIBUTES
+	// Instances of other components
+	private UndoManager undoMng;
+	private Vector<Task> storedTasksByPriority, storedTasksByTime,
+	storedTasksByTicked, storedTasksByKIV;
+
+	TickKIVManager(Vector<Task> storedTasksByPriority,
+			Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked,
+			Vector<Task> storedTasksByKIV) {
+		this.storedTasksByPriority = storedTasksByPriority;
+		this.storedTasksByTime = storedTasksByTime;
+		this.storedTasksByTicked = storedTasksByTicked;
+		this.storedTasksByKIV = storedTasksByKIV;
+
+		undoMng = UndoManager.getInstance(storedTasksByPriority,
+				storedTasksByTime, storedTasksByTicked, storedTasksByKIV);
+	}
+
+	/**
+	 * This method marks the specified task as ticked.
+	 *
+	 * @param index			Index of the specified task displayed in UI.
+	 * @param listTracker	List key of the current task list being displayed.
+	 * @param current		Current task list being displayed.
+	 * @return Feedback after a task is ticked.
+	 * @throws ArrayIndexOutOfBounds		If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException		If event is created wrongly.
+	 */
+	protected String tick(int displayedIndex, int listTracker,
+			Vector<Task> current) throws ArrayIndexOutOfBoundsException,
+			IllegalArgumentException {
+		Task ticked;
+		int actualIndex = getActualIndex(displayedIndex);
+
+		if (listTracker == KEY_KIV || listTracker == KEY_TICKED) {
+			return FEEDBACK_ERROR_MISUSED_TICK;
+		} else if (listTracker == KEY_SEARCH) {
+			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null,
+					null, null, PRIORITY_NORMAL, false);
+			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null,
+					null, PRIORITY_NORMAL, false);
+			int tickedPartitionIndex = current.indexOf(tickedPartition);
+			int kivPartitionIndex = current.indexOf(kivPartition);
+
+			int displayedKivPartitionIndex = getDisplayedKivPartitionIndex(kivPartitionIndex);
+
+			if (actualIndex < tickedPartitionIndex) {
+				ticked = current.remove(actualIndex);
+			} else if (actualIndex >= tickedPartitionIndex
+					&& actualIndex <= displayedKivPartitionIndex) {
+				ticked = current.remove(actualIndex + OFFSET_TICKED);
+
+				// task occurs after kivPartitionIndex
+			} else {
+				ticked = current.remove(actualIndex + OFFSET_KIV);
+			}
+
+			if (storedTasksByTime.contains(ticked)
+					|| storedTasksByPriority.contains(ticked)) {
+				removeTaskFromUndoneLists(ticked);
+			} else if (storedTasksByTicked.contains(ticked)) {
+				return FEEDBACK_ERROR_ALREADY_TICKED;
+			} else if (storedTasksByKIV.contains(ticked)) {
+				return FEEDBACK_ERROR_CANNOT_TICK_KIV_TASK;
+			}
+
+		} else if (listTracker == KEY_FREESLOTS) {
+			ticked = current.get(actualIndex);
+
+			if (ticked.getDescription() == FREESLOT_STAMP) {
+				return FEEDBACK_ERROR_CANNOT_TICK_FREESLOT;
+			} else {
+				current.remove(actualIndex);
+			}
+
+		} else {
+			ticked = current.remove(actualIndex);
+		}
+
+		moveToTicked(ticked);
+
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_TICK, ticked, LIST_TIME, LIST_TICKED);
+		undoMng.add(event);
+
+		return ticked.toString() + FEEDBACK_APPEND_IS_DONE;
+	}
+
+	/**
+	 * This method marks the specified task as unticked.
+	 *
+	 * @param index			Index of the specified task displayed in UI.
+	 * @param listTracker	List key of the current task list being displayed.
+	 * @param current		Current task list being displayed.
+	 * @return Feedback after a task is unticked.
+	 * @throws ArrayIndexOutOfBounds	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException	If event is created wrongly.
+	 */
+	protected String untick(int displayedIndex, int listTracker,
+			Vector<Task> current) throws ArrayIndexOutOfBoundsException,
+			IllegalArgumentException {
+		Task unticked;
+		int actualIndex = getActualIndex(displayedIndex);
+
+		if (listTracker != KEY_TICKED && listTracker != KEY_SEARCH) {
+			return FEEDBACK_ERROR_MISUSED_UNTICK;
+		}
+		if (listTracker == KEY_SEARCH) {
+			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null,
+					null, null, PRIORITY_NORMAL, false);
+			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null,
+					null, PRIORITY_NORMAL, false);
+			int tickedPartitionIndex = current.indexOf(tickedPartition);
+			int kivPartitionIndex = current.indexOf(kivPartition);
+
+			int displayedKivPartitionIndex = getDisplayedKivPartitionIndex(kivPartitionIndex);
+
+			if (actualIndex < tickedPartitionIndex) {
+				unticked = current.remove(actualIndex);
+			} else if (actualIndex >= tickedPartitionIndex
+					&& actualIndex <= displayedKivPartitionIndex) {
+				unticked = current.remove(actualIndex + OFFSET_TICKED);
+
+				// task occurs after kivPartitionIndex
+			} else {
+				unticked = current.remove(actualIndex + OFFSET_KIV);
+			}
+
+			if (storedTasksByTime.contains(unticked)
+					|| storedTasksByPriority.contains(unticked)) {
+				return FEEDBACK_ERROR_CANNOT_UNTICK_FROM_UNDONE;
+			} else if (storedTasksByTicked.contains(unticked)) {
+				storedTasksByTicked.remove(unticked);
+			} else if (storedTasksByKIV.contains(unticked)) {
+				return FEEDBACK_ERROR_CANNOT_UNTICK_FROM_KIV;
+			}
+
+		} else {
+			unticked = current.remove(actualIndex);
+		}
+
+		addedToUndoneLists(unticked);
+
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_UNTICK, unticked, LIST_TIME,
+				LIST_TICKED);
+		undoMng.add(event);
+
+		return unticked.toString() + FEEDBACK_APPEND_IS_UNDONE;
+	}
+
+	/**
+	 * This method marks the specified task as kiv-ed.
+	 *
+	 * @param index			Index of the specified task displayed in UI.
+	 * @param listTracker	List key of the current task list being displayed.
+	 * @param current		Current task list being displayed.
+	 * @return Feedback after a task is kiv-ed.
+	 * @throws ArrayIndexOutOfBounds	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException	If event is created wrongly.
+	 */
+	protected String kiv(int displayedIndex, int listTracker,
+			Vector<Task> current, String currentListName)
+					throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+
+		Task kiv;
+		int actualIndex = getActualIndex(displayedIndex);
+
+		if (listTracker == KEY_TICKED || listTracker == KEY_KIV) {
+			return FEEDBACK_ERROR_MISUSED_KIV;
+		} else if (listTracker == KEY_SEARCH) {
+			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null,
+					null, null, PRIORITY_NORMAL, false);
+			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null,
+					null, PRIORITY_NORMAL, false);
+			int tickedPartitionIndex = current.indexOf(tickedPartition);
+			int kivPartitionIndex = current.indexOf(kivPartition);
+
+			int displayedKivPartitionIndex = getDisplayedKivPartitionIndex(kivPartitionIndex);
+
+			if (actualIndex < tickedPartitionIndex) {
+				kiv = current.remove(actualIndex);
+			} else if (actualIndex >= tickedPartitionIndex
+					&& actualIndex <= displayedKivPartitionIndex) {
+				kiv = current.remove(actualIndex + OFFSET_TICKED);
+			} else {
+				kiv = current.remove(actualIndex + OFFSET_KIV);
+			}
+
+			if (storedTasksByTime.contains(kiv)
+					|| storedTasksByPriority.contains(kiv)) {
+				removeTaskFromUndoneLists(kiv);
+			} else if (storedTasksByKIV.contains(kiv)) {
+				return FEEDBACK_ERROR_ALREADY_KIVED;
+			} else if (storedTasksByTicked.contains(kiv)) {
+				return FEEDBACK_ERROR_CANNOT_KIV_TICKED_TASK;
+			}
+
+		} else if (listTracker == KEY_FREESLOTS) {
+			kiv = current.get(actualIndex);
+			if (kiv.getDescription() == FREESLOT_STAMP) {
+				return FEEDBACK_ERROR_CANNOT_KIV_FREESLOT;
+			} else {
+				current.remove(actualIndex);
+			}
+		} else {
+			kiv = current.remove(actualIndex);
+		}
+
+		moveToKiv(kiv);
+
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_KIV, kiv, LIST_TIME, LIST_KIV);
+		undoMng.add(event);
+
+		return kiv.toString() + FEEDBACK_APPEND_IS_KIV;
+
+	}
+
+	/**
+	 * This method marks the specified task as unkiv-ed.
+	 *
+	 * @param index			Index of the specified task displayed in UI.
+	 * @param listTracker	List key of the current task list being displayed.
+	 * @param current		Current task list being displayed.
+	 * @return Feedback after a task is unkiv-ed.
+	 * @throws ArrayIndexOutOfBounds	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException	If event is created wrongly.
+	 */
+	protected String unkiv(int displayedIndex, int listTracker,
+			Vector<Task> current) throws ArrayIndexOutOfBoundsException,
+			IllegalArgumentException {
+		Task unkiv;
+		int actualIndex = getActualIndex(displayedIndex);
+
+		if (listTracker != KEY_KIV && listTracker != KEY_SEARCH) {
+			return FEEDBACK_ERROR_MISUSED_UNKIV;
+		}
+
+		if (listTracker == KEY_SEARCH) {
+			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null,
+					null, null, PRIORITY_NORMAL, false);
+			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null,
+					null, PRIORITY_NORMAL, false);
+			int tickedPartitionIndex = current.indexOf(tickedPartition);
+			int kivPartitionIndex = current.indexOf(kivPartition);
+
+			int displayedKivPartitionIndex = getDisplayedKivPartitionIndex(kivPartitionIndex);
+
+			if (actualIndex < tickedPartitionIndex) {
+				unkiv = current.remove(actualIndex);
+			} else if (actualIndex >= tickedPartitionIndex
+					&& actualIndex <= displayedKivPartitionIndex) {
+				unkiv = current.remove(actualIndex + OFFSET_TICKED);
+			} else {
+				unkiv = current.remove(actualIndex + OFFSET_KIV);
+			}
+
+			if (storedTasksByTime.contains(unkiv)
+					|| storedTasksByPriority.contains(unkiv)) {
+				return FEEDBACK_ERROR_CANNOT_UNKIV_FROM_UNDONE_LIST;
+			} else if (storedTasksByTicked.contains(unkiv)) {
+				return FEEDBACK_ERROR_CANNOT_UNKIV_FROM_TICKED_LIST;
+			} else if (storedTasksByKIV.contains(unkiv)) {
+				storedTasksByKIV.remove(unkiv);
+			}
+		} else {
+			unkiv = current.remove(actualIndex);
+		}
+
+		addedToUndoneLists(unkiv);
+
+		// Throws IllegalArgumentException
+		Event event = new Event(COMMAND_UNKIV, unkiv, LIST_TIME, LIST_KIV);
+		undoMng.add(event);
+
+		return unkiv.toString() + FEEDBACK_APPEND_IS_UNDONE;
+	}
+
+	/**
+	 * This method calculates the actual index of the task displayed in UI.
+	 *
+	 * @param index		Index of the specified task displayed in UI.
+	 * @return Actual index of tasklist.
+	 */
+	private int getActualIndex(int index) {
+		return index - OFFSET_INDEX;
+	}
+
+	/**
+	 * This method calculates the actual index of the task displayed in UI.
+	 *
+	 * @param index		Index of the specified task displayed in UI.
+	 * @return Actual index of tasklist.
+	 */
+	private int getDisplayedKivPartitionIndex(int kivPartitionIndex) {
+		return kivPartitionIndex - OFFSET_KIV;
+	}
+
+	/**
+	 * This method adds a task into the undone lists.
+	 * 
+	 * @param task		Task to be added into undone lists.
+	 */
+	private void addedToUndoneLists(Task task) {
+		storedTasksByTime.add(task);
+		storedTasksByPriority.add(task);
+	}
+
+	/**
+	 * This method removes a task from the undone lists.
+	 * 
+	 * @param task		Task to be removed.
+	 */
+	private void removeTaskFromUndoneLists(Task task) {
+		storedTasksByTime.remove(task);
+		storedTasksByPriority.remove(task);
+	}
+
+	/**
+	 * This method shifts the task to the ticked list.
+	 * 
+	 * @param ticked	Task to be moved to ticked list.
+	 */
+	private void moveToTicked(Task ticked) {
+		removeTaskFromUndoneLists(ticked);
+		storedTasksByTicked.add(TOP_OF_THE_LIST, ticked);
+	}
+
+	/**
+	 * This method shifts the task to the kiv list.
+	 * 
+	 * @param kiv		Task to be moved to kiv list.
+	 */
+	private void moveToKiv(Task kiv) {
+		removeTaskFromUndoneLists(kiv);
+		storedTasksByKIV.add(TOP_OF_THE_LIST, kiv);
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\TickKIVManager.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\TickKIVManagerTest.java
+	 */
+
+/**
+ * Description: This class tests the functions related to tick and kiv.
+ */
+public class TickKIVManagerTest {
+	// String constants for command types
+	private static final String COMMAND_UNTICK = "untick";
+	private static final String COMMAND_TICK = "tick";
+	private static final String COMMAND_UNKIV = "unkiv";
+	private static final String COMMAND_KIV = "kiv";
+	private static final String COMMAND_ADD = "add";
+	private static final String COMMAND_LIST = "list";
+	private static final String COMMAND_CLEAR = "clear";
+	// String constants for type of lists used
+	private static final String LIST_TIME = "time";
+	private static final String LIST_TICKED = "ticked";
+	private static final String LIST_KIV = "kiv";
+
+	@Test
+	public final void testTickKIVManager() {
+		UIForLogicTesting ui = new UIForLogicTesting();
+		Logic logic = ui.getLogic();
+		UserInput input;
+
+		// Clear the list before every testing
+		input = new UserInput();
+		input.setCommand(COMMAND_CLEAR);
+		assertEquals("Spick and span!", logic.getOutput(input));
+		input = new UserInput();
+		input.setCommand(COMMAND_LIST);
+		input.setDescription(LIST_TICKED);
+		assertEquals("Listing ticked tasks...", logic.getOutput(input));
+		assertEquals("Spick and span!", logic.clear());
+		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_KIV));
+		assertEquals("Spick and span!", logic.clear());
+		assertEquals("Listing by time...", logic.list(LIST_TIME));
+		assertEquals("Spick and span!", logic.clear());
+		assertEquals("Nothing to display", logic.list());
+
+		// Add floating task
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("CompClub: Add actionables on Trello");
+		input.setPriority('B');
+
+		assertEquals("CompClub: Add actionables on Trello has been added.", logic.getOutput(input));
+
+		// Add scheduled task
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("CompClub: Man welfare pack booth");
+		input.setStartDate(new Date(2014, 11, 5));
+		input.setStartTime(new Time(11, 30));
+		input.setEndDate(new Date(2014, 11, 5));
+		input.setEndTime(new Time(14, 0));
+		input.setPriority('B');
+
+		assertEquals("CompClub: Man welfare pack booth has been added.", logic.getOutput(input));
+
+		// Add deadlined task
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("HW: Submit CS2106 v0.5");
+		input.setEndDate(new Date(2014, 11, 10));
+		input.setEndTime(new Time(23, 59));
+		input.setPriority('B');
+
+		assertEquals("HW: Submit CS2106 v0.5 has been added.", logic.getOutput(input));
+
+		// Add repeated task
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("CompClub: Pcell meeting");
+		input.setStartDate(new Date(2014, 11, 5));
+		input.setStartTime(new Time(16, 0));
+		input.setStartDate(new Date(2014, 11, 5));
+		input.setEndTime(new Time(18, 0));
+		input.setRepeating(true);
+		input.setPriority('B');
+
+		assertEquals("CompClub: Pcell meeting has been added.", logic.getOutput(input));
+
+		// Add floating task with priority A
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: Get a haircut");
+		input.setPriority('A');
+
+		assertEquals("Self: Get a haircut has been added.", logic.getOutput(input));
+
+		// Add scheduled task with priority C
+		input = new UserInput();
+		input.setCommand(COMMAND_ADD);
+		input.setDescription("Self: Watch running man");
+		input.setStartDate(new Date(2014, 11, 3));
+		input.setStartTime(new Time(20, 0));
+		input.setEndDate(new Date(2014, 11, 3));
+		input.setEndTime(new Time(21, 30));
+		input.setPriority('C');
+
+		assertEquals("Self: Watch running man has been added.", logic.getOutput(input));
+		assertEquals("1. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. Self: Get a haircut\n"
+				+ "6. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
+		
+		input = new UserInput();
+		input.setCommand(COMMAND_TICK);
+		input.setIndex(4);
+
+		assertEquals("CompClub: Add actionables on Trello is done!", logic.getOutput(input));
+		assertEquals("Listing ticked tasks...", logic.list(LIST_TICKED));
+		assertEquals("1. CompClub: Add actionables on Trello\n", logic.list());
+		
+		input = new UserInput();
+		input.setCommand(COMMAND_UNTICK);
+		input.setIndex(1);
+
+		assertEquals("CompClub: Add actionables on Trello is back to undone.", logic.getOutput(input));
+		assertEquals("Nothing to display", logic.list());
+		
+		assertEquals("Listing by time...", logic.list(LIST_TIME));
+		
+		input = new UserInput();
+		input.setCommand(COMMAND_KIV);
+		input.setIndex(4);
+
+		assertEquals("CompClub: Add actionables on Trello is kept in view.", logic.getOutput(input));
+		assertEquals("Listing tasks that are kept in view...", logic.list(LIST_KIV));
+		assertEquals("1. CompClub: Add actionables on Trello\n", logic.list());
+		
+		input = new UserInput();
+		input.setCommand(COMMAND_UNKIV);
+		input.setIndex(1);
+
+		assertEquals("CompClub: Add actionables on Trello is back to undone.", logic.getOutput(input));
+		assertEquals("Nothing to display", logic.list());
+		
+		
+	}
+}
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\TickKIVManagerTest.java
+
+
+
+
+

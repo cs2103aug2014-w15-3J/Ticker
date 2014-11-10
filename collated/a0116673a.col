@@ -1,0 +1,1908 @@
+//@author: a0116673a
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\Event.java
+	 */
+
+
+/**
+ * This class models a user's input command event: record down the command
+ * carried out and the task created. This is to be used together with
+ * UndoManager.
+ *
+ */
+public class Event {
+	// A list of available commands
+	private static final String COMMAND_ADD = "add";
+	private static final String COMMAND_DELETE = "delete";
+	private static final String COMMAND_EDIT = "edit";
+	private static final String COMMAND_TICK = "tick";
+	private static final String COMMAND_KIV = "kiv";
+	private static final String COMMAND_UNKIV = "unkiv";
+	private static final String COMMAND_UNTICK = "untick";
+	private static final String COMMAND_TAKE = "take";
+
+	// These messages are shown during exceptions
+	private static final String EXCEPTION_TICKKIV = "This constructor is for kiv or tick or unkiv or untick command";
+	private static final String EXCEPTION_EDIT = "This constructor is for edit command";
+	private static final String EXCEPTION_DELETE = "This constructor is for delete command";
+	private static final String EXCEPTION_ADDTAKE = "This constructor is for add or take command";
+
+	private String command;
+	private Task taskBeforeEdit, taskAfterEdit;
+	private String listTypeBefore, listTypeAfter;
+	private int indexBefore;
+
+	// Called when the command is add and take
+	public Event(String command, Task task) {
+		taskBeforeEdit = task;
+		this.command = command;
+
+		if (!(command.equals(COMMAND_ADD)) && !(command.equals(COMMAND_TAKE))) {
+			throw new IllegalArgumentException(EXCEPTION_ADDTAKE);
+		}
+	}
+
+	// Called when the command is delete
+	public Event(String command, Task task, String listTypeBefore,
+			int indexBefore) {
+		this.command = command;
+
+		if (!(command.equals(COMMAND_DELETE))) {
+			throw new IllegalArgumentException(EXCEPTION_DELETE);
+		}
+
+		taskBeforeEdit = task;
+		this.listTypeBefore = listTypeBefore;
+		this.indexBefore = indexBefore;
+	}
+
+	// Called when the command is edit
+	public Event(String command, Task taskBeforeEdit, Task taskAfterEdit) {
+		this.command = command;
+
+		if (!command.equals(COMMAND_EDIT)) {
+			throw new IllegalArgumentException(EXCEPTION_EDIT);
+		}
+
+		this.taskBeforeEdit = taskBeforeEdit;
+		this.taskAfterEdit = taskAfterEdit;
+	}
+
+	// Called when the command is ticked or kiv or untick or unkiv
+	public Event(String command, Task task, String listTypeBefore,
+			String listTypeAfter) {
+		this.command = command;
+
+		if (!(command.equals(COMMAND_TICK)) && !(command.equals(COMMAND_KIV))
+				&& !(command.equals(COMMAND_UNTICK))
+				&& !(command.equals(COMMAND_UNKIV))) {
+			throw new IllegalArgumentException(EXCEPTION_TICKKIV);
+		}
+
+		taskBeforeEdit = task;
+		this.listTypeBefore = listTypeBefore;
+		this.listTypeAfter = listTypeAfter;
+	}
+	
+	/** 
+	 * Returns the command stored
+	 * @return command
+	 */
+	public String getCommand() {
+		return command;
+	}
+	
+	/** 
+	 * Return the task before edit stored
+	 * @return task before edit
+	 */
+	public Task getTaskBeforeEdit() {
+		return taskBeforeEdit;
+	}
+	
+	/**
+	 * Return the task after edit stored
+	 * @return task after edit
+	 */
+	public Task getTaskAfterEdit() {
+		return taskAfterEdit;
+	}
+
+	/**
+	 * Return the type of list the Task class was in
+	 * @return the type of previous list
+	 */
+	public String getListTypeBefore() {
+		return listTypeBefore;
+	}
+	
+	/**
+	 * Return the type of list the Task class is in
+	 * @return the type of current list 
+	 */
+	public String getListTypeAfter() {
+		return listTypeAfter;
+	}
+
+	/**
+	 * Return the index before delete
+	 * @return the index before delete
+	 */
+	public int getIndexBefore() {
+		return indexBefore;
+	}
+
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\Event.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\HelpManager.java
+	 */
+
+
+/**
+ * This class generates the help message to user based on what they have in the
+ * text box before pressing enter.
+ *
+ */
+public class HelpManager {
+
+	// List of available commands
+	private static final String COMMAND_HELP = "help";
+	private static final String COMMAND_UNTICK = "untick";
+	private static final String COMMAND_TICK = "tick";
+	private static final String COMMAND_REDO = "redo";
+	private static final String COMMAND_UNDO = "undo";
+	private static final String COMMAND_UNKIV = "unkiv";
+	private static final String COMMAND_KIV = "kiv";
+	private static final String COMMAND_ADD = "add";
+	private static final String COMMAND_EDIT = "edit";
+	private static final String COMMAND_LIST = "list";
+	private static final String COMMAND_CLEAR = "clear";
+	private static final String COMMAND_DELETE = "delete";
+	private static final String COMMAND_SEARCH = "search";
+	private static final String COMMAND_SHOW = "show";
+	private static final String COMMAND_REMOVE = "remove";
+	private static final String COMMAND_TAKE = "take";
+
+	// List of available help messages
+	private static final String MESSAGE_HELP = "help";
+	private static final String MESSAGE_UNTICK = "untick <index>";
+	private static final String MESSAGE_TICK = "tick <index>";
+	private static final String MESSAGE_REDO = "redo";
+	private static final String MESSAGE_UNDO = "undo";
+	private static final String MESSAGE_UNKIV = "unkiv <index>";
+	private static final String MESSAGE_KIV = "kiv <index>";
+	private static final String MESSAGE_ADD = "add <description> <startDate>-<endDate> <startTime>-<endTime>";
+	private static final String MESSAGE_EDIT = "edit <index> <newParameter>";
+	private static final String MESSAGE_LIST = "list <listType>";
+	private static final String MESSAGE_CLEAR = "clear";
+	private static final String MESSAGE_DELETE = "delete <index>";
+	private static final String MESSAGE_SEARCH = "search <description> <time> -<priority>";
+	private static final String MESSAGE_SHOW = "show <listType>";
+	private static final String MESSAGE_REMOVE = "remove <index>";	
+	private static final String MESSAGE_TAKE = "take <index> <description>";
+	private static final String MESSAGE_EMPTY = "";
+
+	// These messages are used by Logger
+	private static final String LOGGER_MESSAGE_DISPLAY = "Displaying help message";
+	private static final String LOGGER_MESSAGE_HELPMANAGER = "HelpManager";
+
+	// HelpManager activation length
+	private static final int ACTIVATION_LENGTH = 2;
+
+	// Constants used by Search Algorithm
+	private static final double SIMILARITY_THRESHOLD = 65.0;
+	private static final float SIMILARITY_INDEX_ZERO = 0F;
+	private static final float SIMILARITY_INDEX_FOUR = 4.0F;
+	private static final float SIMILARITY_INDEX_HUNDRED = 100.0F;
+	
+	// Used to access the first element in an array
+	private static final int ARRAY_FIRST = 0;
+
+	private static Logger logger;
+	private Vector<StringMatch> matchList;
+	private HashMap<String, String> helpList;
+	private String[] commandListSet;
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\HelpManager.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\HelpManager.java
+	 */
+
+
+	public HelpManager() {
+		helpList = new HashMap<String, String>();
+		matchList = new Vector<StringMatch>();
+		initHelpList();
+		initCommandListSet();
+		logger = Logger.getLogger(LOGGER_MESSAGE_HELPMANAGER);
+	}
+
+	/**
+	 * Initialise the helplist with a list of available commands and
+	 * corresponding help messages	
+	 */
+	private void initHelpList() {
+		helpList.put(COMMAND_HELP, MESSAGE_HELP);
+		helpList.put(COMMAND_UNTICK, MESSAGE_UNTICK);
+		helpList.put(COMMAND_TICK, MESSAGE_TICK);
+		helpList.put(COMMAND_REDO, MESSAGE_REDO);
+		helpList.put(COMMAND_UNDO, MESSAGE_UNDO);
+		helpList.put(COMMAND_UNKIV, MESSAGE_UNKIV);
+		helpList.put(COMMAND_KIV, MESSAGE_KIV);
+		helpList.put(COMMAND_ADD, MESSAGE_ADD);
+		helpList.put(COMMAND_EDIT, MESSAGE_EDIT);
+		helpList.put(COMMAND_LIST, MESSAGE_LIST);
+		helpList.put(COMMAND_CLEAR, MESSAGE_CLEAR);
+		helpList.put(COMMAND_DELETE, MESSAGE_DELETE);
+		helpList.put(COMMAND_SEARCH, MESSAGE_SEARCH);
+		helpList.put(COMMAND_SHOW, MESSAGE_SHOW);
+		helpList.put(COMMAND_REMOVE, MESSAGE_REMOVE);
+		helpList.put(COMMAND_TAKE, MESSAGE_TAKE);
+	}
+
+	/**
+	 * Initialise the commandListSet with a list of commands
+	 */
+	private void initCommandListSet() {
+		commandListSet = helpList.keySet().toArray(new String[0]);
+	}
+
+	/**
+	 * This method return most likely help message that the user needs based on
+	 * current input in the textfile
+	 *
+	 * @param key
+	 *            current user input in textfield
+	 * @return most likely help message based on the first word of user input
+	 */
+	public String getHelp(String key) {
+		Vector<String> possibleCommands = new Vector<String>();
+		matchList.removeAllElements();
+
+		if (key.length() < ACTIVATION_LENGTH) {
+			return MESSAGE_EMPTY;
+		} else {
+			calculateSimilarityIndexBasedOnFirstWord(key);
+
+			Collections.sort(matchList, new StringMatchComparator());
+
+			findElementWithinSimilarityScore(possibleCommands);
+
+			logger.log(Level.INFO, LOGGER_MESSAGE_DISPLAY);
+			return findMostLikelyHelpMessage(possibleCommands);
+		}
+	}
+
+	/**
+	 * Calculate the similarity index of the first word with a lit of commands
+	 * 
+	 * @param key
+	 *            user's input in the textbox
+	 */
+	private void calculateSimilarityIndexBasedOnFirstWord(String key) {
+		String firstWordKey = key.split(" ")[ARRAY_FIRST];
+
+		int i = 0;
+		for (String command : commandListSet) {
+			float score = getMatchLikelyhood(firstWordKey.toLowerCase(),
+					command);
+			matchList.add(new StringMatch(i, score));
+			i++;
+		}
+	}
+
+	/**
+	 * Determine a list of possible commands and put them into possibleCommands
+	 * array
+	 * 
+	 * @param possibleCommands
+	 *            a list of possible commands
+	 */
+	private void findElementWithinSimilarityScore(
+			Vector<String> possibleCommands) {
+		for (StringMatch sm : matchList) {
+			if (sm.getSimilarityScore() < SIMILARITY_THRESHOLD) {
+				break;
+			}
+			possibleCommands.add(commandListSet[sm.getIndex()]);
+		}
+	}
+
+	/**
+	 * Return the help message based on the most likely command
+	 * 
+	 * @param possibleCommands
+	 *            a list of possible commands
+	 * @return help message
+	 */
+	private String findMostLikelyHelpMessage(Vector<String> possibleCommands) {
+		if (possibleCommands.isEmpty()) {
+			return MESSAGE_EMPTY;
+		} else {
+			return helpList.get(possibleCommands.get(ARRAY_FIRST));
+		}
+	}
+
+	/**
+	 * This method calculates the similarity index between two input strings
+	 * based on the algorithms provided by Simmetrics library
+	 *
+	 * @param str1
+	 *            input string 1
+	 * @param str2
+	 *            input string 2
+	 * @return the similarity index between str1 and str2
+	 * @throws Error
+	 *             If commandType is unidentified.
+	 */
+	private static float getMatchLikelyhood(final String str1, final String str2) {
+		AbstractStringMetric metric;
+		float avg = SIMILARITY_INDEX_ZERO, result = SIMILARITY_INDEX_ZERO;
+		metric = new SmithWaterman();
+		result = metric.getSimilarity(str1, str2);
+		avg += result;
+		metric = new SmithWatermanGotoh();
+		result = metric.getSimilarity(str1, str2);
+		avg += result;
+		metric = new SmithWatermanGotohWindowedAffine();
+		result = metric.getSimilarity(str1, str2);
+		avg += result;
+		metric = new MongeElkan();
+		result = metric.getSimilarity(str1, str2);
+		avg += result;
+		return (avg / SIMILARITY_INDEX_FOUR) * SIMILARITY_INDEX_HUNDRED;
+	}
+}
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\HelpManager.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\HelpManagerTest.java
+	 */
+
+
+public class HelpManagerTest {
+	
+	private static final String MESSAGE_HELP = "help";
+	private static final String MESSAGE_UNTICK = "untick <index>";
+	private static final String MESSAGE_TICK = "tick <index>";
+	private static final String MESSAGE_REDO = "redo";
+	private static final String MESSAGE_UNDO = "undo";
+	private static final String MESSAGE_UNKIV = "unkiv <index>";
+	private static final String MESSAGE_KIV = "kiv <index>";
+	private static final String MESSAGE_ADD = "add <description> <startDate>-<endDate> <startTime>-<endTime>";
+	private static final String MESSAGE_EDIT = "edit <index> <newParameter>";
+	private static final String MESSAGE_LIST = "list <listType>";
+	private static final String MESSAGE_CLEAR = "clear";
+	private static final String MESSAGE_DELETE = "delete <index>";
+	private static final String MESSAGE_SEARCH = "search <description> <time> -<priority>";
+	private static final String MESSAGE_SHOW = "show <listType>";
+	private static final String MESSAGE_REMOVE = "remove <index>";	
+	
+	@Test
+	public void testGetHelp() {
+		HelpManager helpManager = new HelpManager();
+		
+		//test help command
+		String input = "he";
+		assertEquals(MESSAGE_HELP, helpManager.getHelp(input));
+		
+		//test untick command
+		input = "unt";
+		assertEquals(MESSAGE_UNTICK, helpManager.getHelp(input));
+		
+		//test tick command
+		input = "ti";
+		assertEquals(MESSAGE_TICK, helpManager.getHelp(input));
+		
+		//test redo command
+		input = "re";
+		assertEquals(MESSAGE_REDO, helpManager.getHelp(input));
+		
+		//test undo command
+		input = "un";
+		assertEquals(MESSAGE_UNDO, helpManager.getHelp(input));
+		
+		//test unkiv command
+		input = "unk";
+		assertEquals(MESSAGE_UNKIV, helpManager.getHelp(input));
+		
+		//test kiv command
+		input = "ki";
+		assertEquals(MESSAGE_KIV, helpManager.getHelp(input));
+		
+		//test add command
+		input = "ad";
+		assertEquals(MESSAGE_ADD, helpManager.getHelp(input));
+		
+		//test edit command
+		input = "ed";
+		assertEquals(MESSAGE_EDIT, helpManager.getHelp(input));
+		
+		//test list command
+		input = "li";
+		assertEquals(MESSAGE_LIST, helpManager.getHelp(input));
+		
+		//test clear command
+		input = "cl";
+		assertEquals(MESSAGE_CLEAR, helpManager.getHelp(input));
+	
+		//test delete command
+		input = "de";
+		assertEquals(MESSAGE_DELETE, helpManager.getHelp(input));
+		
+		//test search command
+		input = "sea";
+		assertEquals(MESSAGE_SEARCH, helpManager.getHelp(input));
+		
+		//test show command
+		input = "show";
+		assertEquals(MESSAGE_SHOW, helpManager.getHelp(input));
+		
+		//test remove command
+		input = "rem";
+		assertEquals(MESSAGE_REMOVE, helpManager.getHelp(input));
+	}
+
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\HelpManagerTest.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\UndoManager.java
+	 */
+
+
+/**
+ * UndoManager manages the undo and redo operation for Ticker. It contains two
+ * stacks: redo and undo stacks. Each time when the user carried out a command,
+ * an Event object will be created and added to undo stack.
+ * 
+ */
+public class UndoManager {
+	// These message will be shown during exception
+	private static final String MESSAGE_EXCEPTION_DELETE = "The tasks must be TIME, TICKED, PRIORITY or KIV";
+	private static final String MESSAGE_EXCEPTION_TICKUNTICK = "The tasks must be TIME, PRIORITY OR TICKED";
+	private static final String MESSAGE_EXCEPTION_KIVUNKIV = "The tasks must be TIME, PRIORITY or KIV";
+
+	// list of commands
+	private static final String COMMAND_ADD = "add";
+	private static final String COMMAND_DELETE = "delete";
+	private static final String COMMAND_EDIT = "edit";
+	private static final String COMMAND_TICK = "tick";
+	private static final String COMMAND_KIV = "kiv";
+	private static final String COMMAND_UNKIV = "unkiv";
+	private static final String COMMAND_UNTICK = "untick";
+	private static final String COMMAND_TAKE = "take";
+	
+	// list of list names
+	private static final String LIST_TIME = "time";
+	private static final String LIST_PRIORITY = "priority";
+	private static final String LIST_TICKED = "ticked";
+	private static final String LIST_KIV = "kiv";
+
+	// list of feedbacks
+	private static final String FEEDBACK_SUCCESSFUL_UNDO = "Undoing action";
+	private static final String FEEDBACK_SUCCESSFUL_REDO = "Redoing action";
+	private static final String FEEDBACK_UNSUCCESSFUL_UNDO = "You have reached the last undo";
+	private static final String FEEDBACK_UNSUCCESSFUL_REDO = "You have reached the last redo";
+
+	private static UndoManager theOne;
+	private Stack<Event> undoStack, redoStack;
+	private Vector<Task> storedTasksByPriority, storedTasksByDeadline,
+			storedTasksByTicked, storedTasksByKiv;
+
+	private UndoManager(Vector<Task> storedTasksByPriority,
+			Vector<Task> storedTasksByDeadline,
+			Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKiv) {
+		undoStack = new Stack<Event>();
+		redoStack = new Stack<Event>();
+		this.storedTasksByPriority = storedTasksByPriority;
+		this.storedTasksByDeadline = storedTasksByDeadline;
+		this.storedTasksByTicked = storedTasksByTicked;
+		this.storedTasksByKiv = storedTasksByKiv;
+	}
+
+	/**
+	 * Undo the previous command carried out by user.
+	 * 
+	 * @return void
+	 */
+	public String undo() {
+		if (!undoStack.isEmpty()) {
+			Event previousAction = undoStack.pop();
+			redoStack.push(previousAction);
+
+			switch (previousAction.getCommand()) {
+			case COMMAND_EDIT:
+				assert previousAction.getTaskAfterEdit() != null
+						&& previousAction.getTaskBeforeEdit() != null;
+				return undoEditCommand(previousAction);
+			case COMMAND_ADD:
+			case COMMAND_TAKE:
+				assert previousAction.getTaskBeforeEdit() != null;
+				return undoAddTakeCommand(previousAction);
+			case COMMAND_DELETE:
+				assert previousAction.getTaskBeforeEdit() != null
+						&& previousAction.getListTypeBefore() != null;
+				return undoDeleteCommand(previousAction);
+			case COMMAND_TICK:
+			case COMMAND_UNTICK:
+				assert previousAction.getListTypeBefore() != null
+						&& previousAction.getTaskBeforeEdit() != null;
+				return undoTickUntickCommand(previousAction);
+			case COMMAND_KIV:
+			case COMMAND_UNKIV:
+				assert previousAction.getListTypeBefore() != null
+						&& previousAction.getTaskBeforeEdit() != null;
+				return undoKivUnkivCommand(previousAction);
+			}
+		}
+		return FEEDBACK_UNSUCCESSFUL_UNDO;
+
+	}
+
+	/**
+	 * Redo the command carried out by the user.
+	 * 
+	 * @return void
+	 */
+	public String redo() {
+		if (!redoStack.isEmpty()) {
+			Event nextAction = redoStack.pop();
+			undoStack.push(nextAction);
+
+			switch (nextAction.getCommand()) {
+			case COMMAND_EDIT:
+				assert nextAction.getTaskAfterEdit() != null
+						&& nextAction.getTaskBeforeEdit() != null;
+				return redoEditCommand(nextAction);
+			case COMMAND_ADD:
+			case COMMAND_TAKE:
+				assert nextAction.getTaskBeforeEdit() != null;
+				return redoAddTakeCommand(nextAction);
+			case COMMAND_DELETE:
+				assert nextAction.getTaskBeforeEdit() != null;
+				return redoDeleteCommand(nextAction);
+			case COMMAND_TICK:
+			case COMMAND_UNTICK:
+				assert nextAction.getTaskBeforeEdit() != null
+						&& nextAction.getListTypeBefore() != null;
+				return redoTickUntickCommand(nextAction);
+			case COMMAND_KIV:
+			case COMMAND_UNKIV:
+				assert nextAction.getTaskBeforeEdit() != null
+						&& nextAction.getListTypeBefore() != null;
+				return redoKivUnkivCommand(nextAction);
+			}
+		}
+
+		return FEEDBACK_UNSUCCESSFUL_REDO;
+	}
+
+	/**
+	 * Add user's input event into a stack for undo/redo purposes.
+	 * 
+	 * @param eventAction
+	 *            user's input event
+	 */
+	public void add(Event eventAction) {
+		undoStack.push(eventAction);
+		redoStack.clear();
+	}
+
+	/**
+	 * Singleton constructor for the UndoManager.
+	 * 
+	 * @param storedTasksByPriority
+	 *            list of tasks sorted by priority
+	 * @param storedTasksByDeadline
+	 *            list of tasks sorted by deadline
+	 * @param storedTasksByTicked
+	 *            list of tasks sorted by tick
+	 * @param storedTasksByKiv
+	 *            list of tasks sorted by KIV
+	 * @return UndoManager the UndoManager object
+	 */
+	public static UndoManager getInstance(Vector<Task> storedTasksByPriority,
+			Vector<Task> storedTasksByDeadline,
+			Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKiv) {
+		if (theOne == null) {
+			theOne = new UndoManager(storedTasksByPriority,
+					storedTasksByDeadline, storedTasksByTicked,
+					storedTasksByKiv);
+		}
+		return theOne;
+	}
+
+	/**
+	 * Undo KIV or UNKIV command
+	 * 
+	 * @param previousAction
+	 *            user's input event
+	 * @return successful feedback message
+	 */
+	private String undoKivUnkivCommand(Event previousAction) {
+		if (previousAction.getListTypeBefore().equals(LIST_TIME)
+				|| previousAction.getListTypeBefore().equals(LIST_PRIORITY)) {
+			storedTasksByKiv.remove(previousAction.getTaskBeforeEdit());
+			redoAddTakeCommand(previousAction);
+		} else if (previousAction.getListTypeBefore().equals(LIST_KIV)) {
+			storedTasksByKiv.add(previousAction.getTaskBeforeEdit());
+			undoAddTakeCommand(previousAction);
+		} else {
+			throw new IllegalArgumentException(MESSAGE_EXCEPTION_KIVUNKIV);
+		}
+		return FEEDBACK_SUCCESSFUL_UNDO;
+	}
+
+	/**
+	 * Undo Tick or Untick command
+	 * 
+	 * @param previousAction
+	 *            user's input event
+	 * @return successful feedback message
+	 */
+	private String undoTickUntickCommand(Event previousAction) {
+		if (previousAction.getListTypeBefore().equals(LIST_TIME)
+				|| previousAction.getListTypeBefore().equals(LIST_PRIORITY)) {
+			storedTasksByTicked.remove(previousAction.getTaskBeforeEdit());
+			redoAddTakeCommand(previousAction);
+		} else if (previousAction.getListTypeBefore().equals(LIST_TICKED)) {
+			storedTasksByTicked.add(previousAction.getTaskBeforeEdit());
+			undoAddTakeCommand(previousAction);
+		} else {
+			throw new IllegalArgumentException(MESSAGE_EXCEPTION_TICKUNTICK);
+		}
+		return FEEDBACK_SUCCESSFUL_UNDO;
+	}
+
+	/**
+	 * Undo Delete command
+	 * 
+	 * @param previousAction
+	 *            user's input event
+	 * @return successful feedback message
+	 */
+	private String undoDeleteCommand(Event previousAction) {
+		if (previousAction.getListTypeBefore().equals(LIST_TIME)
+				|| previousAction.getListTypeBefore().equals(LIST_PRIORITY)) {
+			redoAddTakeCommand(previousAction);
+		} else if (previousAction.getListTypeBefore().equals(LIST_TICKED)) {
+			storedTasksByTicked.add(previousAction.getIndexBefore(),
+					previousAction.getTaskBeforeEdit());
+		} else if (previousAction.getListTypeBefore().equals(LIST_KIV)) {
+			storedTasksByKiv.add(previousAction.getIndexBefore(),
+					previousAction.getTaskBeforeEdit());
+		} else {
+			throw new IllegalArgumentException(MESSAGE_EXCEPTION_DELETE);
+		}
+		return FEEDBACK_SUCCESSFUL_UNDO;
+	}
+
+	/**
+	 * Undo Add or Take command
+	 * 
+	 * @param previousAction
+	 *            user's input event
+	 * @return successful feedback message
+	 */
+	private String undoAddTakeCommand(Event previousAction) {
+		storedTasksByPriority.remove(previousAction.getTaskBeforeEdit());
+		storedTasksByDeadline.remove(previousAction.getTaskBeforeEdit());
+		return FEEDBACK_SUCCESSFUL_UNDO;
+	}
+
+	/**
+	 * Undo Edit command
+	 * 
+	 * @param previousAction
+	 *            user's input event
+	 * @return successful feedback message
+	 */
+	private String undoEditCommand(Event previousAction) {
+		storedTasksByPriority.remove(previousAction.getTaskAfterEdit());
+		storedTasksByPriority.add(previousAction.getTaskBeforeEdit());
+		storedTasksByDeadline.remove(previousAction.getTaskAfterEdit());
+		storedTasksByDeadline.add(previousAction.getTaskBeforeEdit());
+		return FEEDBACK_SUCCESSFUL_UNDO;
+	}
+
+	/**
+	 * Redo KIV or UNKIV command
+	 * 
+	 * @param previousAction
+	 *            user's input event
+	 * @return successful feedback message
+	 */
+	private String redoKivUnkivCommand(Event nextAction) {
+		if (nextAction.getListTypeBefore().equals(LIST_TIME)
+				|| nextAction.getListTypeBefore().equals(LIST_PRIORITY)) {
+			storedTasksByKiv.add(nextAction.getTaskBeforeEdit());
+			undoAddTakeCommand(nextAction);
+		} else if (nextAction.getListTypeBefore().equals(LIST_KIV)) {
+			storedTasksByKiv.remove(nextAction.getTaskBeforeEdit());
+			redoAddTakeCommand(nextAction);
+		} else {
+			throw new IllegalArgumentException(MESSAGE_EXCEPTION_KIVUNKIV);
+		}
+		return FEEDBACK_SUCCESSFUL_REDO;
+	}
+
+	/**
+	 * Redo Tick or Untick command
+	 * 
+	 * @param previousAction
+	 *            user's input event
+	 * @return successful feedback message
+	 */
+	private String redoTickUntickCommand(Event nextAction) {
+		if (nextAction.getListTypeBefore().equals(LIST_TIME)
+				|| nextAction.getListTypeBefore().equals(LIST_PRIORITY)) {
+			storedTasksByTicked.add(nextAction.getTaskBeforeEdit());
+			undoAddTakeCommand(nextAction);
+		} else if (nextAction.getListTypeBefore().equals(LIST_TICKED)) {
+			storedTasksByTicked.remove(nextAction.getTaskBeforeEdit());
+			redoAddTakeCommand(nextAction);
+		} else {
+			throw new IllegalArgumentException(MESSAGE_EXCEPTION_TICKUNTICK);
+		}
+		return FEEDBACK_SUCCESSFUL_REDO;
+	}
+
+	/**
+	 * Redo Delete command
+	 * 
+	 * @param previousAction
+	 *            user's input event
+	 * @return successful feedback message
+	 */
+	private String redoDeleteCommand(Event nextAction) {
+		if (nextAction.getListTypeBefore().equals(LIST_TIME)
+				|| nextAction.getListTypeBefore().equals(LIST_PRIORITY)) {
+			undoAddTakeCommand(nextAction);
+		} else if (nextAction.getListTypeBefore().equals(LIST_TICKED)) {
+			storedTasksByTicked.remove(nextAction.getTaskBeforeEdit());
+		} else if (nextAction.getListTypeBefore().equals(LIST_KIV)) {
+			storedTasksByKiv.remove(nextAction.getTaskBeforeEdit());
+		} else {
+			throw new IllegalArgumentException(MESSAGE_EXCEPTION_DELETE);
+		}
+		return FEEDBACK_SUCCESSFUL_REDO;
+	}
+
+	/**
+	 * Redo Add or Take command
+	 * 
+	 * @param previousAction
+	 *            user's input event
+	 * @return successful feedback message
+	 */
+	private String redoAddTakeCommand(Event nextAction) {
+		storedTasksByPriority.add(nextAction.getTaskBeforeEdit());
+		storedTasksByDeadline.add(nextAction.getTaskBeforeEdit());
+		return FEEDBACK_SUCCESSFUL_REDO;
+	}
+
+	/**
+	 * Redo Edit command
+	 * 
+	 * @param previousAction
+	 *            user's input event
+	 * @return successful feedback message
+	 */
+	private String redoEditCommand(Event nextAction) {
+		storedTasksByPriority.add(nextAction.getTaskAfterEdit());
+		storedTasksByPriority.remove(nextAction.getTaskBeforeEdit());
+		storedTasksByDeadline.add(nextAction.getTaskAfterEdit());
+		storedTasksByDeadline.remove(nextAction.getTaskBeforeEdit());
+		return FEEDBACK_SUCCESSFUL_REDO;
+	}
+
+	/**
+	 * Remove the Singleton instance for unit testing purposes
+	 */
+	protected void clearStateForTesting() {
+		theOne = null;
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\UndoManager.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\UndoManagerTest.java
+	 */
+
+
+public class UndoManagerTest {
+	private static final String TASKS_FLOATING_DESCRIPTION = "Buy milk from NTUC";
+	private static final String TASKS_DEADLINE_DESCRIPTION = "Finish OP2 slides";
+	private static final String TASKS_TIMED_DESCRIPTION = "CS2103 V0.4 Demo";
+	private static final String TASKS_REPEATING_DESCRIPTION = "Post Lecture Reflection";
+	
+	private static final String LIST_TIME = "time";
+	private static final String LIST_TICKED = "ticked";
+	private static final String LIST_KIV = "kiv";
+	
+	private static final String COMMAND_ADD = "add";
+	private static final String COMMAND_DELETE = "delete";
+	private static final String COMMAND_EDIT = "edit";
+	private static final String COMMAND_TICK = "tick";
+	private static final String COMMAND_KIV = "kiv";
+	private static final String COMMAND_UNKIV = "unkiv";
+	private static final String COMMAND_UNTICK = "untick";
+	
+	private static int LIST_INDEX_DUMMY = 0;
+	
+	@Test
+	public void testUndoRedoAfterAddOperation() {
+		Vector<Task> storedTasksByPriority = new Vector<Task>();
+		Vector<Task> storedTasksByDeadline = new Vector<Task>();
+		Vector<Task> storedTasksByTicked = new Vector<Task>();
+		Vector<Task> storedTasksByKiv = new Vector<Task>();
+		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
+				storedTasksByDeadline, storedTasksByTicked, storedTasksByKiv);
+		
+		//test undo-ing redo-ing addition of floating task
+		uM.add(new Event(COMMAND_ADD, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		storedTasksByPriority.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByDeadline.isEmpty());
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		assertEquals(true, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
+		
+		//test undo-ing redo-ing addition of deadline task
+		uM.add(new Event(COMMAND_ADD, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByDeadline.isEmpty());
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		assertEquals(true, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		
+		//test undo-ing redo-ing addition of timed task
+		uM.add(new Event(COMMAND_ADD, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		storedTasksByPriority.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByDeadline.isEmpty());
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		assertEquals(true, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		
+		//test undo-ing redo-ing addition of repeating task
+		uM.add(new Event(COMMAND_ADD, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByDeadline.isEmpty());
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		assertEquals(true, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		
+		uM.clearStateForTesting(); //need to remove the instance from singleton
+	}
+
+	@Test
+	public void testUndoRedoAfterDeleteOperation() {
+		Vector<Task> storedTasksByPriority = new Vector<Task>();
+		Vector<Task> storedTasksByDeadline = new Vector<Task>();
+		Vector<Task> storedTasksByTicked = new Vector<Task>();
+		Vector<Task> storedTasksByKiv = new Vector<Task>();
+		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
+				storedTasksByDeadline, storedTasksByTicked, storedTasksByKiv);
+		
+		//test undo-ing redo-ing removal of floating task
+		uM.add(new Event(COMMAND_ADD, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		storedTasksByPriority.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		uM.add(new Event(COMMAND_DELETE, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false), LIST_TIME, LIST_INDEX_DUMMY));
+		storedTasksByPriority.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		assertEquals(false, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.redo();
+		assertEquals(false, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
+		
+		//test undo-ing redo-ing removal of deadline task
+		uM.add(new Event(COMMAND_ADD, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		uM.add(new Event(COMMAND_DELETE, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false), LIST_TIME, LIST_INDEX_DUMMY));
+		storedTasksByPriority.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		assertEquals(false, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.redo();
+		assertEquals(false, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		
+		//test undo-ing redo-ing removal of timed task
+		uM.add(new Event(COMMAND_ADD, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		storedTasksByPriority.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		uM.add(new Event(COMMAND_DELETE, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false), LIST_TIME, LIST_INDEX_DUMMY));
+		storedTasksByPriority.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		assertEquals(false, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.redo();
+		assertEquals(false, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		
+		//test undo-ing redo-ing removal of repeating task
+		uM.add(new Event(COMMAND_ADD, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		uM.add(new Event(COMMAND_DELETE, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true), LIST_TIME, LIST_INDEX_DUMMY));
+		storedTasksByPriority.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		assertEquals(false, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		assertEquals(true, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.redo();
+		assertEquals(false, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		
+		uM.clearStateForTesting();
+	}
+	
+	@Test
+	public void testUndoRedoAfterEditOperation() {
+		Vector<Task> storedTasksByPriority = new Vector<Task>();
+		Vector<Task> storedTasksByDeadline = new Vector<Task>();
+		Vector<Task> storedTasksByTicked = new Vector<Task>();
+		Vector<Task> storedTasksByKiv = new Vector<Task>();
+		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
+				storedTasksByDeadline, storedTasksByTicked, storedTasksByKiv);
+		
+		//test undo-ing and redo-ing edit of floating task
+		uM.add(new Event(COMMAND_ADD, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		storedTasksByPriority.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		uM.add(new Event(COMMAND_EDIT, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false), new FloatingTask(TASKS_DEADLINE_DESCRIPTION, 'B', false)));
+		storedTasksByPriority.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByPriority.add(new FloatingTask(TASKS_DEADLINE_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.add(new FloatingTask(TASKS_DEADLINE_DESCRIPTION, 'B', false));
+		assertEquals(true, storedTasksByPriority.contains(new FloatingTask(TASKS_DEADLINE_DESCRIPTION, 'B', false)));
+		assertEquals(false, storedTasksByPriority.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
+		assertEquals(false, storedTasksByPriority.contains(new FloatingTask(TASKS_DEADLINE_DESCRIPTION, 'B', false)));
+		assertEquals(true, storedTasksByPriority.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.contains(new FloatingTask(TASKS_DEADLINE_DESCRIPTION, 'B', false)));
+		assertEquals(false, storedTasksByPriority.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
+		uM.undo();
+
+		//test undo-ing redo-ing edit of deadline task
+		uM.add(new Event(COMMAND_ADD, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		uM.add(new Event(COMMAND_EDIT, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false), new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		storedTasksByPriority.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		assertEquals(true, storedTasksByPriority.contains(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		assertEquals(false, storedTasksByPriority.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		assertEquals(false, storedTasksByPriority.contains(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		assertEquals(true, storedTasksByPriority.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.contains(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		assertEquals(false, storedTasksByPriority.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		uM.undo();
+
+		//test undo-ing redo-ing edit of timed task
+		uM.add(new Event(COMMAND_ADD, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		storedTasksByDeadline.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByPriority.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		uM.add(new Event(COMMAND_EDIT, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false), new TimedTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		storedTasksByPriority.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByPriority.add(new TimedTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.add(new TimedTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		assertEquals(true, storedTasksByPriority.contains(new TimedTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		assertEquals(false, storedTasksByPriority.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		assertEquals(false, storedTasksByPriority.contains(new TimedTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		assertEquals(true, storedTasksByPriority.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.contains(new TimedTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		assertEquals(false, storedTasksByPriority.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		uM.undo();
+
+		//test undo-ing redo-ing edit of repeating task
+		uM.add(new Event(COMMAND_ADD, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		uM.add(new Event(COMMAND_EDIT, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true), new RepeatingTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		storedTasksByPriority.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		assertEquals(true, storedTasksByPriority.contains(new RepeatingTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		assertEquals(false, storedTasksByPriority.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		assertEquals(false, storedTasksByPriority.contains(new RepeatingTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		assertEquals(true, storedTasksByPriority.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.contains(new RepeatingTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		assertEquals(false, storedTasksByPriority.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		uM.undo();
+
+		uM.clearStateForTesting();
+	}
+	
+	@Test
+	public void testUndoRedoAfterTickUntickOperation() {
+		Vector<Task> storedTasksByPriority = new Vector<Task>();
+		Vector<Task> storedTasksByDeadline = new Vector<Task>();
+		Vector<Task> storedTasksByTicked = new Vector<Task>();
+		Vector<Task> storedTasksByKiv = new Vector<Task>();
+		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
+				storedTasksByDeadline, storedTasksByTicked, storedTasksByKiv);
+		
+		//test undo-ing and redo-ing tick of floating task
+		uM.add(new Event(COMMAND_ADD, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		storedTasksByPriority.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		uM.add(new Event(COMMAND_TICK, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false), LIST_TIME, LIST_TICKED));
+		storedTasksByPriority.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByTicked.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));	
+		
+		//testing undo-ing redo-ing untick of floating task
+		uM.add(new Event(COMMAND_UNTICK, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false), LIST_TICKED, LIST_TIME));
+		storedTasksByPriority.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByTicked.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));	
+		uM.redo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByPriority.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));	
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		//test undo-ing and redo-ing tick of deadline task
+		uM.add(new Event(COMMAND_ADD, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		uM.add(new Event(COMMAND_TICK, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false), LIST_TIME, LIST_TICKED));
+		storedTasksByPriority.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByTicked.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));	
+		
+		//testing undo-ing redo-ing untick of deadline task
+		uM.add(new Event(COMMAND_UNTICK, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false), LIST_TICKED, LIST_TIME));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByTicked.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));	
+		uM.redo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByPriority.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));	
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		//test undo-ing and redo-ing tick of timed task
+		uM.add(new Event(COMMAND_ADD, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		storedTasksByPriority.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		uM.add(new Event(COMMAND_TICK, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false), LIST_TIME, LIST_TICKED));
+		storedTasksByPriority.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByTicked.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));	
+		
+		//testing undo-ing redo-ing untick of timed task
+		uM.add(new Event(COMMAND_UNTICK, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false), LIST_TICKED, LIST_TIME));
+		storedTasksByPriority.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByTicked.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));	
+		uM.redo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByPriority.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));	
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		//test undo-ing and redo-ing tick of repeating task
+		uM.add(new Event(COMMAND_ADD, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		uM.add(new Event(COMMAND_TICK, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true), LIST_TIME, LIST_TICKED));
+		storedTasksByPriority.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByTicked.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));	
+		
+		//testing undo-ing redo-ing untick of repeating task
+		uM.add(new Event(COMMAND_UNTICK, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true), LIST_TICKED, LIST_TIME));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByTicked.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));	
+		uM.redo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByPriority.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));	
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		uM.clearStateForTesting();
+	}
+	
+	@Test
+	public void testUndoRedoAfterKivUnkivOperation() {
+		Vector<Task> storedTasksByPriority = new Vector<Task>();
+		Vector<Task> storedTasksByDeadline = new Vector<Task>();
+		Vector<Task> storedTasksByTicked = new Vector<Task>();
+		Vector<Task> storedTasksByKiv = new Vector<Task>();
+		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
+				storedTasksByDeadline, storedTasksByTicked, storedTasksByKiv);
+		
+		//test undo-ing and redo-ing kiv of floating task
+		uM.add(new Event(COMMAND_ADD, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		storedTasksByPriority.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		uM.add(new Event(COMMAND_KIV, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false), LIST_TIME, LIST_KIV));
+		storedTasksByPriority.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByKiv.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		
+		//testing undo-ing unkiv of floating task
+		uM.add(new Event(COMMAND_UNKIV, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false), LIST_KIV, LIST_TIME));
+		storedTasksByPriority.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByKiv.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		//test undo-ing and redo-ing kiv of deadline task
+		uM.add(new Event(COMMAND_ADD, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		uM.add(new Event(COMMAND_KIV, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false), LIST_TIME, LIST_KIV));
+		storedTasksByPriority.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByKiv.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		
+		//testing undo-ing redo-ing unkiv of deadline task
+		uM.add(new Event(COMMAND_UNKIV, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false), LIST_KIV, LIST_TIME));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByKiv.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		//test undo-ing and redo-ing kiv of timed task
+		uM.add(new Event(COMMAND_ADD, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		storedTasksByPriority.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		uM.add(new Event(COMMAND_KIV, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false), LIST_TIME, LIST_KIV));
+		storedTasksByPriority.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByKiv.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		
+		//testing undo-ing redo-ing unkiv of timed task
+		uM.add(new Event(COMMAND_UNKIV, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false), LIST_KIV, LIST_TIME));
+		storedTasksByPriority.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByKiv.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		//test undo-ing and redo-ing kiv of repeating task
+		uM.add(new Event(COMMAND_ADD, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		uM.add(new Event(COMMAND_KIV, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true), LIST_TIME, LIST_KIV));
+		storedTasksByPriority.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByKiv.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		
+		//testing undo-ing redo-ing unkiv of repeating task
+		uM.add(new Event(COMMAND_UNKIV, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true), LIST_KIV, LIST_TIME));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByKiv.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.redo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		uM.clearStateForTesting();
+	}
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\logic\UndoManagerTest.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\storage\CustomDeserializer.java
+	 */
+
+
+/**
+ * This class specifies the deserializer used by Storage when converting from
+ * JSON to Java Object. This is to be used together with Google-GSON library. As
+ * each type of task has their own unique ID, this deserializer is able tor read
+ * that and convert them into appropriate Java Object.
+ *
+ */
+
+public class CustomDeserializer implements JsonDeserializer<Task> {
+
+	public Task deserialize(JsonElement json, Type typeOfT,
+			JsonDeserializationContext context) throws JsonParseException {
+
+		if (json == null) {
+			return null;
+		} else {
+			int id = json.getAsJsonObject().get("id").getAsInt();
+			switch (id) {
+			case 1:
+				return context.deserialize(json, FloatingTask.class);
+			case 2:
+				return context.deserialize(json, TimedTask.class);
+			case 3:
+				return context.deserialize(json, RepeatingTask.class);
+			case 4:
+				return context.deserialize(json, DeadlineTask.class);
+			default:
+				return null;
+			}
+		}
+	}
+}
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\storage\CustomDeserializer.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\storage\Storage.java
+	 */
+
+/**
+ * Storage is the storage component for Ticker. It stores and retrieve data from
+ * datastore.
+ * 
+ */
+public class Storage {
+
+	// These messages are used when IO errors occur
+	private static final String MESSAGE_FILE_CREATE_ERROR = "Could not create the file %1$s: %2$s";
+	private static final String MESSAGE_FILE_WRITE_ERROR = "Could not write to %1$s: \"%2$s\"";
+	private static final String MESSAGE_FILE_READ_ERROR = "Could not read from %1$s: \"%2$s\"";
+
+	// These messages are used when storage files had been tempered with
+	private static final String MESSAGE_FILE_MODIFICATION = "Detected modification of datafile. Reinitialising now.";
+	private static final String MESSAGE_FILE_INVALID = "Invalid filename";
+	private static final String MESSAGE_PARAMETER_ILLEGAL = "illegal key ";
+
+	// Constants that signify the list of tasks
+	private static final int TASKS_DEADLINE_INDEX = 1;
+	private static final int TASKS_PRIORITY_INDEX = 2;
+	private static final int TASKS_TICKED_INDEX = 3;
+	private static final int TASKS_KIV_INDEX = 4;
+
+	// List of file names string
+	private static final String TASKS_PRIORITY_FILENAME = "priority.json";
+	private static final String TASKS_DEADLINE_FILENAME = "deadline.json";
+	private static final String TASKS_TICKED_FILENAME = "ticked.json";
+	private static final String TASKS_KIV_FILENAME = "kiv.json";
+
+	// This is used for initiating the JSON file
+	private static final String JSON_EMPTY = "[]";
+
+	// These messages are used by Logger
+	private static final String LOGGER_MESSAGE_MISSING = "Missing JSON file";
+	private static final String LOGGER_MESSAGE_ALTER = "Altered JSON file";
+	private static final String LOGGER_MESSAGE_STORAGE = "Storage";
+
+	private static Logger logger;
+	private Vector<Task> storedTasksByPriority;
+	private Vector<Task> storedTasksByDeadline;
+	private Vector<Task> storedTasksByTicked;
+	private Vector<Task> storedTasksByKiv;
+	private File fileSortedByPriority, fileSortedByDeadline,
+			fileSortedByTicked, fileSortedByKiv;
+	private Scanner fileReader;
+	private BufferedWriter fileWriter;
+	private boolean isMissing;
+
+	public Storage() {
+		storedTasksByPriority = new Vector<Task>();
+		storedTasksByDeadline = new Vector<Task>();
+		storedTasksByTicked = new Vector<Task>();
+		storedTasksByKiv = new Vector<Task>();
+		isMissing = false;
+		logger = Logger.getLogger(LOGGER_MESSAGE_STORAGE);
+	}
+
+	/**
+	 * Initialize the file that will be edited. If the file exists, read the
+	 * content into the program. If the file doesn't exist, create the file.
+	 * 
+	 * @throws IllegalStateException
+	 *             If storage file had been tampered with
+	 */
+	public void initFile() throws IllegalStateException {
+		fileSortedByDeadline = new File(TASKS_DEADLINE_FILENAME);
+		fileSortedByPriority = new File(TASKS_PRIORITY_FILENAME);
+		fileSortedByTicked = new File(TASKS_TICKED_FILENAME);
+		fileSortedByKiv = new File(TASKS_KIV_FILENAME);
+
+		try {
+			checkFileExist(fileSortedByDeadline);
+			checkFileExist(fileSortedByPriority);
+			checkFileExist(fileSortedByTicked);
+			checkFileExist(fileSortedByKiv);
+		} catch (JsonSyntaxException jse) {
+			logger.log(Level.WARNING, LOGGER_MESSAGE_ALTER);
+			clearFile();
+			restoreDataFromFile(TASKS_PRIORITY_INDEX);
+			restoreDataFromFile(TASKS_DEADLINE_INDEX);
+			restoreDataFromFile(TASKS_TICKED_INDEX);
+			restoreDataFromFile(TASKS_KIV_INDEX);
+			throw new IllegalStateException();
+		}
+		// if one or more of the file is being altered, reset all files
+		if (isMissing) {
+			logger.log(Level.WARNING, LOGGER_MESSAGE_MISSING);
+			clearFile();
+			restoreDataFromFile(TASKS_PRIORITY_INDEX);
+			restoreDataFromFile(TASKS_DEADLINE_INDEX);
+			restoreDataFromFile(TASKS_TICKED_INDEX);
+			restoreDataFromFile(TASKS_KIV_INDEX);
+			throw new IllegalStateException();
+		}
+	}
+
+	/**
+	 * Writes the specific <code>Vector<Task></code> into JSON file as specified
+	 * by the key
+	 *
+	 * @param key
+	 *            the key to specify which file to write into.
+	 * @param tasks
+	 *            the list of tasks to be converted into JSON and written into
+	 *            the file
+	 * @return <code>true</code> if the specific vector is added to the file
+	 *         successfully. <code>false</code> otherwise.
+	 * @throws IllegalArgumentException
+	 *             If the input is not 1 or 2
+	 */
+	public boolean writeStorageArrayIntoFile(int key, Vector<Task> tasks)
+			throws IllegalArgumentException {
+		try {
+			if (key == TASKS_PRIORITY_INDEX) {
+				fileWriter = new BufferedWriter(new FileWriter(
+						fileSortedByPriority));
+				setStoredTaskByPriority(tasks);
+				String result = convertToJSON(storedTasksByPriority);
+				fileWriter.write(result);
+			} else if (key == TASKS_DEADLINE_INDEX) {
+				fileWriter = new BufferedWriter(new FileWriter(
+						fileSortedByDeadline));
+				setStoredTaskByDeadline(tasks);
+				String result = convertToJSON(storedTasksByDeadline);
+				fileWriter.write(result);
+			} else if (key == TASKS_TICKED_INDEX) {
+				fileWriter = new BufferedWriter(new FileWriter(
+						fileSortedByTicked));
+				setStoredTaskByDeadline(tasks);
+				String result = convertToJSON(storedTasksByTicked);
+				fileWriter.write(result);
+			} else if (key == TASKS_KIV_INDEX) {
+				fileWriter = new BufferedWriter(new FileWriter(fileSortedByKiv));
+				setStoredTaskByDeadline(tasks);
+				String result = convertToJSON(storedTasksByKiv);
+				fileWriter.write(result);
+			} else {
+				throw new IllegalArgumentException(MESSAGE_PARAMETER_ILLEGAL
+						+ key);
+			}
+
+			fileWriter.flush();
+			fileWriter.close();
+			return true;
+
+		} catch (IOException ioe) {
+			String fileWriteError = String.format(MESSAGE_FILE_WRITE_ERROR,
+					fileSortedByDeadline.getName(), ioe.getMessage());
+			showToUser(fileWriteError);
+			return false;
+		}
+	}
+
+	/**
+	 * Restore the data from the file that stores the data in JSON format
+	 *
+	 * @param key
+	 *            the key to specify which file to retrieve from.
+	 * @return a list of tasks in <code>Vector<Task></code> form
+	 * @throws IllegalArgumentException
+	 *             If the input is not 1 or 2
+	 */
+	public Vector<Task> restoreDataFromFile(int key) throws JsonSyntaxException {
+		if (key == TASKS_PRIORITY_INDEX) {
+			readFileContentIntoStorageArray(fileSortedByPriority);
+			return storedTasksByPriority;
+		} else if (key == TASKS_DEADLINE_INDEX) {
+			readFileContentIntoStorageArray(fileSortedByDeadline);
+			return storedTasksByDeadline;
+		} else if (key == TASKS_TICKED_INDEX) {
+			readFileContentIntoStorageArray(fileSortedByTicked);
+			return storedTasksByTicked;
+		} else if (key == TASKS_KIV_INDEX) {
+			readFileContentIntoStorageArray(fileSortedByKiv);
+			return storedTasksByKiv;
+		} else {
+			throw new IllegalArgumentException(MESSAGE_PARAMETER_ILLEGAL + key);
+		}
+	}
+
+	/**
+	 * Check if the file exist in the directory. If exist, read content into
+	 * array. Else, create new file
+	 * 
+	 * @param file
+	 *            file to be read
+	 */
+	private void checkFileExist(File file) {
+		if (file.exists()) {
+			readFileContentIntoStorageArray(file);
+		} else {
+			createNewFile(file);
+			isMissing = true;
+		}
+	}
+
+	/**
+	 * Creates a new file using the input file name as basis for the text file.
+	 * Location will be local to the directory of the running Java class file.
+	 * Program will exit if file creation fails.
+	 */
+	private void createNewFile(File jsonFile) {
+		try {
+			jsonFile.createNewFile();
+		} catch (IOException ioe) {
+			String fileCreationError = String.format(MESSAGE_FILE_CREATE_ERROR,
+					jsonFile.getName(), ioe.getMessage());
+			showToUser(fileCreationError);
+			System.exit(-1);
+		}
+	}
+
+	/**
+	 * Retrieve data from the JSON datastore and put it into specified array in
+	 * Storage
+	 * 
+	 * @param jsonFile
+	 *            the file to read
+	 * @throws JsonParseException
+	 *             if the data had been tampered with
+	 */
+	private void readFileContentIntoStorageArray(File jsonFile)
+			throws JsonParseException {
+		createNewFileReader(jsonFile);
+		String json = "";
+		while (fileReader.hasNextLine()) {
+			json += fileReader.nextLine();
+
+		}
+		try {
+			Vector<Task> tasks = JSONToTasksVector(json);
+			if (jsonFile.getName().equals(TASKS_DEADLINE_FILENAME)) {
+				setStoredTaskByDeadline(tasks);
+			} else if (jsonFile.getName().equals(TASKS_PRIORITY_FILENAME)) {
+				setStoredTaskByPriority(tasks);
+			} else if (jsonFile.getName().equals(TASKS_KIV_FILENAME)) {
+				setStoredTaskByKiv(tasks);
+			} else if (jsonFile.getName().equals(TASKS_TICKED_FILENAME)) {
+				setStoredTaskByTicked(tasks);
+			} else {
+				throw new IllegalArgumentException(MESSAGE_FILE_INVALID);
+			}
+		} catch (IllegalStateException ise) {
+			initFile();
+			throw new IllegalStateException(MESSAGE_FILE_MODIFICATION);
+		}
+		fileReader.close();
+	}
+
+	/**
+	 * Creates a new reader for the current text file. Program will exit if
+	 * there is a file read error.
+	 */
+	private void createNewFileReader(File jsonFile) {
+		try {
+			if (jsonFile.getName() == TASKS_DEADLINE_FILENAME) {
+				fileReader = new Scanner(fileSortedByDeadline);
+			} else if (jsonFile.getName() == TASKS_PRIORITY_FILENAME) {
+				fileReader = new Scanner(fileSortedByPriority);
+			} else if (jsonFile.getName() == TASKS_KIV_FILENAME) {
+				fileReader = new Scanner(fileSortedByKiv);
+			} else if (jsonFile.getName() == TASKS_TICKED_FILENAME) {
+				fileReader = new Scanner(fileSortedByTicked);
+			} else {
+				throw new FileNotFoundException();
+			}
+		} catch (FileNotFoundException fnfe) {
+			String fileReadError = null;
+			if (jsonFile.getName().equals(TASKS_DEADLINE_FILENAME)) {
+				fileReadError = String.format(MESSAGE_FILE_READ_ERROR,
+						fileSortedByDeadline.getName(), fnfe.getMessage());
+			} else {
+				fileReadError = String.format(MESSAGE_FILE_READ_ERROR,
+						fileSortedByPriority.getName(), fnfe.getMessage());
+			}
+			showToUser(fileReadError);
+			System.exit(-1);
+		}
+	}
+
+	/**
+	 * Writes a new empty String into the file to clear out all text. Program
+	 * will exit if file write fails.
+	 */
+	private void clearFile() {
+		try {
+			fileWriter = new BufferedWriter(
+					new FileWriter(fileSortedByDeadline));
+			writeEmptyJsonArray();
+
+			fileWriter = new BufferedWriter(
+					new FileWriter(fileSortedByPriority));
+			writeEmptyJsonArray();
+
+			fileWriter = new BufferedWriter(new FileWriter(fileSortedByTicked));
+			writeEmptyJsonArray();
+
+			fileWriter = new BufferedWriter(new FileWriter(fileSortedByKiv));
+			writeEmptyJsonArray();
+
+			fileWriter.close();
+		} catch (IOException ioe) {
+			String fileWriteError = String.format(MESSAGE_FILE_WRITE_ERROR,
+					fileSortedByDeadline.getName(), ioe.getMessage());
+			showToUser(fileWriteError);
+			System.exit(-1);
+		}
+	}
+
+	/**
+	 * Write the JSON empty array into the specified file
+	 * 
+	 * @throws IOException
+	 *             if file is not found.
+	 */
+	private void writeEmptyJsonArray() throws IOException {
+		fileWriter.write(new String(JSON_EMPTY));
+		fileWriter.flush();
+	}
+
+	/**
+	 * Prints the text to console and terminates the line.
+	 * 
+	 * @param text
+	 *            The text to be printed.
+	 */
+	private void showToUser(String text) {
+		System.out.println(text);
+	}
+
+	/**
+	 * Convert the <code>Vector<Task></code> input into JSON string
+	 *
+	 * @param tasks
+	 *            the list of tasks to be converted into JSON string
+	 * @return JSON string
+	 */
+	protected String convertToJSON(Vector<Task> tasks) {
+		GsonBuilder gson = new GsonBuilder();
+		gson.registerTypeAdapter(Task.class, new CustomDeserializer());
+		String json = gson.create().toJson(tasks);
+
+		return json;
+	}
+
+	/**
+	 * Convert the JSON string input into <code>Vector<Task></code>
+	 *
+	 * @param json
+	 *            the JSON string to be converted into <code>Vector<Task></code>
+	 * @return a list of tasks in <code>Vector<Task></code>
+	 * @throws IllegalStateException
+	 *             if the file is not in JSON format
+	 */
+	protected Vector<Task> JSONToTasksVector(String json)
+			throws IllegalStateException, JsonParseException {
+		Vector<Task> tasks = new Vector<Task>();
+		GsonBuilder gson = new GsonBuilder();
+		JsonParser parse = new JsonParser();
+
+		// Using Google-GSON library to parse into Tasks Objects
+		JsonArray jsonArray = parse.parse(json).getAsJsonArray();
+		gson.registerTypeAdapter(Task.class, new CustomDeserializer());
+
+		for (int i = 0; i < jsonArray.size(); i++) {
+			Task output = gson.create().fromJson(jsonArray.get(i), Task.class);
+			tasks.add(output);
+		}
+		return tasks;
+	}
+
+	/**
+	 * Set the storedTasksByPriority according to the tasks parameter
+	 * 
+	 * @param tasks
+	 *            Vector<Tasks> to set
+	 */
+	public void setStoredTaskByPriority(Vector<Task> tasks) {
+		storedTasksByPriority = tasks;
+	}
+
+	/**
+	 * Set the storedTasksByDeadline according to the tasks parameter
+	 * 
+	 * @param tasks
+	 *            Vector<Tasks> to set
+	 */
+	public void setStoredTaskByDeadline(Vector<Task> tasks) {
+		storedTasksByDeadline = tasks;
+	}
+
+	/**
+	 * Set the storedTasksByKIV according to the tasks parameter
+	 * 
+	 * @param tasks
+	 *            Vector<Tasks> to set
+	 */
+	public void setStoredTaskByKiv(Vector<Task> tasks) {
+		storedTasksByKiv = tasks;
+	}
+
+	/**
+	 * Set the storedTasksByTicked according to the tasks parameter
+	 * 
+	 * @param tasks
+	 *            Vector<Tasks> to set
+	 */
+	public void setStoredTaskByTicked(Vector<Task> tasks) {
+		storedTasksByTicked = tasks;
+	}
+}
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\storage\Storage.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\jiale\Desktop\Ticker\src\ticker\storage\StorageTest.java
+	 */
+
+
+public class StorageTest {
+
+	@Test
+	public void testConvertToJSON() {
+		Storage test = new Storage();
+		Vector<Task> tasks = new Vector<Task>();
+		String expected = "[{\"id\":1,\"description\":\"Buy milk from NTUC\",\"priority\":\"B\",\"isRepeating\":false,\"isExpired\":false},"
+				+ "{\"id\":4,\"description\":\"Finish OP2 slides\",\"endDate\":{\"year\":2014,\"month\":11,\"date\":7},\"endTime\":{\"hour\":11,"
+				+ "\"minute\":30},\"priority\":\"A\",\"isRepeating\":false,\"isExpired\":false},{\"id\":2,\"description\":\"CS2103 V0.4 Demo\","
+				+ "\"startDate\":{\"year\":2014,\"month\":11,\"date\":5},\"startTime\":{\"hour\":15,\"minute\":0},\"endDate\":{\"year\":2014,"
+				+ "\"month\":11,\"date\":5},\"endTime\":{\"hour\":14,\"minute\":0},\"priority\":\"A\",\"isRepeating\":false,\"isExpired\":false},"
+				+ "{\"id\":3,\"day\":4,\"description\":\"Post Lecture Reflection\",\"startDate\":{\"year\":2014,\"month\":11,\"date\":6},\"priority\""
+				+ ":\"B\",\"isRepeating\":true,\"isExpired\":false}]"; 
+		
+		// This covers the 4 different types of tasks 
+		tasks.add(new FloatingTask("Buy milk from NTUC", 'B', false));
+		tasks.add(new DeadlineTask("Finish OP2 slides", new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		tasks.add(new TimedTask("CS2103 V0.4 Demo", new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		tasks.add(new RepeatingTask("Post Lecture Reflection", new Date(2014, 11, 6), null, null, 'B', true));
+		
+		String result = test.convertToJSON(tasks);
+		assertEquals(expected, result);
+	}
+	
+	@Test
+	public void testJSONToTaskVector() {
+		Storage test = new Storage();
+		Vector<Task> tasks;
+		
+		//data set with 4 different types of tasks
+		String data = "[{\"id\":1,\"description\":\"Buy milk from NTUC\",\"priority\":\"B\",\"isRepeating\":false,\"isExpired\":false},"
+				+ "{\"id\":4,\"description\":\"Finish OP2 slides\",\"endDate\":{\"year\":2014,\"month\":11,\"date\":7},\"endTime\":{\"hour\":11,"
+				+ "\"minute\":30},\"priority\":\"A\",\"isRepeating\":false,\"isExpired\":false},{\"id\":2,\"description\":\"CS2103 V0.4 Demo\","
+				+ "\"startDate\":{\"year\":2014,\"month\":11,\"date\":5},\"startTime\":{\"hour\":15,\"minute\":0},\"endDate\":{\"year\":2014,"
+				+ "\"month\":11,\"date\":5},\"endTime\":{\"hour\":14,\"minute\":0},\"priority\":\"A\",\"isRepeating\":false,\"isExpired\":false},"
+				+ "{\"id\":3,\"day\":4,\"description\":\"Post Lecture Reflection\",\"startDate\":{\"year\":2014,\"month\":11,\"date\":6},\"priority\""
+				+ ":\"B\",\"isRepeating\":true,\"isExpired\":false}]"; 
+		
+		tasks = test.JSONToTasksVector(data);
+		
+		assertEquals(true, tasks.contains(new FloatingTask("Buy milk from NTUC", 'B', false)));
+		assertEquals(true, tasks.contains(new DeadlineTask("Finish OP2 slides", new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		assertEquals(true, tasks.contains(new TimedTask("CS2103 V0.4 Demo", new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		assertEquals(true, tasks.contains(new RepeatingTask("Post Lecture Reflection", new Date(2014, 11, 6), null, null, 'B', true)));
+	}
+	
+}
+
+	// End of segment: C:\Users\jiale\Desktop\Ticker\src\ticker\storage\StorageTest.java
+
+
+
+
+
