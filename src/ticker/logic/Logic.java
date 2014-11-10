@@ -62,7 +62,8 @@ public class Logic {
 	private static final int KEY_SEARCH = 5;
 	private static final int KEY_FREESLOTS = 6;
 	// Other integer constants
-	private static final int INIT_FROM_ONE = 1;
+	private static final int INIT = 0;
+	private static final int OFFSET_INDEX = 1;
 	// String constants for type of lists used
 	private static final String LIST_TIME = "time";
 	private static final String LIST_PRIORITY = "priority";
@@ -828,13 +829,13 @@ public class Logic {
 	 * @return List of tasks in string format.
 	 */
 	protected String list() {
-		if (current == null) {
+		if (current.isEmpty()) {
 			return FEEDBACK_NOTHING_TO_DISPLAY;
 		}
 
 		String list = EMPTY_STRING;
-		for (int i = INIT_FROM_ONE; i <= current.size(); i++) {
-			list += i + PARTITION_STRING + current.get(i).toString()
+		for (int i = INIT; i < current.size(); i++) {
+			list += i + OFFSET_INDEX + PARTITION_STRING + current.get(i).toString()
 					+ NEWLINE_STRING;
 		}
 		return list;
@@ -850,18 +851,22 @@ public class Logic {
 	protected String list(String listType) throws IllegalArgumentException {
 		switch (listType) {
 		case LIST_TIME :
+			sortLists();
 			setCurrentAsTime();
 			updateObservers();
 			return FEEDBACK_LIST_TIME;
 		case LIST_PRIORITY :
+			sortLists();
 			setCurrentAsPriority();
 			updateObservers();
 			return FEEDBACK_LIST_PRIORITY;
 		case LIST_TICKED :
+			sortLists();
 			setCurrentAsTicked();
 			updateObservers();
 			return FEEDBACK_LIST_TICKED;
 		case COMMAND_KIV :
+			sortLists();
 			setCurrentAsKiv();
 			updateObservers();
 			return FEEDBACK_LIST_KIV;
