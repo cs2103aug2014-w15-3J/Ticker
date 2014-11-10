@@ -416,7 +416,7 @@ public class Parser {
 			input.setStartDate(Date.getCurrentDate());
 			input.setEndDate(Date.getCurrentDate());
 			input.setStartTime(START_OF_DAY);
-			input.setStartTime(END_OF_DAY);
+			input.setEndTime(END_OF_DAY);
 		}
 		
 		input.setDescription(null);
