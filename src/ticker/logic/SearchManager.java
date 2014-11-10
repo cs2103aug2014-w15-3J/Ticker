@@ -460,6 +460,7 @@ public class SearchManager {
 		searchResultsTicked = searchByPriority(priority, searchResultsTicked);
 		searchResultsKIV = searchByPriority(priority, searchResultsKIV);
 	}
+	
 	// Unused code
 	/**
 	 * This method searches for repeating tasks.
@@ -533,7 +534,6 @@ public class SearchManager {
 				searchResult.add(task);
 			}
 		}
-
 		return searchResult;
 	}*/
 
