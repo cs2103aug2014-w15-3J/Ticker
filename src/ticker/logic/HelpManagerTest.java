@@ -1,8 +1,10 @@
 package ticker.logic;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+
+//@author A0116673A
 
 public class HelpManagerTest {
 	

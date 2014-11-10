@@ -12,9 +12,16 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.SmithWaterman;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.SmithWatermanGotoh;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.SmithWatermanGotohWindowedAffine;
 
+//@author A0116673A
+
+/**
+ * This class generates the help message to user based on what they have in the
+ * text box before pressing enter.
+ *
+ */
 public class HelpManager {
-	
-	//List of available commands
+
+	// List of available commands
 	private static final String COMMAND_HELP = "help";
 	private static final String COMMAND_UNTICK = "untick";
 	private static final String COMMAND_TICK = "tick";
@@ -29,8 +36,8 @@ public class HelpManager {
 	private static final String COMMAND_DELETE = "delete";
 	private static final String COMMAND_SEARCH = "search";
 	private static final String COMMAND_SHOW = "show";
-	
-	//List of available help messages
+
+	// List of available help messages
 	private static final String MESSAGE_HELP = "help";
 	private static final String MESSAGE_UNTICK = "untick <index>";
 	private static final String MESSAGE_TICK = "tick <index>";
@@ -46,28 +53,28 @@ public class HelpManager {
 	private static final String MESSAGE_SEARCH = "search <description> <time> -<priority>";
 	private static final String MESSAGE_SHOW = "show <listType>";
 	private static final String MESSAGE_EMPTY = "";
-	
-	//These messages are used by Logger
+
+	// These messages are used by Logger
 	private static final String LOGGER_MESSAGE_DISPLAY = "Displaying help message";
 	private static final String LOGGER_MESSAGE_HELPMANAGER = "HelpManager";
-	
-	//HelpManager activation length
+
+	// HelpManager activation length
 	private static final int ACTIVATION_LENGTH = 2;
-	
-	//Constants used by Search Algorithm
+
+	// Constants used by Search Algorithm
 	private static final double SIMILARITY_THRESHOLD = 65.0;
 	private static final float SIMILARITY_INDEX_ZERO = 0F;
 	private static final float SIMILARITY_INDEX_FOUR = 4.0F;
 	private static final float SIMILARITY_INDEX_HUNDRED = 100.0F;
-	
+
 	private static final int ARRAY_FIRST = 0;
-	
+
 	private static Logger logger;
 	private Vector<StringMatch> matchList;
 	private HashMap<String, String> helpList;
 	private String[] commandListSet;
-	
-	//@author A0116673A
+
+	// @author A0116673A
 
 	public HelpManager() {
 		helpList = new HashMap<String, String>();
@@ -78,8 +85,8 @@ public class HelpManager {
 	}
 
 	/**
-	 *	Initialise the helplist with a list of available commands and corresponding
-	 *	help messages
+	 * Initialise the helplist with a list of available commands and
+	 * corresponding help messages
 	 */
 	private void initHelpList() {
 		helpList.put(COMMAND_HELP, MESSAGE_HELP);
@@ -99,58 +106,65 @@ public class HelpManager {
 	}
 
 	/**
-	 *	Initialise the commandListSet with a list of commands
-	*/
+	 * Initialise the commandListSet with a list of commands
+	 */
 	private void initCommandListSet() {
-		commandListSet = helpList.keySet().toArray(new String[0]); 
+		commandListSet = helpList.keySet().toArray(new String[0]);
 	}
 
 	/**
-	 * This method return most likely help message that the user needs based on 
+	 * This method return most likely help message that the user needs based on
 	 * current input in the textfile
 	 *
-	 * @param   key       		current user input in textfield
-	 * @return     most likely help message based on the first word of user input
+	 * @param key
+	 *            current user input in textfield
+	 * @return most likely help message based on the first word of user input
 	 */
-	public String getHelp(String key){
+	public String getHelp(String key) {
 		Vector<String> possibleCommands = new Vector<String>();
 		matchList.removeAllElements();
-		
+
 		if (key.length() < ACTIVATION_LENGTH) {
 			return MESSAGE_EMPTY;
 		} else {
 			calculateSimilarityIndexBasedOnFirstWord(key);
-			
+
 			Collections.sort(matchList, new StringMatchComparator());
-			
+
 			findElementWithinSimilarityScore(possibleCommands);
-			
+
 			logger.log(Level.INFO, LOGGER_MESSAGE_DISPLAY);
 			return findMostLikelyHelpMessage(possibleCommands);
 		}
 	}
-	
+
 	/**
 	 * Calculate the similarity index of the first word with a lit of commands
 	 * 
-	 * @param key 	user's input in the textbox
+	 * @param key
+	 *            user's input in the textbox
 	 */
 	private void calculateSimilarityIndexBasedOnFirstWord(String key) {
 		String firstWordKey = key.split(" ")[ARRAY_FIRST];
-	
-		int i = 0;	
-		for (String command: commandListSet) {
-			float score = getMatchLikelyhood(firstWordKey.toLowerCase(), command);
+
+		int i = 0;
+		for (String command : commandListSet) {
+			float score = getMatchLikelyhood(firstWordKey.toLowerCase(),
+					command);
 			matchList.add(new StringMatch(i, score));
 			i++;
 		}
 	}
 
 	/**
-	 * Determine a list of possible commands and put them into possibleCommands array
-	 * @param possibleCommands a list of possible commands
+	 * Determine a list of possible commands and put them into possibleCommands
+	 * array
+	 * 
+	 * @param possibleCommands
+	 *            a list of possible commands
 	 */
-	private void findElementWithinSimilarityScore(Vector<String> possibleCommands) {
+	private void findElementWithinSimilarityScore(
+			Vector<String> possibleCommands) {
 		for (StringMatch sm : matchList) {
 			if (sm.getSimilarityScore() < SIMILARITY_THRESHOLD) {
 				break;
@@ -161,8 +175,10 @@ public class HelpManager {
 
 	/**
 	 * Return the help message based on the most likely command
-	 * @param possibleCommands	a list of possible commands
-	 * @return	help message
+	 * 
+	 * @param possibleCommands
+	 *            a list of possible commands
+	 * @return help message
 	 */
 	private String findMostLikelyHelpMessage(Vector<String> possibleCommands) {
 		if (possibleCommands.isEmpty()) {
@@ -173,13 +189,16 @@ public class HelpManager {
 	}
 
 	/**
-	 * This method calculates the similarity index between two input strings based 
-	 * on the algorithms provided by Simmetrics library
+	 * This method calculates the similarity index between two input strings
+	 * based on the algorithms provided by Simmetrics library
 	 *
-	 * @param str1		input string 1
-	 * @param str2    	input string 2
-	 * @return     the similarity index between str1 and str2
-	 * @throws Error  If commandType is unidentified.
+	 * @param str1
+	 *            input string 1
+	 * @param str2
+	 *            input string 2
+	 * @return the similarity index between str1 and str2
+	 * @throws Error
+	 *             If commandType is unidentified.
 	 */
 	private static float getMatchLikelyhood(final String str1, final String str2) {
 		AbstractStringMetric metric;

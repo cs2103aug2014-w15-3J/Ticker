@@ -41,9 +41,9 @@ public class UndoManagerTest {
 		Vector<Task> storedTasksByPriority = new Vector<Task>();
 		Vector<Task> storedTasksByDeadline = new Vector<Task>();
 		Vector<Task> storedTasksByTicked = new Vector<Task>();
-		Vector<Task> storedTasksByKIV = new Vector<Task>();
+		Vector<Task> storedTasksByKiv = new Vector<Task>();
 		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
-				storedTasksByDeadline, storedTasksByTicked, storedTasksByKIV);
+				storedTasksByDeadline, storedTasksByTicked, storedTasksByKiv);
 		
 		//test undo-ing redo-ing addition of floating task
 		uM.add(new Event(COMMAND_ADD, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
@@ -101,9 +101,9 @@ public class UndoManagerTest {
 		Vector<Task> storedTasksByPriority = new Vector<Task>();
 		Vector<Task> storedTasksByDeadline = new Vector<Task>();
 		Vector<Task> storedTasksByTicked = new Vector<Task>();
-		Vector<Task> storedTasksByKIV = new Vector<Task>();
+		Vector<Task> storedTasksByKiv = new Vector<Task>();
 		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
-				storedTasksByDeadline, storedTasksByTicked, storedTasksByKIV);
+				storedTasksByDeadline, storedTasksByTicked, storedTasksByKiv);
 		
 		//test undo-ing redo-ing removal of floating task
 		uM.add(new Event(COMMAND_ADD, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
@@ -169,9 +169,9 @@ public class UndoManagerTest {
 		Vector<Task> storedTasksByPriority = new Vector<Task>();
 		Vector<Task> storedTasksByDeadline = new Vector<Task>();
 		Vector<Task> storedTasksByTicked = new Vector<Task>();
-		Vector<Task> storedTasksByKIV = new Vector<Task>();
+		Vector<Task> storedTasksByKiv = new Vector<Task>();
 		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
-				storedTasksByDeadline, storedTasksByTicked, storedTasksByKIV);
+				storedTasksByDeadline, storedTasksByTicked, storedTasksByKiv);
 		
 		//test undo-ing and redo-ing edit of floating task
 		uM.add(new Event(COMMAND_ADD, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
@@ -200,9 +200,9 @@ public class UndoManagerTest {
 		Vector<Task> storedTasksByPriority = new Vector<Task>();
 		Vector<Task> storedTasksByDeadline = new Vector<Task>();
 		Vector<Task> storedTasksByTicked = new Vector<Task>();
-		Vector<Task> storedTasksByKIV = new Vector<Task>();
+		Vector<Task> storedTasksByKiv = new Vector<Task>();
 		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
-				storedTasksByDeadline, storedTasksByTicked, storedTasksByKIV);
+				storedTasksByDeadline, storedTasksByTicked, storedTasksByKiv);
 		
 		//test undo-ing and redo-ing tick of floating task
 		uM.add(new Event(COMMAND_ADD, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
@@ -236,13 +236,13 @@ public class UndoManagerTest {
 	}
 	
 	@Test
-	public void testUndoRedoAfterKIVUnkivOperation() {
+	public void testUndoRedoAfterKivUnkivOperation() {
 		Vector<Task> storedTasksByPriority = new Vector<Task>();
 		Vector<Task> storedTasksByDeadline = new Vector<Task>();
 		Vector<Task> storedTasksByTicked = new Vector<Task>();
-		Vector<Task> storedTasksByKIV = new Vector<Task>();
+		Vector<Task> storedTasksByKiv = new Vector<Task>();
 		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
-				storedTasksByDeadline, storedTasksByTicked, storedTasksByKIV);
+				storedTasksByDeadline, storedTasksByTicked, storedTasksByKiv);
 		
 		//test undo-ing and redo-ing tick of floating task
 		uM.add(new Event(COMMAND_ADD, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
@@ -251,27 +251,27 @@ public class UndoManagerTest {
 		uM.add(new Event(COMMAND_KIV, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false), LIST_TIME, LIST_KIV));
 		storedTasksByPriority.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
 		storedTasksByDeadline.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
-		storedTasksByKIV.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		storedTasksByKiv.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
 		assertEquals(true, storedTasksByPriority.isEmpty());
-		assertEquals(true, storedTasksByKIV.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		assertEquals(true, storedTasksByKiv.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
 		uM.undo();
-		assertEquals(true, storedTasksByKIV.isEmpty());
+		assertEquals(true, storedTasksByKiv.isEmpty());
 		assertEquals(true, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
 		uM.redo();
 		assertEquals(true, storedTasksByPriority.isEmpty());
-		assertEquals(true, storedTasksByKIV.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		assertEquals(true, storedTasksByKiv.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
 		uM.undo();
 		
 		//testing undo-ing untick of floating task
 		uM.add(new Event(COMMAND_UNKIV, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false), LIST_KIV, LIST_TIME));
 		storedTasksByPriority.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
 		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
-		storedTasksByKIV.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
-		assertEquals(true, storedTasksByKIV.isEmpty());
+		storedTasksByKiv.remove(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
+		assertEquals(true, storedTasksByKiv.isEmpty());
 		assertEquals(true, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
 		uM.undo();
 		assertEquals(true, storedTasksByPriority.isEmpty());
-		assertEquals(true, storedTasksByKIV.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		assertEquals(true, storedTasksByKiv.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
 		
 		uM.clearStateForTesting();
 	}
