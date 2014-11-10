@@ -8,8 +8,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javafx.animation.FadeTransition;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -21,7 +19,6 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
@@ -96,27 +93,10 @@ public class UIForLogicTesting extends Application implements Observer {
 	private static int currentView = KEY_SORTED_TIME;
 	private int nextView = KEY_SORTED_TIME;
 
-	private static final String[] months = { "Jan", "Feb", "Mar", "Apr",
-		"May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 	private static final String[] dayOfWeek = { "Sunday", "Monday", "Tuesday",
 		"Wednesday", "Thursday", "Friday", "Saturday" };
 
-	private Calendar c;
-
-	private HBox time = new HBox(1);
-	private VBox clock = new VBox();
-
-	/*	private final Label currentHour = new Label();
-		private final Label currentMin = new Label();
-		private final Label currentSec = new Label();
-		private final Label colon1 = new Label(":");
-		private final Label colon2 = new Label(":");
-	 */
-
 	private FadeTransition fadeOut, helpFadeIn, helpFadeOut; 
-
-	/*	private final Label date_string = new Label();
-	 */
 
 	private final HelpManager helpManager = new HelpManager();
 
@@ -341,7 +321,7 @@ public class UIForLogicTesting extends Application implements Observer {
 		helpFadeOut.setFromValue(0.8);
 		helpFadeOut.setToValue(0);
 
-		Scene scene = new Scene(root);
+		scene = new Scene(root);
 		stage.setScene(scene);
 		stage.setMaxWidth(490);
 		stage.setMinWidth(490);
