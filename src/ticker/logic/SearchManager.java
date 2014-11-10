@@ -97,10 +97,11 @@ public class SearchManager {
 		if (key != null && !key.equals(EMPTY_STRING)) {
 			searchByKeyInSubSearchResults(key);
 		}
-
-		if (isRepeating) {
+		
+		// Unused code
+		/*if (isRepeating) {
 			searchByRepeatingInSubSearchResults();
-		}
+		}*/
 
 		// Search by priority
 		if (priority != NULL_CHAR
@@ -159,10 +160,11 @@ public class SearchManager {
 		if (key != null && !key.equals(EMPTY_STRING)) {
 			searchByKeyInSubSearchResults(key);
 		}
-
-		if (isRepeating) {
+		
+		// Unused code
+		/*if (isRepeating) {
 			searchByRepeatingInSubSearchResults();
-		}
+		}*/
 
 		// Search by priority
 		if (priority != NULL_CHAR
@@ -458,15 +460,15 @@ public class SearchManager {
 		searchResultsTicked = searchByPriority(priority, searchResultsTicked);
 		searchResultsKIV = searchByPriority(priority, searchResultsKIV);
 	}
-
+	// Unused code
 	/**
 	 * This method searches for repeating tasks.
 	 */
-	private void searchByRepeatingInSubSearchResults() {
+	/*private void searchByRepeatingInSubSearchResults() {
 		searchResultsTime = searchRepeating(searchResultsTime);
 		searchResultsTicked = searchRepeating(searchResultsTicked);
 		searchResultsKIV = searchRepeating(searchResultsKIV);
-	}
+	}*/
 
 	/**
 	 * This method searches tasks by their description and their level of
@@ -515,14 +517,15 @@ public class SearchManager {
 
 		return searchResult;
 	}
-
+	
+	// Unused code
 	/**
 	 * This method searches for repeating task within a tasklist.
 	 *
 	 * @param taskList		List of tasks to be searched from.
 	 * @return Vector of repeating tasks.
 	 */
-	private Vector<Task> searchRepeating(Vector<Task> taskList) {
+	/*private Vector<Task> searchRepeating(Vector<Task> taskList) {
 		Vector<Task> searchResult = new Vector<Task>();
 
 		for (Task task : taskList) {
@@ -532,7 +535,7 @@ public class SearchManager {
 		}
 
 		return searchResult;
-	}
+	}*/
 
 	/**
 	 * This method searches for tasks through a word in the task description
