@@ -191,6 +191,25 @@ public class UndoManagerTest {
 		assertEquals(true, storedTasksByPriority.contains(new FloatingTask(TASKS_DEADLINE_DESCRIPTION, 'B', false)));
 		assertEquals(false, storedTasksByPriority.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
 		uM.undo();
+		uM.undo();
+
+		//test undo-ing redo-ing edit of deadline task
+		uM.add(new Event(COMMAND_ADD, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		uM.add(new Event(COMMAND_EDIT, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false), new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		storedTasksByPriority.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		assertEquals(true, storedTasksByPriority.contains(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		assertEquals(false, storedTasksByPriority.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		assertEquals(false, storedTasksByPriority.contains(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		assertEquals(true, storedTasksByPriority.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.contains(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		assertEquals(false, storedTasksByPriority.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
 		
 		uM.clearStateForTesting();
 	}
@@ -260,6 +279,7 @@ public class UndoManagerTest {
 		uM.redo();
 		assertEquals(true, storedTasksByPriority.isEmpty());
 		assertEquals(true, storedTasksByKiv.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
 		uM.undo();
 		
 		//testing undo-ing untick of floating task
