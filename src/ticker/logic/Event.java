@@ -83,27 +83,51 @@ public class Event {
 		this.listTypeBefore = listTypeBefore;
 		this.listTypeAfter = listTypeAfter;
 	}
-
+	
+	/** 
+	 * Returns the command stored
+	 * @return command
+	 */
 	public String getCommand() {
 		return command;
 	}
-
+	
+	/** 
+	 * Return the task before edit stored
+	 * @return task before edit
+	 */
 	public Task getTaskBeforeEdit() {
 		return taskBeforeEdit;
 	}
-
+	
+	/**
+	 * Return the task after edit stored
+	 * @return task after edit
+	 */
 	public Task getTaskAfterEdit() {
 		return taskAfterEdit;
 	}
 
+	/**
+	 * Return the type of list the Task class was in
+	 * @return the type of previous list
+	 */
 	public String getListTypeBefore() {
 		return listTypeBefore;
 	}
-
+	
+	/**
+	 * Return the type of list the Task class is in
+	 * @return the type of current list 
+	 */
 	public String getListTypeAfter() {
 		return listTypeAfter;
 	}
 
+	/**
+	 * Return the index before delete
+	 * @return the index before delete
+	 */
 	public int getIndexBefore() {
 		return indexBefore;
 	}
