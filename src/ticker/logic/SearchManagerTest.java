@@ -7,7 +7,7 @@ import org.junit.Test;
 import ticker.parser.UserInput;
 import ticker.ui.TickerUI;
 
-public class TestSearchManager {
+public class SearchManagerTest {
 	// String constants for command types
 		private static final String COMMAND_HELP = "help";
 		private static final String COMMAND_UNTICK = "untick";
@@ -22,6 +22,7 @@ public class TestSearchManager {
 		private static final String COMMAND_CLEAR = "clear";
 		private static final String COMMAND_DELETE = "delete";
 		private static final String COMMAND_SEARCH = "search";
+		
 		// String constants for type of lists used
 		private static final String LIST_TIME = "time";
 		private static final String LIST_PRIORITY = "priority";
