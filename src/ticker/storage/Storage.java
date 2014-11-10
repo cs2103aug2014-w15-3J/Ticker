@@ -31,19 +31,24 @@ public class Storage {
 	private static final String MESSAGE_FILE_WRITE_ERROR = "Could not write to %1$s: \"%2$s\"";
 	private static final String MESSAGE_FILE_READ_ERROR = "Could not read from %1$s: \"%2$s\"";
 
+	// These messages are used when storage files had been tempered with
 	private static final String MESSAGE_FILE_MODIFICATION = "Detected modification of datafile. Reinitialising now.";
 	private static final String MESSAGE_FILE_INVALID = "Invalid filename";
 	private static final String MESSAGE_PARAMETER_ILLEGAL = "illegal key ";
 
+	// Constants that signify the list of tasks
 	private static final int TASKS_DEADLINE_INDEX = 1;
 	private static final int TASKS_PRIORITY_INDEX = 2;
 	private static final int TASKS_TICKED_INDEX = 3;
 	private static final int TASKS_KIV_INDEX = 4;
+
+	// List of file names string
 	private static final String TASKS_PRIORITY_FILENAME = "priority.json";
 	private static final String TASKS_DEADLINE_FILENAME = "deadline.json";
 	private static final String TASKS_TICKED_FILENAME = "ticked.json";
 	private static final String TASKS_KIV_FILENAME = "kiv.json";
 
+	// This is used for initiating the JSON file
 	private static final String JSON_EMPTY = "[]";
 
 	// These messages are used by Logger
@@ -374,6 +379,7 @@ public class Storage {
 		GsonBuilder gson = new GsonBuilder();
 		JsonParser parse = new JsonParser();
 
+		// Using Google-GSON library to parse into Tasks Objects
 		JsonArray jsonArray = parse.parse(json).getAsJsonArray();
 		gson.registerTypeAdapter(Task.class, new CustomDeserializer());
 

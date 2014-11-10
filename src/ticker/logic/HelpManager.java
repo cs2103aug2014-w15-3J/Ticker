@@ -70,7 +70,8 @@ public class HelpManager {
 	private static final float SIMILARITY_INDEX_ZERO = 0F;
 	private static final float SIMILARITY_INDEX_FOUR = 4.0F;
 	private static final float SIMILARITY_INDEX_HUNDRED = 100.0F;
-
+	
+	// Used to access the first element in an array
 	private static final int ARRAY_FIRST = 0;
 
 	private static Logger logger;
