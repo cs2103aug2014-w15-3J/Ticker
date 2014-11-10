@@ -50,7 +50,7 @@ public class TimedTask extends Task {
 	 */
 	@Override
 	public String toString(){
-		String timing = SPACE;
+		String timing = new String();
 		
 		if (!(getStartTime() == null&&getStartDate() == null)){
 			timing += FROM;
