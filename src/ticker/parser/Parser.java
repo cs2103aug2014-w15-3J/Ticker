@@ -1,14 +1,20 @@
 package ticker.parser;
 
 //@author  A0115369B
+/*
+ * This class analyzes the String entered by the user and determines
+ * what the user wants to do
+ * 
+ * usage: when Logic component calls the processInput method, the corresponding
+ * UserInput object is returned to Logic.
+ */
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Calendar;
 import java.util.List;
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
 import ticker.common.*;
-import ticker.common.Task.RepeatingInterval;
-
 
 public class Parser {
 	
@@ -153,9 +159,9 @@ public class Parser {
 
 			else if (lowerCase.equals(ParserString.REPEATING)||lowerCase.equals("-rw")){
 				input.setRepeating(true);
-				input.setRepeatingInterval(RepeatingInterval.WEEK);
+				//input.setRepeatingInterval(RepeatingInterval.WEEK);
 			}
-			
+			/*
 			else if (lowerCase.equals("-rd")){
 				input.setRepeating(true);
 				input.setRepeatingInterval(RepeatingInterval.DAY);
@@ -165,6 +171,7 @@ public class Parser {
 				input.setRepeating(true);
 				input.setRepeatingInterval(RepeatingInterval.MONTH);
 			}
+			*/
 		}
 		
 		nlp(description,input);

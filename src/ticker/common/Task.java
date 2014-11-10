@@ -4,9 +4,11 @@ public class Task {
 	
 	//@author: A0115369B  A0114535M
 	
+	/*
 	public enum RepeatingInterval {
 		DAY,WEEK,MONTH;
 	};
+	*/
 	
 	protected String description;
 	protected Date startDate;
@@ -16,7 +18,7 @@ public class Task {
 	protected char priority;
 	protected boolean isRepeating;
 	public boolean isExpired;
-	protected RepeatingInterval repeatingInterval;
+	//protected RepeatingInterval repeatingInterval;
 
 	public Task(String description, Date startDate, Time startTime, Date endDate, Time endTime, 
 			char priority, boolean isRepeating) {
@@ -103,7 +105,7 @@ public class Task {
 	public void isExpired() {
 		isExpired = false;
 	}
-	
+	/*
 	public void setRepeatingInterval(RepeatingInterval ri) {
 		this.repeatingInterval = ri;
 	}
@@ -111,7 +113,7 @@ public class Task {
 	public RepeatingInterval getRepeatingInterval() {
 		return this.repeatingInterval;
 	}
-
+	*/
 	public boolean equals(Object obj) {
 
 		if (obj instanceof Task) {
