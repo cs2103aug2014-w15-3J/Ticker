@@ -308,17 +308,17 @@ public class CruManagerTest {
 				+ "4. CompClub: Add actionables on Trello\n"
 				+ "5. Self: Get a haircut\n"
 				+ "6. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_DELETE);
 		input.setIndex(2);
-		
+
 		assertEquals("CompClub: Man welfare pack booth has been removed.", logic.getOutput(input));
-		
+
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input)); 
-		
+
 		assertEquals("Listing by priority...", logic.list(LIST_PRIORITY));
 
 		// Test edit startDate and endDate of TimedTask
@@ -339,7 +339,7 @@ public class CruManagerTest {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit startDate and endDate of DeadlineTask
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -358,7 +358,7 @@ public class CruManagerTest {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit startDate and endDate of FloatingTask
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -377,7 +377,7 @@ public class CruManagerTest {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit startDate and endDate of RepeatingTask
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -396,7 +396,7 @@ public class CruManagerTest {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit startDate on deadline task
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -414,7 +414,7 @@ public class CruManagerTest {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit startDate on floating task
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -432,7 +432,7 @@ public class CruManagerTest {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit startDate on repeating task
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -450,7 +450,7 @@ public class CruManagerTest {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit startDate on scheduled task
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -468,7 +468,7 @@ public class CruManagerTest {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit endDate on deadline task
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -486,7 +486,7 @@ public class CruManagerTest {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit endDate on floating task
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -504,7 +504,7 @@ public class CruManagerTest {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit endDate on scheduled task
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -523,6 +523,199 @@ public class CruManagerTest {
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
 		
+		// Test edit startTime and endTime of TimedTask
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(2);
+		input.setStartTime(new Time(0, 0));
+		input.setEndTime(new Time(23, 59));
+
+		assertEquals("CompClub: Man welfare pack booth has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 0:00 to 5 Nov, 23:59\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startTime and endTime of DeadlineTask
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(3);
+		input.setStartTime(new Time(0, 0));
+		input.setEndTime(new Time(23, 59));
+
+		assertEquals("HW: Submit CS2106 v0.5 has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 from 10 Nov, 0:00 to 10 Nov, 23:59\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startTime and endTime of FloatingTask 
+		// Test date varies according to current date
+		/*
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(4);
+		input.setStartTime(new Time(0, 0));
+		input.setEndTime(new Time(23, 59));
+
+		assertEquals("CompClub: Add actionables on Trello has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. CompClub: Add actionables on Trello from 10 Nov, 0:00 to 10 Nov, 23:59\n"
+				+ "4. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+		*/
+		
+		// Test edit startTime and endTime of RepeatingTask
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(5);
+		input.setStartTime(new Time(0, 0));
+		input.setEndTime(new Time(23, 59));
+
+		assertEquals("CompClub: Pcell meeting has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 0:00 to 23:59) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startTime on deadline task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(3);
+		input.setStartTime(new Time(0, 0));
+
+		assertEquals("HW: Submit CS2106 v0.5 has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 from 10 Nov, 0:00 to 10 Nov, 23:59\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+		
+		// Start date on floating task is dependent on current date
+		// Test edit startTime on floating task
+		/*
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(4);
+		input.setStartTime(new Time(0, 0));
+
+		assertEquals("CompClub: Add actionables on Trello has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. CompClub: Add actionables on Trello from 10 Nov, 0:00\n"
+				+ "4. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+		*/
+		
+		// Test edit startTime on repeating task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(5);
+		input.setStartTime(new Time(0, 0));
+
+		assertEquals("CompClub: Pcell meeting has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 0:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit startTime on scheduled task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(6);
+		input.setStartTime(new Time(0, 0));
+
+		assertEquals("Self: Watch running man has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 0:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+
+		// Test edit endTime on deadline task
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(3);
+		input.setEndTime(new Time(20, 59));
+
+		assertEquals("HW: Submit CS2106 v0.5 has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. HW: Submit CS2106 v0.5 deadline 20:59, 10 Nov\n"
+				+ "4. CompClub: Add actionables on Trello\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+		
+		// EndDate depends on the current date
+		// Test edit endTime on floating task
+		/*
+		input = new UserInput();
+		input.setCommand(COMMAND_EDIT);
+		input.setIndex(4);
+		input.setEndTime(new Time(23, 59));
+
+		assertEquals("CompClub: Add actionables on Trello has been updated.", logic.getOutput(input));
+		assertEquals("1. Self: Get a haircut\n"
+				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "3. CompClub: Add actionables on Trello deadline 23:59, 10 Nov\n"
+				+ "4. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "5. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n"
+				+ "6. Self: Watch running man from 3 Nov, 20:00 to 3 Nov, 21:30\n", logic.list());
+
+		input = new UserInput();
+		input.setCommand(COMMAND_UNDO);
+		assertEquals("Undoing action", logic.getOutput(input));
+		*/
+
 		// Test edit repeating on deadline task
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -540,7 +733,7 @@ public class CruManagerTest {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit repeating on floating task
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -548,7 +741,7 @@ public class CruManagerTest {
 		input.setRepeating(true);
 
 		assertEquals("Invalid edit to repeated task. Missing date", logic.getOutput(input));
-		
+
 		// Test edit repeating on repeating task
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -566,7 +759,7 @@ public class CruManagerTest {
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 		// Test edit repeating on scheduled task
 		input = new UserInput();
 		input.setCommand(COMMAND_EDIT);
@@ -575,16 +768,16 @@ public class CruManagerTest {
 
 		assertEquals("Self: Watch running man has been updated.", logic.getOutput(input));
 		assertEquals("Listing by time...", logic.list(LIST_TIME));
-		assertEquals("1. Self: Get a haircut\n"
-				+ "2. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
-				+ "3. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
-				+ "4. CompClub: Add actionables on Trello\n"
+		assertEquals("1. CompClub: Man welfare pack booth from 5 Nov, 11:30 to 5 Nov, 14:00\n"
+				+ "2. HW: Submit CS2106 v0.5 deadline 23:59, 10 Nov\n"
+				+ "3. CompClub: Add actionables on Trello\n"
+				+ "4. Self: Get a haircut\n"
 				+ "5. <Monday> (from 20:00 to 21:30) Self: Watch running man\n"
 				+ "6. <Wednesday> (from 16:00 to 18:00) CompClub: Pcell meeting\n", logic.list());
 
 		input = new UserInput();
 		input.setCommand(COMMAND_UNDO);
 		assertEquals("Undoing action", logic.getOutput(input));
-		
+
 	}
 }
