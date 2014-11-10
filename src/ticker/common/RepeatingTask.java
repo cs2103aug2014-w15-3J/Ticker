@@ -67,7 +67,7 @@ public class RepeatingTask extends Task {
 		case MONDAY:
 			return "<Monday> " + timing + getDescription();
 		case TUESDAY:
-			return "<Tueday> " + timing + getDescription();
+			return "<Tuesday> " + timing + getDescription();
 		case WEDNESDAY:
 			return "<Wednesday> " + timing + getDescription();
 		case THURSDAY:
