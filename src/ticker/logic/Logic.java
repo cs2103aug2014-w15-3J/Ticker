@@ -81,7 +81,7 @@ public class Logic {
 	private static final String FEEDBACK_LIST_PRIORITY = "Listing by priority...";
 	private static final String FEEDBACK_LIST_TIME = "Listing by time...";
 	private static final String FEEDBACK_ERROR_NO_SUCH_LIST = "List does not exist. Please re-enter.";
-	private static final String FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS = "Index out of bounds. No action is performed.";
+	private static final String FEEDBACK_ERROR_INDEX_OUT_OF_BOUNDS = "Index out of range. No action is performed.";
 	private static final String FEEDBACK_ERROR_INVALID_COMMAND = "Invalid command";
 	private static final String FEEDBACK_ERROR_MISUSED_TAKE = "Invalid use of take. Please use it only with searching for freeslots.";
 	private static final String FEEDBACK_NOTHING_TO_DISPLAY = "Nothing to display";
