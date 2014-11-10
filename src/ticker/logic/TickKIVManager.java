@@ -7,7 +7,8 @@
  * Assumptions: 
  * This program assumes that:
  * -this class will be called by Logic class.
- * -the Logic class will always be used with classes CRUDManager, TickKIVManager, UndoRedoManager and SearchManager.
+ * -the Logic class will always be used with classes CRUDManager, TickKIVManager, 
+ * UndoRedoManager and SearchManager.
  */
 
 package ticker.logic;
@@ -66,36 +67,44 @@ public class TickKIVManager {
 	// ATTRIBUTES
 	// Instances of other components
 	private UndoManager undoMng;
-	private Vector<Task> storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV;
+	private Vector<Task> storedTasksByPriority, storedTasksByTime,
+			storedTasksByTicked, storedTasksByKIV;
 
-	TickKIVManager(Vector<Task> storedTasksByPriority, Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked, Vector<Task> storedTasksByKIV) {
+	TickKIVManager(Vector<Task> storedTasksByPriority,
+			Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked,
+			Vector<Task> storedTasksByKIV) {
 		this.storedTasksByPriority = storedTasksByPriority;
 		this.storedTasksByTime = storedTasksByTime;
 		this.storedTasksByTicked = storedTasksByTicked;
 		this.storedTasksByKIV = storedTasksByKIV;
 
-		undoMng = UndoManager.getInstance(storedTasksByPriority, storedTasksByTime, storedTasksByTicked, storedTasksByKIV);
+		undoMng = UndoManager.getInstance(storedTasksByPriority,
+				storedTasksByTime, storedTasksByTicked, storedTasksByKIV);
 	}
 
 	/**
 	 * This method marks the specified task as ticked.
 	 *
-	 * @param index			 Index of the specified task displayed in UI.
-	 * @param listTracker    List key of the current task list being displayed.
-	 * @param current		 Current task list being displayed.
-	 * @return     Feedback after a task is ticked.
-	 * @throws ArrayIndexOutOfBounds  			If index exceeds the boundaries of task list.
-	 * @throws IllegalArgumentException			If event is created wrongly.
+	 * @param index			Index of the specified task displayed in UI.
+	 * @param listTracker	List key of the current task list being displayed.
+	 * @param current		Current task list being displayed.
+	 * @return Feedback after a task is ticked.
+	 * @throws ArrayIndexOutOfBounds		If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException		If event is created wrongly.
 	 */
-	protected String tick(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+	protected String tick(int displayedIndex, int listTracker,
+			Vector<Task> current) throws ArrayIndexOutOfBoundsException,
+			IllegalArgumentException {
 		Task ticked;
 		int actualIndex = getActualIndex(displayedIndex);
 
 		if (listTracker == KEY_KIV || listTracker == KEY_TICKED) {
 			return FEEDBACK_ERROR_MISUSED_TICK;
 		} else if (listTracker == KEY_SEARCH) {
-			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null, null, null, PRIORITY_NORMAL, false);
-			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null, null, PRIORITY_NORMAL, false);
+			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null,
+					null, null, PRIORITY_NORMAL, false);
+			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null,
+					null, PRIORITY_NORMAL, false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
 
@@ -103,15 +112,17 @@ public class TickKIVManager {
 
 			if (actualIndex < tickedPartitionIndex) {
 				ticked = current.remove(actualIndex);
-			} else if (actualIndex >= tickedPartitionIndex && actualIndex <= displayedKivPartitionIndex) {
+			} else if (actualIndex >= tickedPartitionIndex
+					&& actualIndex <= displayedKivPartitionIndex) {
 				ticked = current.remove(actualIndex + OFFSET_TICKED);
-				
-			// task occurs after kivPartitionIndex	
+
+				// task occurs after kivPartitionIndex
 			} else {
 				ticked = current.remove(actualIndex + OFFSET_KIV);
 			}
 
-			if (storedTasksByTime.contains(ticked) || storedTasksByPriority.contains(ticked)) {
+			if (storedTasksByTime.contains(ticked)
+					|| storedTasksByPriority.contains(ticked)) {
 				removeTaskFromUndoneLists(ticked);
 			} else if (storedTasksByTicked.contains(ticked)) {
 				return FEEDBACK_ERROR_ALREADY_TICKED;
@@ -133,7 +144,7 @@ public class TickKIVManager {
 		}
 
 		moveToTicked(ticked);
-		
+
 		// Throws IllegalArgumentException
 		Event event = new Event(COMMAND_TICK, ticked, LIST_TIME, LIST_TICKED);
 		undoMng.add(event);
@@ -144,14 +155,16 @@ public class TickKIVManager {
 	/**
 	 * This method marks the specified task as unticked.
 	 *
-	 * @param index			 Index of the specified task displayed in UI.
-	 * @param listTracker    List key of the current task list being displayed.
-	 * @param current		 Current task list being displayed.
-	 * @return     Feedback after a task is unticked.
-	 * @throws ArrayIndexOutOfBounds 			If index exceeds the boundaries of task list.
-	 * @throws IllegalArgumentException			If event is created wrongly.
+	 * @param index			Index of the specified task displayed in UI.
+	 * @param listTracker	List key of the current task list being displayed.
+	 * @param current		Current task list being displayed.
+	 * @return Feedback after a task is unticked.
+	 * @throws ArrayIndexOutOfBounds	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException	If event is created wrongly.
 	 */
-	protected String untick(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+	protected String untick(int displayedIndex, int listTracker,
+			Vector<Task> current) throws ArrayIndexOutOfBoundsException,
+			IllegalArgumentException {
 		Task unticked;
 		int actualIndex = getActualIndex(displayedIndex);
 
@@ -159,8 +172,10 @@ public class TickKIVManager {
 			return FEEDBACK_ERROR_MISUSED_UNTICK;
 		}
 		if (listTracker == KEY_SEARCH) {
-			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null, null, null, PRIORITY_NORMAL, false);
-			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null, null, PRIORITY_NORMAL, false);
+			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null,
+					null, null, PRIORITY_NORMAL, false);
+			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null,
+					null, PRIORITY_NORMAL, false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
 
@@ -168,15 +183,17 @@ public class TickKIVManager {
 
 			if (actualIndex < tickedPartitionIndex) {
 				unticked = current.remove(actualIndex);
-			} else if (actualIndex >= tickedPartitionIndex && actualIndex <= displayedKivPartitionIndex) {
+			} else if (actualIndex >= tickedPartitionIndex
+					&& actualIndex <= displayedKivPartitionIndex) {
 				unticked = current.remove(actualIndex + OFFSET_TICKED);
-				
-			// task occurs after kivPartitionIndex	
+
+				// task occurs after kivPartitionIndex
 			} else {
 				unticked = current.remove(actualIndex + OFFSET_KIV);
 			}
 
-			if (storedTasksByTime.contains(unticked) || storedTasksByPriority.contains(unticked)) {
+			if (storedTasksByTime.contains(unticked)
+					|| storedTasksByPriority.contains(unticked)) {
 				return FEEDBACK_ERROR_CANNOT_UNTICK_FROM_UNDONE;
 			} else if (storedTasksByTicked.contains(unticked)) {
 				storedTasksByTicked.remove(unticked);
@@ -189,9 +206,10 @@ public class TickKIVManager {
 		}
 
 		addedToUndoneLists(unticked);
-		
+
 		// Throws IllegalArgumentException
-		Event event = new Event(COMMAND_UNTICK, unticked, LIST_TIME, LIST_TICKED);
+		Event event = new Event(COMMAND_UNTICK, unticked, LIST_TIME,
+				LIST_TICKED);
 		undoMng.add(event);
 
 		return unticked.toString() + FEEDBACK_APPEND_IS_UNDONE;
@@ -200,14 +218,15 @@ public class TickKIVManager {
 	/**
 	 * This method marks the specified task as kiv-ed.
 	 *
-	 * @param index			 Index of the specified task displayed in UI.
-	 * @param listTracker    List key of the current task list being displayed.
-	 * @param current		 Current task list being displayed.
-	 * @return     Feedback after a task is kiv-ed.
-	 * @throws ArrayIndexOutOfBounds 			If index exceeds the boundaries of task list.
-	 * @throws IllegalArgumentException			If event is created wrongly.
+	 * @param index			Index of the specified task displayed in UI.
+	 * @param listTracker	List key of the current task list being displayed.
+	 * @param current		Current task list being displayed.
+	 * @return Feedback after a task is kiv-ed.
+	 * @throws ArrayIndexOutOfBounds	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException	If event is created wrongly.
 	 */
-	protected String kiv(int displayedIndex, int listTracker, Vector<Task> current, String currentListName) 
+	protected String kiv(int displayedIndex, int listTracker,
+			Vector<Task> current, String currentListName)
 			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 
 		Task kiv;
@@ -216,8 +235,10 @@ public class TickKIVManager {
 		if (listTracker == KEY_TICKED || listTracker == KEY_KIV) {
 			return FEEDBACK_ERROR_MISUSED_KIV;
 		} else if (listTracker == KEY_SEARCH) {
-			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null, null, null, PRIORITY_NORMAL, false);
-			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null, null, PRIORITY_NORMAL, false);
+			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null,
+					null, null, PRIORITY_NORMAL, false);
+			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null,
+					null, PRIORITY_NORMAL, false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
 
@@ -225,13 +246,15 @@ public class TickKIVManager {
 
 			if (actualIndex < tickedPartitionIndex) {
 				kiv = current.remove(actualIndex);
-			} else if (actualIndex >= tickedPartitionIndex && actualIndex <= displayedKivPartitionIndex) {
+			} else if (actualIndex >= tickedPartitionIndex
+					&& actualIndex <= displayedKivPartitionIndex) {
 				kiv = current.remove(actualIndex + OFFSET_TICKED);
 			} else {
 				kiv = current.remove(actualIndex + OFFSET_KIV);
 			}
 
-			if (storedTasksByTime.contains(kiv) || storedTasksByPriority.contains(kiv)) {
+			if (storedTasksByTime.contains(kiv)
+					|| storedTasksByPriority.contains(kiv)) {
 				removeTaskFromUndoneLists(kiv);
 			} else if (storedTasksByKIV.contains(kiv)) {
 				return FEEDBACK_ERROR_ALREADY_KIVED;
@@ -251,7 +274,7 @@ public class TickKIVManager {
 		}
 
 		moveToKiv(kiv);
-		
+
 		// Throws IllegalArgumentException
 		Event event = new Event(COMMAND_KIV, kiv, LIST_TIME, LIST_KIV);
 		undoMng.add(event);
@@ -263,14 +286,16 @@ public class TickKIVManager {
 	/**
 	 * This method marks the specified task as unkiv-ed.
 	 *
-	 * @param index			 Index of the specified task displayed in UI.
-	 * @param listTracker    List key of the current task list being displayed.
-	 * @param current		 Current task list being displayed.
-	 * @return     Feedback after a task is unkiv-ed.
-	 * @throws ArrayIndexOutOfBounds  			If index exceeds the boundaries of task list.
-	 * @throws IllegalArgumentException			If event is created wrongly.
+	 * @param index			Index of the specified task displayed in UI.
+	 * @param listTracker	List key of the current task list being displayed.
+	 * @param current		Current task list being displayed.
+	 * @return Feedback after a task is unkiv-ed.
+	 * @throws ArrayIndexOutOfBounds	If index exceeds the boundaries of task list.
+	 * @throws IllegalArgumentException	If event is created wrongly.
 	 */
-	protected String unkiv(int displayedIndex, int listTracker, Vector<Task> current) throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+	protected String unkiv(int displayedIndex, int listTracker,
+			Vector<Task> current) throws ArrayIndexOutOfBoundsException,
+			IllegalArgumentException {
 		Task unkiv;
 		int actualIndex = getActualIndex(displayedIndex);
 
@@ -279,8 +304,10 @@ public class TickKIVManager {
 		}
 
 		if (listTracker == KEY_SEARCH) {
-			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null, null, null, PRIORITY_NORMAL, false);
-			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null, null, PRIORITY_NORMAL, false);
+			Task tickedPartition = new Task(TICKED_LIST_STAMP, null, null,
+					null, null, PRIORITY_NORMAL, false);
+			Task kivPartition = new Task(KIV_LIST_STAMP, null, null, null,
+					null, PRIORITY_NORMAL, false);
 			int tickedPartitionIndex = current.indexOf(tickedPartition);
 			int kivPartitionIndex = current.indexOf(kivPartition);
 
@@ -288,41 +315,39 @@ public class TickKIVManager {
 
 			if (actualIndex < tickedPartitionIndex) {
 				unkiv = current.remove(actualIndex);
-			} else if (actualIndex >= tickedPartitionIndex && actualIndex <= displayedKivPartitionIndex) {
+			} else if (actualIndex >= tickedPartitionIndex
+					&& actualIndex <= displayedKivPartitionIndex) {
 				unkiv = current.remove(actualIndex + OFFSET_TICKED);
 			} else {
 				unkiv = current.remove(actualIndex + OFFSET_KIV);
 			}
 
-			if (storedTasksByTime.contains(unkiv) || storedTasksByPriority.contains(unkiv)) {
+			if (storedTasksByTime.contains(unkiv)
+					|| storedTasksByPriority.contains(unkiv)) {
 				return FEEDBACK_ERROR_CANNOT_UNKIV_FROM_UNDONE_LIST;
-			}
-			else if (storedTasksByTicked.contains(unkiv)) {
+			} else if (storedTasksByTicked.contains(unkiv)) {
 				return FEEDBACK_ERROR_CANNOT_UNKIV_FROM_TICKED_LIST;
-			}
-			else if (storedTasksByKIV.contains(unkiv)) {
+			} else if (storedTasksByKIV.contains(unkiv)) {
 				storedTasksByKIV.remove(unkiv);
 			}
-
 		} else {
 			unkiv = current.remove(actualIndex);
 		}
 
 		addedToUndoneLists(unkiv);
-		
+
 		// Throws IllegalArgumentException
 		Event event = new Event(COMMAND_UNKIV, unkiv, LIST_TIME, LIST_KIV);
 		undoMng.add(event);
 
 		return unkiv.toString() + FEEDBACK_APPEND_IS_UNDONE;
-
 	}
 
 	/**
 	 * This method calculates the actual index of the task displayed in UI.
 	 *
-	 * @param index			 Index of the specified task displayed in UI.
-	 * @return     Actual index of tasklist.
+	 * @param index		Index of the specified task displayed in UI.
+	 * @return Actual index of tasklist.
 	 */
 	private int getActualIndex(int index) {
 		return index - OFFSET_INDEX;
@@ -331,8 +356,8 @@ public class TickKIVManager {
 	/**
 	 * This method calculates the actual index of the task displayed in UI.
 	 *
-	 * @param index			 Index of the specified task displayed in UI.
-	 * @return     Actual index of tasklist.
+	 * @param index		Index of the specified task displayed in UI.
+	 * @return Actual index of tasklist.
 	 */
 	private int getDisplayedKivPartitionIndex(int kivPartitionIndex) {
 		return kivPartitionIndex - OFFSET_KIV;
@@ -341,7 +366,7 @@ public class TickKIVManager {
 	/**
 	 * This method adds a task into the undone lists.
 	 * 
-	 * @param task	Task to be added into undone lists.
+	 * @param task		Task to be added into undone lists.
 	 */
 	private void addedToUndoneLists(Task task) {
 		storedTasksByTime.add(task);
@@ -351,7 +376,7 @@ public class TickKIVManager {
 	/**
 	 * This method removes a task from the undone lists.
 	 * 
-	 * @param task	Task to be removed.
+	 * @param task		Task to be removed.
 	 */
 	private void removeTaskFromUndoneLists(Task task) {
 		storedTasksByTime.remove(task);
@@ -371,7 +396,7 @@ public class TickKIVManager {
 	/**
 	 * This method shifts the task to the kiv list.
 	 * 
-	 * @param kiv	Task to be moved to kiv list.
+	 * @param kiv		Task to be moved to kiv list.
 	 */
 	private void moveToKiv(Task kiv) {
 		removeTaskFromUndoneLists(kiv);
