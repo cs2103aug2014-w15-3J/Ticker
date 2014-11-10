@@ -130,6 +130,16 @@ public class CRUManager {
 		Task newTask;
 
 		if (isRepeating) {
+			if (startDate != null && endDate != null && startTime != null
+					&& endTime != null && (endDate.compareTo(startDate) == SMALLER 
+					|| endTime.compareTo(startTime) == SMALLER)) {
+				return FEEDBACK_ERROR_INVALID_DATE_TIME;
+			}
+			if (startDate != null && endDate != null && startTime == null
+					&& endTime == null && (endDate.compareTo(startDate) == SMALLER)) {
+				return FEEDBACK_ERROR_INVALID_ENDING_DATE;
+			}
+
 			if (startDate != null) {
 				newTask = new RepeatingTask(description, startDate, startTime,
 						endTime, priority, isRepeating);
@@ -567,10 +577,11 @@ public class CRUManager {
 							startDate, new Time(START_HOUR, START_MIN),
 							endDate, new Time(END_HOUR, END_MIN),
 							newTask.getPriority(), newTask.getRepeat());
-				} else if (newTask instanceof TimedTask
-						|| newTask instanceof RepeatingTask) {
-					newTask.setStartDate(startDate);
-					newTask.setEndDate(endDate);
+				} else if (newTask instanceof TimedTask) {
+					setStartDateAndEndDate(startDate, endDate, newTask);
+				} else if (newTask instanceof RepeatingTask) {
+					newTask = (RepeatingTask) newTask;
+					setStartDateAndEndDate(startDate, endDate, newTask);
 				} else if (newTask instanceof DeadlineTask) {
 					newTask = new TimedTask(newTask.getDescription(),
 							startDate, new Time(START_HOUR, START_MIN),
@@ -693,6 +704,18 @@ public class CRUManager {
 		addEditedTask(listTracker, current, oldTask, newTask, actualIndex);
 
 		return oldTask.getDescription() + FEEDBACK_APPEND_IS_UPDATED;
+	}
+
+	/**
+	 * This method sets the startDate and endDate of a task.
+	 * 
+	 * @param startDate		Date to be set as start date for a task.
+	 * @param endDate		Date to be set as end date for a task.
+	 * @param newTask		Task to be set
+	 */
+	private void setStartDateAndEndDate(Date startDate, Date endDate, Task task) {
+		task.setStartDate(startDate);
+		task.setEndDate(endDate);
 	}
 
 	/**
