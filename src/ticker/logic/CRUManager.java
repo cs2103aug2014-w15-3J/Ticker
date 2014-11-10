@@ -26,8 +26,6 @@ import ticker.common.TimedTask;
 
 public class CRUManager {
 
-
-	private static final String LOG_UNCATCHED_TASK_IN_EDIT_START_TIME = "Uncatched task in edit startTime";
 	// CONSTANTS
 	// String constants for command types
 	private static final String COMMAND_ADD = "add";
@@ -87,8 +85,12 @@ public class CRUManager {
 	private static final String FEEDBACK_ERROR_CANNOT_ADD_WITHOUT_DESCRIPTION = "Cannot add without description.";
 	private static final String FEEDBACK_ERROR_DELETE_FREESLOT = "Cannot delete freeslot.";
 	// Log messages
-	private static final String LOG_UNCATCHED_TASK_IN_STARTDATE = "Uncatched task in edit startDate";
-
+	private static final String LOG_UNCATCHED_TASK_EDIT_STARTDATE = "Uncatched task in edit startDate";
+	private static final String LOG_UNCATCHED_TASK_IN_EDIT_STARTTIME = "Uncatched task in edit startTime";
+	private static final String LOG_UNCATCHED_TASK_EDIT_STARTTIME_ENDTIME = "Error in catching task in edit startTime and endTime";
+	private static final String LOG_UNCATCHED_TASK_EDIT_STARTDATE_ENDDATE = "Error catching task in edit startDate and endDate";
+	
+	// ATTRIBUTES
 	// Instances of other components
 	private UndoManager undoMng;
 	private Vector<Task> storedTasksByPriority, storedTasksByTime,
@@ -123,7 +125,7 @@ public class CRUManager {
 			Date endDate, Time startTime, Time endTime, char priority)
 					throws IllegalArgumentException {
 
-		if (description == null || description == EMPTY_STRING) {
+		if (description == null || description.equals(EMPTY_STRING)) {
 			return FEEDBACK_ERROR_CANNOT_ADD_WITHOUT_DESCRIPTION;
 		}
 
@@ -517,7 +519,7 @@ public class CRUManager {
 					newTask = (RepeatingTask) newTask;
 					newTask.setStartDate(startDate);
 				} else {
-					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_IN_STARTDATE);
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_EDIT_STARTDATE);
 				}
 				// Error: Edited task will end up with earlier endDate than
 				// startDate
@@ -533,6 +535,8 @@ public class CRUManager {
 							new Time(START_HOUR, START_MIN), newTask.getEndDate(),
 							newTask.getEndTime(), newTask.getPriority(),
 							newTask.getRepeat());
+				} else {
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_EDIT_STARTDATE);
 				}
 			}
 		}
@@ -587,6 +591,8 @@ public class CRUManager {
 							startDate, new Time(START_HOUR, START_MIN),
 							endDate, newTask.getEndTime(),
 							newTask.getPriority(), newTask.getRepeat());
+				} else {
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_EDIT_STARTDATE_ENDDATE);
 				}
 			}
 		}
@@ -604,7 +610,7 @@ public class CRUManager {
 						|| newTask instanceof RepeatingTask) {
 					newTask.setStartTime(startTime);
 				} else {
-					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_IN_EDIT_START_TIME);
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_IN_EDIT_STARTTIME);
 				}
 
 			} else {
@@ -620,6 +626,8 @@ public class CRUManager {
 							Date.getCurrentDate(), startTime,
 							newTask.getEndDate(), newTask.getEndTime(),
 							newTask.getPriority(), newTask.getRepeat());
+				} else {
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_IN_EDIT_STARTTIME);
 				}
 			}
 		}
@@ -675,6 +683,8 @@ public class CRUManager {
 							newTask.getEndDate(), startTime,
 							newTask.getEndDate(), endTime,
 							newTask.getPriority(), newTask.getRepeat());
+				} else {
+					Logic.logger.log(Level.WARNING, LOG_UNCATCHED_TASK_EDIT_STARTTIME_ENDTIME);
 				}
 			}
 		}
