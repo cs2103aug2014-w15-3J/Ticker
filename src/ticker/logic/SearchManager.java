@@ -1,21 +1,3 @@
-//@author A0114535M
-
-/* Team ID: W15-3J
- * Project Title: Ticker
- * Class: SearchManager
- * Description: This class has 3 main functions:
- * 1. Search: Searches for tasks based on any task property.
- * 2. Near-match: Finds similar tasks by calculating the level of similarity 
- * between the search key and the existing tasks in.
- * the task list. Returns only the tasks with appointed level of similarity.
- * 3. Search for free slots: Shows free slots
- * Assumptions: 
- * This program assumes that:
- * -this class will be called by Logic class.
- * -the Logic class will always be used with classes CRUDManager, TickKIVManager, 
- * UndoRedoManager and SearchManager.
- */
-
 package ticker.logic;
 
 import java.util.Collections;
@@ -34,6 +16,7 @@ import ticker.common.TimedTask;
 import ticker.common.sortByTime;
 import ticker.parser.TimePeriod;
 
+//@author A0114535M
 public class SearchManager {
 
 	// CONSTANTS
@@ -111,7 +94,7 @@ public class SearchManager {
 		initialiseSubSearchResults();
 
 		// Search by Key only
-		if (key != null && key != EMPTY_STRING) {
+		if (key != null && !key.equals(EMPTY_STRING)) {
 			searchByKeyInSubSearchResults(key);
 		}
 
@@ -173,7 +156,7 @@ public class SearchManager {
 		initialiseExpiredSubSearchResults();
 
 		// Search by Key only
-		if (key != null && key != EMPTY_STRING) {
+		if (key != null && !key.equals(EMPTY_STRING)) {
 			searchByKeyInSubSearchResults(key);
 		}
 

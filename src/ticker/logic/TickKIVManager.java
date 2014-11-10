@@ -1,15 +1,3 @@
-//@author A0114535M
-
-/* Team ID: W15-3J
- * Project Title: Ticker
- * Class: TickKIVManager
- * Description: This class performs tick, untick, kiv and unkiv commands.
- * Assumptions: 
- * This program assumes that:
- * -this class will be called by Logic class.
- * -the Logic class will always be used with classes CRUDManager, TickKIVManager, 
- * UndoRedoManager and SearchManager.
- */
 
 package ticker.logic;
 
@@ -17,6 +5,7 @@ import java.util.Vector;
 
 import ticker.common.Task;
 
+//@author A0114535M
 public class TickKIVManager {
 
 	// CONSTANTS

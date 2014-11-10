@@ -1,24 +1,3 @@
-//@author A0114535M
-
-/* Team ID: W15-3J
- * Project Title: Ticker
- * Class: Logic
- * Description: This class passes the user input from UI to the Parser 
- * to process the input. Logic class then receives the processed command 
- * and acts on it. Functions provided include adding task, deleting task,
- * edit an existing task, listing out the tasks in different formats 
- * (e.g priority, time, done and cannot be completed), as well as
- * searching and auto-complete.
- * 
- * Assumptions: 
- * This class assumes that:
- * -the Parser class will pass Logic class valid processed user input 
- * (as an UserInput object) with data at their correct positions.
- * -the Logic class will always be used with classes CRUDManager,
- * TickKIVManager, UndoRedoManager and SearchManager.
- * -the UI using this class knows the key for different task lists.
- */
-
 package ticker.logic;
 
 import java.util.Collections;
@@ -33,6 +12,7 @@ import ticker.common.Task;
 import ticker.common.sortByTime;
 import ticker.common.sortByPriority;
 
+//@author A0114535M
 public class Logic {
 
 	// CONSTANTS

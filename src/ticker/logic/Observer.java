@@ -1,14 +1,6 @@
-//@author A0114535M
-
-/* Team ID: W15-3J
- * Project Title: Ticker
- * Interface: Observer
- * Description: This interface allows any type or number of UI 
- * to observe the Logic class.
- */
-
 package ticker.logic;
 
+//@author A0114535M
 import java.util.Vector;
 
 import ticker.common.Task;

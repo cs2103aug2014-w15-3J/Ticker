@@ -1,15 +1,6 @@
-//@author A0114535M
-
-/* Team ID: W15-3J
- * Project Title: Ticker
- * Class: StringMatch
- * Description: Objects of this class stores the index of a task in the task list 
- * and the level of similarity between the said task and the search key.
- * 
- */
-
 package ticker.logic;
 
+//@author A0114535M
 public class StringMatch {
 	private int taskArrayIndex;
 	private float similarityScore;

@@ -1,16 +1,3 @@
-//@author A0114535M
-
-/* Team ID: W15-3J
- * Project Title: Ticker
- * Class: CRUManager
- * Description: This class adds, delete and edits task.
- * Assumptions: 
- * This program assumes that:
- * -this class will be called by Logic class.
- * -the Logic class will always be used with classes CRUDManager, 
- * TickKIVManager, UndoRedoManager and SearchManager.
- */
-
 package ticker.logic;
 
 import java.util.Vector;
@@ -24,6 +11,7 @@ import ticker.common.Task;
 import ticker.common.Time;
 import ticker.common.TimedTask;
 
+//@author A0114535M
 public class CRUManager {
 
 	// CONSTANTS

@@ -1,23 +1,8 @@
-//@author A0114535M
-
-/* Team ID: W15-3J
- * Project Title: Ticker
- * Class: sortByPriority
- * Description: This class implements the Comparator interface and is 
- * used to sort tasks according to these tiers-
- * 1: Priority (sorted with highest priority first)
- * 2: Timing (sorted with earliest deadline first)
- * 3: Task type (TimedTask, DeadlineTask, FloatingTask, RepeatingTask)
- * 4: Lexicographical order
- * 
- * Assumptions: 
- * This class assumes that:
- * -the objects to be compared are Task objects.
- */
 package ticker.common;
 
 import java.util.Comparator;
 
+//@author A0114535M
 public class sortByPriority implements Comparator<Task> {
 
 	// CONSTANTS
