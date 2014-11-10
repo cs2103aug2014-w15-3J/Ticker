@@ -1,6 +1,10 @@
-//@author A0115288B
-
 package ticker.common;
+//@author A0115288B
+/*
+ * This class tests the methods written in the Date class
+ * 
+ */
+
 
 import static org.junit.Assert.*;
 
