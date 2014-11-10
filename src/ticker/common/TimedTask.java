@@ -1,62 +1,62 @@
 package ticker.common;
 
+//@author A0114535M
 public class TimedTask extends Task {
-	final int id = 2; //used in storage
-	
-	public TimedTask(String description, Date startDate, Time startTime, Date endDate, Time endTime, char priority, boolean isRepeating) {
-		super(description, startDate, startTime, endDate, endTime, priority, isRepeating);
+	// CONSTANTS
+	private static final int EQUAL = 0;
+	private static final int SMALLER = -1;
+
+	// ATTRIBUTES
+	public final int id = 2; // used in storage
+
+	public TimedTask(String description, Date startDate, Time startTime,
+			Date endDate, Time endTime, char priority, boolean isRepeating) {
+		super(description, startDate, startTime, endDate, endTime, priority,
+				isRepeating);
 	}
 	
+	/**
+	 * This method deep copies a TimedTask.
+	 */
 	public TimedTask copy() {
-		return new TimedTask(this.getDescription(), this.getStartDate(), this.getStartTime(), this.getEndDate(),
-				this.getEndTime(), this.getPriority(), this.getRepeat());
+		return new TimedTask(this.getDescription(), this.getStartDate(),
+				this.getStartTime(), this.getEndDate(), this.getEndTime(),
+				this.getPriority(), this.getRepeat());
 	}
 	
+	/**
+	 * This method checks for task expiry.
+	 */
 	public void isExpired() {
-		if (this.endDate != null && this.endTime != null && (this.endDate.compareTo(Date.getCurrentDate()) == -1 || 
-				(this.endDate.compareTo(Date.getCurrentDate()) == 0 && this.endTime.compareTo(Time.getCurrentTime()) == -1))) {
+		if (this.endDate != null
+				&& this.endTime != null
+				&& (this.endDate.compareTo(Date.getCurrentDate()) == SMALLER || (this.endDate
+						.compareTo(Date.getCurrentDate()) == EQUAL && this.endTime
+						.compareTo(Time.getCurrentTime()) == SMALLER))) {
 			this.isExpired = true;
 			return;
 		}
 		this.isExpired = false;
 		return;
 	}
-	
-	@Override 
-	public String toString(){
+
+	// @author A0115369B
+	/**
+	 * This method prints the TimedTask.
+	 */
+	@Override
+	public String toString() {
 		String timing = "";
-		
-		System.out.println("got into floating");
-		
-		/*
-		if(getStartTime()!=null&&getEndTime()!=null&&getStartDate()!=null&&getEndTime()!=null){
-			temp = " from " + getStartDate() + ", " + getStartTime() + " to " + getEndDate() + ", " + getEndTime();
-		}
-		
-		else if (getStartTime()!=null&&getStartDate()!=null&&getEndTime()!=null){
-			temp = " start at " + getStartDate() + ", " + getStartTime() + "to " + getEndTime();
-		}
-		
-		else if (getStartTime()!=null&&getStartDate()!=null&&getEndDate()!=null){
-			temp = " start at " + getStartDate() + ", " + getStartTime() + "to " + getEndDate();
-		}
-		
-		else if (getStartDate()!=null&&getStartTime()!=null){
-			temp = " start at " + getStartDate() + ", " + getStartTime();
-		}
-		
-		else if (getStartDate()!=null) {
-			temp = " start at " + getStartDate();
-		}
-		*/
-		
-		timing += (!(getStartTime()==null&&getStartDate()==null))?" from":"";
-		timing += (getStartDate()==null)?"":" "+getStartDate();
-		timing += (getStartTime()==null)?"":", "+getStartTime();
-		timing += (!(getEndTime()==null&&getEndDate()==null))?" to":"";
-		timing += (getEndDate()==null)?"":" "+getEndDate();
-		timing += (getEndTime()==null)?"":", "+getEndTime();
-		
-		return getDescription() + timing; 
+
+		timing += (!(getStartTime() == null && getStartDate() == null)) ? " from"
+				: "";
+		timing += (getStartDate() == null) ? "" : " " + getStartDate();
+		timing += (getStartTime() == null) ? "" : ", " + getStartTime();
+		timing += (!(getEndTime() == null && getEndDate() == null)) ? " to"
+				: "";
+		timing += (getEndDate() == null) ? "" : " " + getEndDate();
+		timing += (getEndTime() == null) ? "" : ", " + getEndTime();
+
+		return getDescription() + timing;
 	}
 }
