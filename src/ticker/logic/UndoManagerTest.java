@@ -191,7 +191,68 @@ public class UndoManagerTest {
 		assertEquals(true, storedTasksByPriority.contains(new FloatingTask(TASKS_DEADLINE_DESCRIPTION, 'B', false)));
 		assertEquals(false, storedTasksByPriority.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
 		uM.undo();
-		
+		uM.undo();
+
+		//test undo-ing redo-ing edit of deadline task
+		uM.add(new Event(COMMAND_ADD, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		uM.add(new Event(COMMAND_EDIT, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false), new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		storedTasksByPriority.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		assertEquals(true, storedTasksByPriority.contains(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		assertEquals(false, storedTasksByPriority.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		assertEquals(false, storedTasksByPriority.contains(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		assertEquals(true, storedTasksByPriority.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.contains(new DeadlineTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		assertEquals(false, storedTasksByPriority.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		uM.undo();
+
+		//test undo-ing redo-ing edit of timed task
+		uM.add(new Event(COMMAND_ADD, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		storedTasksByDeadline.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByPriority.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		uM.add(new Event(COMMAND_EDIT, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false), new TimedTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		storedTasksByPriority.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByPriority.add(new TimedTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.add(new TimedTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		assertEquals(true, storedTasksByPriority.contains(new TimedTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		assertEquals(false, storedTasksByPriority.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		assertEquals(false, storedTasksByPriority.contains(new TimedTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		assertEquals(true, storedTasksByPriority.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.contains(new TimedTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		assertEquals(false, storedTasksByPriority.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		uM.undo();
+
+		//test undo-ing redo-ing edit of repeating task
+		uM.add(new Event(COMMAND_ADD, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		uM.add(new Event(COMMAND_EDIT, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true), new RepeatingTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		storedTasksByPriority.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		assertEquals(true, storedTasksByPriority.contains(new RepeatingTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		assertEquals(false, storedTasksByPriority.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		assertEquals(false, storedTasksByPriority.contains(new RepeatingTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		assertEquals(true, storedTasksByPriority.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.contains(new RepeatingTask(TASKS_FLOATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		assertEquals(false, storedTasksByPriority.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		uM.undo();
+
 		uM.clearStateForTesting();
 	}
 	
@@ -221,7 +282,7 @@ public class UndoManagerTest {
 		assertEquals(true, storedTasksByPriority.isEmpty());
 		assertEquals(true, storedTasksByTicked.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));	
 		
-		//testing undo-ing untick of floating task
+		//testing undo-ing redo-ing untick of floating task
 		uM.add(new Event(COMMAND_UNTICK, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false), LIST_TICKED, LIST_TIME));
 		storedTasksByPriority.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
 		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
@@ -231,6 +292,114 @@ public class UndoManagerTest {
 		uM.undo();
 		assertEquals(true, storedTasksByPriority.isEmpty());
 		assertEquals(true, storedTasksByTicked.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));	
+		uM.redo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByPriority.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));	
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		//test undo-ing and redo-ing tick of deadline task
+		uM.add(new Event(COMMAND_ADD, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		uM.add(new Event(COMMAND_TICK, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false), LIST_TIME, LIST_TICKED));
+		storedTasksByPriority.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByTicked.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));	
+		
+		//testing undo-ing redo-ing untick of deadline task
+		uM.add(new Event(COMMAND_UNTICK, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false), LIST_TICKED, LIST_TIME));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByTicked.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));	
+		uM.redo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByPriority.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));	
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		//test undo-ing and redo-ing tick of timed task
+		uM.add(new Event(COMMAND_ADD, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		storedTasksByPriority.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		uM.add(new Event(COMMAND_TICK, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false), LIST_TIME, LIST_TICKED));
+		storedTasksByPriority.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByTicked.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));	
+		
+		//testing undo-ing redo-ing untick of timed task
+		uM.add(new Event(COMMAND_UNTICK, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false), LIST_TICKED, LIST_TIME));
+		storedTasksByPriority.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByTicked.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));	
+		uM.redo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByPriority.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));	
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		//test undo-ing and redo-ing tick of repeating task
+		uM.add(new Event(COMMAND_ADD, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		uM.add(new Event(COMMAND_TICK, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true), LIST_TIME, LIST_TICKED));
+		storedTasksByPriority.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByTicked.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));	
+		
+		//testing undo-ing redo-ing untick of repeating task
+		uM.add(new Event(COMMAND_UNTICK, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true), LIST_TICKED, LIST_TIME));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByTicked.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByTicked.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));	
+		uM.redo();
+		assertEquals(true, storedTasksByTicked.isEmpty());
+		assertEquals(true, storedTasksByPriority.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));	
+		uM.undo();
+		uM.undo();
+		uM.undo();
 		
 		uM.clearStateForTesting();
 	}
@@ -244,7 +413,7 @@ public class UndoManagerTest {
 		UndoManager uM = UndoManager.getInstance(storedTasksByPriority, 
 				storedTasksByDeadline, storedTasksByTicked, storedTasksByKiv);
 		
-		//test undo-ing and redo-ing tick of floating task
+		//test undo-ing and redo-ing kiv of floating task
 		uM.add(new Event(COMMAND_ADD, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
 		storedTasksByPriority.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
 		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
@@ -260,9 +429,8 @@ public class UndoManagerTest {
 		uM.redo();
 		assertEquals(true, storedTasksByPriority.isEmpty());
 		assertEquals(true, storedTasksByKiv.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
-		uM.undo();
 		
-		//testing undo-ing untick of floating task
+		//testing undo-ing unkiv of floating task
 		uM.add(new Event(COMMAND_UNKIV, new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false), LIST_KIV, LIST_TIME));
 		storedTasksByPriority.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
 		storedTasksByDeadline.add(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false));
@@ -272,6 +440,114 @@ public class UndoManagerTest {
 		uM.undo();
 		assertEquals(true, storedTasksByPriority.isEmpty());
 		assertEquals(true, storedTasksByKiv.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new FloatingTask(TASKS_FLOATING_DESCRIPTION, 'B', false)));
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		//test undo-ing and redo-ing kiv of deadline task
+		uM.add(new Event(COMMAND_ADD, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		uM.add(new Event(COMMAND_KIV, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false), LIST_TIME, LIST_KIV));
+		storedTasksByPriority.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByKiv.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		
+		//testing undo-ing redo-ing unkiv of deadline task
+		uM.add(new Event(COMMAND_UNKIV, new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false), LIST_KIV, LIST_TIME));
+		storedTasksByPriority.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByDeadline.add(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		storedTasksByKiv.remove(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false));
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new DeadlineTask(TASKS_DEADLINE_DESCRIPTION, new Date(2014, 11, 7), new Time(11, 30), 'A', false)));
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		//test undo-ing and redo-ing kiv of timed task
+		uM.add(new Event(COMMAND_ADD, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		storedTasksByPriority.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		uM.add(new Event(COMMAND_KIV, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false), LIST_TIME, LIST_KIV));
+		storedTasksByPriority.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByKiv.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		
+		//testing undo-ing redo-ing unkiv of timed task
+		uM.add(new Event(COMMAND_UNKIV, new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false), LIST_KIV, LIST_TIME));
+		storedTasksByPriority.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByDeadline.add(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		storedTasksByKiv.remove(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false));
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.redo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new TimedTask(TASKS_TIMED_DESCRIPTION, new Date(2014, 11, 5), new Time(15, 0), new Date(2014, 11, 5), new Time(14, 0), 'A', false)));
+		uM.undo();
+		uM.undo();
+		uM.undo();
+		
+		//test undo-ing and redo-ing kiv of repeating task
+		uM.add(new Event(COMMAND_ADD, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		uM.add(new Event(COMMAND_KIV, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true), LIST_TIME, LIST_KIV));
+		storedTasksByPriority.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByKiv.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.redo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		
+		//testing undo-ing redo-ing unkiv of repeating task
+		uM.add(new Event(COMMAND_UNKIV, new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true), LIST_KIV, LIST_TIME));
+		storedTasksByPriority.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByDeadline.add(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		storedTasksByKiv.remove(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true));
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		assertEquals(true, storedTasksByPriority.isEmpty());
+		assertEquals(true, storedTasksByKiv.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.redo();
+		assertEquals(true, storedTasksByKiv.isEmpty());
+		assertEquals(true, storedTasksByDeadline.contains(new RepeatingTask(TASKS_REPEATING_DESCRIPTION, new Date(2014, 11, 6), null, null, 'B', true)));
+		uM.undo();
+		uM.undo();
+		uM.undo();
 		
 		uM.clearStateForTesting();
 	}

@@ -37,6 +37,7 @@ public class HelpManager {
 	private static final String COMMAND_SEARCH = "search";
 	private static final String COMMAND_SHOW = "show";
 	private static final String COMMAND_REMOVE = "remove";
+	private static final String COMMAND_TAKE = "take";
 
 	// List of available help messages
 	private static final String MESSAGE_HELP = "help";
@@ -54,6 +55,7 @@ public class HelpManager {
 	private static final String MESSAGE_SEARCH = "search <description> <time> -<priority>";
 	private static final String MESSAGE_SHOW = "show <listType>";
 	private static final String MESSAGE_REMOVE = "remove <index>";	
+	private static final String MESSAGE_TAKE = "take <index> <description>";
 	private static final String MESSAGE_EMPTY = "";
 
 	// These messages are used by Logger
@@ -68,7 +70,8 @@ public class HelpManager {
 	private static final float SIMILARITY_INDEX_ZERO = 0F;
 	private static final float SIMILARITY_INDEX_FOUR = 4.0F;
 	private static final float SIMILARITY_INDEX_HUNDRED = 100.0F;
-
+	
+	// Used to access the first element in an array
 	private static final int ARRAY_FIRST = 0;
 
 	private static Logger logger;
@@ -88,7 +91,7 @@ public class HelpManager {
 
 	/**
 	 * Initialise the helplist with a list of available commands and
-	 * corresponding help messages
+	 * corresponding help messages	
 	 */
 	private void initHelpList() {
 		helpList.put(COMMAND_HELP, MESSAGE_HELP);
@@ -106,6 +109,7 @@ public class HelpManager {
 		helpList.put(COMMAND_SEARCH, MESSAGE_SEARCH);
 		helpList.put(COMMAND_SHOW, MESSAGE_SHOW);
 		helpList.put(COMMAND_REMOVE, MESSAGE_REMOVE);
+		helpList.put(COMMAND_TAKE, MESSAGE_TAKE);
 	}
 
 	/**

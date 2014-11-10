@@ -2,7 +2,10 @@ package ticker.parser;
 
 //@author: A0115369B
 
-//This interface is used to store all the strings used in parser
+/*
+ * This interface is used to store all the strings used in parser
+ */
+
 public interface ParserString {
 	public static final String ADD = "add";
 	public static final String DELETE = "delete";

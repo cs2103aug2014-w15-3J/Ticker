@@ -28,7 +28,8 @@ public class UndoManager {
 	private static final String COMMAND_UNKIV = "unkiv";
 	private static final String COMMAND_UNTICK = "untick";
 	private static final String COMMAND_TAKE = "take";
-
+	
+	// list of list names
 	private static final String LIST_TIME = "time";
 	private static final String LIST_PRIORITY = "priority";
 	private static final String LIST_TICKED = "ticked";
