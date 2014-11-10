@@ -8,7 +8,7 @@ import java.util.Calendar;
 
 import org.junit.Test;
 
-public class testTime {
+public class TimeTest {
 	
 	@Test
 	public void test() {
