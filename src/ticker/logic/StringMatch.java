@@ -1,6 +1,10 @@
 package ticker.logic;
 
 //@author A0114535M
+/**
+ * Description: Objects of this class stores the index of a task in the task list 
+ * and the level of similarity between the said task and the search key.
+ */
 public class StringMatch {
 	private int taskArrayIndex;
 	private float similarityScore;

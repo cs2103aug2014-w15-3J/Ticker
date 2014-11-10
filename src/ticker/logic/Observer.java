@@ -1,10 +1,15 @@
 package ticker.logic;
 
-//@author A0114535M
+
 import java.util.Vector;
 
 import ticker.common.Task;
 
+//@author A0114535M
+/** 
+ * Description: This interface allows any UI who implements it 
+ * to observe the Logic class.
+ */
 public interface Observer {
 	public void setList(Vector<Task> tasksToBeDisplayed);
 

@@ -9,6 +9,9 @@ import ticker.common.Time;
 import ticker.parser.UserInput;
 
 //@author A0114535M
+/**
+ * Description: This class tests the functions related to tick and kiv.
+ */
 public class TickKIVManagerTest {
 	// String constants for command types
 	private static final String COMMAND_UNTICK = "untick";

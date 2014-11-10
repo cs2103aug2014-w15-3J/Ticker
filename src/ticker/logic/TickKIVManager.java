@@ -6,6 +6,9 @@ import java.util.Vector;
 import ticker.common.Task;
 
 //@author A0114535M
+/**
+ * Description: This class performs tick, untick, kiv and unkiv commands.
+ */
 public class TickKIVManager {
 
 	// CONSTANTS
@@ -57,7 +60,7 @@ public class TickKIVManager {
 	// Instances of other components
 	private UndoManager undoMng;
 	private Vector<Task> storedTasksByPriority, storedTasksByTime,
-			storedTasksByTicked, storedTasksByKIV;
+	storedTasksByTicked, storedTasksByKIV;
 
 	TickKIVManager(Vector<Task> storedTasksByPriority,
 			Vector<Task> storedTasksByTime, Vector<Task> storedTasksByTicked,
@@ -216,7 +219,7 @@ public class TickKIVManager {
 	 */
 	protected String kiv(int displayedIndex, int listTracker,
 			Vector<Task> current, String currentListName)
-			throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
+					throws ArrayIndexOutOfBoundsException, IllegalArgumentException {
 
 		Task kiv;
 		int actualIndex = getActualIndex(displayedIndex);
