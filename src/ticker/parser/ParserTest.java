@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import ticker.common.Date;
 import ticker.common.Time;
-public class testParser {
+public class ParserTest {
 	
 	Parser par = new Parser();
 	@Test
