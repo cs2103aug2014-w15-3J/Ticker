@@ -7,7 +7,6 @@ import org.junit.Test;
 import ticker.common.Date;
 import ticker.common.Time;
 import ticker.parser.UserInput;
-import ticker.ui.TickerUI;
 
 //@author A0114535M
 public class TickKIVManagerTest {
@@ -19,16 +18,10 @@ public class TickKIVManagerTest {
 	private static final String COMMAND_ADD = "add";
 	private static final String COMMAND_LIST = "list";
 	private static final String COMMAND_CLEAR = "clear";
-	private static final String COMMAND_DELETE = "delete";
-	private static final String COMMAND_REDO = "redo";
-	private static final String COMMAND_UNDO = "undo";
 	// String constants for type of lists used
 	private static final String LIST_TIME = "time";
-	private static final String LIST_PRIORITY = "priority";
 	private static final String LIST_TICKED = "ticked";
 	private static final String LIST_KIV = "kiv";
-	private static final String LIST_SEARCH = "search";
-	private static final String LIST_FREESLOT = "free";
 
 	@Test
 	public final void testTickKIVManager() {
