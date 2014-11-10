@@ -25,6 +25,7 @@ public class ParserTest {
 		Date date2 = new Date(2014,5,6);
 		Time time1 = new Time(1,0);
 		Time time2 = new Time(2,0);
+		
 		UserInput ui1 = par.processInput("add go shopping 1-2 3/4-5/6");
 		assertEquals(ui1.getStartDate(),date1);
 		assertEquals(ui1.getEndDate(),date2);
@@ -59,6 +60,7 @@ public class ParserTest {
 		assertEquals("delete",par.processInput("delete 1").getCommand());
 		assertEquals("delete",par.processInput("del 2").getCommand());
 		assertEquals("delete",par.processInput("remove 3").getCommand());
+		
 		// UPPERCASE and lowercase are both supported
 		assertThat(par.processInput("DeLeTE 4").getIndex(),is(4));
 		
@@ -71,43 +73,40 @@ public class ParserTest {
 	public void testSearch(){
 		assertEquals("search",par.processInput("search \"Lecture\"").getCommand());
 		assertEquals("Lecture",par.processInput("search Lecture").getDescription());
+		
 		UserInput searchUserIn = par.processInput("search Project 11/2-11/9");
 		assertEquals(searchUserIn.getStartDate(),new Date(2014,11,2));
 		assertEquals(searchUserIn.getEndDate(),new Date(2014,11,9));
 		assertEquals(searchUserIn.getStartTime(),new Time(0,0));
 		assertEquals(searchUserIn.getEndTime(),new Time(23,59));
+		
 		UserInput searchUserIn2 = par.processInput("search Project -t by next friday");
 		assertEquals(searchUserIn2.getStartDate(),Date.getCurrentDate());
+		
 		UserInput searchUserIn3 = par.processInput("search cs2101 hw");
 		assertEquals(searchUserIn3.getStartDate(),null);
 		assertEquals(searchUserIn3.getEndDate(),null);
 		assertEquals(searchUserIn3.getStartTime(),null);
 		assertEquals(searchUserIn3.getEndTime(),null);
+		
+		//search expired
+		UserInput searchUserIn4 = par.processInput("search Assignment -e");
+		assertEquals(searchUserIn4.getCommand(),"searchExpired");
+		
+		//search free slots
+		UserInput searchUserIn5 = par.processInput("searchfree 11/10");
+		assertEquals(searchUserIn5.getCommand(),"searchfree");
+		
+		UserInput searchUserIn6 = par.processInput("searchf");
+		assertEquals(searchUserIn6.getStartDate(),Date.getCurrentDate());
 	}
-	
-	@Test
-	public void testOthers(){
-		//test undo redo
-		assertEquals("redo",par.processInput("redo").getCommand());
-		assertEquals("undo",par.processInput("undo").getCommand());
-		//test list command
-		assertEquals("priority",par.processInput("list p").getDescription());
-		assertEquals("time",par.processInput("list time").getDescription());
-		//test tick untick
-		assertEquals("tick",par.processInput("tick 1").getCommand());
-		assertEquals("tick",par.processInput("done 1").getCommand());
-		assertThat(par.processInput("done 1").getIndex(),is(1));
-		assertEquals("untick",par.processInput("untick 1").getCommand());
-		//test for KIV (Keep In View)
-		assertEquals("kiv",par.processInput("kiv 1").getCommand());
-		assertEquals("unkiv",par.processInput("unkiv 1").getCommand());
-	}
-	
+		
 	@Test
 	public void testEdit(){
 		//edit description only
 		assertEquals("edit",par.processInput("edit 1 have lunch").getCommand());
 		assertThat(par.processInput("edit 1 have lunch").getIndex(),is(1));
+		
 		//edit timing for a task using -t
 		assertEquals(new Time(13,0),par.processInput("edit 1 have lunch 13-14 ").getStartTime());
 		assertEquals(new Time(14,0),par.processInput("edit 1 have lunch 13-14 ").getEndTime());
@@ -121,5 +120,26 @@ public class ParserTest {
 		assertEquals(date1,new Date(2014,11,1));
 		assertEquals(date2,new Date(2014,1,11));
 		assertEquals(Parser.constructDate("Sep/11"),new Date(2014,9,11));
+	}
+	
+	@Test
+	public void testOthers(){
+		//test undo redo
+		assertEquals("redo",par.processInput("redo").getCommand());
+		assertEquals("undo",par.processInput("undo").getCommand());
+		
+		//test list command
+		assertEquals("priority",par.processInput("list p").getDescription());
+		assertEquals("time",par.processInput("list time").getDescription());
+		
+		//test tick untick
+		assertEquals("tick",par.processInput("tick 1").getCommand());
+		assertEquals("tick",par.processInput("done 1").getCommand());
+		assertThat(par.processInput("done 1").getIndex(),is(1));
+		assertEquals("untick",par.processInput("untick 1").getCommand());
+		
+		//test for KIV (Keep In View)
+		assertEquals("kiv",par.processInput("kiv 1").getCommand());
+		assertEquals("unkiv",par.processInput("unkiv 1").getCommand());
 	}
 }
