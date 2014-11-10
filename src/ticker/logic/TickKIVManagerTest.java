@@ -32,7 +32,7 @@ public class TickKIVManagerTest {
 
 	@Test
 	public final void testTickKIVManager() {
-		TickerUI ui = new TickerUI();
+		UIForLogicTesting ui = new UIForLogicTesting();
 		Logic logic = ui.getLogic();
 		UserInput input;
 

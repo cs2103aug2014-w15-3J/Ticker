@@ -29,7 +29,7 @@ public class CRUManagerTest {
 
 	@Test
 	public final void testCRUManager() {
-		TickerUI ui = new TickerUI();
+		UIForLogicTesting ui = new UIForLogicTesting();
 		Logic logic = ui.getLogic();
 		UserInput input;
 

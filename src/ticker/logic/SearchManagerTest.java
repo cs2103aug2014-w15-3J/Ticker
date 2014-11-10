@@ -36,8 +36,7 @@ public class SearchManagerTest {
 
 	@Test
 	public final void testSearchManager() {
-		
-		TickerUI ui = new TickerUI();
+		UIForLogicTesting ui = new UIForLogicTesting();
 		Logic logic = ui.getLogic();
 		UserInput input;
 
